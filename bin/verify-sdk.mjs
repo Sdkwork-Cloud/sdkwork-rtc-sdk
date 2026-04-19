@@ -8,6 +8,21 @@ import {
   RTC_TEMPLATE_SOURCE_FILES,
 } from './materialize-sdk-template-assets.mjs';
 import {
+  buildLanguageProviderActivationCatalogEntries,
+  buildProviderPackageManifestPath,
+  buildProviderPackageReadmePath,
+  buildProviderPackageSourcePath,
+  buildProviderPackageSourceRelativePath,
+  buildProviderPackageSourceSymbol,
+  buildReservedProviderPackageCatalogEntries,
+  extractTemplateTokens,
+  getCanonicalTypeScriptProviderPackageContract,
+  materializeProviderPackagePattern,
+  normalizeStringArray,
+  toPascalCase,
+  toUpperSnakeCase,
+} from './rtc-standard-shared-helpers.mjs';
+import {
   KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
   KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
   KNOWN_PROVIDER_PACKAGE_TEMPLATE_TOKENS,
@@ -784,151 +799,8 @@ function assertLanguageWorkspaceProviderPackageBoundaryContent(languageEntry, co
   );
 }
 
-function toPascalCase(value) {
-  return String(value)
-    .split(/[-_]/g)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('');
-}
-
-function toUpperSnakeCase(value) {
-  return String(value)
-    .split(/[-_]/g)
-    .filter(Boolean)
-    .map((part) => part.toUpperCase())
-    .join('_');
-}
-
-function getCanonicalTypeScriptProviderPackageContract(providerKey) {
-  const providerPascal = toPascalCase(providerKey);
-  const providerUpperSnake = toUpperSnakeCase(providerKey);
-
-  return {
-    packageName: `@sdkwork/rtc-sdk-provider-${providerKey}`,
-    sourceModule: `../../src/providers/${providerKey}.ts`,
-    driverFactory: `create${providerPascal}RtcDriver`,
-    metadataSymbol: `${providerUpperSnake}_RTC_PROVIDER_METADATA`,
-    moduleSymbol: `${providerUpperSnake}_RTC_PROVIDER_MODULE`,
-  };
-}
-
-function extractTemplateTokens(value) {
-  return [...new Set(String(value).match(/\{[A-Za-z][A-Za-z0-9]*\}/g) ?? [])].sort();
-}
-
-function normalizeStringArray(values) {
-  return [...new Set((values ?? []).map((value) => String(value)))].sort();
-}
-
 function renderNormalizedStringArray(values) {
   return normalizeStringArray(values).join(', ');
-}
-
-function materializeProviderPackagePattern(pattern, providerKey) {
-  return String(pattern)
-    .replaceAll('{providerKey}', providerKey)
-    .replaceAll('{providerPascal}', toPascalCase(providerKey));
-}
-
-function buildProviderPackageManifestPath(providerPackageScaffold, providerKey) {
-  return `${materializeProviderPackagePattern(providerPackageScaffold.directoryPattern, providerKey)}/${materializeProviderPackagePattern(providerPackageScaffold.manifestFileName, providerKey)}`;
-}
-
-function buildProviderPackageReadmePath(providerPackageScaffold, providerKey) {
-  return `${materializeProviderPackagePattern(providerPackageScaffold.directoryPattern, providerKey)}/${providerPackageScaffold.readmeFileName}`;
-}
-
-function buildProviderPackageSourcePath(providerPackageScaffold, providerKey) {
-  return `${materializeProviderPackagePattern(providerPackageScaffold.directoryPattern, providerKey)}/${materializeProviderPackagePattern(providerPackageScaffold.sourceFilePattern, providerKey)}`;
-}
-
-function buildProviderPackageSourceRelativePath(providerPackageScaffold, providerKey) {
-  return materializeProviderPackagePattern(providerPackageScaffold.sourceFilePattern, providerKey);
-}
-
-function buildProviderPackageSourceSymbol(providerPackageScaffold, providerKey) {
-  return materializeProviderPackagePattern(providerPackageScaffold.sourceSymbolPattern, providerKey);
-}
-
-function buildReservedProviderPackageCatalogEntries(languageEntry, providers) {
-  const providerPackageScaffold = languageEntry.providerPackageScaffold;
-  if (!providerPackageScaffold) {
-    return [];
-  }
-
-  return (providers ?? []).map((provider) => ({
-    providerKey: provider.providerKey,
-    pluginId: provider.pluginId,
-    driverId: provider.driverId,
-    packageIdentity: materializeProviderPackagePattern(
-      providerPackageScaffold.packagePattern,
-      provider.providerKey,
-    ),
-    manifestPath: buildProviderPackageManifestPath(providerPackageScaffold, provider.providerKey),
-    readmePath: buildProviderPackageReadmePath(providerPackageScaffold, provider.providerKey),
-    sourcePath: buildProviderPackageSourcePath(providerPackageScaffold, provider.providerKey),
-    sourceSymbol: buildProviderPackageSourceSymbol(providerPackageScaffold, provider.providerKey),
-    builtin: provider.builtin === true,
-    rootPublic: providerPackageScaffold.rootPublic,
-    status: providerPackageScaffold.status,
-    runtimeBridgeStatus: providerPackageScaffold.runtimeBridgeStatus,
-  }));
-}
-
-function describeProviderActivationStatus(activationStatus) {
-  switch (activationStatus) {
-    case 'root-public-builtin':
-      return {
-        runtimeBridge: true,
-        rootPublic: true,
-        packageBoundary: true,
-      };
-    case 'package-boundary':
-      return {
-        runtimeBridge: true,
-        rootPublic: false,
-        packageBoundary: true,
-      };
-    case 'control-metadata-only':
-    default:
-      return {
-        runtimeBridge: false,
-        rootPublic: false,
-        packageBoundary: false,
-      };
-  }
-}
-
-function buildLanguageProviderActivationCatalogEntries(languageEntry, providers) {
-  const providerByKey = new Map((providers ?? []).map((provider) => [provider.providerKey, provider]));
-  const providerPackageScaffold = languageEntry.providerPackageScaffold;
-
-  return (languageEntry.providerActivations ?? []).map((providerActivation) => {
-    const provider = providerByKey.get(providerActivation.providerKey);
-    if (!provider) {
-      throw new Error(
-        `Unknown provider activation ${providerActivation.providerKey} for ${languageEntry.language}`,
-      );
-    }
-
-    const activationDetails = describeProviderActivationStatus(providerActivation.activationStatus);
-
-    return {
-      providerKey: provider.providerKey,
-      pluginId: provider.pluginId,
-      driverId: provider.driverId,
-      activationStatus: providerActivation.activationStatus,
-      runtimeBridge: activationDetails.runtimeBridge,
-      rootPublic: activationDetails.rootPublic,
-      packageBoundary: activationDetails.packageBoundary,
-      builtin: provider.builtin === true,
-      packageIdentity: materializeProviderPackagePattern(
-        providerPackageScaffold.packagePattern,
-        provider.providerKey,
-      ),
-    };
-  });
 }
 
 function getReservedLanguageLookupHelperPatterns(language) {

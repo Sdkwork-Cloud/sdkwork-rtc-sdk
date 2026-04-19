@@ -1,3 +1,16 @@
+import {
+  buildLanguageProviderActivationCatalogEntries,
+  buildProviderPackageManifestPath,
+  buildProviderPackageReadmePath,
+  buildProviderPackageSourcePath,
+  buildProviderPackageSourceRelativePath,
+  buildProviderPackageSourceRoot,
+  buildProviderPackageSourceSymbol,
+  buildReservedProviderPackageCatalogEntries,
+  materializeProviderPackagePattern,
+  toPascalCase,
+} from './rtc-standard-shared-helpers.mjs';
+
 const PROVIDER_SELECTION_SOURCES = [
   'provider_url',
   'provider_key',
@@ -26,164 +39,8 @@ function lines(value) {
   return `${value.trim()}\n`;
 }
 
-function toPascalCase(value) {
-  return value
-    .split(/[-_]/g)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('');
-}
-
-function materializeProviderPackagePattern(pattern, providerKey) {
-  return String(pattern)
-    .replaceAll('{providerKey}', providerKey)
-    .replaceAll('{providerPascal}', toPascalCase(providerKey));
-}
-
 function renderTemplateTokenList(tokens) {
   return (tokens ?? []).map((token) => `\`${token}\``).join(', ');
-}
-
-function buildProviderPackageManifestPath(providerPackageScaffold, providerKey) {
-  const directoryPath = materializeProviderPackagePattern(
-    providerPackageScaffold.directoryPattern,
-    providerKey,
-  );
-  const manifestFileName = materializeProviderPackagePattern(
-    providerPackageScaffold.manifestFileName,
-    providerKey,
-  );
-
-  return `${directoryPath}/${manifestFileName}`.replace(/\\/g, '/');
-}
-
-function buildProviderPackageReadmePath(providerPackageScaffold, providerKey) {
-  const directoryPath = materializeProviderPackagePattern(
-    providerPackageScaffold.directoryPattern,
-    providerKey,
-  );
-
-  return `${directoryPath}/${providerPackageScaffold.readmeFileName}`.replace(/\\/g, '/');
-}
-
-function buildProviderPackageSourceRelativePath(providerPackageScaffold, providerKey) {
-  return materializeProviderPackagePattern(
-    providerPackageScaffold.sourceFilePattern,
-    providerKey,
-  ).replace(/\\/g, '/');
-}
-
-function buildProviderPackageSourcePath(providerPackageScaffold, providerKey) {
-  const directoryPath = materializeProviderPackagePattern(
-    providerPackageScaffold.directoryPattern,
-    providerKey,
-  );
-  const sourceRelativePath = buildProviderPackageSourceRelativePath(
-    providerPackageScaffold,
-    providerKey,
-  );
-
-  return `${directoryPath}/${sourceRelativePath}`.replace(/\\/g, '/');
-}
-
-function buildProviderPackageSourceRoot(providerPackageScaffold, providerKey) {
-  const sourceRelativePath = buildProviderPackageSourceRelativePath(
-    providerPackageScaffold,
-    providerKey,
-  );
-  const segments = sourceRelativePath.split('/');
-  segments.pop();
-  return segments.join('/') || '.';
-}
-
-function buildProviderPackageSourceSymbol(providerPackageScaffold, providerKey) {
-  return materializeProviderPackagePattern(
-    providerPackageScaffold.sourceSymbolPattern,
-    providerKey,
-  );
-}
-
-function buildReservedProviderPackageCatalogEntries(languageEntry, assembly) {
-  const providerPackageScaffold = languageEntry.providerPackageScaffold;
-  if (!providerPackageScaffold) {
-    return [];
-  }
-
-  return (assembly.providers ?? []).map((provider) => ({
-    providerKey: provider.providerKey,
-    pluginId: provider.pluginId,
-    driverId: provider.driverId,
-    packageIdentity: materializeProviderPackagePattern(
-      providerPackageScaffold.packagePattern,
-      provider.providerKey,
-    ),
-    manifestPath: buildProviderPackageManifestPath(providerPackageScaffold, provider.providerKey),
-    readmePath: buildProviderPackageReadmePath(providerPackageScaffold, provider.providerKey),
-    sourcePath: buildProviderPackageSourcePath(providerPackageScaffold, provider.providerKey),
-    sourceSymbol: buildProviderPackageSourceSymbol(providerPackageScaffold, provider.providerKey),
-    builtin: provider.builtin === true,
-    rootPublic: providerPackageScaffold.rootPublic,
-    status: providerPackageScaffold.status,
-    runtimeBridgeStatus: providerPackageScaffold.runtimeBridgeStatus,
-  }));
-}
-
-function describeProviderActivationStatus(activationStatus) {
-  switch (activationStatus) {
-    case 'root-public-builtin':
-      return {
-        runtimeBridge: true,
-        rootPublic: true,
-        packageBoundary: true,
-      };
-    case 'package-boundary':
-      return {
-        runtimeBridge: true,
-        rootPublic: false,
-        packageBoundary: true,
-      };
-    case 'control-metadata-only':
-    default:
-      return {
-        runtimeBridge: false,
-        rootPublic: false,
-        packageBoundary: false,
-      };
-  }
-}
-
-function buildLanguageProviderActivationCatalogEntries(languageEntry, assembly) {
-  const providerByKey = new Map((assembly.providers ?? []).map((provider) => [provider.providerKey, provider]));
-  const providerPackageScaffold = languageEntry.providerPackageScaffold;
-
-  return (languageEntry.providerActivations ?? []).map((providerActivation) => {
-    const provider = providerByKey.get(providerActivation.providerKey);
-    if (!provider) {
-      throw new Error(
-        `Unknown provider activation ${providerActivation.providerKey} for ${languageEntry.language}`,
-      );
-    }
-
-    const activationDetails = describeProviderActivationStatus(providerActivation.activationStatus);
-    const packageIdentity = providerPackageScaffold
-      ? materializeProviderPackagePattern(
-          providerPackageScaffold.packagePattern,
-          providerActivation.providerKey,
-        )
-      : provider.typescriptPackage?.packageName ?? provider.providerKey;
-
-    return {
-      providerKey: provider.providerKey,
-      pluginId: provider.pluginId,
-      driverId: provider.driverId,
-      activationStatus: providerActivation.activationStatus,
-      runtimeBridge: activationDetails.runtimeBridge,
-      rootPublic: activationDetails.rootPublic,
-      packageBoundary: activationDetails.packageBoundary,
-      builtin: provider.builtin === true,
-      packageIdentity,
-    };
-  });
 }
 
 function renderReservedLanguageProviderCatalogLookupHelper(language) {
@@ -4776,7 +4633,7 @@ function renderFlutterReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -5281,7 +5138,7 @@ function renderRustReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -5771,7 +5628,7 @@ function renderJavaReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -6248,7 +6105,7 @@ function renderCsharpReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -6740,7 +6597,7 @@ function renderSwiftReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -7154,7 +7011,7 @@ function renderKotlinReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -7564,7 +7421,7 @@ function renderGoReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -8014,7 +7871,7 @@ function renderPythonReservedLanguagePlan(languageEntry, assembly) {
   const extensions = assembly.providerExtensionCatalog ?? [];
   const providerPackageCatalogEntries = buildReservedProviderPackageCatalogEntries(
     languageEntry,
-    assembly,
+    providers,
   );
 
   const providerEntries = providers
@@ -8489,7 +8346,7 @@ function renderReservedLanguageProviderActivationCatalogPlan(languageEntry, asse
     return [];
   }
 
-  const entries = buildLanguageProviderActivationCatalogEntries(languageEntry, assembly);
+  const entries = buildLanguageProviderActivationCatalogEntries(languageEntry, assembly.providers);
 
   switch (languageEntry.language) {
     case 'flutter': {

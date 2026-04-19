@@ -4,6 +4,12 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
 import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
+import {
+  describeProviderActivationStatus,
+  materializeProviderPackagePattern,
+  toPascalCase,
+  toUpperSnakeCase,
+} from './rtc-standard-shared-helpers.mjs';
 
 export const RTC_SDK_STALE_MATERIALIZED_FILES = [
   'sdkwork-rtc-sdk-typescript/src/providers/catalog.ts',
@@ -34,18 +40,6 @@ function readMaterializedTemplate(workspaceRoot, relativePath) {
   return readFileSync(path.join(workspaceRoot, 'bin', 'templates', relativePath), 'utf8');
 }
 
-function toPascalCase(value) {
-  return value
-    .split(/[-_]/g)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('');
-}
-
-function toUpperSnakeCase(value) {
-  return value.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toUpperCase();
-}
-
 function renderStringLiteral(value) {
   return `'${String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
@@ -56,12 +50,6 @@ function renderReadonlyStringArray(values) {
 
 function renderMarkdownCodeList(values) {
   return (values ?? []).map((value) => `\`${value}\``).join(', ');
-}
-
-function materializeProviderPackagePattern(pattern, providerKey) {
-  return String(pattern)
-    .replaceAll('{providerKey}', providerKey)
-    .replaceAll('{providerPascal}', toPascalCase(providerKey));
 }
 
 function renderTypeScriptAdapterContract(contract) {
@@ -211,35 +199,6 @@ Provider package boundary:
     languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
   )}
 `;
-}
-
-function describeProviderActivationStatus(activationStatus) {
-  switch (activationStatus) {
-    case 'root-public-builtin':
-      return {
-        runtimeBridge: 'Yes',
-        rootPublic: 'Yes',
-        packageBoundary: 'Yes',
-      };
-    case 'package-boundary':
-      return {
-        runtimeBridge: 'Yes',
-        rootPublic: 'No',
-        packageBoundary: 'Yes',
-      };
-    case 'control-metadata-only':
-      return {
-        runtimeBridge: 'No',
-        rootPublic: 'No',
-        packageBoundary: 'No',
-      };
-    default:
-      return {
-        runtimeBridge: 'No',
-        rootPublic: 'No',
-        packageBoundary: 'No',
-      };
-  }
 }
 
 function buildTypeScriptProviderActivationCatalogEntries(assembly) {
@@ -635,7 +594,7 @@ function renderCapabilityMatrix(assembly) {
     .flatMap((languageEntry) =>
       (languageEntry.providerActivations ?? []).map((providerActivation) => {
         const activationDetails = describeProviderActivationStatus(providerActivation.activationStatus);
-        return `| ${languageEntry.displayName} | \`${providerActivation.providerKey}\` | \`${providerActivation.activationStatus}\` | ${activationDetails.runtimeBridge} | ${activationDetails.rootPublic} | ${activationDetails.packageBoundary} |`;
+        return `| ${languageEntry.displayName} | \`${providerActivation.providerKey}\` | \`${providerActivation.activationStatus}\` | ${activationDetails.runtimeBridge ? 'Yes' : 'No'} | ${activationDetails.rootPublic ? 'Yes' : 'No'} | ${activationDetails.packageBoundary ? 'Yes' : 'No'} |`;
       }),
     )
     .join('\n');
