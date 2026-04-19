@@ -35,7 +35,7 @@ This workspace standardizes:
 - provider extension metadata and escape hatch contracts from one assembly source of truth
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
-- assembly-driven language workspace identity, role, and summary contracts
+- assembly-driven language workspace identity, role, summary, and default-provider contracts
 - assembly-driven language workspace catalog contracts across the TypeScript baseline and reserved
   language workspaces
 - assembly-driven language-provider activation matrix contracts
@@ -182,6 +182,9 @@ The TypeScript language-workspace catalog module at
 `sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts` must also keep
 `getRtcLanguageWorkspaceByLanguage(...)` stable so official language workspace lookup stays
 explicit instead of being inferred from README prose or directory scanning.
+Each `RtcLanguageWorkspaceCatalogEntry` must also keep a machine-readable
+`defaultProviderContract` with `providerKey`, `pluginId`, and `driverId` aligned to the
+assembly-driven default provider identity.
 
 Reserved non-TypeScript metadata scaffolds must keep the same explicit lookup semantics with
 language-idiomatic naming:
@@ -221,6 +224,9 @@ That boundary summary is the canonical package-topology contract:
 `providerPackageBoundary.mode`, `providerPackageBoundary.rootPublicPolicy`,
 `providerPackageBoundary.lifecycleStatusTerms`, and
 `providerPackageBoundary.runtimeBridgeStatusTerms`.
+The same language workspace catalog entry must also preserve `defaultProviderContract.providerKey`,
+`defaultProviderContract.pluginId`, and `defaultProviderContract.driverId` so the default provider
+identity stays machine-readable across languages.
 TypeScript is the only `catalog-governed-mixed` workspace and keeps
 `rootPublicPolicy` fixed at `builtin-only`, while reserved languages stay
 `scaffold-per-provider-package` and keep `rootPublicPolicy` fixed at `none`.

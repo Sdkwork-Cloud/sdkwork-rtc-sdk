@@ -287,6 +287,17 @@ function buildTypeScriptProviderPackageCatalogEntries(assembly) {
 }
 
 function buildLanguageWorkspaceCatalogEntries(assembly) {
+  const defaultProviderContract =
+    typeof assembly.defaults?.providerKey === 'string' &&
+    typeof assembly.defaults?.pluginId === 'string' &&
+    typeof assembly.defaults?.driverId === 'string'
+      ? {
+          providerKey: assembly.defaults.providerKey,
+          pluginId: assembly.defaults.pluginId,
+          driverId: assembly.defaults.driverId,
+        }
+      : undefined;
+
   return (assembly.languages ?? []).map((languageEntry) => ({
     language: languageEntry.language,
     workspace: languageEntry.workspace,
@@ -299,6 +310,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     currentRole: languageEntry.currentRole,
     workspaceSummary: languageEntry.workspaceSummary,
     roleHighlights: [...(languageEntry.roleHighlights ?? [])],
+    defaultProviderContract,
     metadataScaffold: languageEntry.metadataScaffold
       ? {
           providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
@@ -362,10 +374,10 @@ function renderLanguageWorkspaceCatalogSection(languageEntry) {
 Language workspace catalog:
 
 - workspace catalog: \`${languageEntry.workspaceCatalogRelativePath}\`
-- workspace catalog entries also keep \`workspaceCatalogRelativePath\` plus any declared
-  \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
+- workspace catalog entries also keep \`workspaceCatalogRelativePath\`, \`defaultProviderContract\`,
+  and any declared \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
   \`providerPackageScaffold\` boundaries so consumers can inspect official assembly-driven module
-  locations without rereading the assembly.
+  locations and the workspace-wide default provider identity without rereading the assembly.
 `;
 }
 
@@ -431,6 +443,18 @@ function renderTypeScriptLanguageWorkspaceProviderPackageScaffold(providerPackag
   })`;
 }
 
+function renderTypeScriptLanguageWorkspaceDefaultProviderContract(defaultProviderContract) {
+  if (!defaultProviderContract) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    providerKey: ${renderStringLiteral(defaultProviderContract.providerKey)},
+    pluginId: ${renderStringLiteral(defaultProviderContract.pluginId)},
+    driverId: ${renderStringLiteral(defaultProviderContract.driverId)},
+  })`;
+}
+
 function renderTypeScriptLanguageWorkspaceCatalog(assembly) {
   const entries = buildLanguageWorkspaceCatalogEntries(assembly);
 
@@ -457,6 +481,7 @@ ${entries
   currentRole: ${renderStringLiteral(entry.currentRole)},
   workspaceSummary: ${renderStringLiteral(entry.workspaceSummary)},
   roleHighlights: freezeRtcRuntimeValue(${renderReadonlyStringArray(entry.roleHighlights)}),
+  defaultProviderContract: ${renderTypeScriptLanguageWorkspaceDefaultProviderContract(entry.defaultProviderContract)},
   metadataScaffold: ${renderTypeScriptLanguageWorkspaceMetadataScaffold(entry.metadataScaffold)},
   resolutionScaffold: ${renderTypeScriptLanguageWorkspaceResolutionScaffold(entry.resolutionScaffold)},
   providerPackageBoundary: ${renderTypeScriptLanguageWorkspaceProviderPackageBoundary(entry.providerPackageBoundary)},

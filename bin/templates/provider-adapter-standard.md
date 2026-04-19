@@ -197,8 +197,12 @@ That loader layer must preserve:
 
 Each official language must also expose a cross-language `providerPackageBoundary` contract through
 its language workspace catalog.
-That boundary summary is the canonical package-topology contract and must preserve:
+That language workspace catalog entry must preserve the canonical default-provider and
+package-topology contracts:
 
+- `defaultProviderContract.providerKey`
+- `defaultProviderContract.pluginId`
+- `defaultProviderContract.driverId`
 - `providerPackageBoundary.mode`
 - `providerPackageBoundary.rootPublicPolicy`
 - `providerPackageBoundary.lifecycleStatusTerms`

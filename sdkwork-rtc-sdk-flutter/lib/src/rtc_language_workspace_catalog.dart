@@ -11,6 +11,7 @@ final class RtcLanguageWorkspaceCatalogEntry {
     required this.currentRole,
     required this.workspaceSummary,
     required this.roleHighlights,
+    required this.defaultProviderContract,
     required this.metadataScaffold,
     required this.resolutionScaffold,
     required this.providerPackageBoundary,
@@ -28,10 +29,23 @@ final class RtcLanguageWorkspaceCatalogEntry {
   final String currentRole;
   final String workspaceSummary;
   final List<String> roleHighlights;
+  final RtcLanguageWorkspaceDefaultProviderContract defaultProviderContract;
   final RtcLanguageWorkspaceMetadataScaffold metadataScaffold;
   final RtcLanguageWorkspaceResolutionScaffold resolutionScaffold;
   final RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary;
   final RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold;
+}
+
+final class RtcLanguageWorkspaceDefaultProviderContract {
+  const RtcLanguageWorkspaceDefaultProviderContract({
+    required this.providerKey,
+    required this.pluginId,
+    required this.driverId,
+  });
+
+  final String providerKey;
+  final String pluginId;
+  final String driverId;
 }
 
 final class RtcLanguageWorkspaceMetadataScaffold {
@@ -138,6 +152,11 @@ final class RtcLanguageWorkspaceCatalog {
         "TypeScript provider package statuses standardize built-in root-public packages as root_public_reference_boundary and executable non-builtin packages as package_reference_boundary",
         "TypeScript runtime bridge baseline reference-baseline with official vendor SDK requirement required",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider-catalog.ts",
         capabilityCatalogRelativePath: "src/capability-catalog.ts",
@@ -179,6 +198,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "lib/src/rtc_provider_catalog.dart",
         capabilityCatalogRelativePath: "lib/src/rtc_capability_catalog.dart",
@@ -233,6 +257,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider_catalog.rs",
         capabilityCatalogRelativePath: "src/capability_catalog.rs",
@@ -287,6 +316,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderCatalog.java",
         capabilityCatalogRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.java",
@@ -341,6 +375,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderCatalog.cs",
         capabilityCatalogRelativePath: "src/SDKWork.Rtc.Sdk/RtcCapabilityCatalog.cs",
@@ -395,6 +434,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "Sources/RtcSdk/RtcProviderCatalog.swift",
         capabilityCatalogRelativePath: "Sources/RtcSdk/RtcCapabilityCatalog.swift",
@@ -449,6 +493,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderCatalog.kt",
         capabilityCatalogRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.kt",
@@ -503,6 +552,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "rtcstandard/provider_catalog.go",
         capabilityCatalogRelativePath: "rtcstandard/capability_catalog.go",
@@ -557,6 +611,11 @@ final class RtcLanguageWorkspaceCatalog {
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
         "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing",
       ],
+      defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
+        providerKey: "volcengine",
+        pluginId: "rtc-volcengine",
+        driverId: "sdkwork-rtc-driver-volcengine",
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "sdkwork_rtc_sdk/provider_catalog.py",
         capabilityCatalogRelativePath: "sdkwork_rtc_sdk/capability_catalog.py",

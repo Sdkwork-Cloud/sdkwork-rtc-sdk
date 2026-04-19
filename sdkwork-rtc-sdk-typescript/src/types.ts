@@ -179,6 +179,12 @@ export interface RtcLanguageWorkspaceResolutionScaffold {
   providerPackageLoaderRelativePath: string;
 }
 
+export interface RtcLanguageWorkspaceDefaultProviderContract {
+  providerKey: string;
+  pluginId: string;
+  driverId: string;
+}
+
 export type RtcProviderPackageRuntimeBridgeStatus =
   | RtcTypeScriptAdapterContract['runtimeBridgeStatus']
   | 'reserved';
@@ -236,6 +242,7 @@ export interface RtcLanguageWorkspaceCatalogEntry {
   currentRole: string;
   workspaceSummary: string;
   roleHighlights: readonly string[];
+  defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract;
   metadataScaffold?: RtcLanguageWorkspaceMetadataScaffold;
   resolutionScaffold?: RtcLanguageWorkspaceResolutionScaffold;
   providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary;

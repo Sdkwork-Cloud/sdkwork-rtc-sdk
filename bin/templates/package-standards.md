@@ -219,6 +219,9 @@ Every official language workspace must declare:
 Every official language workspace must also materialize a language workspace catalog so language
 identity, package identity, runtime/control support, maturity tier, and role highlights stay
 machine-readable without scraping README prose.
+Each language workspace catalog entry must also preserve a machine-readable
+`defaultProviderContract` with `providerKey`, `pluginId`, and `driverId` aligned to the
+assembly-driven default provider identity.
 
 Allowed `providerActivations[].activationStatus` values in the current standard:
 
@@ -267,6 +270,9 @@ Every official language workspace must also declare a `providerPackageBoundary` 
 That cross-language boundary summary is the canonical topology contract exposed through the
 language workspace catalog and must declare:
 
+- `defaultProviderContract.providerKey` as the default provider key for that language workspace
+- `defaultProviderContract.pluginId` as the default provider plugin id for that language workspace
+- `defaultProviderContract.driverId` as the default provider driver id for that language workspace
 - `providerPackageBoundary.mode` as the language-wide package-boundary mode
 - `providerPackageBoundary.rootPublicPolicy` as the language-wide root public exposure policy
 - `providerPackageBoundary.lifecycleStatusTerms` as the canonical lifecycle vocabulary used by that

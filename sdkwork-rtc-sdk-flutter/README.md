@@ -41,10 +41,10 @@ Default provider contract:
 Language workspace catalog:
 
 - workspace catalog: `lib/src/rtc_language_workspace_catalog.dart`
-- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
-  `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
+- workspace catalog entries also keep `workspaceCatalogRelativePath`, `defaultProviderContract`,
+  and any declared `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
   `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
-  locations without rereading the assembly.
+  locations and the workspace-wide default provider identity without rereading the assembly.
 
 
 Provider package boundary:

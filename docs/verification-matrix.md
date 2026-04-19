@@ -23,6 +23,7 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   `docs/multilanguage-capability-matrix.md`
 - the TypeScript language workspace catalog at
   `sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts`
+- the assembly-driven `defaultProviderContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -130,6 +131,8 @@ The root verifier must confirm:
 - every language declares the assembly-driven language workspace contract fields:
   `displayName`, `workspaceCatalogRelativePath`, `currentRole`, `workspaceSummary`, `roleHighlights`
 - every language workspace ships the declared language workspace catalog file
+- every language workspace catalog preserves `defaultProviderContract.providerKey`,
+  `defaultProviderContract.pluginId`, and `defaultProviderContract.driverId`
 - every language declares the assembly-driven language-provider activation matrix as
   `providerActivations`
 - every language declares an assembly-driven `providerPackageBoundary`
