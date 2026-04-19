@@ -1322,6 +1322,10 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
   const assembly = readJson(assemblyPath);
   const entries = [
     {
+      relativePath: 'README.md',
+      content: readMaterializedTemplate(workspaceRoot, 'root-readme.md'),
+    },
+    {
       relativePath: 'docs/README.md',
       content: readMaterializedTemplate(workspaceRoot, 'docs-readme.md'),
     },

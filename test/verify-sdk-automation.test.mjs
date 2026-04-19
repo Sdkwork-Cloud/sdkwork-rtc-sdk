@@ -580,6 +580,7 @@ function createVerifierFixture(mutator) {
     'docs/multilanguage-capability-matrix.md',
     'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
+    'bin/templates/root-readme.md',
     'bin/templates/docs-readme.md',
     'bin/templates/package-standards.md',
     'bin/templates/provider-adapter-standard.md',
@@ -778,6 +779,7 @@ test('root rtc workspace contract files exist', () => {
     'docs/provider-adapter-standard.md',
     'docs/multilanguage-capability-matrix.md',
     'docs/verification-matrix.md',
+    'bin/templates/root-readme.md',
     'bin/templates/docs-readme.md',
     'bin/templates/package-standards.md',
     'bin/templates/provider-adapter-standard.md',
@@ -3307,6 +3309,7 @@ test('root materializer repairs provider package, provider catalog, and language
   const fixture = createVerifierFixture(() => {});
 
   try {
+    const rootReadmePath = path.join(fixture.workspaceCopy, 'README.md');
     const docsReadmePath = path.join(fixture.workspaceCopy, 'docs', 'README.md');
     const packageStandardsPath = path.join(
       fixture.workspaceCopy,
@@ -3439,6 +3442,7 @@ test('root materializer repairs provider package, provider catalog, and language
       'catalog.ts',
     );
 
+    writeFileSync(rootReadmePath, '# drifted root readme\n');
     writeFileSync(docsReadmePath, '# drifted docs readme\n');
     writeFileSync(packageStandardsPath, '# drifted package standards\n');
     writeFileSync(providerAdapterStandardPath, '# drifted provider adapter standard\n');
@@ -3484,6 +3488,7 @@ test('root materializer repairs provider package, provider catalog, and language
 
     const firstRun = materializerModule.materializeRtcSdkWorkspace(fixture.workspaceCopy);
     assert.ok(firstRun.changedFiles.length >= 7);
+    assert.ok(firstRun.changedFiles.includes('README.md'));
     assert.ok(firstRun.changedFiles.includes('docs/README.md'));
     assert.ok(firstRun.changedFiles.includes('docs/package-standards.md'));
     assert.ok(firstRun.changedFiles.includes('docs/provider-adapter-standard.md'));
@@ -3503,6 +3508,12 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/provider_package_catalog.py'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/provider_activation_catalog.py'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-rust/src/driver_manager.rs'));
+
+    const repairedRootReadme = readFileSync(rootReadmePath, 'utf8');
+    assert.match(repairedRootReadme, /# SDKWork RTC SDK Workspace/);
+    assert.match(repairedRootReadme, /DEFAULT_RTC_PROVIDER_KEY/);
+    assert.match(repairedRootReadme, /providerPackageBoundary/);
+    assert.match(repairedRootReadme, /node \.\\bin\\materialize-sdk\.mjs/);
 
     const repairedDocsReadme = readFileSync(docsReadmePath, 'utf8');
     assert.match(repairedDocsReadme, /multilanguage-capability-matrix\.md/);
