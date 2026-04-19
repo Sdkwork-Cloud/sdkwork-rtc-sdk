@@ -31,6 +31,7 @@ Current role:
 - standard provider selection helpers at src/provider-selection.ts
 - standard provider support helpers at src/provider-support.ts
 - assembly-driven provider package catalog at src/provider-package-catalog.ts
+- standard provider package loader and installer SPI at src/provider-package-loader.ts
 - assembly-driven provider activation catalog at src/provider-activation-catalog.ts
 - TypeScript runtime bridge baseline: reference-baseline
 - TypeScript runtime bridge requires an official vendor SDK: required

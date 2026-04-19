@@ -129,6 +129,11 @@ TypeScript provider integration must pass through a stable package-aware adapter
 - `RtcProviderModule`
 - `registerRtcProviderModule(...)`
 - `registerRtcProviderModules(...)`
+- `createRtcProviderPackageLoader(...)`
+- `resolveRtcProviderPackageLoadTarget(...)`
+- `loadRtcProviderModule(...)`
+- `installRtcProviderPackage(...)`
+- `installRtcProviderPackages(...)`
 
 The module contract standardizes:
 
@@ -148,6 +153,23 @@ contract validation behavior.
 Batch registration is atomic: if any module contract validation or driver registration fails, the
 target `RtcDriverManager` must remain unchanged.
 
+`resolveRtcProviderPackageLoadTarget(...)` is the standard package-resolution primitive.
+It resolves an official package boundary by `providerKey` or `packageIdentity` through the
+materialized TypeScript provider package catalog.
+
+`createRtcProviderPackageLoader(...)` is the standard loader factory.
+It wraps a caller-supplied package import function so host runtimes can decide how package loading
+happens while the RTC SDK keeps one stable contract for provider package loading.
+
+`loadRtcProviderModule(...)` is the standard package-loading primitive.
+It resolves the package boundary, loads the package namespace, and extracts the assembly-declared
+provider module symbol.
+
+`installRtcProviderPackage(...)` is the one-package install primitive.
+`installRtcProviderPackages(...)` is the standard batch install entrypoint.
+Batch install remains atomic: all provider modules must load and validate before registration
+mutates the target `RtcDriverManager`.
+
 Builtin provider packages may expose their driver factory and provider module symbol through the
 root `@sdkwork/rtc-sdk` entrypoint because they are builtin baselines.
 Future non-builtin provider modules must stay outside the root public API.
@@ -157,8 +179,21 @@ discovery stays machine-readable without scraping package manifests. That catalo
 `sourcePath`, `declarationPath`, `sourceSymbol`, `sourceModule`, `driverFactory`,
 `metadataSymbol`, `moduleSymbol`, `builtin`, `rootPublic`, `status`, `runtimeBridgeStatus`, and
 `extensionKeys`.
-That TypeScript package catalog must also keep `getRtcProviderPackageByProviderKey(...)` stable so
-package-boundary lookup stays explicit by provider key.
+That TypeScript package catalog must also keep `getRtcProviderPackageByProviderKey(...)` and
+`getRtcProviderPackageByPackageIdentity(...)` stable so package-boundary lookup stays explicit by
+provider key and package identity.
+
+The TypeScript executable baseline must also keep provider package loading explicit through
+`src/provider-package-loader.ts`.
+That loader layer must preserve:
+
+- caller-supplied package import behavior
+- stable `provider_package_not_found` failures
+- stable `provider_package_identity_mismatch` failures
+- stable `provider_package_load_failed` failures
+- stable `provider_module_export_missing` failures
+- assembly-declared `moduleSymbol` extraction
+- package-boundary install through `RtcProviderModule`
 
 Reserved non-TypeScript workspaces must also declare a `providerPackageScaffold` so future provider
 packages inherit a fixed directory pattern, package identity pattern, and manifest file name before
@@ -222,8 +257,9 @@ Runtime registration must fail with `provider_module_contract_mismatch` when a p
 from its assembly-driven package contract.
 That error is mandatory when `packageName`, `builtin` versus `rootPublic`, or the
 `typescriptAdapter` contract no longer matches the official provider metadata.
-Atomic batch registration must preserve the same failure semantics instead of partially registering
-earlier modules and leaving the manager in a half-mutated state.
+Atomic batch registration and atomic batch package installation must preserve the same failure
+semantics instead of partially registering earlier modules and leaving the manager in a
+half-mutated state.
 
 ## Capability Rule
 

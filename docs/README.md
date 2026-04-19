@@ -37,8 +37,14 @@ The TypeScript executable baseline fixes these standard modules as the executabl
 - provider support: `sdkwork-rtc-sdk-typescript/src/provider-support.ts`
   Keeps provider support classification and support-state construction explicit.
 - provider package catalog: `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts`
-  Includes `getRtcProviderPackageByProviderKey(...)` so one-provider package boundaries stay
-  queryable by provider key.
+  Includes `getRtcProviderPackageByProviderKey(...)` and
+  `getRtcProviderPackageByPackageIdentity(...)` so one-provider package boundaries stay
+  queryable by provider key and package identity.
+- provider package loader: `sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts`
+  Includes `createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
+  `loadRtcProviderModule(...)`, `installRtcProviderPackage(...)`, and
+  `installRtcProviderPackages(...)` so package-boundary adapters can be loaded and installed
+  through one standard SPI instead of ad hoc application wiring.
 - provider extension catalog: `sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts`
   Includes `getRtcProviderExtensionCatalog(...)`, `getRtcProviderExtensionDescriptor(...)`,
   `getRtcProviderExtensionsForProvider(...)`, `getRtcProviderExtensions(...)`, and
@@ -54,6 +60,7 @@ lookup helpers stable with language-idiomatic naming. The required helper famili
 - capability catalog by capability key
 - provider catalog by provider key
 - provider package by provider key
+- TypeScript provider package by package identity
 - provider activation by provider key
 - provider extension catalog by extension key and provider key
 - language workspace by language
@@ -98,6 +105,9 @@ The TypeScript executable workspace also reserves one-provider-only package boun
 The root `bin/materialize-sdk.mjs` command rematerializes `docs/multilanguage-capability-matrix.md`, assembly-driven language workspace READMEs, the TypeScript provider package catalog at `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts`, assembly-driven language workspace catalog assets, reserved language package/build/contract/metadata/provider-package-catalog/provider-activation-catalog/resolution/provider-package scaffolds with exact template token and root-public policies, materialized future provider package boundary READMEs and manifests, and provider package standard assets materialized from `.sdkwork-assembly.json`.
 Reserved non-TypeScript provider package boundaries also materialize one metadata-only source stub
 per official provider so future runtime bridge work inherits a deterministic code-entry layout.
+The manual TypeScript provider package loader SPI at
+`sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts` then turns those package-boundary
+contracts into a standard load-and-install path for pluggable provider adapters.
 The root `bin/smoke-sdk.mjs` command is the full regression entrypoint. It runs materialization,
 root automation tests, root verification, TypeScript package tests, and optional language smoke
 checks such as `compileall`, `cargo check`, `dotnet build`, and `javac` when those

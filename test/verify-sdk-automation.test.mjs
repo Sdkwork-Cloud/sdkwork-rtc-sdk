@@ -506,6 +506,7 @@ function createVerifierFixture(mutator) {
     'sdkwork-rtc-sdk-typescript/src/provider-selection.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-support.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',
+    'sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts',
     'sdkwork-rtc-sdk-typescript/src/index.ts',
@@ -1310,6 +1311,7 @@ test('typescript workspace baseline files exist', () => {
     'sdkwork-rtc-sdk-typescript/src/provider-selection.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-support.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',
+    'sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts',
     'sdkwork-rtc-sdk-typescript/src/index.ts',
@@ -1321,6 +1323,7 @@ test('typescript workspace baseline files exist', () => {
     'sdkwork-rtc-sdk-typescript/test/driver-manager.test.mjs',
     'sdkwork-rtc-sdk-typescript/test/data-source.test.mjs',
     'sdkwork-rtc-sdk-typescript/test/built-in-providers.test.mjs',
+    'sdkwork-rtc-sdk-typescript/test/provider-package-loader.test.mjs',
   ];
 
   for (const relativePath of requiredFiles) {

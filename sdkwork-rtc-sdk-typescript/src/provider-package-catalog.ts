@@ -230,6 +230,10 @@ const RTC_PROVIDER_PACKAGE_BY_PROVIDER_KEY = new Map<string, RtcProviderPackageC
   RTC_PROVIDER_PACKAGE_CATALOG.map((entry) => [entry.providerKey, entry]),
 );
 
+const RTC_PROVIDER_PACKAGE_BY_PACKAGE_IDENTITY = new Map<string, RtcProviderPackageCatalogEntry>(
+  RTC_PROVIDER_PACKAGE_CATALOG.map((entry) => [entry.packageIdentity, entry]),
+);
+
 export function getRtcProviderPackageCatalog(): readonly RtcProviderPackageCatalogEntry[] {
   return RTC_PROVIDER_PACKAGE_CATALOG;
 }
@@ -238,6 +242,12 @@ export function getRtcProviderPackageByProviderKey(
   providerKey: string,
 ): RtcProviderPackageCatalogEntry | undefined {
   return RTC_PROVIDER_PACKAGE_BY_PROVIDER_KEY.get(providerKey);
+}
+
+export function getRtcProviderPackageByPackageIdentity(
+  packageIdentity: string,
+): RtcProviderPackageCatalogEntry | undefined {
+  return RTC_PROVIDER_PACKAGE_BY_PACKAGE_IDENTITY.get(packageIdentity);
 }
 
 export function getRtcProviderPackage(

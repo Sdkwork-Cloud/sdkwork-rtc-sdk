@@ -52,8 +52,20 @@ Rules:
   declaration path, source module, driver factory, metadata symbol, module symbol, root-public
   policy, runtime bridge status, and provider extension keys
 - the materialized provider package catalog must also expose
-  `getRtcProviderPackageByProviderKey(...)` so provider package boundary lookup stays explicit by
-  provider key
+  `getRtcProviderPackageByProviderKey(...)` and
+  `getRtcProviderPackageByPackageIdentity(...)` so provider package boundary lookup stays explicit
+  by provider key and package identity
+- the TypeScript provider package loader module must expose
+  `RtcProviderPackageLoadRequest`, `RtcProviderPackageLoader`,
+  `createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
+  `loadRtcProviderModule(...)`, `installRtcProviderPackage(...)`, and
+  `installRtcProviderPackages(...)`
+- the TypeScript provider package loader module must keep package loading runtime agnostic by
+  accepting a caller-supplied package import function instead of scanning the filesystem
+- the TypeScript provider package loader module must fail with
+  `provider_package_not_found`, `provider_package_identity_mismatch`,
+  `provider_package_load_failed`, and `provider_module_export_missing` when package-boundary
+  loading cannot satisfy the standard contract
 - the materialized provider extension catalog must also expose
   `getRtcProviderExtensionDescriptor(...)`, `getRtcProviderExtensionsForProvider(...)`, and
   `hasRtcProviderExtension(...)` so provider extension lookup stays explicit by extension key,
@@ -138,6 +150,8 @@ Rules:
   builtin helper wiring, but it must not expose non-builtin provider driver factories
 - the root public entrypoint may expose builtin provider modules, but it must not expose future
   non-builtin provider modules
+- the root public entrypoint may expose the provider package loader and installer SPI because it is
+  provider-neutral package-boundary infrastructure, not a non-builtin driver factory
 - reserved root public entrypoints must stay assembly-governed where the language ecosystem expects
   a single barrel or package initializer, including `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart`
   and `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`

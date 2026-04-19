@@ -97,6 +97,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /getRtcCapabilityCatalog/, label: 'capability catalog lookup helper' },
       { pattern: /getRtcCapabilityDescriptor/, label: 'capability descriptor lookup helper' },
       { pattern: /getRtcProviderPackageByProviderKey/, label: 'provider package lookup helper' },
+      { pattern: /getRtcProviderPackageByPackageIdentity/, label: 'provider package identity lookup helper' },
       { pattern: /getRtcProviderActivationByProviderKey/, label: 'provider activation lookup helper' },
       { pattern: /getRtcProviderExtensionCatalog/, label: 'provider extension catalog lookup helper' },
       { pattern: /getRtcProviderExtensionDescriptor/, label: 'provider extension descriptor lookup helper' },
@@ -108,6 +109,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /getRtcLanguageWorkspaceByLanguage/, label: 'language workspace lookup helper' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'provider support status helper' },
       { pattern: /createRtcProviderSupportState/, label: 'provider support state helper' },
+      { pattern: /provider-package-loader\.ts/, label: 'TypeScript provider package loader module path' },
+      { pattern: /createRtcProviderPackageLoader/, label: 'provider package loader factory' },
+      { pattern: /resolveRtcProviderPackageLoadTarget/, label: 'provider package load target resolver' },
+      { pattern: /loadRtcProviderModule/, label: 'provider package module loader' },
+      { pattern: /installRtcProviderPackage/, label: 'single provider package installer' },
+      { pattern: /installRtcProviderPackages/, label: 'batch provider package installer' },
       { pattern: /reference-baseline/, label: 'TypeScript runtime bridge baseline contract' },
       { pattern: /capability negotiation/i, label: 'capability negotiation contract' },
       { pattern: /degraded/i, label: 'capability degradation contract' },
@@ -169,7 +176,14 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /getRtcCapabilityCatalog/, label: 'internal docs capability catalog lookup helper index' },
       { pattern: /getRtcCapabilityDescriptor/, label: 'internal docs capability descriptor lookup helper index' },
       { pattern: /getRtcProviderPackageByProviderKey/, label: 'internal docs provider package lookup helper index' },
+      { pattern: /getRtcProviderPackageByPackageIdentity/, label: 'internal docs provider package identity lookup helper index' },
       { pattern: /getRtcProviderActivationByProviderKey/, label: 'internal docs provider activation lookup helper index' },
+      { pattern: /provider-package-loader\.ts/, label: 'internal docs provider package loader index' },
+      { pattern: /createRtcProviderPackageLoader/, label: 'internal docs provider package loader factory index' },
+      { pattern: /resolveRtcProviderPackageLoadTarget/, label: 'internal docs provider package target resolver index' },
+      { pattern: /loadRtcProviderModule/, label: 'internal docs provider package module loader index' },
+      { pattern: /installRtcProviderPackage/, label: 'internal docs single provider package installer index' },
+      { pattern: /installRtcProviderPackages/, label: 'internal docs batch provider package installer index' },
       {
         pattern: /getRtcProviderExtensionCatalog/,
         label: 'internal docs provider extension catalog lookup helper index',
@@ -288,6 +302,18 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /getRtcProviderByProviderKey/, label: 'provider catalog lookup helper alias contract' },
       { pattern: /getRtcProviderActivationByProviderKey/, label: 'provider activation lookup helper contract' },
       { pattern: /getRtcProviderPackageByProviderKey/, label: 'provider package lookup helper contract' },
+      { pattern: /getRtcProviderPackageByPackageIdentity/, label: 'provider package identity lookup helper contract' },
+      { pattern: /RtcProviderPackageLoadRequest/, label: 'provider package load request contract' },
+      { pattern: /RtcProviderPackageLoader/, label: 'provider package loader contract' },
+      { pattern: /createRtcProviderPackageLoader/, label: 'provider package loader factory contract' },
+      { pattern: /resolveRtcProviderPackageLoadTarget/, label: 'provider package target resolver contract' },
+      { pattern: /loadRtcProviderModule/, label: 'provider package module loader contract' },
+      { pattern: /installRtcProviderPackage/, label: 'single provider package installer contract' },
+      { pattern: /installRtcProviderPackages/, label: 'batch provider package installer contract' },
+      { pattern: /provider_package_not_found/, label: 'provider package not found error contract' },
+      { pattern: /provider_package_identity_mismatch/, label: 'provider package identity mismatch error contract' },
+      { pattern: /provider_package_load_failed/, label: 'provider package load failure error contract' },
+      { pattern: /provider_module_export_missing/, label: 'provider package module export failure contract' },
       { pattern: /getRtcCapabilityCatalog/, label: 'capability catalog lookup helper contract' },
       { pattern: /getRtcCapabilityDescriptor/, label: 'capability descriptor lookup helper contract' },
       {
@@ -363,6 +389,16 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /unwrap-only/i, label: 'provider adapter unwrap-only extension contract' },
       { pattern: /extension-object/i, label: 'provider adapter extension-object contract' },
       { pattern: /getRtcProviderPackageByProviderKey/, label: 'provider adapter provider package lookup helper contract' },
+      { pattern: /getRtcProviderPackageByPackageIdentity/, label: 'provider adapter provider package identity lookup helper contract' },
+      { pattern: /createRtcProviderPackageLoader/, label: 'provider adapter provider package loader factory contract' },
+      { pattern: /resolveRtcProviderPackageLoadTarget/, label: 'provider adapter provider package target resolver contract' },
+      { pattern: /loadRtcProviderModule/, label: 'provider adapter provider package module loader contract' },
+      { pattern: /installRtcProviderPackage/, label: 'provider adapter single package installer contract' },
+      { pattern: /installRtcProviderPackages/, label: 'provider adapter batch package installer contract' },
+      { pattern: /provider_package_not_found/, label: 'provider adapter package not found error contract' },
+      { pattern: /provider_package_identity_mismatch/, label: 'provider adapter package identity mismatch error contract' },
+      { pattern: /provider_package_load_failed/, label: 'provider adapter package load failure error contract' },
+      { pattern: /provider_module_export_missing/, label: 'provider adapter package module export failure contract' },
       { pattern: /getRtcProviderActivationByProviderKey/, label: 'provider adapter provider activation lookup helper contract' },
       { pattern: /getRtcLanguageWorkspaceByLanguage/, label: 'provider adapter language workspace lookup helper contract' },
       { pattern: /getRtcProviderByProviderKey/, label: 'provider adapter provider catalog lookup helper contract' },
@@ -520,6 +556,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /data source/i, label: 'verification of language workspace data source scaffold contract' },
       { pattern: /provider support/i, label: 'verification of language workspace provider support scaffold contract' },
       { pattern: /getRtcProviderPackageByProviderKey/, label: 'verification of provider package lookup helper contract' },
+      { pattern: /getRtcProviderPackageByPackageIdentity/, label: 'verification of provider package identity lookup helper contract' },
+      { pattern: /createRtcProviderPackageLoader/, label: 'verification of provider package loader factory contract' },
+      { pattern: /resolveRtcProviderPackageLoadTarget/, label: 'verification of provider package target resolver contract' },
+      { pattern: /loadRtcProviderModule/, label: 'verification of provider package module loader contract' },
+      { pattern: /installRtcProviderPackage/, label: 'verification of single provider package installer contract' },
+      { pattern: /installRtcProviderPackages/, label: 'verification of batch provider package installer contract' },
       { pattern: /getRtcProviderActivationByProviderKey/, label: 'verification of provider activation lookup helper contract' },
       { pattern: /getRtcLanguageWorkspaceByLanguage/, label: 'verification of language workspace lookup helper contract' },
       { pattern: /lib\/rtc_sdk\.dart/, label: 'verification of Flutter root barrel contract' },
@@ -1760,6 +1802,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'sdkwork-rtc-sdk-typescript/src/provider-support.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',
+    'sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts',
     'sdkwork-rtc-sdk-typescript/src/index.ts',
     'sdkwork-rtc-sdk-typescript/src/provider-catalog.ts',
@@ -3079,6 +3122,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'extensionKeys',
     'getRtcProviderPackageCatalog',
     'getRtcProviderPackageByProviderKey',
+    'getRtcProviderPackageByPackageIdentity',
     'getRtcProviderPackage',
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(providerPackageCatalogContent)) {
@@ -3109,6 +3153,52 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       if (!new RegExp(escapeRegExp(value)).test(providerPackageCatalogContent)) {
         fail(`TypeScript provider package catalog drift for ${provider.providerKey}: ${value}`);
       }
+    }
+  }
+
+  const providerPackageLoaderPath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'provider-package-loader.ts',
+  );
+  const providerPackageLoaderContent = readFileSync(providerPackageLoaderPath, 'utf8');
+
+  for (const token of [
+    'RtcProviderPackageLoadRequest',
+    'RtcResolvedProviderPackageLoadTarget',
+    'RtcProviderModuleNamespace',
+    'RtcProviderPackageImportFn',
+    'RtcProviderPackageLoader',
+    'RtcProviderPackageInstallRequest',
+    'getRtcProviderPackageByProviderKey',
+    'getRtcProviderPackageByPackageIdentity',
+    'createRtcProviderPackageLoader',
+    'resolveRtcProviderPackageLoadTarget',
+    'loadRtcProviderModule',
+    'installRtcProviderPackage',
+    'installRtcProviderPackages',
+    'provider_package_not_found',
+    'provider_package_identity_mismatch',
+    'provider_package_load_failed',
+    'provider_module_export_missing',
+  ]) {
+    if (!new RegExp(escapeRegExp(token)).test(providerPackageLoaderContent)) {
+      fail(`TypeScript provider package loader token drift: ${token}`);
+    }
+  }
+
+  const typeScriptIndexPath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'index.ts',
+  );
+  const typeScriptIndexContent = readFileSync(typeScriptIndexPath, 'utf8');
+
+  for (const token of ['./provider-package-loader.js']) {
+    if (!new RegExp(escapeRegExp(token)).test(typeScriptIndexContent)) {
+      fail(`TypeScript index export drift: ${token}`);
     }
   }
 

@@ -35,6 +35,7 @@ test('materialized provider package catalog matches the assembly-driven package 
 
   assert.equal(typeof rootSdk.getRtcProviderPackageCatalog, 'function');
   assert.equal(typeof rootSdk.getRtcProviderPackageByProviderKey, 'function');
+  assert.equal(typeof rootSdk.getRtcProviderPackageByPackageIdentity, 'function');
   assert.equal(typeof rootSdk.getRtcProviderPackage, 'function');
 
   assert.deepEqual(
@@ -94,7 +95,19 @@ test('materialized provider package catalog matches the assembly-driven package 
     packageCatalog.getRtcProviderPackageByProviderKey('agora'),
     packageCatalog.AGORA_RTC_PROVIDER_PACKAGE_ENTRY,
   );
+  assert.deepEqual(
+    packageCatalog.getRtcProviderPackageByPackageIdentity('@sdkwork/rtc-sdk-provider-agora'),
+    packageCatalog.AGORA_RTC_PROVIDER_PACKAGE_ENTRY,
+  );
+  assert.deepEqual(
+    rootSdk.getRtcProviderPackageByPackageIdentity('@sdkwork/rtc-sdk-provider-agora'),
+    packageCatalog.AGORA_RTC_PROVIDER_PACKAGE_ENTRY,
+  );
   assert.equal(packageCatalog.getRtcProviderPackageByProviderKey('vendor-x'), undefined);
+  assert.equal(
+    packageCatalog.getRtcProviderPackageByPackageIdentity('@sdkwork/rtc-sdk-provider-vendor-x'),
+    undefined,
+  );
 });
 
 test('materialized provider package catalog is runtime-frozen', async () => {

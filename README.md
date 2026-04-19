@@ -43,6 +43,7 @@ This workspace standardizes:
   language workspaces
 - assembly-driven provider package catalog contracts across the TypeScript baseline and reserved
   language workspaces
+- standard TypeScript provider package loader and installer SPI for package-boundary adapter loading
 - assembly-driven TypeScript vendor SDK package contracts
 - assembly-driven TypeScript runtime bridge baseline contracts
 - assembly-driven reserved provider package template token, source file, source symbol, lifecycle
@@ -154,8 +155,16 @@ array scans.
 
 The TypeScript provider-package catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts` must also keep
-`getRtcProviderPackageByProviderKey(...)` stable so provider package boundary lookup stays
-explicit instead of being reimplemented through ad hoc manifest scans.
+`getRtcProviderPackageByProviderKey(...)` and `getRtcProviderPackageByPackageIdentity(...)` stable
+so provider package boundary lookup stays explicit instead of being reimplemented through ad hoc
+manifest scans.
+
+The TypeScript provider-package loader module at
+`sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts` must also keep
+`createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
+`loadRtcProviderModule(...)`, `installRtcProviderPackage(...)`, and
+`installRtcProviderPackages(...)` stable so package-boundary provider loading and installation stay
+standardized instead of being rebuilt differently in every host application.
 
 The TypeScript provider-activation catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts` must also keep
@@ -179,6 +188,7 @@ language-idiomatic naming:
 
 - provider catalog by provider key
 - provider package catalog by provider key
+- TypeScript provider package catalog by package identity
 - provider activation catalog by provider key
 - capability descriptor by capability key
 - provider extension catalog by extension key and provider key
@@ -235,6 +245,10 @@ package catalog, provider activation catalog, capability catalog, provider exten
 language workspace catalog, provider-selection helpers, provider-support helpers, driver manager,
 and data source without forcing consumers onto private module paths.
 
+The TypeScript root public entrypoint may additionally expose the provider package loader and
+installer SPI because that surface is provider-neutral package-boundary infrastructure, not a
+non-builtin driver factory.
+
 Go reserved-language public structs must also export their shared DTO fields in PascalCase so the
 standard metadata stays usable from external packages. The required public field family includes
 `ProviderKey`, `PluginId`, `DriverId`, `PackageIdentity`, `RuntimeBridgeStatus`, and
@@ -289,11 +303,15 @@ Use it to rematerialize:
   `docs/multilanguage-capability-matrix.md`
 - the materialized TypeScript provider package catalog at
   `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts`
+- the manual TypeScript provider package loader module at
+  `sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts`
 - the materialized TypeScript provider catalog at `sdkwork-rtc-sdk-typescript/src/provider-catalog.ts`
 - the materialized TypeScript provider activation catalog at
   `sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts`
 - the explicit lookup helpers inside the materialized TypeScript language workspace, provider
   package, provider activation, capability, and provider extension catalogs
+- the standard TypeScript provider package load-and-install helpers used to resolve package
+  boundaries, import provider modules, and atomically install provider adapters
 - the materialized TypeScript provider extension catalog at
   `sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts`
 - the assembly-driven default provider constants inside that provider catalog

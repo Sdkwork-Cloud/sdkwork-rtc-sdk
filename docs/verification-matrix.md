@@ -235,6 +235,17 @@ The root verifier must confirm:
   `createRtcProviderSupportState(...)`
 - the TypeScript provider package catalog preserves explicit provider-key lookup through
   `getRtcProviderPackageByProviderKey(...)`
+- the TypeScript provider package catalog preserves explicit package-identity lookup through
+  `getRtcProviderPackageByPackageIdentity(...)`
+- the TypeScript provider package loader module exists at
+  `sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts` and preserves
+  `RtcProviderPackageLoadRequest`, `RtcProviderPackageLoader`,
+  `createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
+  `loadRtcProviderModule(...)`, `installRtcProviderPackage(...)`, and
+  `installRtcProviderPackages(...)`
+- the TypeScript provider package loader preserves stable package-boundary failures:
+  `provider_package_not_found`, `provider_package_identity_mismatch`,
+  `provider_package_load_failed`, and `provider_module_export_missing`
 - the TypeScript provider activation catalog preserves explicit provider-key lookup through
   `getRtcProviderActivationByProviderKey(...)`
 - the TypeScript capability catalog preserves explicit capability-key lookup through
@@ -285,6 +296,10 @@ The TypeScript workspace must verify:
 - `getRtcProviderByProviderKey(...)` remains root-public
 - `getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)` remain root-public
 - `getRtcProviderPackageByProviderKey(...)` remains root-public
+- `getRtcProviderPackageByPackageIdentity(...)` remains root-public
+- `createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
+  `loadRtcProviderModule(...)`, `installRtcProviderPackage(...)`, and
+  `installRtcProviderPackages(...)` remain root-public
 - `getRtcProviderActivationByProviderKey(...)` remains root-public
 - `getRtcProviderExtensionCatalog(...)`, `getRtcProviderExtensionDescriptor(...)`,
   `getRtcProviderExtensionsForProvider(...)`, `getRtcProviderExtensions(...)`, and
@@ -300,6 +315,10 @@ The TypeScript workspace must verify:
 - the provider-module contract keeps builtin package wiring stable
 - the provider-module contract keeps the runtime vendor SDK contract stable
 - the provider-module contract keeps the TypeScript runtime bridge prerequisite contract stable
+- the provider-package loader contract keeps package-boundary load and install semantics stable
+- provider-package loading fails with `provider_package_not_found`,
+  `provider_package_identity_mismatch`, `provider_package_load_failed`, and
+  `provider_module_export_missing`
 - batch provider-module registration stays stable through `registerRtcProviderModules(...)`
 - provider-module package contract drift fails with `provider_module_contract_mismatch`
 - batch provider-module registration is atomic and leaves the target driver manager unchanged when

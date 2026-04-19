@@ -6,6 +6,7 @@ export * from './provider-selection.js';
 export * from './provider-support.js';
 export * from './provider-extension-catalog.js';
 export * from './provider-package-catalog.js';
+export * from './provider-package-loader.js';
 export * from './provider-activation-catalog.js';
 export * from './capabilities.js';
 export * from './client.js';

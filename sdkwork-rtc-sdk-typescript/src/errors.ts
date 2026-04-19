@@ -1,4 +1,8 @@
 export type RtcSdkErrorCode =
+  | 'provider_package_not_found'
+  | 'provider_package_identity_mismatch'
+  | 'provider_package_load_failed'
+  | 'provider_module_export_missing'
   | 'provider_module_contract_mismatch'
   | 'driver_already_registered'
   | 'driver_not_found'
