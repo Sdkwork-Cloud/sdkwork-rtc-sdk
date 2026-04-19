@@ -29,6 +29,10 @@ function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
 }
 
+function readMaterializedTemplate(workspaceRoot, relativePath) {
+  return readFileSync(path.join(workspaceRoot, 'bin', 'templates', relativePath), 'utf8');
+}
+
 function toPascalCase(value) {
   return value
     .split(/[-_]/g)
@@ -1485,8 +1489,16 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
       content: renderDocsReadme(),
     },
     {
+      relativePath: 'docs/package-standards.md',
+      content: readMaterializedTemplate(workspaceRoot, 'package-standards.md'),
+    },
+    {
       relativePath: 'docs/multilanguage-capability-matrix.md',
       content: renderCapabilityMatrix(assembly),
+    },
+    {
+      relativePath: 'docs/verification-matrix.md',
+      content: readMaterializedTemplate(workspaceRoot, 'verification-matrix.md'),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/providers/README.md',

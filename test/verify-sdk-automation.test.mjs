@@ -580,6 +580,8 @@ function createVerifierFixture(mutator) {
     'docs/multilanguage-capability-matrix.md',
     'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
+    'bin/templates/package-standards.md',
+    'bin/templates/verification-matrix.md',
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
     'bin/smoke-sdk.mjs',
@@ -773,6 +775,8 @@ test('root rtc workspace contract files exist', () => {
     'docs/provider-adapter-standard.md',
     'docs/multilanguage-capability-matrix.md',
     'docs/verification-matrix.md',
+    'bin/templates/package-standards.md',
+    'bin/templates/verification-matrix.md',
   ];
 
   for (const relativePath of requiredFiles) {
@@ -3298,10 +3302,20 @@ test('root materializer repairs provider package, provider catalog, and language
 
   try {
     const docsReadmePath = path.join(fixture.workspaceCopy, 'docs', 'README.md');
+    const packageStandardsPath = path.join(
+      fixture.workspaceCopy,
+      'docs',
+      'package-standards.md',
+    );
     const matrixPath = path.join(
       fixture.workspaceCopy,
       'docs',
       'multilanguage-capability-matrix.md',
+    );
+    const verificationMatrixPath = path.join(
+      fixture.workspaceCopy,
+      'docs',
+      'verification-matrix.md',
     );
     const javaReadmePath = path.join(fixture.workspaceCopy, 'sdkwork-rtc-sdk-java', 'README.md');
     const javaProviderPackageScaffoldPath = path.join(
@@ -3409,7 +3423,9 @@ test('root materializer repairs provider package, provider catalog, and language
     );
 
     writeFileSync(docsReadmePath, '# drifted docs readme\n');
+    writeFileSync(packageStandardsPath, '# drifted package standards\n');
     writeFileSync(matrixPath, '# drifted matrix\n');
+    writeFileSync(verificationMatrixPath, '# drifted verification matrix\n');
     writeFileSync(javaReadmePath, '# drifted\n');
     writeFileSync(javaProviderPackageScaffoldPath, '# drifted provider package scaffold\n');
     writeFileSync(javaAgoraProviderManifestPath, '<project></project>\n');
@@ -3450,7 +3466,9 @@ test('root materializer repairs provider package, provider catalog, and language
     const firstRun = materializerModule.materializeRtcSdkWorkspace(fixture.workspaceCopy);
     assert.ok(firstRun.changedFiles.length >= 7);
     assert.ok(firstRun.changedFiles.includes('docs/README.md'));
+    assert.ok(firstRun.changedFiles.includes('docs/package-standards.md'));
     assert.ok(firstRun.changedFiles.includes('docs/multilanguage-capability-matrix.md'));
+    assert.ok(firstRun.changedFiles.includes('docs/verification-matrix.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/provider-package-scaffold.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/pom.xml'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/README.md'));
@@ -3469,6 +3487,12 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedDocsReadme, /multilanguage-capability-matrix\.md/);
     assert.match(repairedDocsReadme, /materialized from `\.sdkwork-assembly\.json`/);
     assert.match(repairedDocsReadme, /metadata-only source stub/i);
+
+    const repairedPackageStandards = readFileSync(packageStandardsPath, 'utf8');
+    assert.match(repairedPackageStandards, /# RTC SDK Package Standards/);
+    assert.match(repairedPackageStandards, /TypeScript Standard/);
+    assert.match(repairedPackageStandards, /Cross-Language Standard/);
+    assert.match(repairedPackageStandards, /providerPackageBoundary/);
 
     const repairedMatrix = readFileSync(matrixPath, 'utf8');
     assert.match(repairedMatrix, /\| Capability key \| Category \| Surface \|/);
@@ -3504,6 +3528,12 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedMatrix, /Driver manager/);
     assert.match(repairedMatrix, /Data source/);
     assert.match(repairedMatrix, /Provider support/);
+
+    const repairedVerificationMatrix = readFileSync(verificationMatrixPath, 'utf8');
+    assert.match(repairedVerificationMatrix, /# RTC SDK Verification Matrix/);
+    assert.match(repairedVerificationMatrix, /Root Materialization Entry Point/);
+    assert.match(repairedVerificationMatrix, /node \.\\bin\\materialize-sdk\.mjs/);
+    assert.match(repairedVerificationMatrix, /providerPackageBoundary/);
 
     const repairedJavaReadme = readFileSync(javaReadmePath, 'utf8');
     assert.match(repairedJavaReadme, /# SDKWork RTC SDK Java Workspace/);

@@ -1322,6 +1322,8 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'docs/multilanguage-capability-matrix.md',
     'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
+    'bin/templates/package-standards.md',
+    'bin/templates/verification-matrix.md',
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
     'bin/smoke-sdk.mjs',
