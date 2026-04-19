@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { assertRtcAssemblyWorkspaceBaseline } from './rtc-standard-assembly-baseline.mjs';
+import { readJsonFile } from './rtc-standard-json-helpers.mjs';
 import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
 import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
 import {
@@ -28,10 +29,6 @@ const PROVIDER_TIER_SUMMARIES = {
   'tier-b': 'Official extension targets with reserved adapter positions',
   'tier-c': 'Future SPI targets',
 };
-
-function readJson(filePath) {
-  return JSON.parse(readFileSync(filePath, 'utf8'));
-}
 
 function readMaterializedTemplate(workspaceRoot, relativePath) {
   return readFileSync(path.join(workspaceRoot, 'bin', 'templates', relativePath), 'utf8');
@@ -1254,7 +1251,7 @@ export function materializeRtcSdkWorkspace(workspaceRoot) {
 
 export function buildRtcSdkMaterializationPlan(workspaceRoot) {
   const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
-  const assembly = readJson(assemblyPath);
+  const assembly = readJsonFile(assemblyPath);
   assertRtcAssemblyWorkspaceBaseline(assembly);
 
   const entries = [

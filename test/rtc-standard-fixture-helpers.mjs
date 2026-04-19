@@ -1,3 +1,8 @@
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readJsonFile, writePrettyJsonFile } from '../bin/rtc-standard-json-helpers.mjs';
 import {
   buildProviderPackageManifestPath,
   buildProviderPackageReadmePath,
@@ -122,4 +127,32 @@ export function buildRtcVerifierFixtureFileList(assembly) {
   }
 
   return normalizeStringArray(filesToCopy);
+}
+
+export function createRtcVerifierFixture(
+  mutator,
+  workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+) {
+  const fixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'sdkwork-rtc-sdk-verify-'));
+  const workspaceCopy = path.join(fixtureRoot, 'sdkwork-rtc-sdk');
+  const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
+  const assemblySnapshot = readJsonFile(assemblyPath);
+  const filesToCopy = buildRtcVerifierFixtureFileList(assemblySnapshot);
+
+  for (const relativePath of filesToCopy) {
+    const sourcePath = path.join(workspaceRoot, relativePath);
+    const targetPath = path.join(workspaceCopy, relativePath);
+    mkdirSync(path.dirname(targetPath), { recursive: true });
+    writeFileSync(targetPath, readFileSync(sourcePath));
+  }
+
+  const copiedAssemblyPath = path.join(workspaceCopy, '.sdkwork-assembly.json');
+  const assembly = readJsonFile(copiedAssemblyPath);
+  mutator(assembly);
+  writePrettyJsonFile(copiedAssemblyPath, assembly);
+
+  return {
+    fixtureRoot,
+    workspaceCopy,
+  };
 }

@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildRtcSdkMaterializationPlan, RTC_SDK_STALE_MATERIALIZED_FILES } from './materialize-sdk.mjs';
 import { assertRtcAssemblyWorkspaceBaseline } from './rtc-standard-assembly-baseline.mjs';
+import { readJsonFile } from './rtc-standard-json-helpers.mjs';
 import {
   buildLanguageProviderActivationCatalogEntries,
   buildProviderPackageManifestPath,
@@ -808,7 +809,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   }
 
   const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
-  const assembly = JSON.parse(readFileSync(assemblyPath, 'utf8'));
+  const assembly = readJsonFile(assemblyPath);
   const { officialLanguages, providers } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
@@ -1585,7 +1586,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Missing required TypeScript provider package declaration entrypoint: sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-${provider.providerKey}/index.d.ts`);
     }
 
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    const manifest = readJsonFile(manifestPath);
     const expectedPackageName = provider.typescriptPackage.packageName;
     if (manifest.name !== expectedPackageName) {
       fail(`TypeScript provider package name drift for ${provider.providerKey}: expected ${expectedPackageName}`);
