@@ -21,8 +21,9 @@ Current role:
 - assembly-driven capability catalog at src/capability-catalog.ts with required-baseline and optional-advanced surface descriptors
 - assembly-driven provider extension catalog at src/provider-extension-catalog.ts with unwrap-only extension metadata
 - surface-aware capability negotiation and degradation helpers with supported, degraded, and unsupported outcomes
-- stable runtime bridge contract methods join, leave, publish, unpublish, muteAudio, and muteVideo
-- explicit native_sdk_not_available failure when no runtime bridge is registered
+- assembly-driven runtimeSurfaceStandard methodTerms join, leave, publish, unpublish, muteAudio, and muteVideo
+- assembly-driven runtimeSurfaceStandard failureCode native_sdk_not_available when no runtime bridge is registered
+- root public runtime surface constants RTC_RUNTIME_SURFACE_METHODS and RTC_RUNTIME_SURFACE_FAILURE_CODE
 - assembly-driven default provider constants DEFAULT_RTC_PROVIDER_KEY, DEFAULT_RTC_PROVIDER_PLUGIN_ID, and DEFAULT_RTC_PROVIDER_DRIVER_ID
 - built-in provider adapters for volcengine, aliyun, and tencent
 - TypeScript provider package statuses standardize built-in root-public packages as root_public_reference_boundary and executable non-builtin packages as package_reference_boundary
@@ -41,6 +42,10 @@ Current role:
 This workspace is the executable reference implementation for provider-neutral RTC contracts, JDBC-style driver selection, standardized runtime lifecycle delegation, and provider package boundaries in sdkwork-rtc-sdk.
 This workspace does not bundle vendor SDK implementations. Provider adapters wrap caller-supplied
 native client factories and expose vendor escape hatches through `unwrap()`.
+The shared runtime-surface module at `src/runtime-surface.ts` materializes
+`runtimeSurfaceStandard` into `RTC_RUNTIME_SURFACE_METHODS`,
+`RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD` so the provider-neutral
+runtime method vocabulary and missing-runtime failure semantics stay assembly-governed.
 
 Default provider contract:
 

@@ -99,6 +99,10 @@ Rules:
   `RTC_CAPABILITY_NEGOTIATION_RULES`, and `resolveRtcCapabilityNegotiationStatus(...)`
 - `.sdkwork-assembly.json` must declare `capabilityNegotiationStandard.statusTerms` and
   `capabilityNegotiationStandard.statusRules`
+- the runtime surface module must expose `RTC_RUNTIME_SURFACE_METHODS`,
+  `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD`
+- `.sdkwork-assembly.json` must declare `runtimeSurfaceStandard.methodTerms` and
+  `runtimeSurfaceStandard.failureCode`
 - the errors module must expose `RTC_SDK_ERROR_CODES`, `RTC_SDK_ERROR_FALLBACK_CODE`,
   and `RtcSdkException`
 - `.sdkwork-assembly.json` must declare `errorCodeStandard.codeTerms` and
@@ -143,6 +147,8 @@ Rules:
 - `capabilityStandard` is the canonical source for capability `categoryTerms` and `surfaceTerms`
 - `capabilityNegotiationStandard` is the canonical source for capability negotiation `statusTerms`
   and `statusRules`
+- `runtimeSurfaceStandard` is the canonical source for provider-neutral runtime method vocabulary
+  and missing-runtime failure semantics
 - `errorCodeStandard` is the canonical source for the shared RTC SDK error vocabulary and fallback
   semantics
 - `providerExtensionStandard` is the canonical source for provider extension `accessTerms` and
@@ -182,6 +188,8 @@ Rules:
   the canonical `referenceContract` baseline used by provider packages and runtime documentation
 - the provider-neutral runtime surface is fixed as `join`, `leave`, `publish`, `unpublish`,
   `muteAudio`, and `muteVideo`
+- the TypeScript runtime surface module must keep `RTC_RUNTIME_SURFACE_METHODS` and
+  `RTC_RUNTIME_SURFACE_FAILURE_CODE` aligned to `runtimeSurfaceStandard`
 - provider adapters must forward the consumer-supplied `runtimeController` into the shared driver
   contract instead of implementing provider-private lifecycle entrypoints
 - runtime-controller context wrappers must be shallow-immutable while preserving a mutable native
@@ -196,6 +204,8 @@ Rules:
   non-builtin provider modules
 - the root public entrypoint may expose the provider package loader and installer SPI because it is
   provider-neutral package-boundary infrastructure, not a non-builtin driver factory
+- the root public entrypoint may expose `RTC_RUNTIME_SURFACE_METHODS` and
+  `RTC_RUNTIME_SURFACE_FAILURE_CODE` because they are provider-neutral runtime surface constants
 - reserved root public entrypoints must stay assembly-governed where the language ecosystem expects
   a single barrel or package initializer, including `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart`
   and `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`

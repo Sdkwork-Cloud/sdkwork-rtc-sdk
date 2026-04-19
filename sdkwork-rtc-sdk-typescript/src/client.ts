@@ -7,6 +7,7 @@ import {
   cloneRtcProviderSelection,
   shallowFreezeRtcRuntimeValue,
 } from './runtime-freeze.js';
+import { RTC_RUNTIME_SURFACE_FAILURE_CODE } from './runtime-surface.js';
 import type {
   RtcCapabilityNegotiationRequest,
   RtcCapabilityNegotiationResult,
@@ -24,6 +25,7 @@ import type {
   RtcSessionDescriptor,
   RtcTrackPublication,
 } from './types.js';
+import type { RtcRuntimeSurfaceMethodName } from './runtime-surface.js';
 
 export interface RtcClient<TNativeClient = unknown> {
   readonly metadata: RtcProviderMetadata;
@@ -86,13 +88,13 @@ export class StandardRtcClient<TNativeClient = unknown> implements RtcClient<TNa
     });
   }
 
-  #requireRuntimeMethod<TMethodName extends keyof RtcRuntimeController<TNativeClient>>(
+  #requireRuntimeMethod<TMethodName extends RtcRuntimeSurfaceMethodName>(
     methodName: TMethodName,
   ): NonNullable<RtcRuntimeController<TNativeClient>[TMethodName]> {
     const method = this.#runtimeController?.[methodName];
     if (typeof method !== 'function') {
       throw new RtcSdkException({
-        code: 'native_sdk_not_available',
+        code: RTC_RUNTIME_SURFACE_FAILURE_CODE,
         message: `RTC runtime bridge method not available: ${String(methodName)}`,
         providerKey: this.#metadata.providerKey,
         pluginId: this.#metadata.pluginId,

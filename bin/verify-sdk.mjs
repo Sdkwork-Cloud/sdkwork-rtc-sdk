@@ -27,6 +27,8 @@ import {
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
   RTC_CAPABILITY_SURFACES,
+  RTC_RUNTIME_SURFACE_FAILURE_CODE,
+  RTC_RUNTIME_SURFACE_METHODS,
   RTC_SDK_ERROR_CODES,
   RTC_SDK_ERROR_FALLBACK_CODE,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
@@ -151,6 +153,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /capability negotiation/i, label: 'capability negotiation contract' },
       { pattern: /degraded/i, label: 'capability degradation contract' },
       { pattern: /unsupported/i, label: 'capability unsupported contract' },
+      { pattern: /runtimeSurfaceStandard/, label: 'assembly-driven runtimeSurfaceStandard' },
+      { pattern: /RTC_RUNTIME_SURFACE_METHODS/, label: 'rtc runtime surface method catalog contract' },
+      {
+        pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
+        label: 'rtc runtime surface failure code contract',
+      },
       { pattern: /errorCodeStandard/, label: 'assembly-driven errorCodeStandard' },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'rtc sdk error fallback contract' },
@@ -233,6 +241,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryContract/, label: 'internal docs providerPackageBoundaryContract coverage' },
       { pattern: /capabilityStandard/, label: 'internal docs capabilityStandard coverage' },
       { pattern: /capabilityNegotiationStandard/, label: 'internal docs capabilityNegotiationStandard coverage' },
+      { pattern: /runtimeSurfaceStandard/, label: 'internal docs runtimeSurfaceStandard coverage' },
       { pattern: /errorCodeStandard/, label: 'internal docs errorCodeStandard coverage' },
       { pattern: /providerExtensionStandard/, label: 'internal docs providerExtensionStandard coverage' },
       { pattern: /providerActivationStandard/, label: 'internal docs providerActivationStandard coverage' },
@@ -262,6 +271,11 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'internal docs capability negotiation helper index' },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'internal docs rtc sdk error catalog index' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'internal docs rtc sdk error fallback index' },
+      { pattern: /RTC_RUNTIME_SURFACE_METHODS/, label: 'internal docs runtime surface method catalog index' },
+      {
+        pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
+        label: 'internal docs runtime surface failure code index',
+      },
       { pattern: /vendor_error/, label: 'internal docs rtc sdk fallback error index' },
       { pattern: /provider-package-loader\.ts/, label: 'internal docs provider package loader index' },
       { pattern: /createRtcProviderPackageLoader/, label: 'internal docs provider package loader factory index' },
@@ -351,6 +365,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSupportStandard/, label: 'assembly-driven providerSupportStandard contract' },
       { pattern: /capabilityStandard/, label: 'assembly-driven capabilityStandard contract' },
       { pattern: /capabilityNegotiationStandard/, label: 'assembly-driven capabilityNegotiationStandard contract' },
+      { pattern: /runtimeSurfaceStandard/, label: 'assembly-driven runtimeSurfaceStandard contract' },
       { pattern: /errorCodeStandard/, label: 'assembly-driven errorCodeStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard contract' },
@@ -445,6 +460,11 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /RTC_CAPABILITY_NEGOTIATION_STATUSES/, label: 'capability negotiation status catalog contract' },
       { pattern: /RTC_CAPABILITY_NEGOTIATION_RULES/, label: 'capability negotiation rule catalog contract' },
       { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'capability negotiation resolver contract' },
+      { pattern: /RTC_RUNTIME_SURFACE_METHODS/, label: 'rtc runtime surface method catalog contract' },
+      {
+        pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
+        label: 'rtc runtime surface failure code contract',
+      },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'rtc sdk error fallback contract' },
       { pattern: /vendor_error/, label: 'rtc sdk canonical fallback error contract' },
@@ -505,6 +525,15 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /capability negotiation/i, label: 'provider adapter capability negotiation contract' },
       { pattern: /degraded/i, label: 'provider adapter degraded capability contract' },
       { pattern: /unsupported/i, label: 'provider adapter unsupported capability contract' },
+      { pattern: /runtimeSurfaceStandard/, label: 'provider adapter assembly-driven runtimeSurfaceStandard contract' },
+      {
+        pattern: /RTC_RUNTIME_SURFACE_METHODS/,
+        label: 'provider adapter rtc runtime surface method catalog contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
+        label: 'provider adapter rtc runtime surface failure code contract',
+      },
       { pattern: /errorCodeStandard/, label: 'provider adapter assembly-driven errorCodeStandard contract' },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'provider adapter rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'provider adapter rtc sdk error fallback contract' },
@@ -552,6 +581,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryContract/, label: 'provider adapter language workspace package boundary contract vocabulary' },
       { pattern: /capabilityStandard/, label: 'provider adapter assembly-driven capabilityStandard contract' },
       { pattern: /capabilityNegotiationStandard/, label: 'provider adapter assembly-driven capabilityNegotiationStandard contract' },
+      { pattern: /runtimeSurfaceStandard/, label: 'provider adapter assembly-driven runtimeSurfaceStandard contract' },
       { pattern: /errorCodeStandard/, label: 'provider adapter assembly-driven errorCodeStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'provider adapter assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'provider adapter assembly-driven providerActivationStandard contract' },
@@ -644,6 +674,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSupportStandard/, label: 'verification of assembly-driven providerSupportStandard contract' },
       { pattern: /capabilityStandard/, label: 'verification of assembly-driven capabilityStandard contract' },
       { pattern: /capabilityNegotiationStandard/, label: 'verification of assembly-driven capabilityNegotiationStandard contract' },
+      { pattern: /runtimeSurfaceStandard/, label: 'verification of assembly-driven runtimeSurfaceStandard contract' },
       { pattern: /errorCodeStandard/, label: 'verification of assembly-driven errorCodeStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'verification of assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'verification of assembly-driven providerActivationStandard contract' },
@@ -779,6 +810,11 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /RTC_CAPABILITY_NEGOTIATION_STATUSES/, label: 'verification of capability negotiation status catalog contract' },
       { pattern: /RTC_CAPABILITY_NEGOTIATION_RULES/, label: 'verification of capability negotiation rule catalog contract' },
       { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'verification of capability negotiation resolver contract' },
+      { pattern: /RTC_RUNTIME_SURFACE_METHODS/, label: 'verification of runtime surface method catalog contract' },
+      {
+        pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
+        label: 'verification of runtime surface failure code contract',
+      },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'verification of rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'verification of rtc sdk error fallback contract' },
       { pattern: /vendor_error/, label: 'verification of rtc sdk canonical fallback error contract' },
@@ -1012,6 +1048,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     providerSupportStandard,
     capabilityStandard,
     capabilityNegotiationStandard,
+    runtimeSurfaceStandard,
     errorCodeStandard,
     providerExtensionStandard,
     providerActivationStandard,
@@ -1213,6 +1250,29 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     JSON.stringify(RTC_CAPABILITY_NEGOTIATION_RULES)
   ) {
     fail('capabilityNegotiationStandard.statusRules must exactly match the canonical negotiation rules');
+  }
+
+  if (
+    !Array.isArray(runtimeSurfaceStandard?.methodTerms) ||
+    runtimeSurfaceStandard.methodTerms.length === 0
+  ) {
+    fail('runtimeSurfaceStandard.methodTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    runtimeSurfaceStandard.methodTerms,
+    RTC_RUNTIME_SURFACE_METHODS,
+    'Assembly runtimeSurfaceStandard.methodTerms',
+  );
+
+  if (runtimeSurfaceStandard.failureCode !== RTC_RUNTIME_SURFACE_FAILURE_CODE) {
+    fail(
+      `runtimeSurfaceStandard.failureCode must be ${RTC_RUNTIME_SURFACE_FAILURE_CODE}`,
+    );
+  }
+
+  if (!errorCodeStandard?.codeTerms?.includes(runtimeSurfaceStandard.failureCode)) {
+    fail('runtimeSurfaceStandard.failureCode must also be declared in errorCodeStandard.codeTerms');
   }
 
   if (!Array.isArray(errorCodeStandard?.codeTerms) || errorCodeStandard.codeTerms.length === 0) {
@@ -3547,6 +3607,29 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
   }
 
+  const runtimeSurfacePath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'runtime-surface.ts',
+  );
+  const runtimeSurfaceContent = readFileSync(runtimeSurfacePath, 'utf8');
+
+  for (const token of [
+    'RTC_RUNTIME_SURFACE_METHODS',
+    'RtcRuntimeSurfaceMethodName',
+    'RTC_RUNTIME_SURFACE_FAILURE_CODE',
+    'RtcRuntimeSurfaceFailureCode',
+    'RTC_RUNTIME_SURFACE_STANDARD',
+    'freezeRtcRuntimeValue',
+    ...RTC_RUNTIME_SURFACE_METHODS,
+    RTC_RUNTIME_SURFACE_FAILURE_CODE,
+  ]) {
+    if (!new RegExp(escapeRegExp(token)).test(runtimeSurfaceContent)) {
+      fail(`TypeScript runtime surface token drift: ${token}`);
+    }
+  }
+
   const typeScriptIndexPath = path.join(
     workspaceRoot,
     'sdkwork-rtc-sdk-typescript',
@@ -3555,7 +3638,11 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   );
   const typeScriptIndexContent = readFileSync(typeScriptIndexPath, 'utf8');
 
-  for (const token of ['./capability-negotiation.js', './provider-package-loader.js']) {
+  for (const token of [
+    './capability-negotiation.js',
+    './provider-package-loader.js',
+    './runtime-surface.js',
+  ]) {
     if (!new RegExp(escapeRegExp(token)).test(typeScriptIndexContent)) {
       fail(`TypeScript index export drift: ${token}`);
     }

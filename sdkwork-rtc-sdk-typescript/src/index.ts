@@ -1,4 +1,5 @@
 export * from './errors.js';
+export * from './runtime-surface.js';
 export * from './types.js';
 export * from './capability-catalog.js';
 export * from './capability-negotiation.js';

@@ -3,6 +3,8 @@ import {
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
   RTC_CAPABILITY_SURFACES,
+  RTC_RUNTIME_SURFACE_FAILURE_CODE,
+  RTC_RUNTIME_SURFACE_METHODS,
   RTC_SDK_ERROR_CODES,
   RTC_SDK_ERROR_FALLBACK_CODE,
   BUILTIN_RTC_PROVIDER_KEYS,
@@ -151,6 +153,19 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   ) {
     throw new Error(
       'capabilityNegotiationStandard.statusRules must exactly match the canonical negotiation rules',
+    );
+  }
+
+  const runtimeSurfaceStandard = assembly.runtimeSurfaceStandard ?? {};
+  if (!hasExactArray(runtimeSurfaceStandard.methodTerms, RTC_RUNTIME_SURFACE_METHODS)) {
+    throw new Error(
+      `runtimeSurfaceStandard.methodTerms must be ${RTC_RUNTIME_SURFACE_METHODS.join(', ')}`,
+    );
+  }
+
+  if (runtimeSurfaceStandard.failureCode !== RTC_RUNTIME_SURFACE_FAILURE_CODE) {
+    throw new Error(
+      `runtimeSurfaceStandard.failureCode must be ${RTC_RUNTIME_SURFACE_FAILURE_CODE}, received: ${runtimeSurfaceStandard.failureCode ?? '<missing>'}`,
     );
   }
 
@@ -409,6 +424,7 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     providerActivationStandard,
     capabilityStandard,
     capabilityNegotiationStandard,
+    runtimeSurfaceStandard,
     errorCodeStandard,
     providerExtensionStandard,
     providerTierStandard,

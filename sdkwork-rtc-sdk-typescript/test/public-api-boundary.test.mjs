@@ -20,6 +20,8 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.RtcSdkException, 'function');
   assert.equal(typeof sdk.RTC_SDK_ERROR_CODES, 'object');
   assert.equal(typeof sdk.RTC_SDK_ERROR_FALLBACK_CODE, 'string');
+  assert.equal(typeof sdk.RTC_RUNTIME_SURFACE_METHODS, 'object');
+  assert.equal(typeof sdk.RTC_RUNTIME_SURFACE_FAILURE_CODE, 'string');
   assert.deepEqual(sdk.RTC_SDK_ERROR_CODES, [
     'provider_package_not_found',
     'provider_package_identity_mismatch',
@@ -37,8 +39,18 @@ test('root public API keeps core contracts and builtin helpers only', async () =
     'native_sdk_not_available',
     'vendor_error',
   ]);
+  assert.deepEqual(sdk.RTC_RUNTIME_SURFACE_METHODS, [
+    'join',
+    'leave',
+    'publish',
+    'unpublish',
+    'muteAudio',
+    'muteVideo',
+  ]);
   assert.equal(Object.isFrozen(sdk.RTC_SDK_ERROR_CODES), true);
+  assert.equal(Object.isFrozen(sdk.RTC_RUNTIME_SURFACE_METHODS), true);
   assert.equal(sdk.RTC_SDK_ERROR_FALLBACK_CODE, 'vendor_error');
+  assert.equal(sdk.RTC_RUNTIME_SURFACE_FAILURE_CODE, 'native_sdk_not_available');
   assert.equal(typeof sdk.resolveRtcProviderSupportStatus, 'function');
   assert.equal(typeof sdk.createRtcProviderSupportState, 'function');
   assert.equal(typeof sdk.RTC_PROVIDER_SUPPORT_STATUSES, 'object');

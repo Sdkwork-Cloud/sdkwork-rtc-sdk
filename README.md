@@ -37,8 +37,8 @@ This workspace standardizes:
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
 - assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
-  `languageMaturityStandard` vocabularies
+  `runtimeSurfaceStandard`, `errorCodeStandard`, `providerExtensionStandard`,
+  `providerTierStandard`, and `languageMaturityStandard` vocabularies
 - assembly-driven `typescriptAdapterStandard` and `typescriptPackageStandard` contracts for
   TypeScript provider adapter and package identity normalization
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
@@ -99,6 +99,8 @@ The top-level assembly also fixes the shared vocabulary standards:
 - `capabilityStandard.surfaceTerms`
 - `capabilityNegotiationStandard.statusTerms`
 - `capabilityNegotiationStandard.statusRules`
+- `runtimeSurfaceStandard.methodTerms`
+- `runtimeSurfaceStandard.failureCode`
 - `errorCodeStandard.codeTerms`
 - `errorCodeStandard.fallbackCode`
 - `providerExtensionStandard.accessTerms`
@@ -196,6 +198,12 @@ The TypeScript errors module at `sdkwork-rtc-sdk-typescript/src/errors.ts` must 
 `RTC_SDK_ERROR_CODES`, `RTC_SDK_ERROR_FALLBACK_CODE`, and `RtcSdkException` stable so the shared
 error vocabulary stays assembly-governed instead of being re-embedded as ad hoc string literals.
 The canonical fallback remains `vendor_error`.
+
+The TypeScript runtime-surface module at
+`sdkwork-rtc-sdk-typescript/src/runtime-surface.ts` must also keep
+`RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
+`RTC_RUNTIME_SURFACE_STANDARD` aligned to `runtimeSurfaceStandard` so provider-neutral runtime
+method vocabulary and missing-runtime failure semantics stay assembly-governed.
 
 The TypeScript provider-package catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts` must also keep

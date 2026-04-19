@@ -138,6 +138,17 @@ export const RTC_CAPABILITY_NEGOTIATION_RULES = Object.freeze({
   unsupported: 'required-capabilities-missing',
 });
 
+export const RTC_RUNTIME_SURFACE_METHODS = Object.freeze([
+  'join',
+  'leave',
+  'publish',
+  'unpublish',
+  'muteAudio',
+  'muteVideo',
+]);
+
+export const RTC_RUNTIME_SURFACE_FAILURE_CODE = 'native_sdk_not_available';
+
 export const RTC_SDK_ERROR_CODES = Object.freeze([
   'provider_package_not_found',
   'provider_package_identity_mismatch',

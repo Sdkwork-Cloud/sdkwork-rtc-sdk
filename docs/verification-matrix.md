@@ -29,8 +29,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
-  `languageMaturityStandard` materialized into docs and matrix assets
+  `runtimeSurfaceStandard`, `errorCodeStandard`, `providerExtensionStandard`,
+  `providerTierStandard`, and `languageMaturityStandard` materialized into docs and matrix assets
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -43,8 +43,11 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the TypeScript provider activation catalog at
   `sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts`
 - the TypeScript provider catalog at `sdkwork-rtc-sdk-typescript/src/provider-catalog.ts`
+- the TypeScript runtime surface module at `sdkwork-rtc-sdk-typescript/src/runtime-surface.ts`
 - the default provider constants `DEFAULT_RTC_PROVIDER_KEY`,
   `DEFAULT_RTC_PROVIDER_PLUGIN_ID`, and `DEFAULT_RTC_PROVIDER_DRIVER_ID` inside that catalog
+- the root public runtime surface constants `RTC_RUNTIME_SURFACE_METHODS` and
+  `RTC_RUNTIME_SURFACE_FAILURE_CODE`
 - the TypeScript providers directory README
 - every TypeScript provider package manifest
 - every TypeScript provider package `index.js` entrypoint
@@ -120,6 +123,8 @@ The root verifier must confirm:
   `capabilityStandard.surfaceTerms`
 - `.sdkwork-assembly.json` declares `capabilityNegotiationStandard.statusTerms` and
   `capabilityNegotiationStandard.statusRules`
+- `.sdkwork-assembly.json` declares `runtimeSurfaceStandard.methodTerms` and
+  `runtimeSurfaceStandard.failureCode`
 - `.sdkwork-assembly.json` declares `errorCodeStandard.codeTerms` and
   `errorCodeStandard.fallbackCode`
 - `.sdkwork-assembly.json` declares `providerExtensionStandard.accessTerms` and
@@ -309,6 +314,8 @@ The root verifier must confirm:
 - the TypeScript capability negotiation module exists and preserves
   `RTC_CAPABILITY_NEGOTIATION_STATUSES`, `RTC_CAPABILITY_NEGOTIATION_RULES`, and
   `resolveRtcCapabilityNegotiationStatus(...)`
+- the TypeScript runtime surface module exists and preserves `RTC_RUNTIME_SURFACE_METHODS`,
+  `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD`
 - the TypeScript errors module exists and preserves `RTC_SDK_ERROR_CODES`,
   `RTC_SDK_ERROR_FALLBACK_CODE`, `RtcSdkException`, and the canonical fallback `vendor_error`
 - the TypeScript provider support module exists and preserves the standard support-status tokens,
@@ -374,9 +381,11 @@ The TypeScript workspace must verify:
   support descriptors, and capability negotiation results remain immutable snapshots
 - `RTC_PROVIDER_SELECTION_SOURCES` and `RTC_PROVIDER_SELECTION_PRECEDENCE` remain `runtime-frozen`
 - `RTC_PROVIDER_SUPPORT_STATUSES` remains `runtime-frozen`
+- `RTC_RUNTIME_SURFACE_METHODS` remains `runtime-frozen`
 - `RTC_SDK_ERROR_CODES` remains `runtime-frozen`
 - `parseRtcProviderUrl(...)` and `resolveRtcProviderSelection(...)` remain root-public
 - `resolveRtcProviderSupportStatus(...)` and `createRtcProviderSupportState(...)` remain root-public
+- `RTC_RUNTIME_SURFACE_METHODS` and `RTC_RUNTIME_SURFACE_FAILURE_CODE` remain root-public
 - `RtcSdkException`, `RTC_SDK_ERROR_CODES`, and `RTC_SDK_ERROR_FALLBACK_CODE` remain root-public
 - `getRtcProviderByProviderKey(...)` remains root-public
 - `getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)` remain root-public

@@ -55,6 +55,31 @@ function renderTypeScriptAdapterContract(contract) {
   }`;
 }
 
+function renderTypeScriptRuntimeSurface(assembly) {
+  return `import type { RtcSdkErrorCode } from './errors.js';
+import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+
+export const RTC_RUNTIME_SURFACE_METHODS = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.runtimeSurfaceStandard?.methodTerms ?? [],
+  )});
+
+export type RtcRuntimeSurfaceMethodName = (typeof RTC_RUNTIME_SURFACE_METHODS)[number];
+
+export type RtcRuntimeSurfaceFailureCode = Extract<RtcSdkErrorCode, ${renderStringLiteral(
+    assembly.runtimeSurfaceStandard?.failureCode ?? '',
+  )}>;
+
+export const RTC_RUNTIME_SURFACE_FAILURE_CODE: RtcRuntimeSurfaceFailureCode = ${renderStringLiteral(
+    assembly.runtimeSurfaceStandard?.failureCode ?? '',
+  )};
+
+export const RTC_RUNTIME_SURFACE_STANDARD = freezeRtcRuntimeValue({
+  methodTerms: RTC_RUNTIME_SURFACE_METHODS,
+  failureCode: RTC_RUNTIME_SURFACE_FAILURE_CODE,
+} as const);
+`;
+}
+
 function renderTypeScriptPackageContract(contract) {
   return `{
     packageName: ${renderStringLiteral(contract.packageName)},
@@ -650,6 +675,10 @@ ${renderRoleHighlights(roleHighlights)}
 ${languageEntry.workspaceSummary}
 This workspace does not bundle vendor SDK implementations. Provider adapters wrap caller-supplied
 native client factories and expose vendor escape hatches through \`unwrap()\`.
+The shared runtime-surface module at \`src/runtime-surface.ts\` materializes
+\`runtimeSurfaceStandard\` into \`RTC_RUNTIME_SURFACE_METHODS\`,
+\`RTC_RUNTIME_SURFACE_FAILURE_CODE\`, and \`RTC_RUNTIME_SURFACE_STANDARD\` so the provider-neutral
+runtime method vocabulary and missing-runtime failure semantics stay assembly-governed.
 ${renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly)}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
 ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
@@ -828,6 +857,13 @@ function renderCapabilityMatrix(assembly) {
     `- \`capabilityNegotiationStandard.statusRules.degraded\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.degraded ?? ''}\``,
     `- \`capabilityNegotiationStandard.statusRules.unsupported\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.unsupported ?? ''}\``,
   ].join('\n');
+  const runtimeSurfaceStandardLines = [
+    `- \`runtimeSurfaceStandard.methodTerms\`: ${renderMarkdownCodeList(
+      assembly.runtimeSurfaceStandard?.methodTerms ?? [],
+    )}`,
+    `- \`runtimeSurfaceStandard.failureCode\`: \`${assembly.runtimeSurfaceStandard?.failureCode ?? ''}\``,
+    '- TypeScript root public constants: `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`',
+  ].join('\n');
   const errorCodeStandardLines = [
     `- \`errorCodeStandard.codeTerms\`: ${renderMarkdownCodeList(
       assembly.errorCodeStandard?.codeTerms ?? [],
@@ -893,6 +929,10 @@ ${capabilityStandardLines}
 ## Capability Negotiation Standard
 
 ${capabilityNegotiationStandardLines}
+
+## Runtime Surface Standard
+
+${runtimeSurfaceStandardLines}
 
 ## Error Code Standard
 
@@ -1549,6 +1589,10 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
       content: renderTypeScriptProviderExtensionCatalog(assembly),
+    },
+    {
+      relativePath: 'sdkwork-rtc-sdk-typescript/src/runtime-surface.ts',
+      content: renderTypeScriptRuntimeSurface(assembly),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',

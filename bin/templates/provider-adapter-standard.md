@@ -100,9 +100,9 @@ catalog must preserve it through `providerPackageBoundaryContract.modeTerms`,
 Provider adapters must consume those standard vocabularies and must not invent alternate
 package-boundary status or root-public-policy terms locally.
 
-The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`, `errorCodeStandard`,
-`providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard` are also
-canonical.
+The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
+`runtimeSurfaceStandard`, `errorCodeStandard`, `providerExtensionStandard`,
+`providerTierStandard`, and `languageMaturityStandard` are also canonical.
 Provider adapters, catalogs, and docs must consume those top-level vocabularies instead of
 redeclaring capability categories, capability surfaces, extension access/status terms, provider
 tiers, or language maturity tiers in isolated module-local constants.
@@ -135,6 +135,11 @@ The stable runtime surface is fixed across adapters:
 These methods are provider-neutral contract methods, not direct vendor SDK symbols.
 Provider adapters must bind them through a consumer-supplied runtime bridge that wraps the official
 vendor SDK.
+The assembly-driven `runtimeSurfaceStandard` is canonical for that method vocabulary and for the
+missing-runtime failure code.
+The TypeScript runtime-surface module at `src/runtime-surface.ts` keeps
+`RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
+`RTC_RUNTIME_SURFACE_STANDARD` aligned to that contract.
 
 Provider adapters must not:
 
