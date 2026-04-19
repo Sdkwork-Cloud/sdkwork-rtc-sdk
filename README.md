@@ -215,6 +215,16 @@ Canonical forms:
   `get_rtc_provider_extension_descriptor(...)`, `get_rtc_provider_extensions_for_provider(...)`,
   `has_rtc_provider_extension(...)`, `get_rtc_language_workspace_by_language(...)`
 
+Every official language workspace entry must also declare a cross-language
+`providerPackageBoundary` contract in the language workspace catalog.
+That boundary summary is the canonical package-topology contract:
+`providerPackageBoundary.mode`, `providerPackageBoundary.rootPublicPolicy`,
+`providerPackageBoundary.lifecycleStatusTerms`, and
+`providerPackageBoundary.runtimeBridgeStatusTerms`.
+TypeScript is the only `catalog-governed-mixed` workspace and keeps
+`rootPublicPolicy` fixed at `builtin-only`, while reserved languages stay
+`scaffold-per-provider-package` and keep `rootPublicPolicy` fixed at `none`.
+
 TypeScript provider package boundaries under
 `sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-<providerKey>/` must also ship executable
 `index.js` and `index.d.ts` entrypoints and declare `exports` for `import`, `default`, and `types`.

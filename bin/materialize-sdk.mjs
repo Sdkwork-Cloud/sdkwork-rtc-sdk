@@ -189,6 +189,25 @@ Provider package scaffold:
 `;
 }
 
+function renderLanguageWorkspaceProviderPackageBoundary(languageEntry) {
+  if (!languageEntry.providerPackageBoundary) {
+    return '';
+  }
+
+  return `
+Provider package boundary:
+
+- mode: \`${languageEntry.providerPackageBoundary.mode}\`
+- root public policy: \`${languageEntry.providerPackageBoundary.rootPublicPolicy}\`
+- lifecycle status terms: ${renderMarkdownCodeList(
+    languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+  )}
+- runtime bridge status terms: ${renderMarkdownCodeList(
+    languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+  )}
+`;
+}
+
 function describeProviderActivationStatus(activationStatus) {
   switch (activationStatus) {
     case 'root-public-builtin':
@@ -307,6 +326,16 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
             languageEntry.resolutionScaffold.providerPackageLoaderRelativePath,
         }
       : undefined,
+    providerPackageBoundary: languageEntry.providerPackageBoundary
+      ? {
+          mode: languageEntry.providerPackageBoundary.mode,
+          rootPublicPolicy: languageEntry.providerPackageBoundary.rootPublicPolicy,
+          lifecycleStatusTerms: [...(languageEntry.providerPackageBoundary.lifecycleStatusTerms ?? [])],
+          runtimeBridgeStatusTerms: [
+            ...(languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms ?? []),
+          ],
+        }
+      : undefined,
     providerPackageScaffold: languageEntry.providerPackageScaffold
       ? {
           relativePath: languageEntry.providerPackageScaffold.relativePath,
@@ -338,8 +367,9 @@ Language workspace catalog:
 
 - workspace catalog: \`${languageEntry.workspaceCatalogRelativePath}\`
 - workspace catalog entries also keep \`workspaceCatalogRelativePath\` plus any declared
-  \`metadataScaffold\`, \`resolutionScaffold\`, and \`providerPackageScaffold\` boundaries so
-  consumers can inspect official assembly-driven module locations without rereading the assembly.
+  \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
+  \`providerPackageScaffold\` boundaries so consumers can inspect official assembly-driven module
+  locations without rereading the assembly.
 `;
 }
 
@@ -368,6 +398,19 @@ function renderTypeScriptLanguageWorkspaceResolutionScaffold(resolutionScaffold)
     dataSourceRelativePath: ${renderStringLiteral(resolutionScaffold.dataSourceRelativePath)},
     providerSupportRelativePath: ${renderStringLiteral(resolutionScaffold.providerSupportRelativePath)},
     providerPackageLoaderRelativePath: ${renderStringLiteral(resolutionScaffold.providerPackageLoaderRelativePath)},
+  })`;
+}
+
+function renderTypeScriptLanguageWorkspaceProviderPackageBoundary(providerPackageBoundary) {
+  if (!providerPackageBoundary) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    mode: ${renderStringLiteral(providerPackageBoundary.mode)},
+    rootPublicPolicy: ${renderStringLiteral(providerPackageBoundary.rootPublicPolicy)},
+    lifecycleStatusTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageBoundary.lifecycleStatusTerms)}),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageBoundary.runtimeBridgeStatusTerms)}),
   })`;
 }
 
@@ -420,6 +463,7 @@ ${entries
   roleHighlights: freezeRtcRuntimeValue(${renderReadonlyStringArray(entry.roleHighlights)}),
   metadataScaffold: ${renderTypeScriptLanguageWorkspaceMetadataScaffold(entry.metadataScaffold)},
   resolutionScaffold: ${renderTypeScriptLanguageWorkspaceResolutionScaffold(entry.resolutionScaffold)},
+  providerPackageBoundary: ${renderTypeScriptLanguageWorkspaceProviderPackageBoundary(entry.providerPackageBoundary)},
   providerPackageScaffold: ${renderTypeScriptLanguageWorkspaceProviderPackageScaffold(entry.providerPackageScaffold)},
 });`;
   })
@@ -491,6 +535,7 @@ ${languageEntry.workspaceSummary}
 This workspace does not bundle vendor SDK implementations. Provider adapters wrap caller-supplied
 native client factories and expose vendor escape hatches through \`unwrap()\`.
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
+${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
 
 Standards references:
 
@@ -524,6 +569,7 @@ ${renderRoleHighlights([languageEntry.currentRole, ...(languageEntry.roleHighlig
 
 ${languageEntry.workspaceSummary}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
+${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
 ${renderReservedLanguagePackageScaffold(languageEntry)}
 ${renderReservedLanguageMetadataScaffold(languageEntry)}
 ${renderReservedLanguageResolutionScaffold(languageEntry)}
@@ -549,13 +595,13 @@ Current docs:
   JDBC-style driver and adapter rules.
 - \`multilanguage-capability-matrix.md\`
   Capability catalog, provider extension catalog, provider tiers, language roles, maturity tiers,
-  runtime support boundaries, assembly-driven language workspace catalog paths, TypeScript runtime
-  bridge baselines, reserved language package/build scaffolds, reserved language metadata scaffolds,
-  reserved language provider activation catalog scaffolds, reserved language resolution scaffolds,
-  reserved language provider package scaffolds and materialized future provider package boundaries
-  with template token, source file, source symbol, reserved status, and root public exposure
-  contracts, and
-  language-provider activation matrix.
+  runtime support boundaries, assembly-driven language workspace catalog paths, cross-language
+  \`providerPackageBoundary\` modes and root-public policies, TypeScript runtime bridge baselines,
+  reserved language package/build scaffolds, reserved language metadata scaffolds, reserved
+  language provider activation catalog scaffolds, reserved language resolution scaffolds, reserved
+  language provider package scaffolds and materialized future provider package boundaries with
+  template token, source file, source symbol, reserved status, and root public exposure contracts,
+  and language-provider activation matrix.
 - \`verification-matrix.md\`
   Root verification expectations and commands.
 
@@ -592,6 +638,12 @@ The TypeScript executable baseline fixes these standard modules as the executabl
 - language workspace catalog: \`sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts\`
   Includes \`getRtcLanguageWorkspaceByLanguage(...)\` so the official language matrix stays
   queryable by language key inside the executable baseline.
+  Each \`RtcLanguageWorkspaceCatalogEntry\` also declares \`providerPackageBoundary\` so
+  package-boundary semantics stay explicit across languages instead of being inferred from
+  TypeScript-only package manifests or reserved-language scaffold prose.
+  TypeScript stays \`catalog-governed-mixed\` with \`rootPublicPolicy\` set to \`builtin-only\`,
+  while reserved languages stay \`scaffold-per-provider-package\` with \`rootPublicPolicy\` set to
+  \`none\`.
 
 Reserved non-TypeScript language workspace catalogs and metadata scaffolds must also keep explicit
 lookup helpers stable with language-idiomatic naming. The required helper families remain:
@@ -699,6 +751,13 @@ function renderCapabilityMatrix(assembly) {
       (languageEntry) =>
         `| ${languageEntry.displayName} | \`${languageEntry.workspaceCatalogRelativePath}\` | \`${languageEntry.publicPackage}\` | ${languageEntry.controlSdk ? 'Yes' : 'No'} | ${languageEntry.runtimeBridge ? 'Yes' : 'No'} | \`${languageEntry.maturityTier}\` |`,
     )
+    .join('\n');
+  const languageProviderPackageBoundaryRows = (assembly.languages ?? [])
+    .map((languageEntry) => {
+      const scaffoldPath = languageEntry.providerPackageScaffold?.relativePath ?? '<none>';
+
+      return `| ${languageEntry.displayName} | \`${languageEntry.providerPackageBoundary.mode}\` | \`${languageEntry.providerPackageBoundary.rootPublicPolicy}\` | ${renderMarkdownCodeList(languageEntry.providerPackageBoundary.lifecycleStatusTerms)} | ${renderMarkdownCodeList(languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms)} | \`${scaffoldPath}\` |`;
+    })
     .join('\n');
   const languageProviderActivationRows = (assembly.languages ?? [])
     .flatMap((languageEntry) =>
@@ -808,6 +867,12 @@ ${languageRows}
 | Language | Workspace catalog | Public package | Control SDK | Runtime bridge | Maturity tier |
 | --- | --- | --- | --- | --- | --- |
 ${languageWorkspaceCatalogRows}
+
+## Language Provider Package Boundary Matrix
+
+| Language | Mode | Root public policy | Lifecycle status terms | Runtime bridge status terms | Concrete scaffold path |
+| --- | --- | --- | --- | --- | --- |
+${languageProviderPackageBoundaryRows}
 
 ## Reserved Language Package Scaffold Matrix
 

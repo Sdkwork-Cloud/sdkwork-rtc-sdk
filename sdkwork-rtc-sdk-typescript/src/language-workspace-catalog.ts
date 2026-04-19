@@ -29,6 +29,12 @@ export const TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalo
     providerSupportRelativePath: 'src/provider-support.ts',
     providerPackageLoaderRelativePath: 'src/provider-package-loader.ts',
   }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'catalog-governed-mixed',
+    rootPublicPolicy: 'builtin-only',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline'] as const),
+  }),
   providerPackageScaffold: undefined,
 });
 
@@ -57,6 +63,12 @@ export const FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEn
     dataSourceRelativePath: 'lib/src/rtc_data_source.dart',
     providerSupportRelativePath: 'lib/src/rtc_provider_support.dart',
     providerPackageLoaderRelativePath: 'lib/src/rtc_provider_package_loader.dart',
+  }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
   }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
@@ -100,6 +112,12 @@ export const RUST_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
     providerSupportRelativePath: 'src/provider_support.rs',
     providerPackageLoaderRelativePath: 'src/provider_package_loader.rs',
   }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
+  }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
     directoryPattern: 'providers/rtc-sdk-provider-{providerKey}',
@@ -141,6 +159,12 @@ export const JAVA_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
     dataSourceRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java',
     providerSupportRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java',
     providerPackageLoaderRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.java',
+  }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
   }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
@@ -184,6 +208,12 @@ export const CSHARP_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     providerSupportRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs',
     providerPackageLoaderRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs',
   }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
+  }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
     directoryPattern: 'providers/Sdkwork.Rtc.Sdk.Provider.{providerPascal}',
@@ -225,6 +255,12 @@ export const SWIFT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntr
     dataSourceRelativePath: 'Sources/RtcSdk/RtcDataSource.swift',
     providerSupportRelativePath: 'Sources/RtcSdk/RtcProviderSupport.swift',
     providerPackageLoaderRelativePath: 'Sources/RtcSdk/RtcProviderPackageLoader.swift',
+  }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
   }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
@@ -268,6 +304,12 @@ export const KOTLIN_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     providerSupportRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt',
     providerPackageLoaderRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.kt',
   }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
+  }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
     directoryPattern: 'providers/rtc-sdk-provider-{providerKey}',
@@ -310,6 +352,12 @@ export const GO_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry =
     providerSupportRelativePath: 'rtcstandard/provider_support.go',
     providerPackageLoaderRelativePath: 'rtcstandard/provider_package_loader.go',
   }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
+  }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',
     directoryPattern: 'providers/rtc-sdk-provider-{providerKey}',
@@ -351,6 +399,12 @@ export const PYTHON_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     dataSourceRelativePath: 'sdkwork_rtc_sdk/data_source.py',
     providerSupportRelativePath: 'sdkwork_rtc_sdk/provider_support.py',
     providerPackageLoaderRelativePath: 'sdkwork_rtc_sdk/provider_package_loader.py',
+  }),
+  providerPackageBoundary: freezeRtcRuntimeValue({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reserved'] as const),
   }),
   providerPackageScaffold: freezeRtcRuntimeValue({
     relativePath: 'providers/provider-package-scaffold.md',

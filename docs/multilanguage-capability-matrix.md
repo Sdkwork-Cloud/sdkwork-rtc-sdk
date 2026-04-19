@@ -104,6 +104,20 @@ support boundaries, and maturity tiers stay exact and verifiable.
 | Go | `rtcstandard/language_workspace_catalog.go` | `github.com/sdkwork/rtc-sdk` | Yes | No | `reserved` |
 | Python | `sdkwork_rtc_sdk/language_workspace_catalog.py` | `sdkwork-rtc-sdk` | Yes | No | `reserved` |
 
+## Language Provider Package Boundary Matrix
+
+| Language | Mode | Root public policy | Lifecycle status terms | Runtime bridge status terms | Concrete scaffold path |
+| --- | --- | --- | --- | --- | --- |
+| TypeScript | `catalog-governed-mixed` | `builtin-only` | `root_public_reference_boundary`, `package_reference_boundary` | `reference-baseline` | `<none>` |
+| Flutter | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| Rust | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| Java | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| C# | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| Swift | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| Kotlin | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| Go | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+| Python | `scaffold-per-provider-package` | `none` | `future-runtime-bridge-only` | `reserved` | `providers/provider-package-scaffold.md` |
+
 ## Reserved Language Package Scaffold Matrix
 
 | Language | Build system | Manifest path | Contract scaffold |

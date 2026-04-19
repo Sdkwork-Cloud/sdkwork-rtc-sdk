@@ -132,6 +132,16 @@ The root verifier must confirm:
 - every language workspace ships the declared language workspace catalog file
 - every language declares the assembly-driven language-provider activation matrix as
   `providerActivations`
+- every language declares an assembly-driven `providerPackageBoundary`
+- every language preserves `providerPackageBoundary.mode`,
+  `providerPackageBoundary.rootPublicPolicy`,
+  `providerPackageBoundary.lifecycleStatusTerms`, and
+  `providerPackageBoundary.runtimeBridgeStatusTerms`
+- TypeScript preserves `providerPackageBoundary.mode` as `catalog-governed-mixed`,
+  `providerPackageBoundary.rootPublicPolicy` as `builtin-only`,
+  `providerPackageBoundary.lifecycleStatusTerms` as
+  `root_public_reference_boundary` and `package_reference_boundary`,
+  and `providerPackageBoundary.runtimeBridgeStatusTerms` as `reference-baseline`
 - every reserved non-TypeScript language declares an assembly-driven `contractScaffold`
 - every reserved non-TypeScript language workspace ships the declared code-level contract scaffold
   file
@@ -157,9 +167,18 @@ The root verifier must confirm:
   patterns
 - every reserved language provider package scaffold preserves the allowed package template tokens:
   `{providerKey}` and `{providerPascal}`
+- every reserved language preserves `providerPackageBoundary.mode` as
+  `scaffold-per-provider-package` and `providerPackageBoundary.rootPublicPolicy` as `none`
+- every reserved language preserves `providerPackageBoundary.lifecycleStatusTerms` as
+  `future-runtime-bridge-only`
+- every reserved language preserves `providerPackageBoundary.runtimeBridgeStatusTerms` as
+  `reserved`
 - every reserved language provider package scaffold preserves `providerPackageScaffold.status` as
   `future-runtime-bridge-only`, `providerPackageScaffold.runtimeBridgeStatus` as `reserved`, and
   `providerPackageScaffold.rootPublic` as `false`
+- every reserved language provider package scaffold stays exactly aligned with
+  `providerPackageBoundary.lifecycleStatusTerms` and
+  `providerPackageBoundary.runtimeBridgeStatusTerms`
 - every reserved language provider package scaffold preserves the one-provider package boundary rule
   and the provider catalog identity tokens `providerKey`, `pluginId`, and `driverId`
 - every reserved language materializes one future provider package manifest and one README per

@@ -14,6 +14,10 @@ const LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS = [
   'builtin_reference_boundary',
   'official_reserved_boundary',
 ];
+const REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS = [
+  'root_public_reference_boundary',
+  'package_reference_boundary',
+];
 
 function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
@@ -54,6 +58,16 @@ function extractTemplateTokens(value) {
 
 function normalizeStringArray(values) {
   return [...new Set((values ?? []).map((value) => String(value)))].sort();
+}
+
+function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
+  const boundary = languageEntry.providerPackageBoundary;
+  assert.equal(typeof boundary?.mode, 'string');
+  assert.equal(typeof boundary?.rootPublicPolicy, 'string');
+  assert.equal(Array.isArray(boundary?.lifecycleStatusTerms), true);
+  assert.equal(Array.isArray(boundary?.runtimeBridgeStatusTerms), true);
+  assert.equal((boundary?.lifecycleStatusTerms?.length ?? 0) > 0, true);
+  assert.equal((boundary?.runtimeBridgeStatusTerms?.length ?? 0) > 0, true);
 }
 
 function materializeProviderPackagePattern(pattern, providerKey) {
@@ -840,6 +854,11 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /source stub/i);
   assert.match(rootReadme, /source symbol/i);
   assert.match(rootReadme, /provider activation catalog/i);
+  assert.match(rootReadme, /providerPackageBoundary/);
+  assert.match(rootReadme, /rootPublicPolicy/);
+  assert.match(rootReadme, /catalog-governed-mixed/);
+  assert.match(rootReadme, /scaffold-per-provider-package/);
+  assert.match(rootReadme, /builtin-only/);
   assert.match(rootReadme, /getBuiltinRtcProviderMetadataByKey/);
   assert.match(rootReadme, /getOfficialRtcProviderMetadataByKey/);
   assert.match(rootReadme, /getRtcProviderByProviderKey/);
@@ -862,6 +881,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /provider-support\.ts/);
   assert.match(docsReadme, /provider-package-catalog\.ts/);
   assert.match(docsReadme, /language-workspace-catalog\.ts/);
+  assert.match(docsReadme, /providerPackageBoundary/);
+  assert.match(docsReadme, /rootPublicPolicy/);
+  assert.match(docsReadme, /catalog-governed-mixed/);
+  assert.match(docsReadme, /scaffold-per-provider-package/);
+  assert.match(docsReadme, /builtin-only/);
+  assert.match(docsReadme, /`none`/);
   assert.match(docsReadme, /getBuiltinRtcProviderMetadataByKey/);
   assert.match(docsReadme, /getOfficialRtcProviderMetadataByKey/);
   assert.match(docsReadme, /getRtcProviderByProviderKey/);
@@ -889,6 +914,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /language workspace catalog/i);
   assert.match(packageStandards, /providerActivations/);
   assert.match(packageStandards, /typescriptPackage/);
+  assert.match(packageStandards, /providerPackageBoundary/);
+  assert.match(packageStandards, /rootPublicPolicy/);
+  assert.match(packageStandards, /catalog-governed-mixed/);
+  assert.match(packageStandards, /scaffold-per-provider-package/);
+  assert.match(packageStandards, /builtin-only/);
+  assert.match(packageStandards, /`none`/);
   assert.match(packageStandards, /@sdkwork\/rtc-sdk-provider-<providerKey>/);
   assert.match(packageStandards, /\.\.\/\.\.\/src\/providers\/<providerKey>\.ts/);
   assert.match(packageStandards, /create<ProviderPascal>RtcDriver/);
@@ -1010,6 +1041,13 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(capabilityMatrix, /Provider Extension Catalog/i);
   assert.match(capabilityMatrix, /Provider package catalog/i);
   assert.match(capabilityMatrix, /Provider activation catalog/i);
+  assert.match(capabilityMatrix, /Language Provider Package Boundary Matrix/i);
+  assert.match(capabilityMatrix, /Mode/i);
+  assert.match(capabilityMatrix, /Root public policy/i);
+  assert.match(capabilityMatrix, /catalog-governed-mixed/);
+  assert.match(capabilityMatrix, /scaffold-per-provider-package/);
+  assert.match(capabilityMatrix, /builtin-only/);
+  assert.match(capabilityMatrix, /reference-baseline/);
   assert.match(capabilityMatrix, /Reserved Language Resolution Scaffold Matrix/i);
   assert.match(capabilityMatrix, /Provider package loader/i);
   assert.match(capabilityMatrix, /Reserved Language Provider Package Scaffold Matrix/i);
@@ -1052,6 +1090,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /language workspace catalog/i);
   assert.match(verificationMatrix, /providerActivations/);
   assert.match(verificationMatrix, /typescriptPackage/);
+  assert.match(verificationMatrix, /providerPackageBoundary/);
+  assert.match(verificationMatrix, /rootPublicPolicy/);
+  assert.match(verificationMatrix, /catalog-governed-mixed/);
+  assert.match(verificationMatrix, /scaffold-per-provider-package/);
+  assert.match(verificationMatrix, /builtin-only/);
+  assert.match(verificationMatrix, /`none`/);
   assert.match(verificationMatrix, /@sdkwork\/rtc-sdk-provider-<providerKey>/);
   assert.match(verificationMatrix, /\.\.\/\.\.\/src\/providers\/<providerKey>\.ts/);
   assert.match(verificationMatrix, /create<ProviderPascal>RtcDriver/);
@@ -1142,9 +1186,14 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(typescriptReadme, /provider-activation-catalog\.ts/);
   assert.match(typescriptReadme, /reference-baseline/);
   assert.match(typescriptReadme, /official vendor sdk.*required/i);
+  assert.match(typescriptReadme, /catalog-governed-mixed/);
+  assert.match(typescriptReadme, /builtin-only/);
   assert.match(typescriptReadme, /root_public_reference_boundary/);
   assert.match(typescriptReadme, /package_reference_boundary/);
 
+  assert.match(typescriptLanguageWorkspaceCatalog, /providerPackageBoundary/);
+  assert.match(typescriptLanguageWorkspaceCatalog, /catalog-governed-mixed/);
+  assert.match(typescriptLanguageWorkspaceCatalog, /builtin-only/);
   assert.match(typescriptLanguageWorkspaceCatalog, /root_public_reference_boundary/);
   assert.match(typescriptLanguageWorkspaceCatalog, /package_reference_boundary/);
 
@@ -1161,6 +1210,13 @@ test('root documentation and materialized readmes describe provider package entr
 
   const typeScriptLanguage = assembly.languages.find((languageEntry) => languageEntry.language === 'typescript');
   assert.ok(typeScriptLanguage, 'expected TypeScript language workspace');
+  assert.deepEqual(typeScriptLanguage.providerPackageBoundary, {
+    mode: 'catalog-governed-mixed',
+    rootPublicPolicy: 'builtin-only',
+    lifecycleStatusTerms: REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
+    runtimeBridgeStatusTerms: ['reference-baseline'],
+  });
+  assert.equal(typeScriptLanguage.providerPackageScaffold, undefined);
   assert.equal(
     typeScriptLanguage.roleHighlights.some((highlight) => /root_public_reference_boundary/.test(highlight)),
     true,
@@ -1490,6 +1546,7 @@ test('official language workspaces expose language workspace catalog assets', ()
       'currentRole',
       'workspaceSummary',
       'roleHighlights',
+      'providerPackageBoundary',
       'metadataScaffold',
       'resolutionScaffold',
       'providerPackageScaffold',
@@ -1524,9 +1581,55 @@ test('official language workspaces expose language workspace catalog assets', ()
       );
     }
 
+    assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry);
+
     if (languageEntry.language === 'typescript') {
+      assert.equal(
+        content.includes(languageEntry.providerPackageBoundary.mode),
+        true,
+        'expected TypeScript providerPackageBoundary mode in workspace catalog',
+      );
+      assert.equal(
+        content.includes(languageEntry.providerPackageBoundary.rootPublicPolicy),
+        true,
+        'expected TypeScript providerPackageBoundary rootPublicPolicy in workspace catalog',
+      );
+      for (const term of languageEntry.providerPackageBoundary.lifecycleStatusTerms) {
+        assert.equal(
+          content.includes(term),
+          true,
+          `expected TypeScript providerPackageBoundary lifecycle term ${term} in workspace catalog`,
+        );
+      }
+      for (const term of languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms) {
+        assert.equal(
+          content.includes(term),
+          true,
+          `expected TypeScript providerPackageBoundary runtime term ${term} in workspace catalog`,
+        );
+      }
       assert.match(content, /getRtcLanguageWorkspaceByLanguage/);
       continue;
+    }
+    assert.equal(languageEntry.providerPackageBoundary.mode, 'scaffold-per-provider-package');
+    assert.equal(languageEntry.providerPackageBoundary.rootPublicPolicy, 'none');
+    assert.deepEqual(languageEntry.providerPackageBoundary.lifecycleStatusTerms, [
+      'future-runtime-bridge-only',
+    ]);
+    assert.deepEqual(languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms, ['reserved']);
+    for (const term of languageEntry.providerPackageBoundary.lifecycleStatusTerms) {
+      assert.equal(
+        content.includes(term),
+        true,
+        `expected reserved providerPackageBoundary lifecycle term ${term} in ${languageEntry.language} workspace catalog`,
+      );
+    }
+    for (const term of languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms) {
+      assert.equal(
+        content.includes(term),
+        true,
+        `expected reserved providerPackageBoundary runtime term ${term} in ${languageEntry.language} workspace catalog`,
+      );
     }
 
     for (const pattern of getReservedLanguageLookupHelperPatterns(languageEntry.language).languageWorkspaceCatalog) {
@@ -1650,6 +1753,13 @@ test('reserved language workspaces expose provider package scaffold files', () =
   const assembly = readJson(assemblyPath);
 
   for (const languageEntry of getReservedLanguageProviderPackageScaffolds(assembly)) {
+    assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry);
+    assert.equal(languageEntry.providerPackageBoundary.mode, 'scaffold-per-provider-package');
+    assert.equal(languageEntry.providerPackageBoundary.rootPublicPolicy, 'none');
+    assert.deepEqual(languageEntry.providerPackageBoundary.lifecycleStatusTerms, [
+      'future-runtime-bridge-only',
+    ]);
+    assert.deepEqual(languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms, ['reserved']);
     assert.equal(
       typeof languageEntry.providerPackageScaffold?.relativePath,
       'string',
@@ -1760,6 +1870,14 @@ test('reserved language workspaces expose provider package scaffold files', () =
     assert.equal(languageEntry.providerPackageScaffold.rootPublic, false);
     assert.equal(languageEntry.providerPackageScaffold.status, 'future-runtime-bridge-only');
     assert.equal(languageEntry.providerPackageScaffold.readmeFileName, 'README.md');
+    assert.deepEqual(
+      languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+      [languageEntry.providerPackageScaffold.status],
+    );
+    assert.deepEqual(
+      languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+      [languageEntry.providerPackageScaffold.runtimeBridgeStatus],
+    );
 
     const scaffoldPath = path.join(
       workspaceRoot,

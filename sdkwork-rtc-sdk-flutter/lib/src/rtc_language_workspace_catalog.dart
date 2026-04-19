@@ -13,6 +13,7 @@ final class RtcLanguageWorkspaceCatalogEntry {
     required this.roleHighlights,
     required this.metadataScaffold,
     required this.resolutionScaffold,
+    required this.providerPackageBoundary,
     required this.providerPackageScaffold,
   });
 
@@ -29,6 +30,7 @@ final class RtcLanguageWorkspaceCatalogEntry {
   final List<String> roleHighlights;
   final RtcLanguageWorkspaceMetadataScaffold metadataScaffold;
   final RtcLanguageWorkspaceResolutionScaffold resolutionScaffold;
+  final RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary;
   final RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold;
 }
 
@@ -62,6 +64,20 @@ final class RtcLanguageWorkspaceResolutionScaffold {
   final String dataSourceRelativePath;
   final String providerSupportRelativePath;
   final String providerPackageLoaderRelativePath;
+}
+
+final class RtcLanguageWorkspaceProviderPackageBoundary {
+  const RtcLanguageWorkspaceProviderPackageBoundary({
+    required this.mode,
+    required this.rootPublicPolicy,
+    required this.lifecycleStatusTerms,
+    required this.runtimeBridgeStatusTerms,
+  });
+
+  final String mode;
+  final String rootPublicPolicy;
+  final List<String> lifecycleStatusTerms;
+  final List<String> runtimeBridgeStatusTerms;
 }
 
 final class RtcLanguageWorkspaceProviderPackageScaffold {
@@ -136,6 +152,12 @@ final class RtcLanguageWorkspaceCatalog {
         providerSupportRelativePath: "src/provider-support.ts",
         providerPackageLoaderRelativePath: "src/provider-package-loader.ts",
       ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "catalog-governed-mixed",
+        rootPublicPolicy: "builtin-only",
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline"],
+      ),
       providerPackageScaffold: null,
     ),
     RtcLanguageWorkspaceCatalogEntry(
@@ -170,6 +192,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "lib/src/rtc_data_source.dart",
         providerSupportRelativePath: "lib/src/rtc_provider_support.dart",
         providerPackageLoaderRelativePath: "lib/src/rtc_provider_package_loader.dart",
+      ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
       ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
@@ -219,6 +247,12 @@ final class RtcLanguageWorkspaceCatalog {
         providerSupportRelativePath: "src/provider_support.rs",
         providerPackageLoaderRelativePath: "src/provider_package_loader.rs",
       ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
+      ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
         directoryPattern: "providers/rtc-sdk-provider-{providerKey}",
@@ -266,6 +300,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java",
         providerSupportRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java",
         providerPackageLoaderRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.java",
+      ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
       ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
@@ -315,6 +355,12 @@ final class RtcLanguageWorkspaceCatalog {
         providerSupportRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs",
         providerPackageLoaderRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs",
       ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
+      ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
         directoryPattern: "providers/Sdkwork.Rtc.Sdk.Provider.{providerPascal}",
@@ -362,6 +408,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "Sources/RtcSdk/RtcDataSource.swift",
         providerSupportRelativePath: "Sources/RtcSdk/RtcProviderSupport.swift",
         providerPackageLoaderRelativePath: "Sources/RtcSdk/RtcProviderPackageLoader.swift",
+      ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
       ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
@@ -411,6 +463,12 @@ final class RtcLanguageWorkspaceCatalog {
         providerSupportRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt",
         providerPackageLoaderRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.kt",
       ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
+      ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
         directoryPattern: "providers/rtc-sdk-provider-{providerKey}",
@@ -459,6 +517,12 @@ final class RtcLanguageWorkspaceCatalog {
         providerSupportRelativePath: "rtcstandard/provider_support.go",
         providerPackageLoaderRelativePath: "rtcstandard/provider_package_loader.go",
       ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
+      ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",
         directoryPattern: "providers/rtc-sdk-provider-{providerKey}",
@@ -506,6 +570,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "sdkwork_rtc_sdk/data_source.py",
         providerSupportRelativePath: "sdkwork_rtc_sdk/provider_support.py",
         providerPackageLoaderRelativePath: "sdkwork_rtc_sdk/provider_package_loader.py",
+      ),
+      providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
+        mode: "scaffold-per-provider-package",
+        rootPublicPolicy: "none",
+        lifecycleStatusTerms: <String>["future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reserved"],
       ),
       providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold(
         relativePath: "providers/provider-package-scaffold.md",

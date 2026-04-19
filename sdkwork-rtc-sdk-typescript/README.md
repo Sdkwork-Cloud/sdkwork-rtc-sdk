@@ -45,8 +45,17 @@ Language workspace catalog:
 
 - workspace catalog: `src/language-workspace-catalog.ts`
 - workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
-  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
-  consumers can inspect official assembly-driven module locations without rereading the assembly.
+  `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
+  `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
+  locations without rereading the assembly.
+
+
+Provider package boundary:
+
+- mode: `catalog-governed-mixed`
+- root public policy: `builtin-only`
+- lifecycle status terms: `root_public_reference_boundary`, `package_reference_boundary`
+- runtime bridge status terms: `reference-baseline`
 
 
 Standards references:

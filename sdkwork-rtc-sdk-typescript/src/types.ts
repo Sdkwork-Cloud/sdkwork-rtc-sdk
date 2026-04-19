@@ -183,8 +183,31 @@ export type RtcProviderPackageRuntimeBridgeStatus =
   | RtcTypeScriptAdapterContract['runtimeBridgeStatus']
   | 'reserved';
 
+export type RtcProviderPackageCatalogStatus =
+  | 'root_public_reference_boundary'
+  | 'package_reference_boundary';
+
 export type RtcLanguageWorkspaceProviderPackageScaffoldStatus =
   | 'future-runtime-bridge-only';
+
+export type RtcLanguageWorkspaceProviderPackageBoundaryMode =
+  | 'catalog-governed-mixed'
+  | 'scaffold-per-provider-package';
+
+export type RtcLanguageWorkspaceProviderPackageBoundaryRootPublicPolicy =
+  | 'builtin-only'
+  | 'none';
+
+export type RtcLanguageWorkspaceProviderPackageBoundaryLifecycleStatus =
+  | RtcProviderPackageCatalogStatus
+  | RtcLanguageWorkspaceProviderPackageScaffoldStatus;
+
+export interface RtcLanguageWorkspaceProviderPackageBoundary {
+  mode: RtcLanguageWorkspaceProviderPackageBoundaryMode;
+  rootPublicPolicy: RtcLanguageWorkspaceProviderPackageBoundaryRootPublicPolicy;
+  lifecycleStatusTerms: readonly RtcLanguageWorkspaceProviderPackageBoundaryLifecycleStatus[];
+  runtimeBridgeStatusTerms: readonly RtcProviderPackageRuntimeBridgeStatus[];
+}
 
 export interface RtcLanguageWorkspaceProviderPackageScaffold {
   relativePath: string;
@@ -215,12 +238,9 @@ export interface RtcLanguageWorkspaceCatalogEntry {
   roleHighlights: readonly string[];
   metadataScaffold?: RtcLanguageWorkspaceMetadataScaffold;
   resolutionScaffold?: RtcLanguageWorkspaceResolutionScaffold;
+  providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary;
   providerPackageScaffold?: RtcLanguageWorkspaceProviderPackageScaffold;
 }
-
-export type RtcProviderPackageCatalogStatus =
-  | 'root_public_reference_boundary'
-  | 'package_reference_boundary';
 
 export interface RtcProviderPackageCatalogEntry {
   providerKey: string;

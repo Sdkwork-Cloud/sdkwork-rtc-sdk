@@ -45,9 +45,20 @@ const KNOWN_LANGUAGE_PROVIDER_ACTIVATION_STATUSES = [
   'package-boundary',
   'control-metadata-only',
 ];
+const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_MODES = [
+  'catalog-governed-mixed',
+  'scaffold-per-provider-package',
+];
+const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES = [
+  'builtin-only',
+  'none',
+];
 const REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS = [
   'root_public_reference_boundary',
   'package_reference_boundary',
+];
+const REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS = [
+  'reference-baseline',
 ];
 const LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS = [
   'reserved TypeScript provider package boundaries',
@@ -57,6 +68,20 @@ const LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS = [
 const KNOWN_PROVIDER_PACKAGE_TEMPLATE_TOKENS = ['{providerKey}', '{providerPascal}'];
 const KNOWN_RESERVED_PROVIDER_PACKAGE_SCAFFOLD_STATUSES = ['future-runtime-bridge-only'];
 const KNOWN_RESERVED_PROVIDER_PACKAGE_RUNTIME_BRIDGE_STATUSES = ['reserved'];
+const REQUIRED_RESERVED_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS = ['future-runtime-bridge-only'];
+const REQUIRED_RESERVED_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS = ['reserved'];
+const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS = [
+  ...new Set([
+    ...REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
+    ...KNOWN_RESERVED_PROVIDER_PACKAGE_SCAFFOLD_STATUSES,
+  ]),
+];
+const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS = [
+  ...new Set([
+    ...KNOWN_TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+    ...KNOWN_RESERVED_PROVIDER_PACKAGE_RUNTIME_BRIDGE_STATUSES,
+  ]),
+];
 const REQUIRED_RESERVED_LANGUAGE_CONTRACT_TOKENS = [
   'RtcProviderDriver',
   'RtcDriverManager',
@@ -126,6 +151,14 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /non-source artifacts/i, label: 'workspace non-source artifact contract' },
       { pattern: /\.sdkwork-assembly\.json.*source/i, label: 'assembly snapshot source-of-truth contract' },
       { pattern: /language workspace catalog/i, label: 'language workspace catalog contract' },
+      { pattern: /providerPackageBoundary/, label: 'language workspace providerPackageBoundary contract' },
+      { pattern: /rootPublicPolicy/, label: 'language workspace rootPublicPolicy contract' },
+      { pattern: /catalog-governed-mixed/, label: 'TypeScript mixed boundary mode contract' },
+      {
+        pattern: /scaffold-per-provider-package/,
+        label: 'reserved scaffold boundary mode contract',
+      },
+      { pattern: /builtin-only/, label: 'builtin-only root public policy contract' },
       { pattern: /sdkwork-rtc-sdk-flutter\/lib\/rtc_sdk\.dart/, label: 'Flutter root barrel contract' },
       { pattern: /sdkwork-rtc-sdk-python\/sdkwork_rtc_sdk\/__init__\.py/, label: 'Python package root contract' },
       { pattern: /ProviderKey/, label: 'Go PascalCase public struct field contract' },
@@ -171,6 +204,15 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         label: 'internal docs TypeScript provider extension catalog index',
       },
       { pattern: /language-workspace-catalog\.ts/, label: 'internal docs TypeScript language workspace catalog index' },
+      { pattern: /providerPackageBoundary/, label: 'internal docs providerPackageBoundary coverage' },
+      { pattern: /rootPublicPolicy/, label: 'internal docs rootPublicPolicy coverage' },
+      { pattern: /catalog-governed-mixed/, label: 'internal docs TypeScript mixed boundary mode coverage' },
+      {
+        pattern: /scaffold-per-provider-package/,
+        label: 'internal docs reserved scaffold boundary mode coverage',
+      },
+      { pattern: /builtin-only/, label: 'internal docs builtin-only root public policy coverage' },
+      { pattern: /`none`/, label: 'internal docs none root public policy coverage' },
       { pattern: /getBuiltinRtcProviderMetadataByKey/, label: 'internal docs builtin provider lookup helper index' },
       { pattern: /getOfficialRtcProviderMetadataByKey/, label: 'internal docs official provider lookup helper index' },
       { pattern: /getRtcProviderByProviderKey/, label: 'internal docs provider catalog lookup helper index' },
@@ -261,6 +303,15 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /language workspace catalog/i, label: 'language workspace catalog documentation contract' },
       { pattern: /providerActivations/, label: 'language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'assembly-driven TypeScript provider package contract' },
+      { pattern: /providerPackageBoundary/, label: 'language workspace provider package boundary contract' },
+      {
+        pattern: /rootPublicPolicy/,
+        label: 'language workspace provider package rootPublicPolicy contract',
+      },
+      { pattern: /catalog-governed-mixed/, label: 'TypeScript mixed boundary mode contract' },
+      { pattern: /scaffold-per-provider-package/, label: 'reserved scaffold boundary mode contract' },
+      { pattern: /builtin-only/, label: 'builtin-only root public policy contract' },
+      { pattern: /`none`/, label: 'none root public policy contract' },
       { pattern: /contractScaffold/, label: 'language workspace contract scaffold contract' },
       { pattern: /packageScaffold/, label: 'language workspace package scaffold contract' },
       { pattern: /providerPackageScaffold/, label: 'language workspace provider package scaffold contract' },
@@ -487,6 +538,24 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /language workspace catalog/i, label: 'verification of language workspace catalog contract' },
       { pattern: /providerActivations/, label: 'verification of language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'verification of assembly-driven TypeScript provider package contract' },
+      {
+        pattern: /providerPackageBoundary/,
+        label: 'verification of language workspace provider package boundary contract',
+      },
+      {
+        pattern: /rootPublicPolicy/,
+        label: 'verification of language workspace provider package rootPublicPolicy contract',
+      },
+      {
+        pattern: /catalog-governed-mixed/,
+        label: 'verification of TypeScript mixed boundary mode contract',
+      },
+      {
+        pattern: /scaffold-per-provider-package/,
+        label: 'verification of reserved scaffold boundary mode contract',
+      },
+      { pattern: /builtin-only/, label: 'verification of builtin-only root public policy contract' },
+      { pattern: /`none`/, label: 'verification of none root public policy contract' },
       { pattern: /contractScaffold/, label: 'verification of language workspace contract scaffold contract' },
       { pattern: /packageScaffold/, label: 'verification of language workspace package scaffold contract' },
       {
@@ -677,12 +746,43 @@ function assertRequiredTerms(content, terms, label) {
   }
 }
 
+function assertExactNormalizedTerms(actualValues, expectedValues, label) {
+  const actual = normalizeStringArray(actualValues);
+  const expected = normalizeStringArray(expectedValues);
+  if (actual.length !== expected.length || actual.some((term, index) => term !== expected[index])) {
+    fail(
+      `${label} must be exactly [${renderNormalizedStringArray(expected)}], received [${renderNormalizedStringArray(actual)}]`,
+    );
+  }
+}
+
 function assertNoLegacyTypeScriptProviderPackageBoundaryTerms(content, label) {
   for (const term of LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS) {
     if (new RegExp(escapeRegExp(term), 'i').test(content)) {
       fail(`${label} uses legacy TypeScript provider package boundary wording: ${term}`);
     }
   }
+}
+
+function assertLanguageWorkspaceProviderPackageBoundaryContent(languageEntry, content, label) {
+  if (!new RegExp(escapeRegExp(languageEntry.providerPackageBoundary.mode)).test(content)) {
+    fail(`${label} is missing providerPackageBoundary.mode for ${languageEntry.language}`);
+  }
+
+  if (!new RegExp(escapeRegExp(languageEntry.providerPackageBoundary.rootPublicPolicy)).test(content)) {
+    fail(`${label} is missing providerPackageBoundary.rootPublicPolicy for ${languageEntry.language}`);
+  }
+
+  assertRequiredTerms(
+    content,
+    languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+    `${label} providerPackageBoundary.lifecycleStatusTerms`,
+  );
+  assertRequiredTerms(
+    content,
+    languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+    `${label} providerPackageBoundary.runtimeBridgeStatusTerms`,
+  );
 }
 
 function toPascalCase(value) {
@@ -1423,7 +1523,106 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Language workspace contract roleHighlights must be an array for ${languageEntry.language}`);
     }
 
+    if (typeof languageEntry.providerPackageBoundary?.mode !== 'string') {
+      fail(`Language workspace contract providerPackageBoundary.mode must be declared for ${languageEntry.language}`);
+    }
+
+    if (
+      !KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_MODES.includes(
+        languageEntry.providerPackageBoundary.mode,
+      )
+    ) {
+      fail(
+        `Language workspace contract providerPackageBoundary.mode is not recognized for ${languageEntry.language}: ${languageEntry.providerPackageBoundary.mode}`,
+      );
+    }
+
+    if (typeof languageEntry.providerPackageBoundary?.rootPublicPolicy !== 'string') {
+      fail(
+        `Language workspace contract providerPackageBoundary.rootPublicPolicy must be declared for ${languageEntry.language}`,
+      );
+    }
+
+    if (
+      !KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES.includes(
+        languageEntry.providerPackageBoundary.rootPublicPolicy,
+      )
+    ) {
+      fail(
+        `Language workspace contract providerPackageBoundary.rootPublicPolicy is not recognized for ${languageEntry.language}: ${languageEntry.providerPackageBoundary.rootPublicPolicy}`,
+      );
+    }
+
+    if (
+      !Array.isArray(languageEntry.providerPackageBoundary?.lifecycleStatusTerms) ||
+      languageEntry.providerPackageBoundary.lifecycleStatusTerms.length === 0
+    ) {
+      fail(
+        `Language workspace contract providerPackageBoundary.lifecycleStatusTerms must be a non-empty array for ${languageEntry.language}`,
+      );
+    }
+
+    if (
+      !Array.isArray(languageEntry.providerPackageBoundary?.runtimeBridgeStatusTerms) ||
+      languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms.length === 0
+    ) {
+      fail(
+        `Language workspace contract providerPackageBoundary.runtimeBridgeStatusTerms must be a non-empty array for ${languageEntry.language}`,
+      );
+    }
+
+    const declaredProviderPackageBoundaryLifecycleStatusTerms = normalizeStringArray(
+      languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+    );
+    for (const term of declaredProviderPackageBoundaryLifecycleStatusTerms) {
+      if (!KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS.includes(term)) {
+        fail(
+          `Language workspace contract providerPackageBoundary.lifecycleStatusTerms contains an unsupported term for ${languageEntry.language}: ${term}`,
+        );
+      }
+    }
+
+    const declaredProviderPackageBoundaryRuntimeBridgeStatusTerms = normalizeStringArray(
+      languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+    );
+    for (const term of declaredProviderPackageBoundaryRuntimeBridgeStatusTerms) {
+      if (
+        !KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS.includes(term)
+      ) {
+        fail(
+          `Language workspace contract providerPackageBoundary.runtimeBridgeStatusTerms contains an unsupported term for ${languageEntry.language}: ${term}`,
+        );
+      }
+    }
+
     if (languageEntry.language === 'typescript') {
+      if (languageEntry.providerPackageBoundary.mode !== 'catalog-governed-mixed') {
+        fail(
+          'TypeScript language workspace providerPackageBoundary.mode must stay catalog-governed-mixed',
+        );
+      }
+
+      if (languageEntry.providerPackageBoundary.rootPublicPolicy !== 'builtin-only') {
+        fail(
+          'TypeScript language workspace providerPackageBoundary.rootPublicPolicy must stay builtin-only',
+        );
+      }
+
+      assertExactNormalizedTerms(
+        languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+        REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
+        'TypeScript language workspace providerPackageBoundary.lifecycleStatusTerms',
+      );
+      assertExactNormalizedTerms(
+        languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+        REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
+        'TypeScript language workspace providerPackageBoundary.runtimeBridgeStatusTerms',
+      );
+
+      if (languageEntry.providerPackageScaffold != null) {
+        fail('TypeScript language workspace must not declare providerPackageScaffold');
+      }
+
       const roleHighlightsContent = languageEntry.roleHighlights.join('\n');
       assertRequiredTerms(
         roleHighlightsContent,
@@ -1441,6 +1640,29 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     if (languageEntry.language !== 'typescript') {
+      if (languageEntry.providerPackageBoundary.mode !== 'scaffold-per-provider-package') {
+        fail(
+          `Language workspace contract providerPackageBoundary.mode must stay scaffold-per-provider-package for ${languageEntry.language}`,
+        );
+      }
+
+      if (languageEntry.providerPackageBoundary.rootPublicPolicy !== 'none') {
+        fail(
+          `Language workspace contract providerPackageBoundary.rootPublicPolicy must stay none for ${languageEntry.language}`,
+        );
+      }
+
+      assertExactNormalizedTerms(
+        languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+        REQUIRED_RESERVED_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
+        `Language workspace contract providerPackageBoundary.lifecycleStatusTerms for ${languageEntry.language}`,
+      );
+      assertExactNormalizedTerms(
+        languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+        REQUIRED_RESERVED_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
+        `Language workspace contract providerPackageBoundary.runtimeBridgeStatusTerms for ${languageEntry.language}`,
+      );
+
       if (typeof languageEntry.contractScaffold?.relativePath !== 'string') {
         fail(`Language workspace contract contractScaffold.relativePath must be declared for ${languageEntry.language}`);
       }
@@ -1596,6 +1818,17 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       ) {
         fail(`Language workspace contract providerPackageScaffold.status is not recognized for ${languageEntry.language}`);
       }
+
+      assertExactNormalizedTerms(
+        [languageEntry.providerPackageScaffold.status],
+        languageEntry.providerPackageBoundary.lifecycleStatusTerms,
+        `Language workspace contract providerPackageScaffold.status alignment for ${languageEntry.language}`,
+      );
+      assertExactNormalizedTerms(
+        [languageEntry.providerPackageScaffold.runtimeBridgeStatus],
+        languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
+        `Language workspace contract providerPackageScaffold.runtimeBridgeStatus alignment for ${languageEntry.language}`,
+      );
 
       if (typeof languageEntry.metadataScaffold?.providerCatalogRelativePath !== 'string') {
         fail(`Language workspace contract metadataScaffold.providerCatalogRelativePath must be declared for ${languageEntry.language}`);
@@ -2131,6 +2364,11 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         'TypeScript workspace README',
       );
     }
+    assertLanguageWorkspaceProviderPackageBoundaryContent(
+      languageEntry,
+      readme,
+      `Language workspace README for ${languageEntry.language}`,
+    );
     assertNoLegacyTypeScriptProviderPackageBoundaryTerms(
       readme,
       `Language workspace README for ${languageEntry.language}`,
@@ -2148,6 +2386,11 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         'TypeScript language workspace catalog',
       );
     }
+    assertLanguageWorkspaceProviderPackageBoundaryContent(
+      languageEntry,
+      workspaceCatalogContent,
+      `Language workspace catalog for ${languageEntry.language}`,
+    );
     assertNoLegacyTypeScriptProviderPackageBoundaryTerms(
       workspaceCatalogContent,
       `Language workspace catalog for ${languageEntry.language}`,
@@ -2164,6 +2407,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       'currentRole',
       'workspaceSummary',
       'roleHighlights',
+      'providerPackageBoundary',
     ]) {
       assertReservedLanguageToken(
         languageEntry.language,

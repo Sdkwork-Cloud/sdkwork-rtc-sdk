@@ -262,6 +262,38 @@ empty placeholder folders.
 Future runtime bridge work must extend these package scaffolds instead of replacing them with
 language-private layouts that break the cross-language standard.
 
+Every official language workspace must also declare a `providerPackageBoundary` in
+`.sdkwork-assembly.json`.
+That cross-language boundary summary is the canonical topology contract exposed through the
+language workspace catalog and must declare:
+
+- `providerPackageBoundary.mode` as the language-wide package-boundary mode
+- `providerPackageBoundary.rootPublicPolicy` as the language-wide root public exposure policy
+- `providerPackageBoundary.lifecycleStatusTerms` as the canonical lifecycle vocabulary used by that
+  language workspace
+- `providerPackageBoundary.runtimeBridgeStatusTerms` as the canonical runtime-bridge-status
+  vocabulary used by that language workspace
+
+The current standard fixes only two legal modes:
+
+- TypeScript uses `catalog-governed-mixed`
+- reserved non-TypeScript workspaces use `scaffold-per-provider-package`
+
+The current standard fixes only two legal root public policies:
+
+- TypeScript uses `builtin-only`
+- reserved non-TypeScript workspaces use `none`
+
+The current standard also fixes the boundary vocabularies:
+
+- TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
+  `root_public_reference_boundary` and `package_reference_boundary`
+- TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be
+  `reference-baseline`
+- reserved non-TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
+  `future-runtime-bridge-only`
+- reserved non-TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be `reserved`
+
 Every official non-TypeScript reserved workspace must also declare a `providerPackageScaffold` in
 `.sdkwork-assembly.json` and ship the referenced provider package scaffold file.
 That provider package scaffold must declare:
@@ -299,6 +331,12 @@ runtime bridge work starts.
 They must preserve these rules:
 
 - one provider per package boundary
+- `providerPackageBoundary.mode` stays fixed at `scaffold-per-provider-package`
+- `providerPackageBoundary.rootPublicPolicy` stays fixed at `none`
+- `providerPackageBoundary.lifecycleStatusTerms` stays exactly aligned with the concrete
+  `providerPackageScaffold.status` value
+- `providerPackageBoundary.runtimeBridgeStatusTerms` stays exactly aligned with the concrete
+  `providerPackageScaffold.runtimeBridgeStatus` value
 - `status` stays fixed at `future-runtime-bridge-only`
 - `runtimeBridgeStatus` stays fixed at `reserved`
 - `rootPublic` stays fixed at `false`

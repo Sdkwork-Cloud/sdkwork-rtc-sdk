@@ -218,6 +218,7 @@ test('materialized rtc language workspace catalog matches the assembly language 
       roleHighlights: entry.roleHighlights,
       metadataScaffold: entry.metadataScaffold,
       resolutionScaffold: entry.resolutionScaffold,
+      providerPackageBoundary: entry.providerPackageBoundary,
       providerPackageScaffold: entry.providerPackageScaffold,
     })),
     assembly.languages.map((languageEntry) => ({
@@ -234,9 +235,16 @@ test('materialized rtc language workspace catalog matches the assembly language 
       roleHighlights: languageEntry.roleHighlights,
       metadataScaffold: languageEntry.metadataScaffold,
       resolutionScaffold: languageEntry.resolutionScaffold,
+      providerPackageBoundary: languageEntry.providerPackageBoundary,
       providerPackageScaffold: languageEntry.providerPackageScaffold,
     })),
   );
+  assert.deepEqual(languageWorkspaceCatalog.TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY.providerPackageBoundary, {
+    mode: 'catalog-governed-mixed',
+    rootPublicPolicy: 'builtin-only',
+    lifecycleStatusTerms: ['root_public_reference_boundary', 'package_reference_boundary'],
+    runtimeBridgeStatusTerms: ['reference-baseline'],
+  });
   assert.equal(typeof rootSdk.getRtcLanguageWorkspaceByLanguage, 'function');
   assert.deepEqual(
     rootSdk.getRtcLanguageWorkspaceByLanguage('typescript'),
@@ -282,6 +290,17 @@ test('materialized rtc provider catalog is runtime-frozen', async () => {
   }
   if (languageWorkspaceEntry.resolutionScaffold) {
     assert.equal(Object.isFrozen(languageWorkspaceEntry.resolutionScaffold), true);
+  }
+  if (languageWorkspaceEntry.providerPackageBoundary) {
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.providerPackageBoundary), true);
+    assert.equal(
+      Object.isFrozen(languageWorkspaceEntry.providerPackageBoundary.lifecycleStatusTerms),
+      true,
+    );
+    assert.equal(
+      Object.isFrozen(languageWorkspaceEntry.providerPackageBoundary.runtimeBridgeStatusTerms),
+      true,
+    );
   }
   if (languageWorkspaceEntry.providerPackageScaffold) {
     assert.equal(Object.isFrozen(languageWorkspaceEntry.providerPackageScaffold), true);

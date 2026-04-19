@@ -10,13 +10,13 @@ Current docs:
   JDBC-style driver and adapter rules.
 - `multilanguage-capability-matrix.md`
   Capability catalog, provider extension catalog, provider tiers, language roles, maturity tiers,
-  runtime support boundaries, assembly-driven language workspace catalog paths, TypeScript runtime
-  bridge baselines, reserved language package/build scaffolds, reserved language metadata scaffolds,
-  reserved language provider activation catalog scaffolds, reserved language resolution scaffolds,
-  reserved language provider package scaffolds and materialized future provider package boundaries
-  with template token, source file, source symbol, reserved status, and root public exposure
-  contracts, and
-  language-provider activation matrix.
+  runtime support boundaries, assembly-driven language workspace catalog paths, cross-language
+  `providerPackageBoundary` modes and root-public policies, TypeScript runtime bridge baselines,
+  reserved language package/build scaffolds, reserved language metadata scaffolds, reserved
+  language provider activation catalog scaffolds, reserved language resolution scaffolds, reserved
+  language provider package scaffolds and materialized future provider package boundaries with
+  template token, source file, source symbol, reserved status, and root public exposure contracts,
+  and language-provider activation matrix.
 - `verification-matrix.md`
   Root verification expectations and commands.
 
@@ -53,6 +53,12 @@ The TypeScript executable baseline fixes these standard modules as the executabl
 - language workspace catalog: `sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts`
   Includes `getRtcLanguageWorkspaceByLanguage(...)` so the official language matrix stays
   queryable by language key inside the executable baseline.
+  Each `RtcLanguageWorkspaceCatalogEntry` also declares `providerPackageBoundary` so
+  package-boundary semantics stay explicit across languages instead of being inferred from
+  TypeScript-only package manifests or reserved-language scaffold prose.
+  TypeScript stays `catalog-governed-mixed` with `rootPublicPolicy` set to `builtin-only`,
+  while reserved languages stay `scaffold-per-provider-package` with `rootPublicPolicy` set to
+  `none`.
 
 Reserved non-TypeScript language workspace catalogs and metadata scaffolds must also keep explicit
 lookup helpers stable with language-idiomatic naming. The required helper families remain:
