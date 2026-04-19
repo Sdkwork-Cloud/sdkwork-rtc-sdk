@@ -1323,6 +1323,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
     'bin/templates/package-standards.md',
+    'bin/templates/provider-adapter-standard.md',
     'bin/templates/verification-matrix.md',
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',

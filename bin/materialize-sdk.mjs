@@ -1493,6 +1493,10 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
       content: readMaterializedTemplate(workspaceRoot, 'package-standards.md'),
     },
     {
+      relativePath: 'docs/provider-adapter-standard.md',
+      content: readMaterializedTemplate(workspaceRoot, 'provider-adapter-standard.md'),
+    },
+    {
       relativePath: 'docs/multilanguage-capability-matrix.md',
       content: renderCapabilityMatrix(assembly),
     },

@@ -581,6 +581,7 @@ function createVerifierFixture(mutator) {
     'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
     'bin/templates/package-standards.md',
+    'bin/templates/provider-adapter-standard.md',
     'bin/templates/verification-matrix.md',
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
@@ -776,6 +777,7 @@ test('root rtc workspace contract files exist', () => {
     'docs/multilanguage-capability-matrix.md',
     'docs/verification-matrix.md',
     'bin/templates/package-standards.md',
+    'bin/templates/provider-adapter-standard.md',
     'bin/templates/verification-matrix.md',
   ];
 
@@ -3307,6 +3309,11 @@ test('root materializer repairs provider package, provider catalog, and language
       'docs',
       'package-standards.md',
     );
+    const providerAdapterStandardPath = path.join(
+      fixture.workspaceCopy,
+      'docs',
+      'provider-adapter-standard.md',
+    );
     const matrixPath = path.join(
       fixture.workspaceCopy,
       'docs',
@@ -3424,6 +3431,7 @@ test('root materializer repairs provider package, provider catalog, and language
 
     writeFileSync(docsReadmePath, '# drifted docs readme\n');
     writeFileSync(packageStandardsPath, '# drifted package standards\n');
+    writeFileSync(providerAdapterStandardPath, '# drifted provider adapter standard\n');
     writeFileSync(matrixPath, '# drifted matrix\n');
     writeFileSync(verificationMatrixPath, '# drifted verification matrix\n');
     writeFileSync(javaReadmePath, '# drifted\n');
@@ -3467,6 +3475,7 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.ok(firstRun.changedFiles.length >= 7);
     assert.ok(firstRun.changedFiles.includes('docs/README.md'));
     assert.ok(firstRun.changedFiles.includes('docs/package-standards.md'));
+    assert.ok(firstRun.changedFiles.includes('docs/provider-adapter-standard.md'));
     assert.ok(firstRun.changedFiles.includes('docs/multilanguage-capability-matrix.md'));
     assert.ok(firstRun.changedFiles.includes('docs/verification-matrix.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/provider-package-scaffold.md'));
@@ -3493,6 +3502,12 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedPackageStandards, /TypeScript Standard/);
     assert.match(repairedPackageStandards, /Cross-Language Standard/);
     assert.match(repairedPackageStandards, /providerPackageBoundary/);
+
+    const repairedProviderAdapterStandard = readFileSync(providerAdapterStandardPath, 'utf8');
+    assert.match(repairedProviderAdapterStandard, /# RTC Provider Adapter Standard/);
+    assert.match(repairedProviderAdapterStandard, /JDBC-Style Rule/);
+    assert.match(repairedProviderAdapterStandard, /registerRtcProviderModules/);
+    assert.match(repairedProviderAdapterStandard, /providerPackageBoundary/);
 
     const repairedMatrix = readFileSync(matrixPath, 'utf8');
     assert.match(repairedMatrix, /\| Capability key \| Category \| Surface \|/);
