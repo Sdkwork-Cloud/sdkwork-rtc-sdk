@@ -195,6 +195,61 @@ Provider package boundary:
 `;
 }
 
+function renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly) {
+  const defaults = assembly.defaults ?? {};
+  if (
+    typeof defaults.providerKey !== 'string' ||
+    typeof defaults.pluginId !== 'string' ||
+    typeof defaults.driverId !== 'string'
+  ) {
+    return '';
+  }
+
+  if (languageEntry.language === 'typescript') {
+    return `
+Default provider contract:
+
+- Web/browser default provider key: \`${defaults.providerKey}\`
+- Web/browser default plugin id: \`${defaults.pluginId}\`
+- Web/browser default driver id: \`${defaults.driverId}\`
+- the TypeScript provider catalog must keep \`DEFAULT_RTC_PROVIDER_KEY\`,
+  \`DEFAULT_RTC_PROVIDER_PLUGIN_ID\`, and \`DEFAULT_RTC_PROVIDER_DRIVER_ID\`
+  aligned to that assembly default
+- \`resolveRtcProviderSelection()\` falls back to \`DEFAULT_RTC_PROVIDER_KEY\`
+  when web callers do not override providerUrl, providerKey, tenant override, or deployment profile
+- \`RtcDataSource\` and \`RtcDriverManager\` therefore resolve the web default provider to
+  \`${defaults.providerKey}\` unless the caller explicitly selects a different provider
+`;
+  }
+
+  if (languageEntry.language === 'flutter') {
+    return `
+Default provider contract:
+
+- Flutter/mobile default provider key: \`${defaults.providerKey}\`
+- Flutter/mobile default plugin id: \`${defaults.pluginId}\`
+- Flutter/mobile default driver id: \`${defaults.driverId}\`
+- \`RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY\` must stay aligned to that assembly default
+- \`resolveRtcProviderSelection()\` in \`${languageEntry.metadataScaffold.providerSelectionRelativePath}\`
+  falls back to \`RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY\` when Flutter callers do not
+  provide providerUrl, providerKey, tenant override, or deployment profile values
+- \`RtcDataSourceOptions.defaultProviderKey\` and \`RtcDataSource.describeSelection()\`
+  therefore keep the Flutter/mobile default provider on \`${defaults.providerKey}\`
+  until a caller explicitly overrides it
+`;
+  }
+
+  return `
+Default provider contract:
+
+- default provider key: \`${defaults.providerKey}\`
+- default plugin id: \`${defaults.pluginId}\`
+- default driver id: \`${defaults.driverId}\`
+- language metadata and selection scaffolds must preserve that assembly-driven default
+  provider identity for future runtime bridge landings
+`;
+}
+
 function buildTypeScriptProviderActivationCatalogEntries(assembly) {
   const typescriptLanguage = (assembly.languages ?? []).find(
     (languageEntry) => languageEntry.language === 'typescript',
@@ -475,6 +530,7 @@ ${renderRoleHighlights(roleHighlights)}
 ${languageEntry.workspaceSummary}
 This workspace does not bundle vendor SDK implementations. Provider adapters wrap caller-supplied
 native client factories and expose vendor escape hatches through \`unwrap()\`.
+${renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly)}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
 ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
 
@@ -509,6 +565,7 @@ Current role:
 ${renderRoleHighlights([languageEntry.currentRole, ...(languageEntry.roleHighlights ?? [])])}
 
 ${languageEntry.workspaceSummary}
+${renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly)}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
 ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
 ${renderReservedLanguagePackageScaffold(languageEntry)}

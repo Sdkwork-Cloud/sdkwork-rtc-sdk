@@ -50,6 +50,7 @@ test('provider selection standard resolves precedence independently from driver 
     'volcengine',
   );
   const defaultSelection = sdk.resolveRtcProviderSelection({}, 'volcengine');
+  const implicitDefaultSelection = sdk.resolveRtcProviderSelection({});
 
   assert.deepEqual(parsed, {
     providerKey: 'aliyun',
@@ -67,8 +68,13 @@ test('provider selection standard resolves precedence independently from driver 
     providerKey: 'volcengine',
     source: 'default_provider',
   });
+  assert.deepEqual(implicitDefaultSelection, {
+    providerKey: 'volcengine',
+    source: 'default_provider',
+  });
   assert.equal(Object.isFrozen(parsed), true);
   assert.equal(Object.isFrozen(explicitSelection), true);
   assert.equal(Object.isFrozen(urlSelection), true);
   assert.equal(Object.isFrozen(defaultSelection), true);
+  assert.equal(Object.isFrozen(implicitDefaultSelection), true);
 });

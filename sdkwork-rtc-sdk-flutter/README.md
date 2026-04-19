@@ -24,6 +24,20 @@ Current role:
 
 This workspace is materialized now so the official language matrix stays explicit and verifiable. Future Flutter runtime bridge work must follow the same provider-adapter and capability standards as the TypeScript baseline.
 
+Default provider contract:
+
+- Flutter/mobile default provider key: `volcengine`
+- Flutter/mobile default plugin id: `rtc-volcengine`
+- Flutter/mobile default driver id: `sdkwork-rtc-driver-volcengine`
+- `RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY` must stay aligned to that assembly default
+- `resolveRtcProviderSelection()` in `lib/src/rtc_provider_selection.dart`
+  falls back to `RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY` when Flutter callers do not
+  provide providerUrl, providerKey, tenant override, or deployment profile values
+- `RtcDataSourceOptions.defaultProviderKey` and `RtcDataSource.describeSelection()`
+  therefore keep the Flutter/mobile default provider on `volcengine`
+  until a caller explicitly overrides it
+
+
 Language workspace catalog:
 
 - workspace catalog: `lib/src/rtc_language_workspace_catalog.dart`

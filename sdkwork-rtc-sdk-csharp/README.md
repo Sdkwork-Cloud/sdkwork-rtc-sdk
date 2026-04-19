@@ -24,6 +24,15 @@ Current role:
 
 This workspace is the reserved C# standard boundary for provider metadata, driver selection, and future desktop or server-side control integration.
 
+Default provider contract:
+
+- default provider key: `volcengine`
+- default plugin id: `rtc-volcengine`
+- default driver id: `sdkwork-rtc-driver-volcengine`
+- language metadata and selection scaffolds must preserve that assembly-driven default
+  provider identity for future runtime bridge landings
+
+
 Language workspace catalog:
 
 - workspace catalog: `src/SDKWork.Rtc.Sdk/RtcLanguageWorkspaceCatalog.cs`

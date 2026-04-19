@@ -498,6 +498,11 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(typescriptReadme, /DEFAULT_RTC_PROVIDER_KEY/);
   assert.match(typescriptReadme, /DEFAULT_RTC_PROVIDER_PLUGIN_ID/);
   assert.match(typescriptReadme, /DEFAULT_RTC_PROVIDER_DRIVER_ID/);
+  assert.match(typescriptReadme, /Web\/browser default provider key:\s*`volcengine`/);
+  assert.match(typescriptReadme, /Web\/browser default plugin id:\s*`rtc-volcengine`/);
+  assert.match(typescriptReadme, /Web\/browser default driver id:\s*`sdkwork-rtc-driver-volcengine`/);
+  assert.match(typescriptReadme, /resolveRtcProviderSelection\(\)/);
+  assert.match(typescriptReadme, /RtcDataSource/);
   assert.match(typescriptReadme, /provider-activation-catalog\.ts/);
   assert.match(typescriptReadme, /reference-baseline/);
   assert.match(typescriptReadme, /official vendor sdk.*required/i);
@@ -1514,6 +1519,9 @@ test('reserved language workspaces expose metadata catalog, provider package cat
     assert.match(providerCatalog, /aliyun/);
     assert.match(providerCatalog, /tencent/);
     assert.match(providerCatalog, /agora/);
+    if (languageEntry.language === 'flutter') {
+      assert.match(providerCatalog, /DEFAULT_RTC_PROVIDER_KEY = "volcengine"/);
+    }
     if (languageEntry.language !== 'typescript') {
       for (const pattern of getReservedLanguageLookupHelperPatterns(languageEntry.language).providerCatalog) {
         assert.match(providerCatalog, pattern);
@@ -1683,6 +1691,9 @@ test('reserved language workspaces expose metadata catalog, provider package cat
     for (const pattern of getReservedLanguageLookupHelperPatterns(languageEntry.language).providerSelection) {
       assert.match(providerSelection, pattern);
     }
+    if (languageEntry.language === 'flutter') {
+      assert.match(providerSelection, /RtcProviderCatalog\.DEFAULT_RTC_PROVIDER_KEY/);
+    }
   }
 });
 
@@ -1753,6 +1764,9 @@ test('reserved language workspaces expose metadata-only driver manager, data sou
     assert.match(dataSource, /describeProviderSupport/i);
     assert.match(dataSource, /listProviderSupport/i);
     assertReservedLanguageToken(languageEntry.language, dataSource, 'defaultProviderKey', 'data source defaultProviderKey');
+    if (languageEntry.language === 'flutter') {
+      assert.match(dataSource, /RtcProviderCatalog\.DEFAULT_RTC_PROVIDER_KEY/);
+    }
 
     const providerSupport = readFileSync(providerSupportPath, 'utf8');
     assert.match(providerSupport, /RtcProviderSupport/);
@@ -1813,6 +1827,10 @@ test('language workspace readmes align with the assembly language matrix', () =>
     );
     assert.match(readme, new RegExp(`Current role:\\s*[\\s\\S]*${languageEntry.currentRole.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
     assert.match(readme, new RegExp(languageEntry.workspaceSummary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(readme, /Default provider contract:/);
+    assert.match(readme, new RegExp(`provider key:\\s*\\\`${assembly.defaults.providerKey}\\\``));
+    assert.match(readme, new RegExp(`plugin id:\\s*\\\`${assembly.defaults.pluginId}\\\``));
+    assert.match(readme, new RegExp(`driver id:\\s*\\\`${assembly.defaults.driverId}\\\``));
     for (const roleHighlight of languageEntry.roleHighlights) {
       assert.match(readme, new RegExp(roleHighlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }

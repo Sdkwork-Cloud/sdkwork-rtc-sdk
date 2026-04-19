@@ -24,6 +24,15 @@ Current role:
 
 This workspace is the reserved Rust standard boundary for provider metadata, selection, and future control-plane integration.
 
+Default provider contract:
+
+- default provider key: `volcengine`
+- default plugin id: `rtc-volcengine`
+- default driver id: `sdkwork-rtc-driver-volcengine`
+- language metadata and selection scaffolds must preserve that assembly-driven default
+  provider identity for future runtime bridge landings
+
+
 Language workspace catalog:
 
 - workspace catalog: `src/language_workspace_catalog.rs`

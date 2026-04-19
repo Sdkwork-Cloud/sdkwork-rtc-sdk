@@ -41,6 +41,20 @@ This workspace is the executable reference implementation for provider-neutral R
 This workspace does not bundle vendor SDK implementations. Provider adapters wrap caller-supplied
 native client factories and expose vendor escape hatches through `unwrap()`.
 
+Default provider contract:
+
+- Web/browser default provider key: `volcengine`
+- Web/browser default plugin id: `rtc-volcengine`
+- Web/browser default driver id: `sdkwork-rtc-driver-volcengine`
+- the TypeScript provider catalog must keep `DEFAULT_RTC_PROVIDER_KEY`,
+  `DEFAULT_RTC_PROVIDER_PLUGIN_ID`, and `DEFAULT_RTC_PROVIDER_DRIVER_ID`
+  aligned to that assembly default
+- `resolveRtcProviderSelection()` falls back to `DEFAULT_RTC_PROVIDER_KEY`
+  when web callers do not override providerUrl, providerKey, tenant override, or deployment profile
+- `RtcDataSource` and `RtcDriverManager` therefore resolve the web default provider to
+  `volcengine` unless the caller explicitly selects a different provider
+
+
 Language workspace catalog:
 
 - workspace catalog: `src/language-workspace-catalog.ts`

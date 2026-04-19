@@ -24,6 +24,15 @@ Current role:
 
 This workspace is the reserved Swift standard boundary for provider metadata, driver selection, and future iOS or macOS runtime bridge integration.
 
+Default provider contract:
+
+- default provider key: `volcengine`
+- default plugin id: `rtc-volcengine`
+- default driver id: `sdkwork-rtc-driver-volcengine`
+- language metadata and selection scaffolds must preserve that assembly-driven default
+  provider identity for future runtime bridge landings
+
+
 Language workspace catalog:
 
 - workspace catalog: `Sources/RtcSdk/RtcLanguageWorkspaceCatalog.swift`
