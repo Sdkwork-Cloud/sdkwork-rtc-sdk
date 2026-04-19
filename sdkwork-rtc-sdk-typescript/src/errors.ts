@@ -1,0 +1,37 @@
+export type RtcSdkErrorCode =
+  | 'provider_module_contract_mismatch'
+  | 'driver_already_registered'
+  | 'driver_not_found'
+  | 'provider_not_official'
+  | 'provider_not_supported'
+  | 'provider_metadata_mismatch'
+  | 'provider_selection_failed'
+  | 'capability_not_supported'
+  | 'invalid_provider_url'
+  | 'native_sdk_not_available'
+  | 'vendor_error';
+
+export interface RtcSdkExceptionOptions {
+  code: RtcSdkErrorCode;
+  message: string;
+  providerKey?: string;
+  pluginId?: string;
+  details?: Record<string, unknown>;
+  cause?: unknown;
+}
+
+export class RtcSdkException extends Error {
+  readonly code: RtcSdkErrorCode;
+  readonly providerKey?: string;
+  readonly pluginId?: string;
+  readonly details?: Record<string, unknown>;
+
+  constructor(options: RtcSdkExceptionOptions) {
+    super(options.message, options.cause === undefined ? undefined : { cause: options.cause });
+    this.name = 'RtcSdkException';
+    this.code = options.code;
+    this.providerKey = options.providerKey;
+    this.pluginId = options.pluginId;
+    this.details = options.details;
+  }
+}

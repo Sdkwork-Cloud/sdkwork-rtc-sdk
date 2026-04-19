@@ -1,0 +1,12 @@
+name: rtc_sdk
+description: >
+  Reserved Flutter package scaffold for rtc_sdk.
+  build system: flutter-pub
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+flutter:
+  uses-material-design: false

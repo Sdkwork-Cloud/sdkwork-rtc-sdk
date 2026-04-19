@@ -1,0 +1,330 @@
+# RTC Provider Adapter Standard
+
+This document defines the official provider adapter standard for `sdkwork-rtc-sdk`.
+
+## JDBC-Style Rule
+
+RTC provider integration must follow a JDBC-like model:
+
+- `RtcProviderDriver`
+- `RtcDriverManager`
+- `RtcDataSource`
+- `RtcClient`
+- `RtcProviderMetadata`
+- `RtcSdkException`
+- `unwrap()`
+
+## Provider Adapter Responsibilities
+
+Provider adapters own:
+
+- native client factory integration
+- runtime bridge delegation for the stable runtime surface
+- provider-specific metadata mapping onto the standard catalog entry
+- provider-native `unwrap()` support
+
+Provider adapters do not hand-author provider descriptors or capability lists.
+Those fields are declared once in `.sdkwork-assembly.json` and materialized into the TypeScript
+provider catalog under `src/provider-catalog.ts` and the TypeScript capability catalog under
+`src/capability-catalog.ts`.
+Provider extension metadata is also assembly-driven through `providerExtensionCatalog` and
+materialized into `src/provider-extension-catalog.ts`.
+Runtime-created contract objects must remain immutable snapshots so adapter consumers cannot drift
+standard metadata, selection state, or negotiated capability results after construction.
+
+The root `@sdkwork/rtc-sdk` public entrypoint must not re-export future non-builtin provider driver
+factories. Those adapters remain internal modules today and may later move to dedicated provider
+packages without breaking the root public API.
+
+Provider adapters do not own:
+
+- business-level provider selection policy
+- business-level provider support classification policy
+- provider registry governance
+- fake provider-neutral RTC engine behavior
+- fake emulation of unsupported advanced capabilities
+
+The TypeScript executable baseline keeps provider selection as a first-class standard module at
+`src/provider-selection.ts`, not as provider-private adapter logic.
+That module owns `parseRtcProviderUrl(...)`, `resolveRtcProviderSelection(...)`, and the stable
+selection precedence order:
+
+- `provider_url`
+- `provider_key`
+- `tenant_override`
+- `deployment_profile`
+- `default_provider`
+
+Provider adapters must consume the resolved provider identity and must not redefine or reorder that
+standard precedence locally.
+Reserved non-TypeScript language workspaces must preserve the same rule through standalone
+provider-selection helper modules with language-idiomatic names for source catalogs, precedence
+catalogs, provider-URL parsing, and selection resolution. Their `RtcDriverManager` scaffolds must
+delegate to that helper module instead of re-embedding precedence logic inline.
+
+The TypeScript executable baseline also keeps provider support as a first-class standard module at
+`src/provider-support.ts`, not as provider-private adapter logic.
+That module owns `resolveRtcProviderSupportStatus(...)`,
+`createRtcProviderSupportState(...)`, and the stable status set:
+
+- `builtin_registered`
+- `official_registered`
+- `official_unregistered`
+- `unknown`
+
+Provider adapters and driver wiring must consume that standard support-state classification and must
+not redefine those support statuses locally.
+Reserved non-TypeScript language workspaces must preserve the same rule through standalone
+provider-support helper modules with language-idiomatic names for support-status catalogs,
+`RtcProviderSupportStateRequest` contracts, status resolution, and support-state construction.
+Their `RtcDriverManager` scaffolds must query the provider catalog and provider-activation catalog,
+then delegate support-state construction to the provider-support helper module instead of keeping
+ad hoc support-classification logic inline.
+
+Runtime registration must reject:
+
+- provider keys that are not present in the official catalog
+- metadata drift from the official catalog entry for a provider
+
+TypeScript provider packages must keep the vendor SDK dependency contract explicit:
+
+- vendor SDK provisioning is `consumer-supplied`
+- runtime binding happens through `native-factory`
+- provider packages must `must-not-bundle` the vendor SDK
+- the TypeScript runtime bridge baseline is `reference-baseline`
+- the official vendor SDK requirement is `required`
+
+## Runtime Bridge Rule
+
+The stable runtime surface is fixed across adapters:
+
+- `join(options)`
+- `leave()`
+- `publish(options)`
+- `unpublish(trackId)`
+- `muteAudio(muted?)`
+- `muteVideo(muted?)`
+
+These methods are provider-neutral contract methods, not direct vendor SDK symbols.
+Provider adapters must bind them through a consumer-supplied runtime bridge that wraps the official
+vendor SDK.
+
+Provider adapters must not:
+
+- emulate RTC session state when no vendor runtime is present
+- silently skip runtime operations
+- downgrade runtime failures into fake successful responses
+
+If an adapter is registered without a runtime bridge, the stable runtime surface must fail
+explicitly with `native_sdk_not_available`.
+This keeps the standard honest: the SDK unifies adapter shape and lifecycle semantics, but it does
+not invent a fake cross-provider media engine.
+Runtime-controller context wrappers must be shallow-immutable while preserving the mutable native
+SDK instance returned by `unwrap()`.
+
+## Provider Module Rule
+
+TypeScript provider integration must pass through a stable package-aware adapter contract:
+
+- `RtcProviderModule`
+- `registerRtcProviderModule(...)`
+- `registerRtcProviderModules(...)`
+
+The module contract standardizes:
+
+- the one-provider-only package name
+- the provider metadata bound to that package
+- the TypeScript vendor SDK contract bound to that package
+- the driver factory used when a runtime registers the adapter
+- the concrete source module and symbol names bound to the package manifest
+- the executable `index.js` and `index.d.ts` package entrypoints
+- the package `exports` contract that maps `import` and `default` to `index.js` and `types` to
+  `index.d.ts`
+
+`registerRtcProviderModule(...)` is the one-provider registration primitive.
+`registerRtcProviderModules(...)` is the standard batch registration entrypoint for wiring a driver
+manager with multiple official provider modules in one pass while keeping the same package-aware
+contract validation behavior.
+Batch registration is atomic: if any module contract validation or driver registration fails, the
+target `RtcDriverManager` must remain unchanged.
+
+Builtin provider packages may expose their driver factory and provider module symbol through the
+root `@sdkwork/rtc-sdk` entrypoint because they are builtin baselines.
+Future non-builtin provider modules must stay outside the root public API.
+The TypeScript executable baseline must also materialize a provider package catalog so package
+discovery stays machine-readable without scraping package manifests. That catalog must preserve
+`providerKey`, `pluginId`, `driverId`, `packageIdentity`, `manifestPath`, `readmePath`,
+`sourcePath`, `declarationPath`, `sourceSymbol`, `sourceModule`, `driverFactory`,
+`metadataSymbol`, `moduleSymbol`, `builtin`, `rootPublic`, `status`, `runtimeBridgeStatus`, and
+`extensionKeys`.
+That TypeScript package catalog must also keep `getRtcProviderPackageByProviderKey(...)` stable so
+package-boundary lookup stays explicit by provider key.
+
+Reserved non-TypeScript workspaces must also declare a `providerPackageScaffold` so future provider
+packages inherit a fixed directory pattern, package identity pattern, and manifest file name before
+runtime bridge work begins.
+That scaffold contract must also declare exact `templateTokens`, `sourceFilePattern`,
+`sourceSymbolPattern`, and `sourceTemplateTokens`, keep `rootPublic` fixed at `false`, keep
+`runtimeBridgeStatus` fixed at `reserved`, and keep `status` fixed at
+`future-runtime-bridge-only` until a verified language runtime bridge exists.
+Each reserved language must also materialize one future provider package boundary per official
+provider so the manifest path, README path, and metadata-only source stub path are already fixed
+before runtime code lands.
+That source stub is part of the provider package contract. It must stay metadata-only until the
+package becomes a verified runtime bridge and must preserve the assembly-driven provider identity
+and source symbol.
+Each reserved language metadata scaffold must also materialize a provider package catalog so package
+discovery stays machine-readable. That provider package catalog must preserve the same
+`providerKey`, `pluginId`, `driverId`, `packageIdentity`, `manifestPath`, `readmePath`,
+`sourcePath`, `sourceSymbol`, `builtin`, `rootPublic`, `status`, and `runtimeBridgeStatus`
+metadata that the provider package boundary materializes on disk.
+Each official language must also expose a provider activation catalog so runtime availability,
+root-public exposure, and package-boundary activation stay machine-readable without reading docs or
+inferring from package layout. That catalog must preserve `providerKey`, `pluginId`, `driverId`,
+`activationStatus`, `runtimeBridge`, `rootPublic`, `packageBoundary`, `builtin`, and
+`packageIdentity`.
+Each official language must also expose a provider catalog lookup helper so provider identity stays
+queryable by `providerKey` instead of forcing downstream code to scan arrays. The cross-language
+semantic contract is `provider catalog by provider key`, with language-idiomatic naming:
+`getRtcProviderByProviderKey(...)`, `GetRtcProviderByProviderKey(...)`, or
+`get_rtc_provider_by_provider_key(...)`.
+The TypeScript executable baseline keeps that lookup explicit through
+`getRtcProviderByProviderKey(...)` alongside `getBuiltinRtcProviderMetadataByKey(...)` and
+`getOfficialRtcProviderMetadataByKey(...)`.
+The TypeScript executable baseline keeps activation lookup explicit through
+`getRtcProviderActivationByProviderKey(...)`.
+The TypeScript executable baseline keeps capability lookup explicit through
+`getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)`.
+The TypeScript executable baseline keeps provider extension lookup explicit through
+`getRtcProviderExtensionCatalog(...)`, `getRtcProviderExtensionDescriptor(...)`,
+`getRtcProviderExtensionsForProvider(...)`, `getRtcProviderExtensions(...)`, and
+`hasRtcProviderExtension(...)`.
+Reserved non-TypeScript language workspaces must preserve the same semantics with
+language-idiomatic helper naming for capability and provider-extension catalogs, not just provider
+identity catalogs.
+Each official language must also expose a language workspace catalog so language identity, public
+package identity, maturity tier, runtime/control support, current role, workspace summary, and
+role highlights stay machine-readable without scraping README prose. That catalog must preserve
+`language`, `workspace`, `displayName`, `publicPackage`, `maturityTier`, `controlSdk`,
+`runtimeBridge`, `currentRole`, `workspaceSummary`, and `roleHighlights`.
+The TypeScript executable baseline keeps that lookup explicit through
+`getRtcLanguageWorkspaceByLanguage(...)`.
+
+The materialized TypeScript provider catalog entry and the runtime `RtcProviderModule` object must
+expose the same TypeScript vendor SDK contract so installers do not need to read package manifests
+to understand provider runtime requirements.
+That contract includes the `reference-baseline` runtime bridge status and the `required` official
+vendor SDK prerequisite.
+The materialized provider catalog entry and the provider package manifest must also expose the same
+`extensionKeys` list so provider-specific escape hatches stay standardized.
+
+Runtime registration must fail with `provider_module_contract_mismatch` when a provider module drifts
+from its assembly-driven package contract.
+That error is mandatory when `packageName`, `builtin` versus `rootPublic`, or the
+`typescriptAdapter` contract no longer matches the official provider metadata.
+Atomic batch registration must preserve the same failure semantics instead of partially registering
+earlier modules and leaving the manager in a half-mutated state.
+
+## Capability Rule
+
+Every adapter must declare:
+
+- required baseline capability support
+- optional advanced capability support
+- unsupported capability absence
+
+Capability declarations are assembly-driven through `capabilityCatalog`.
+Every capability descriptor must declare:
+
+- `category`
+- `surface`
+
+Allowed `category` values:
+
+- `required-baseline`
+- `optional-advanced`
+
+Allowed `surface` values:
+
+- `control-plane`
+- `runtime-bridge`
+- `cross-surface`
+
+The required baseline capability set is fixed workspace-wide and must stay identical across every
+official provider catalog entry.
+
+The capability catalog must make the control-plane versus runtime-bridge distinction explicit.
+If a capability participates in both surfaces, it must be marked `cross-surface` instead of being
+flattened into one side.
+
+Unsupported capabilities must not be faked.
+
+## Capability Negotiation Rule
+
+The core contract must support explicit capability negotiation and degradation decisions.
+
+Stable negotiation result statuses are:
+
+- `supported`
+- `degraded`
+- `unsupported`
+
+Negotiation must stay surface-aware.
+If a capability is missing, the result must preserve whether that gap is on the `control-plane`,
+`runtime-bridge`, or `cross-surface`.
+
+Provider adapters must not silently emulate missing required capabilities just to produce a
+`supported` result.
+Optional capability gaps may produce `degraded`, but missing required capabilities must produce
+`unsupported`.
+
+## Selection Rule
+
+Provider selection precedence is fixed:
+
+1. `providerUrl`
+2. `providerKey`
+3. `tenant override`
+4. `deployment profile`
+5. workspace default
+
+This order must stay stable across language implementations.
+
+## Error Semantics Rule
+
+- use `provider_not_supported` when a provider exists in the official catalog but the current runtime
+  has not registered a driver for it
+- use `driver_not_found` only when the requested provider is unknown to the official catalog
+
+## Vendor Escape Hatch Rule
+
+Provider-specific advanced integration must happen through:
+
+- `unwrap()`
+- provider extension metadata
+
+The core contract must stay provider-neutral even when vendor-specific power is available.
+
+Provider extension metadata is declared once in `providerExtensionCatalog`.
+Every extension descriptor must declare:
+
+- `extensionKey`
+- `providerKey`
+- `displayName`
+- `surface`
+- `access`
+- `status`
+
+Allowed extension `access` values:
+
+- `unwrap-only`
+- `extension-object`
+
+Allowed extension `status` values:
+
+- `reference-baseline`
+- `reserved`
+
+The current baseline standard uses `*.native-client` descriptors with `unwrap-only` access.
+That means the standardized contract points consumers at the vendor-native object through
+`unwrap()`, rather than inventing fake cross-provider extension wrappers.

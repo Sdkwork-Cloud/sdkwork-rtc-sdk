@@ -1,0 +1,81 @@
+# SDKWork RTC SDK Python Workspace
+
+Language: `python`
+
+Planned public package:
+
+- `sdkwork-rtc-sdk`
+
+Current boundary:
+
+- control SDK support: yes
+- runtime bridge support: reserved
+- maturity tier: reserved
+
+Current role:
+
+- Reserved workspace skeleton
+- provider metadata and driver selection standards
+- reserved Python language boundary for automation or control-plane integration
+- no runtime bridge is claimed in the current landing
+- code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
+- metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+
+This workspace is the reserved Python standard boundary for provider metadata, driver selection, and future automation or control-plane integration.
+
+Language workspace catalog:
+
+- workspace catalog: `sdkwork_rtc_sdk/language_workspace_catalog.py`
+
+
+Package scaffold:
+
+- build system: pyproject
+- manifest: `pyproject.toml`
+- contract scaffold: `sdkwork_rtc_sdk/standard_contract.py`
+
+
+Metadata scaffold:
+
+- provider catalog: `sdkwork_rtc_sdk/provider_catalog.py`
+- provider package catalog: `sdkwork_rtc_sdk/provider_package_catalog.py`
+- provider activation catalog: `sdkwork_rtc_sdk/provider_activation_catalog.py`
+- capability catalog: `sdkwork_rtc_sdk/capability_catalog.py`
+- provider extension catalog: `sdkwork_rtc_sdk/provider_extension_catalog.py`
+- provider selection: `sdkwork_rtc_sdk/provider_selection.py`
+- explicit lookup helpers stay mandatory for metadata catalogs:
+  provider catalog by provider key, provider package by provider key,
+  provider activation by provider key, capability descriptor by capability key,
+  provider extension catalog by extension key and provider key, and language workspace by language
+- helper naming stays language-idiomatic while preserving the same semantics:
+  `getRtc...` for Flutter/Java/Swift/Kotlin, `GetRtc...` for C#/Go, and `get_rtc...` for Rust/Python
+
+
+Resolution scaffold:
+
+- driver manager: `sdkwork_rtc_sdk/driver_manager.py`
+- data source: `sdkwork_rtc_sdk/data_source.py`
+- provider support: `sdkwork_rtc_sdk/provider_support.py`
+
+
+Provider package scaffold:
+
+- scaffold: `providers/provider-package-scaffold.md`
+- directory pattern: `providers/sdkwork_rtc_sdk_provider_{providerKey}`
+- package pattern: `sdkwork-rtc-sdk-provider-{providerKey}`
+- manifest file name: `pyproject.toml`
+- readme file name: `README.md`
+- source file pattern: `sdkwork_rtc_sdk_provider_{providerKey}/__init__.py`
+- source symbol pattern: `RtcProvider{providerPascal}PackageContract`
+- template tokens: `{providerKey}`
+- source template tokens: `{providerKey}`, `{providerPascal}`
+- status: `future-runtime-bridge-only`
+- runtime bridge status: `reserved`
+- root public exposure: `false`
+
+
+Standards references:
+
+- `../docs/provider-adapter-standard.md`
+- `../docs/multilanguage-capability-matrix.md`
