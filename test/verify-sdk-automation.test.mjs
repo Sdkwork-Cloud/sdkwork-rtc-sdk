@@ -15,6 +15,10 @@ import {
   RTC_TYPESCRIPT_REQUIRED_TEST_FILES,
 } from '../bin/rtc-standard-workspace-file-contracts.mjs';
 import {
+  buildRtcVerifierFixtureFileList,
+  getReservedLanguageWorkspaceEntries,
+} from './rtc-standard-fixture-helpers.mjs';
+import {
   buildLanguageProviderActivationCatalogEntries,
   buildProviderPackageManifestPath,
   buildProviderPackageReadmePath,
@@ -65,26 +69,6 @@ function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
   assert.equal((boundary?.runtimeBridgeStatusTerms?.length ?? 0) > 0, true);
 }
 
-function getReservedLanguageContractScaffolds(assembly) {
-  return assembly.languages.filter((languageEntry) => languageEntry.language !== 'typescript');
-}
-
-function getReservedLanguagePackageScaffolds(assembly) {
-  return assembly.languages.filter((languageEntry) => languageEntry.language !== 'typescript');
-}
-
-function getReservedLanguageProviderPackageScaffolds(assembly) {
-  return assembly.languages.filter((languageEntry) => languageEntry.language !== 'typescript');
-}
-
-function getReservedLanguageMetadataScaffolds(assembly) {
-  return assembly.languages.filter((languageEntry) => languageEntry.language !== 'typescript');
-}
-
-function getReservedLanguageResolutionScaffolds(assembly) {
-  return assembly.languages.filter((languageEntry) => languageEntry.language !== 'typescript');
-}
-
 function assertReservedLanguageToken(language, content, token, label = token) {
   assert.equal(
     matchesReservedLanguageToken(language, content, token),
@@ -97,156 +81,8 @@ function createVerifierFixture(mutator) {
   const fixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'sdkwork-rtc-sdk-verify-'));
   const workspaceCopy = path.join(fixtureRoot, 'sdkwork-rtc-sdk');
 
-  const filesToCopy = [
-    ...RTC_ROOT_REQUIRED_CONTRACT_FILES,
-    'bin/materialize-sdk.mjs',
-    'bin/materialize-sdk.ps1',
-    'bin/materialize-sdk.sh',
-    'bin/smoke-sdk.mjs',
-    'bin/smoke-sdk.ps1',
-    'bin/smoke-sdk.sh',
-    'bin/verify-sdk.mjs',
-    ...RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
-  ];
-
   const assemblySnapshot = readJson(assemblyPath);
-
-  for (const language of assemblySnapshot.officialLanguages) {
-    filesToCopy.push(`sdkwork-rtc-sdk-${language}/README.md`);
-  }
-
-  for (const languageEntry of assemblySnapshot.languages) {
-    if (typeof languageEntry.workspaceCatalogRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.workspaceCatalogRelativePath}`,
-      );
-    }
-
-    const rootPublicContract = getReservedLanguageRootPublicContract(languageEntry);
-    if (rootPublicContract) {
-      filesToCopy.push(`${languageEntry.workspace}/${rootPublicContract.relativePath}`);
-    }
-  }
-
-  for (const languageEntry of getReservedLanguageContractScaffolds(assemblySnapshot)) {
-    if (typeof languageEntry.contractScaffold?.relativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.contractScaffold.relativePath}`,
-      );
-    }
-  }
-
-  for (const languageEntry of getReservedLanguagePackageScaffolds(assemblySnapshot)) {
-    if (typeof languageEntry.packageScaffold?.manifestRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.packageScaffold.manifestRelativePath}`,
-      );
-    }
-  }
-
-  for (const languageEntry of getReservedLanguageProviderPackageScaffolds(assemblySnapshot)) {
-    if (typeof languageEntry.providerPackageScaffold?.relativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.providerPackageScaffold.relativePath}`,
-      );
-    }
-
-    if (typeof languageEntry.providerPackageScaffold?.directoryPattern === 'string') {
-      for (const provider of assemblySnapshot.providers) {
-        filesToCopy.push(
-          `${languageEntry.workspace}/${buildProviderPackageManifestPath(
-            languageEntry.providerPackageScaffold,
-            provider.providerKey,
-          )}`,
-        );
-        filesToCopy.push(
-          `${languageEntry.workspace}/${buildProviderPackageReadmePath(
-            languageEntry.providerPackageScaffold,
-            provider.providerKey,
-          )}`,
-        );
-        filesToCopy.push(
-          `${languageEntry.workspace}/${buildProviderPackageSourcePath(
-            languageEntry.providerPackageScaffold,
-            provider.providerKey,
-          )}`,
-        );
-      }
-    }
-  }
-
-  for (const languageEntry of getReservedLanguageMetadataScaffolds(assemblySnapshot)) {
-    if (typeof languageEntry.metadataScaffold?.providerCatalogRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.metadataScaffold.providerCatalogRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.metadataScaffold?.providerPackageCatalogRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.metadataScaffold.providerPackageCatalogRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.metadataScaffold?.providerActivationCatalogRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.metadataScaffold.providerActivationCatalogRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.metadataScaffold?.capabilityCatalogRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.metadataScaffold.capabilityCatalogRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.metadataScaffold?.providerExtensionCatalogRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.metadataScaffold.providerExtensionCatalogRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.metadataScaffold?.providerSelectionRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.metadataScaffold.providerSelectionRelativePath}`,
-      );
-    }
-  }
-
-  for (const languageEntry of getReservedLanguageResolutionScaffolds(assemblySnapshot)) {
-    if (typeof languageEntry.resolutionScaffold?.driverManagerRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.resolutionScaffold.driverManagerRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.resolutionScaffold?.dataSourceRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.resolutionScaffold.dataSourceRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.resolutionScaffold?.providerSupportRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.resolutionScaffold.providerSupportRelativePath}`,
-      );
-    }
-    if (typeof languageEntry.resolutionScaffold?.providerPackageLoaderRelativePath === 'string') {
-      filesToCopy.push(
-        `${languageEntry.workspace}/${languageEntry.resolutionScaffold.providerPackageLoaderRelativePath}`,
-      );
-    }
-  }
-
-  filesToCopy.push(RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README);
-  for (const provider of assemblySnapshot.providers) {
-    filesToCopy.push(`sdkwork-rtc-sdk-typescript/src/providers/${provider.providerKey}.ts`);
-    filesToCopy.push(
-      `sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-${provider.providerKey}/README.md`,
-    );
-    filesToCopy.push(
-      `sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-${provider.providerKey}/index.js`,
-    );
-    filesToCopy.push(
-      `sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-${provider.providerKey}/index.d.ts`,
-    );
-    filesToCopy.push(
-      `sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-${provider.providerKey}/package.json`,
-    );
-  }
+  const filesToCopy = buildRtcVerifierFixtureFileList(assemblySnapshot);
 
   for (const relativePath of filesToCopy) {
     const sourcePath = path.join(workspaceRoot, relativePath);
@@ -1167,7 +1003,7 @@ test('reserved language workspaces expose code-level standard contract scaffold 
     'RtcRuntimeController',
   ];
 
-  for (const languageEntry of getReservedLanguageContractScaffolds(assembly)) {
+  for (const languageEntry of getReservedLanguageWorkspaceEntries(assembly)) {
     assert.equal(
       typeof languageEntry.contractScaffold?.relativePath,
       'string',
@@ -1201,7 +1037,7 @@ test('reserved language workspaces expose code-level standard contract scaffold 
 test('reserved language workspaces expose package/build scaffold manifests', () => {
   const assembly = readJson(assemblyPath);
 
-  for (const languageEntry of getReservedLanguagePackageScaffolds(assembly)) {
+  for (const languageEntry of getReservedLanguageWorkspaceEntries(assembly)) {
     assert.equal(
       typeof languageEntry.packageScaffold?.buildSystem,
       'string',
@@ -1232,7 +1068,7 @@ test('reserved language workspaces expose package/build scaffold manifests', () 
 test('reserved language workspaces expose provider package scaffold files', () => {
   const assembly = readJson(assemblyPath);
 
-  for (const languageEntry of getReservedLanguageProviderPackageScaffolds(assembly)) {
+  for (const languageEntry of getReservedLanguageWorkspaceEntries(assembly)) {
     assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry);
     assert.equal(languageEntry.providerPackageBoundary.mode, 'scaffold-per-provider-package');
     assert.equal(languageEntry.providerPackageBoundary.rootPublicPolicy, 'none');
@@ -1614,7 +1450,7 @@ test('reserved language workspaces expose provider package scaffold files', () =
 test('reserved language workspaces expose metadata catalog, provider package catalog, provider activation catalog, provider extension catalog, and standalone provider selection helper scaffold files', () => {
   const assembly = readJson(assemblyPath);
 
-  for (const languageEntry of getReservedLanguageMetadataScaffolds(assembly)) {
+  for (const languageEntry of getReservedLanguageWorkspaceEntries(assembly)) {
     assert.equal(
       typeof languageEntry.metadataScaffold?.providerCatalogRelativePath,
       'string',
@@ -1877,7 +1713,7 @@ test('reserved language workspaces expose metadata catalog, provider package cat
 test('reserved language workspaces expose metadata-only driver manager, data source, provider support, and provider package loader scaffold files', () => {
   const assembly = readJson(assemblyPath);
 
-  for (const languageEntry of getReservedLanguageResolutionScaffolds(assembly)) {
+  for (const languageEntry of getReservedLanguageWorkspaceEntries(assembly)) {
     assert.equal(
       typeof languageEntry.resolutionScaffold?.driverManagerRelativePath,
       'string',
