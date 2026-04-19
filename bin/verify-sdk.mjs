@@ -25,6 +25,8 @@ import {
   REQUIRED_RTC_CAPABILITIES,
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_SURFACES,
+  DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
+  DEFAULT_TYPESCRIPT_PACKAGE_STANDARD,
   RTC_LANGUAGE_MATURITY_TIERS,
   RTC_LANGUAGE_MATURITY_TIER_SUMMARIES,
   RTC_PROVIDER_ACTIVATION_STATUSES,
@@ -157,6 +159,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard' },
       { pattern: /providerTierStandard/, label: 'assembly-driven providerTierStandard' },
       { pattern: /languageMaturityStandard/, label: 'assembly-driven languageMaturityStandard' },
+      { pattern: /typescriptAdapterStandard/, label: 'assembly-driven typescriptAdapterStandard' },
+      { pattern: /typescriptPackageStandard/, label: 'assembly-driven typescriptPackageStandard' },
       { pattern: /providerPackageBoundary/, label: 'language workspace providerPackageBoundary contract' },
       { pattern: /rootPublicPolicy/, label: 'language workspace rootPublicPolicy contract' },
       { pattern: /catalog-governed-mixed/, label: 'TypeScript mixed boundary mode contract' },
@@ -220,6 +224,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryStandard/, label: 'internal docs providerPackageBoundaryStandard coverage' },
       { pattern: /providerTierStandard/, label: 'internal docs providerTierStandard coverage' },
       { pattern: /languageMaturityStandard/, label: 'internal docs languageMaturityStandard coverage' },
+      { pattern: /typescriptAdapterStandard/, label: 'internal docs typescriptAdapterStandard coverage' },
+      { pattern: /typescriptPackageStandard/, label: 'internal docs typescriptPackageStandard coverage' },
       { pattern: /providerPackageBoundary/, label: 'internal docs providerPackageBoundary coverage' },
       { pattern: /rootPublicPolicy/, label: 'internal docs rootPublicPolicy coverage' },
       { pattern: /catalog-governed-mixed/, label: 'internal docs TypeScript mixed boundary mode coverage' },
@@ -329,6 +335,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard contract' },
       { pattern: /providerTierStandard/, label: 'assembly-driven providerTierStandard contract' },
       { pattern: /languageMaturityStandard/, label: 'assembly-driven languageMaturityStandard contract' },
+      { pattern: /typescriptAdapterStandard/, label: 'assembly-driven typescriptAdapterStandard contract' },
+      { pattern: /typescriptPackageStandard/, label: 'assembly-driven typescriptPackageStandard contract' },
       { pattern: /providerActivations/, label: 'language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'assembly-driven TypeScript provider package contract' },
       { pattern: /providerPackageBoundary/, label: 'language workspace provider package boundary contract' },
@@ -510,6 +518,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryStandard/, label: 'provider adapter assembly-driven providerPackageBoundaryStandard contract' },
       { pattern: /providerTierStandard/, label: 'provider adapter assembly-driven providerTierStandard contract' },
       { pattern: /languageMaturityStandard/, label: 'provider adapter assembly-driven languageMaturityStandard contract' },
+      { pattern: /typescriptAdapterStandard/, label: 'provider adapter assembly-driven typescriptAdapterStandard contract' },
+      { pattern: /typescriptPackageStandard/, label: 'provider adapter assembly-driven typescriptPackageStandard contract' },
       { pattern: /providerPackageBoundary/, label: 'provider adapter language workspace package boundary contract' },
       {
         pattern: /rootPublicPolicy/,
@@ -598,6 +608,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryStandard/, label: 'verification of assembly-driven providerPackageBoundaryStandard contract' },
       { pattern: /providerTierStandard/, label: 'verification of assembly-driven providerTierStandard contract' },
       { pattern: /languageMaturityStandard/, label: 'verification of assembly-driven languageMaturityStandard contract' },
+      { pattern: /typescriptAdapterStandard/, label: 'verification of assembly-driven typescriptAdapterStandard contract' },
+      { pattern: /typescriptPackageStandard/, label: 'verification of assembly-driven typescriptPackageStandard contract' },
       { pattern: /providerActivations/, label: 'verification of language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'verification of assembly-driven TypeScript provider package contract' },
       {
@@ -956,6 +968,8 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     providerPackageBoundaryStandard,
     providerTierStandard,
     languageMaturityStandard,
+    typescriptAdapterStandard,
+    typescriptPackageStandard,
   } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
@@ -1261,6 +1275,85 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   ) {
     fail(
       'languageMaturityStandard.tierSummaries must exactly match the canonical maturity summaries',
+    );
+  }
+
+  if (
+    !Array.isArray(typescriptAdapterStandard?.sdkProvisioningTerms) ||
+    typescriptAdapterStandard.sdkProvisioningTerms.length === 0
+  ) {
+    fail('typescriptAdapterStandard.sdkProvisioningTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(typescriptAdapterStandard?.bindingStrategyTerms) ||
+    typescriptAdapterStandard.bindingStrategyTerms.length === 0
+  ) {
+    fail('typescriptAdapterStandard.bindingStrategyTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(typescriptAdapterStandard?.bundlePolicyTerms) ||
+    typescriptAdapterStandard.bundlePolicyTerms.length === 0
+  ) {
+    fail('typescriptAdapterStandard.bundlePolicyTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(typescriptAdapterStandard?.runtimeBridgeStatusTerms) ||
+    typescriptAdapterStandard.runtimeBridgeStatusTerms.length === 0
+  ) {
+    fail('typescriptAdapterStandard.runtimeBridgeStatusTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(typescriptAdapterStandard?.officialVendorSdkRequirementTerms) ||
+    typescriptAdapterStandard.officialVendorSdkRequirementTerms.length === 0
+  ) {
+    fail('typescriptAdapterStandard.officialVendorSdkRequirementTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    typescriptAdapterStandard.sdkProvisioningTerms,
+    TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES,
+    'Assembly typescriptAdapterStandard.sdkProvisioningTerms',
+  );
+  assertExactNormalizedTerms(
+    typescriptAdapterStandard.bindingStrategyTerms,
+    TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
+    'Assembly typescriptAdapterStandard.bindingStrategyTerms',
+  );
+  assertExactNormalizedTerms(
+    typescriptAdapterStandard.bundlePolicyTerms,
+    TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
+    'Assembly typescriptAdapterStandard.bundlePolicyTerms',
+  );
+  assertExactNormalizedTerms(
+    typescriptAdapterStandard.runtimeBridgeStatusTerms,
+    TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+    'Assembly typescriptAdapterStandard.runtimeBridgeStatusTerms',
+  );
+  assertExactNormalizedTerms(
+    typescriptAdapterStandard.officialVendorSdkRequirementTerms,
+    TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
+    'Assembly typescriptAdapterStandard.officialVendorSdkRequirementTerms',
+  );
+
+  if (
+    JSON.stringify(typescriptAdapterStandard?.referenceContract ?? {}) !==
+    JSON.stringify(DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT)
+  ) {
+    fail(
+      'typescriptAdapterStandard.referenceContract must exactly match the canonical TypeScript adapter baseline',
+    );
+  }
+
+  if (
+    JSON.stringify(typescriptPackageStandard ?? {}) !==
+    JSON.stringify(DEFAULT_TYPESCRIPT_PACKAGE_STANDARD)
+  ) {
+    fail(
+      'typescriptPackageStandard must exactly match the canonical TypeScript package naming standard',
     );
   }
 
@@ -1774,7 +1867,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider TypeScript adapter sdkProvisioning must be declared for ${provider.providerKey}`);
     }
 
-    if (!TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES.includes(provider.typescriptAdapter.sdkProvisioning)) {
+    if (!typescriptAdapterStandard.sdkProvisioningTerms.includes(provider.typescriptAdapter.sdkProvisioning)) {
       fail(`Provider TypeScript adapter sdkProvisioning is not recognized for ${provider.providerKey}`);
     }
 
@@ -1782,7 +1875,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider TypeScript adapter bindingStrategy must be declared for ${provider.providerKey}`);
     }
 
-    if (!TYPESCRIPT_ADAPTER_BINDING_STRATEGIES.includes(provider.typescriptAdapter.bindingStrategy)) {
+    if (!typescriptAdapterStandard.bindingStrategyTerms.includes(provider.typescriptAdapter.bindingStrategy)) {
       fail(`Provider TypeScript adapter bindingStrategy is not recognized for ${provider.providerKey}`);
     }
 
@@ -1790,7 +1883,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider TypeScript adapter bundlePolicy must be declared for ${provider.providerKey}`);
     }
 
-    if (!TYPESCRIPT_ADAPTER_BUNDLE_POLICIES.includes(provider.typescriptAdapter.bundlePolicy)) {
+    if (!typescriptAdapterStandard.bundlePolicyTerms.includes(provider.typescriptAdapter.bundlePolicy)) {
       fail(`Provider TypeScript adapter bundlePolicy is not recognized for ${provider.providerKey}`);
     }
 
@@ -1799,7 +1892,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     if (
-      !TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES.includes(
+      !typescriptAdapterStandard.runtimeBridgeStatusTerms.includes(
         provider.typescriptAdapter.runtimeBridgeStatus,
       )
     ) {
@@ -1813,7 +1906,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     if (
-      !TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS.includes(
+      !typescriptAdapterStandard.officialVendorSdkRequirementTerms.includes(
         provider.typescriptAdapter.officialVendorSdkRequirement,
       )
     ) {
@@ -1848,6 +1941,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
 
     const canonicalTypeScriptPackage = getCanonicalTypeScriptProviderPackageContract(
       provider.providerKey,
+      typescriptPackageStandard,
     );
 
     if (provider.typescriptPackage.packageName !== canonicalTypeScriptPackage.packageName) {
@@ -1877,6 +1971,12 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     if (provider.typescriptPackage.moduleSymbol !== canonicalTypeScriptPackage.moduleSymbol) {
       fail(
         `Provider TypeScript package moduleSymbol must be ${canonicalTypeScriptPackage.moduleSymbol} for ${provider.providerKey}`,
+      );
+    }
+
+    if (typescriptPackageStandard.rootPublicRule !== 'builtin-aligned') {
+      fail(
+        `typescriptPackageStandard.rootPublicRule must remain builtin-aligned, received ${typescriptPackageStandard.rootPublicRule ?? '<missing>'}`,
       );
     }
 

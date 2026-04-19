@@ -37,6 +37,8 @@ This workspace standardizes:
 - assembly-driven provider-tier and language-maturity documentation
 - assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`, and
   `languageMaturityStandard` vocabularies
+- assembly-driven `typescriptAdapterStandard` and `typescriptPackageStandard` contracts for
+  TypeScript provider adapter and package identity normalization
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
 - assembly-driven language workspace catalog contracts across the TypeScript baseline and reserved
   language workspaces
@@ -99,6 +101,18 @@ The top-level assembly also fixes the shared vocabulary standards:
 - `providerTierStandard.tierSummaries`
 - `languageMaturityStandard.tierTerms`
 - `languageMaturityStandard.tierSummaries`
+- `typescriptAdapterStandard.sdkProvisioningTerms`
+- `typescriptAdapterStandard.bindingStrategyTerms`
+- `typescriptAdapterStandard.bundlePolicyTerms`
+- `typescriptAdapterStandard.runtimeBridgeStatusTerms`
+- `typescriptAdapterStandard.officialVendorSdkRequirementTerms`
+- `typescriptAdapterStandard.referenceContract`
+- `typescriptPackageStandard.packageNamePattern`
+- `typescriptPackageStandard.sourceModulePattern`
+- `typescriptPackageStandard.driverFactoryPattern`
+- `typescriptPackageStandard.metadataSymbolPattern`
+- `typescriptPackageStandard.moduleSymbolPattern`
+- `typescriptPackageStandard.rootPublicRule`
 
 The runtime surface is standardized, but vendor media engines are still consumer-supplied.
 Provider adapters delegate runtime work through a consumer-supplied runtime bridge bound to the
@@ -271,7 +285,10 @@ TypeScript provider package boundaries under
 TypeScript provider package statuses are standardized as
 `root_public_reference_boundary` for builtin root-public package boundaries and
 `package_reference_boundary` for executable non-builtin package boundaries.
-The assembly-driven `typescriptPackage` contract is canonical and must not drift:
+The assembly-driven `typescriptAdapterStandard` fixes the TypeScript adapter baseline as
+`consumer-supplied`, `native-factory`, `must-not-bundle`, `reference-baseline`, and `required`.
+The assembly-driven `typescriptPackageStandard` and per-provider `typescriptPackage` contract are
+canonical and must not drift:
 `@sdkwork/rtc-sdk-provider-<providerKey>`,
 `../../src/providers/<providerKey>.ts`,
 `create<ProviderPascal>RtcDriver`,

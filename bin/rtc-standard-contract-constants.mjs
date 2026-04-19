@@ -173,3 +173,12 @@ export const DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT = Object.freeze({
   runtimeBridgeStatus: 'reference-baseline',
   officialVendorSdkRequirement: 'required',
 });
+
+export const DEFAULT_TYPESCRIPT_PACKAGE_STANDARD = Object.freeze({
+  packageNamePattern: '@sdkwork/rtc-sdk-provider-{providerKey}',
+  sourceModulePattern: '../../src/providers/{providerKey}.ts',
+  driverFactoryPattern: 'create{providerPascal}RtcDriver',
+  metadataSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_METADATA',
+  moduleSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_MODULE',
+  rootPublicRule: 'builtin-aligned',
+});

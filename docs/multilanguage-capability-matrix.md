@@ -24,6 +24,28 @@ support boundaries, and maturity tiers stay exact and verifiable.
 - `providerExtensionStandard.accessTerms`: `unwrap-only`, `extension-object`
 - `providerExtensionStandard.statusTerms`: `reference-baseline`, `reserved`
 
+## TypeScript Adapter Standard
+
+- `typescriptAdapterStandard.sdkProvisioningTerms`: `consumer-supplied`
+- `typescriptAdapterStandard.bindingStrategyTerms`: `native-factory`
+- `typescriptAdapterStandard.bundlePolicyTerms`: `must-not-bundle`
+- `typescriptAdapterStandard.runtimeBridgeStatusTerms`: `reference-baseline`
+- `typescriptAdapterStandard.officialVendorSdkRequirementTerms`: `required`
+- `typescriptAdapterStandard.referenceContract.sdkProvisioning`: `consumer-supplied`
+- `typescriptAdapterStandard.referenceContract.bindingStrategy`: `native-factory`
+- `typescriptAdapterStandard.referenceContract.bundlePolicy`: `must-not-bundle`
+- `typescriptAdapterStandard.referenceContract.runtimeBridgeStatus`: `reference-baseline`
+- `typescriptAdapterStandard.referenceContract.officialVendorSdkRequirement`: `required`
+
+## TypeScript Package Standard
+
+- `typescriptPackageStandard.packageNamePattern`: `@sdkwork/rtc-sdk-provider-{providerKey}`
+- `typescriptPackageStandard.sourceModulePattern`: `../../src/providers/{providerKey}.ts`
+- `typescriptPackageStandard.driverFactoryPattern`: `create{providerPascal}RtcDriver`
+- `typescriptPackageStandard.metadataSymbolPattern`: `{providerUpperSnake}_RTC_PROVIDER_METADATA`
+- `typescriptPackageStandard.moduleSymbolPattern`: `{providerUpperSnake}_RTC_PROVIDER_MODULE`
+- `typescriptPackageStandard.rootPublicRule`: `builtin-aligned`
+
 ## Capability Catalog
 
 | Capability key | Category | Surface |

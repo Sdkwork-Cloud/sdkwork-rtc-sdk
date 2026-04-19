@@ -272,7 +272,11 @@ The root verifier must confirm:
 - stale legacy generated assets are absent
 - the TypeScript provider package skeletons exist for every official provider
 - the TypeScript provider package entrypoints and `exports` contract stay aligned
+- the assembly-driven `typescriptAdapterStandard` stays aligned with the canonical TypeScript
+  adapter vocabulary and reference baseline contract
 - the TypeScript provider package assembly-driven `typescriptPackage` contract stays aligned
+- the assembly-driven `typescriptPackageStandard` stays aligned with the canonical TypeScript
+  package naming and symbol patterns
 - the assembly-driven `typescriptPackage.packageName` stays canonical as
   `@sdkwork/rtc-sdk-provider-<providerKey>`
 - the assembly-driven `typescriptPackage.sourceModule` stays canonical as

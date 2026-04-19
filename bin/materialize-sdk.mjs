@@ -68,6 +68,7 @@ function renderTypeScriptPackageContract(contract) {
 
 function getReferenceTypeScriptAdapterContract(assembly) {
   return (
+    assembly.typescriptAdapterStandard?.referenceContract ??
     (assembly.providers ?? []).find((provider) => provider.providerKey === assembly.defaults?.providerKey)
       ?.typescriptAdapter ??
     (assembly.providers ?? [])[0]?.typescriptAdapter ??
@@ -826,6 +827,36 @@ function renderCapabilityMatrix(assembly) {
       assembly.providerExtensionStandard?.statusTerms ?? [],
     )}`,
   ].join('\n');
+  const typeScriptAdapterStandardLines = [
+    `- \`typescriptAdapterStandard.sdkProvisioningTerms\`: ${renderMarkdownCodeList(
+      assembly.typescriptAdapterStandard?.sdkProvisioningTerms ?? [],
+    )}`,
+    `- \`typescriptAdapterStandard.bindingStrategyTerms\`: ${renderMarkdownCodeList(
+      assembly.typescriptAdapterStandard?.bindingStrategyTerms ?? [],
+    )}`,
+    `- \`typescriptAdapterStandard.bundlePolicyTerms\`: ${renderMarkdownCodeList(
+      assembly.typescriptAdapterStandard?.bundlePolicyTerms ?? [],
+    )}`,
+    `- \`typescriptAdapterStandard.runtimeBridgeStatusTerms\`: ${renderMarkdownCodeList(
+      assembly.typescriptAdapterStandard?.runtimeBridgeStatusTerms ?? [],
+    )}`,
+    `- \`typescriptAdapterStandard.officialVendorSdkRequirementTerms\`: ${renderMarkdownCodeList(
+      assembly.typescriptAdapterStandard?.officialVendorSdkRequirementTerms ?? [],
+    )}`,
+    `- \`typescriptAdapterStandard.referenceContract.sdkProvisioning\`: \`${assembly.typescriptAdapterStandard?.referenceContract?.sdkProvisioning ?? ''}\``,
+    `- \`typescriptAdapterStandard.referenceContract.bindingStrategy\`: \`${assembly.typescriptAdapterStandard?.referenceContract?.bindingStrategy ?? ''}\``,
+    `- \`typescriptAdapterStandard.referenceContract.bundlePolicy\`: \`${assembly.typescriptAdapterStandard?.referenceContract?.bundlePolicy ?? ''}\``,
+    `- \`typescriptAdapterStandard.referenceContract.runtimeBridgeStatus\`: \`${assembly.typescriptAdapterStandard?.referenceContract?.runtimeBridgeStatus ?? ''}\``,
+    `- \`typescriptAdapterStandard.referenceContract.officialVendorSdkRequirement\`: \`${assembly.typescriptAdapterStandard?.referenceContract?.officialVendorSdkRequirement ?? ''}\``,
+  ].join('\n');
+  const typeScriptPackageStandardLines = [
+    `- \`typescriptPackageStandard.packageNamePattern\`: \`${assembly.typescriptPackageStandard?.packageNamePattern ?? ''}\``,
+    `- \`typescriptPackageStandard.sourceModulePattern\`: \`${assembly.typescriptPackageStandard?.sourceModulePattern ?? ''}\``,
+    `- \`typescriptPackageStandard.driverFactoryPattern\`: \`${assembly.typescriptPackageStandard?.driverFactoryPattern ?? ''}\``,
+    `- \`typescriptPackageStandard.metadataSymbolPattern\`: \`${assembly.typescriptPackageStandard?.metadataSymbolPattern ?? ''}\``,
+    `- \`typescriptPackageStandard.moduleSymbolPattern\`: \`${assembly.typescriptPackageStandard?.moduleSymbolPattern ?? ''}\``,
+    `- \`typescriptPackageStandard.rootPublicRule\`: \`${assembly.typescriptPackageStandard?.rootPublicRule ?? ''}\``,
+  ].join('\n');
 
   return `# RTC SDK Multilanguage Capability Matrix
 
@@ -847,6 +878,14 @@ ${capabilityStandardLines}
 ## Provider Extension Standard
 
 ${providerExtensionStandardLines}
+
+## TypeScript Adapter Standard
+
+${typeScriptAdapterStandardLines}
+
+## TypeScript Package Standard
+
+${typeScriptPackageStandardLines}
 
 ## Capability Catalog
 

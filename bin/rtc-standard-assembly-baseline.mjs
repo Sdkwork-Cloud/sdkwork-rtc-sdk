@@ -3,6 +3,8 @@ import {
   RTC_CAPABILITY_SURFACES,
   BUILTIN_RTC_PROVIDER_KEYS,
   DEFAULT_RTC_PROVIDER_KEY,
+  DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
+  DEFAULT_TYPESCRIPT_PACKAGE_STANDARD,
   RTC_LANGUAGE_MATURITY_TIERS,
   RTC_LANGUAGE_MATURITY_TIER_SUMMARIES,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
@@ -19,6 +21,11 @@ import {
   RTC_PROVIDER_SELECTION_PRECEDENCE,
   RTC_PROVIDER_SELECTION_SOURCES,
   RTC_PROVIDER_SUPPORT_STATUSES,
+  TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
+  TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
+  TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
+  TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+  TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES,
 } from './rtc-standard-contract-constants.mjs';
 
 function hasExactArray(actual, expected) {
@@ -165,6 +172,81 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     );
   }
 
+  const typescriptAdapterStandard = assembly.typescriptAdapterStandard ?? {};
+  if (
+    !hasExactArray(
+      typescriptAdapterStandard.sdkProvisioningTerms,
+      TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES,
+    )
+  ) {
+    throw new Error(
+      `typescriptAdapterStandard.sdkProvisioningTerms must be ${TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES.join(', ')}`,
+    );
+  }
+
+  if (
+    !hasExactArray(
+      typescriptAdapterStandard.bindingStrategyTerms,
+      TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
+    )
+  ) {
+    throw new Error(
+      `typescriptAdapterStandard.bindingStrategyTerms must be ${TYPESCRIPT_ADAPTER_BINDING_STRATEGIES.join(', ')}`,
+    );
+  }
+
+  if (
+    !hasExactArray(
+      typescriptAdapterStandard.bundlePolicyTerms,
+      TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
+    )
+  ) {
+    throw new Error(
+      `typescriptAdapterStandard.bundlePolicyTerms must be ${TYPESCRIPT_ADAPTER_BUNDLE_POLICIES.join(', ')}`,
+    );
+  }
+
+  if (
+    !hasExactArray(
+      typescriptAdapterStandard.runtimeBridgeStatusTerms,
+      TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+    )
+  ) {
+    throw new Error(
+      `typescriptAdapterStandard.runtimeBridgeStatusTerms must be ${TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES.join(', ')}`,
+    );
+  }
+
+  if (
+    !hasExactArray(
+      typescriptAdapterStandard.officialVendorSdkRequirementTerms,
+      TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
+    )
+  ) {
+    throw new Error(
+      `typescriptAdapterStandard.officialVendorSdkRequirementTerms must be ${TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS.join(', ')}`,
+    );
+  }
+
+  if (
+    JSON.stringify(typescriptAdapterStandard.referenceContract ?? {}) !==
+    JSON.stringify(DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT)
+  ) {
+    throw new Error(
+      'typescriptAdapterStandard.referenceContract must exactly match the canonical TypeScript adapter baseline',
+    );
+  }
+
+  const typescriptPackageStandard = assembly.typescriptPackageStandard ?? {};
+  if (
+    JSON.stringify(typescriptPackageStandard) !==
+    JSON.stringify(DEFAULT_TYPESCRIPT_PACKAGE_STANDARD)
+  ) {
+    throw new Error(
+      'typescriptPackageStandard must exactly match the canonical TypeScript package naming standard',
+    );
+  }
+
   const providerPackageBoundaryStandard = assembly.providerPackageBoundaryStandard ?? {};
   if (!hasExactArray(providerPackageBoundaryStandard.modeTerms, RTC_PROVIDER_PACKAGE_BOUNDARY_MODES)) {
     throw new Error(
@@ -291,6 +373,8 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     providerExtensionStandard,
     providerTierStandard,
     languageMaturityStandard,
+    typescriptAdapterStandard,
+    typescriptPackageStandard,
     providerPackageBoundaryStandard,
   };
 }

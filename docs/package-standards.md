@@ -157,6 +157,8 @@ Rules:
   bundle policy
 - every provider package manifest must also declare the TypeScript runtime bridge baseline:
   `reference-baseline` runtime bridge status with an official vendor SDK requirement of `required`
+- the top-level `typescriptAdapterStandard` owns that TypeScript vendor SDK contract vocabulary and
+  the canonical `referenceContract` baseline used by provider packages and runtime documentation
 - the provider-neutral runtime surface is fixed as `join`, `leave`, `publish`, `unpublish`,
   `muteAudio`, and `muteVideo`
 - provider adapters must forward the consumer-supplied `runtimeController` into the shared driver
@@ -188,6 +190,8 @@ Rules:
   references so provider package boundary contracts remain immutable after load
 - every provider package manifest must bind to one real source module and declare its driver
   factory, metadata symbol, module symbol, and root-public exposure policy
+- the assembly-driven `typescriptPackageStandard` owns the canonical TypeScript package naming
+  patterns, not ad hoc helpers or handwritten conventions
 - the assembly-driven TypeScript package contract is canonical, not free-form:
   `typescriptPackage.packageName` must equal `@sdkwork/rtc-sdk-provider-<providerKey>`
 - the assembly-driven TypeScript package contract is canonical, not free-form:

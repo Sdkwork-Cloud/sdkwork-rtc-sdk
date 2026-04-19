@@ -1,3 +1,5 @@
+import { DEFAULT_TYPESCRIPT_PACKAGE_STANDARD } from './rtc-standard-contract-constants.mjs';
+
 function normalizeRelativePath(value) {
   return String(value).replace(/\\/g, '/');
 }
@@ -14,16 +16,39 @@ export function toUpperSnakeCase(value) {
   return String(value).replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toUpperCase();
 }
 
-export function getCanonicalTypeScriptProviderPackageContract(providerKey) {
-  const providerPascal = toPascalCase(providerKey);
-  const providerUpperSnake = toUpperSnakeCase(providerKey);
+export function getCanonicalTypeScriptProviderPackageContract(
+  providerKey,
+  packageStandard = DEFAULT_TYPESCRIPT_PACKAGE_STANDARD,
+) {
+  const rootPublicRule = packageStandard?.rootPublicRule ?? DEFAULT_TYPESCRIPT_PACKAGE_STANDARD.rootPublicRule;
 
   return {
-    packageName: `@sdkwork/rtc-sdk-provider-${providerKey}`,
-    sourceModule: `../../src/providers/${providerKey}.ts`,
-    driverFactory: `create${providerPascal}RtcDriver`,
-    metadataSymbol: `${providerUpperSnake}_RTC_PROVIDER_METADATA`,
-    moduleSymbol: `${providerUpperSnake}_RTC_PROVIDER_MODULE`,
+    packageName: materializeProviderPackagePattern(
+      packageStandard?.packageNamePattern ??
+        DEFAULT_TYPESCRIPT_PACKAGE_STANDARD.packageNamePattern,
+      providerKey,
+    ),
+    sourceModule: materializeProviderPackagePattern(
+      packageStandard?.sourceModulePattern ??
+        DEFAULT_TYPESCRIPT_PACKAGE_STANDARD.sourceModulePattern,
+      providerKey,
+    ),
+    driverFactory: materializeProviderPackagePattern(
+      packageStandard?.driverFactoryPattern ??
+        DEFAULT_TYPESCRIPT_PACKAGE_STANDARD.driverFactoryPattern,
+      providerKey,
+    ),
+    metadataSymbol: materializeProviderPackagePattern(
+      packageStandard?.metadataSymbolPattern ??
+        DEFAULT_TYPESCRIPT_PACKAGE_STANDARD.metadataSymbolPattern,
+      providerKey,
+    ),
+    moduleSymbol: materializeProviderPackagePattern(
+      packageStandard?.moduleSymbolPattern ??
+        DEFAULT_TYPESCRIPT_PACKAGE_STANDARD.moduleSymbolPattern,
+      providerKey,
+    ),
+    rootPublicRule,
   };
 }
 
@@ -38,7 +63,8 @@ export function normalizeStringArray(values) {
 export function materializeProviderPackagePattern(pattern, providerKey) {
   return String(pattern)
     .replaceAll('{providerKey}', providerKey)
-    .replaceAll('{providerPascal}', toPascalCase(providerKey));
+    .replaceAll('{providerPascal}', toPascalCase(providerKey))
+    .replaceAll('{providerUpperSnake}', toUpperSnakeCase(providerKey));
 }
 
 export function buildProviderPackageManifestPath(providerPackageScaffold, providerKey) {

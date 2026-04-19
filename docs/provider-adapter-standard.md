@@ -118,6 +118,7 @@ TypeScript provider packages must keep the vendor SDK dependency contract explic
 - provider packages must `must-not-bundle` the vendor SDK
 - the TypeScript runtime bridge baseline is `reference-baseline`
 - the official vendor SDK requirement is `required`
+- those adapter terms are assembly-governed through `typescriptAdapterStandard`
 
 ## Runtime Bridge Rule
 
@@ -352,9 +353,12 @@ The materialized TypeScript provider catalog entry and the runtime `RtcProviderM
 expose the same TypeScript vendor SDK contract so installers do not need to read package manifests
 to understand provider runtime requirements.
 That contract includes the `reference-baseline` runtime bridge status and the `required` official
-vendor SDK prerequisite.
+vendor SDK prerequisite, and it is assembly-governed through `typescriptAdapterStandard`.
 The materialized provider catalog entry and the provider package manifest must also expose the same
 `extensionKeys` list so provider-specific escape hatches stay standardized.
+The TypeScript package identity contract is likewise assembly-governed through
+`typescriptPackageStandard` so package name, source module, driver factory, metadata symbol, and
+module symbol stay canonical across manifests, catalogs, and package entrypoints.
 
 Runtime registration must fail with `provider_module_contract_mismatch` when a provider module drifts
 from its assembly-driven package contract.

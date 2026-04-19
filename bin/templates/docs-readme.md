@@ -62,8 +62,10 @@ The TypeScript executable baseline fixes these standard modules as the executabl
   package-boundary semantics stay explicit across languages instead of being inferred from
   TypeScript-only package manifests or reserved-language scaffold prose.
   The same catalog also preserves the assembly-driven top-level standards
-  `providerSelectionStandard`, `providerSupportStandard`, `providerActivationStandard`, and
-  `providerPackageBoundaryStandard` through those machine-readable contracts.
+  `providerSelectionStandard`, `providerSupportStandard`, `providerActivationStandard`,
+  `providerPackageBoundaryStandard`, `capabilityStandard`, `providerExtensionStandard`,
+  `providerTierStandard`, `languageMaturityStandard`, `typescriptAdapterStandard`, and
+  `typescriptPackageStandard` through those machine-readable contracts.
   TypeScript stays `catalog-governed-mixed` with `rootPublicPolicy` set to `builtin-only`,
   while reserved languages stay `scaffold-per-provider-package` with `rootPublicPolicy` set to
   `none`.

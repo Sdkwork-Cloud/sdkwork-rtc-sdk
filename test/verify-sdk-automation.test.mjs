@@ -44,6 +44,7 @@ import {
 import {
   BUILTIN_RTC_PROVIDER_KEYS,
   DEFAULT_RTC_PROVIDER_KEY,
+  DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
   RTC_PROVIDER_ACTIVATION_STATUSES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
@@ -53,6 +54,11 @@ import {
   RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_SURFACES,
+  TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
+  TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
+  TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
+  TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+  TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES,
   RTC_PROVIDER_SELECTION_PRECEDENCE,
   RTC_PROVIDER_SELECTION_SOURCES,
   RTC_PROVIDER_SUPPORT_STATUSES,
@@ -82,6 +88,22 @@ const EXPECTED_LANGUAGE_MATURITY_STANDARD = {
     reference: 'Executable baseline language workspace',
     reserved: 'Official but not yet executable runtime-bridge workspace',
   },
+};
+const EXPECTED_TYPESCRIPT_ADAPTER_STANDARD = {
+  sdkProvisioningTerms: TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES,
+  bindingStrategyTerms: TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
+  bundlePolicyTerms: TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
+  runtimeBridgeStatusTerms: TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+  officialVendorSdkRequirementTerms: TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
+  referenceContract: DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
+};
+const EXPECTED_TYPESCRIPT_PACKAGE_STANDARD = {
+  packageNamePattern: '@sdkwork/rtc-sdk-provider-{providerKey}',
+  sourceModulePattern: '../../src/providers/{providerKey}.ts',
+  driverFactoryPattern: 'create{providerPascal}RtcDriver',
+  metadataSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_METADATA',
+  moduleSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_MODULE',
+  rootPublicRule: 'builtin-aligned',
 };
 
 function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
@@ -196,6 +218,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /providerExtensionStandard/);
   assert.match(rootReadme, /providerTierStandard/);
   assert.match(rootReadme, /languageMaturityStandard/);
+  assert.match(rootReadme, /typescriptAdapterStandard/);
+  assert.match(rootReadme, /typescriptPackageStandard/);
   assert.match(rootReadme, /providerActivationStandard/);
   assert.match(rootReadme, /providerPackageBoundaryStandard/);
   assert.match(rootReadme, /providerPackageBoundary/);
@@ -234,6 +258,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /providerExtensionStandard/);
   assert.match(docsReadme, /providerTierStandard/);
   assert.match(docsReadme, /languageMaturityStandard/);
+  assert.match(docsReadme, /typescriptAdapterStandard/);
+  assert.match(docsReadme, /typescriptPackageStandard/);
   assert.match(docsReadme, /providerActivationStandard/);
   assert.match(docsReadme, /providerPackageBoundaryStandard/);
   assert.match(docsReadme, /providerPackageBoundary/);
@@ -275,6 +301,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /providerExtensionStandard/);
   assert.match(packageStandards, /providerTierStandard/);
   assert.match(packageStandards, /languageMaturityStandard/);
+  assert.match(packageStandards, /typescriptAdapterStandard/);
+  assert.match(packageStandards, /typescriptPackageStandard/);
   assert.match(packageStandards, /providerActivations/);
   assert.match(packageStandards, /typescriptPackage/);
   assert.match(packageStandards, /defaultProviderContract/);
@@ -387,6 +415,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /providerExtensionStandard/);
   assert.match(providerAdapterStandard, /providerTierStandard/);
   assert.match(providerAdapterStandard, /languageMaturityStandard/);
+  assert.match(providerAdapterStandard, /typescriptAdapterStandard/);
+  assert.match(providerAdapterStandard, /typescriptPackageStandard/);
   assert.match(providerAdapterStandard, /providerPackageBoundary/);
   assert.match(providerAdapterStandard, /rootPublicPolicy/);
   assert.match(providerAdapterStandard, /catalog-governed-mixed/);
@@ -486,6 +516,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /providerExtensionStandard/);
   assert.match(verificationMatrix, /providerTierStandard/);
   assert.match(verificationMatrix, /languageMaturityStandard/);
+  assert.match(verificationMatrix, /typescriptAdapterStandard/);
+  assert.match(verificationMatrix, /typescriptPackageStandard/);
   assert.match(verificationMatrix, /providerActivations/);
   assert.match(verificationMatrix, /typescriptPackage/);
   assert.match(verificationMatrix, /providerPackageBoundary/);
@@ -745,6 +777,8 @@ test('rtc assembly declares official languages and default provider', () => {
   });
   assert.deepEqual(assembly.providerTierStandard, EXPECTED_PROVIDER_TIER_STANDARD);
   assert.deepEqual(assembly.languageMaturityStandard, EXPECTED_LANGUAGE_MATURITY_STANDARD);
+  assert.deepEqual(assembly.typescriptAdapterStandard, EXPECTED_TYPESCRIPT_ADAPTER_STANDARD);
+  assert.deepEqual(assembly.typescriptPackageStandard, EXPECTED_TYPESCRIPT_PACKAGE_STANDARD);
   assert.deepEqual(assembly.providerPackageBoundaryStandard?.modeTerms, RTC_PROVIDER_PACKAGE_BOUNDARY_MODES);
   assert.deepEqual(
     assembly.providerPackageBoundaryStandard?.rootPublicPolicyTerms,
@@ -804,6 +838,7 @@ test('rtc assembly declares official languages and default provider', () => {
   for (const provider of assembly.providers) {
     const canonicalTypeScriptPackage = getCanonicalTypeScriptProviderPackageContract(
       provider.providerKey,
+      assembly.typescriptPackageStandard,
     );
 
     assert.equal(typeof provider.defaultSelected, 'boolean');
@@ -818,6 +853,36 @@ test('rtc assembly declares official languages and default provider', () => {
     assert.equal(typeof provider.typescriptAdapter?.bundlePolicy, 'string');
     assert.equal(typeof provider.typescriptAdapter?.runtimeBridgeStatus, 'string');
     assert.equal(typeof provider.typescriptAdapter?.officialVendorSdkRequirement, 'string');
+    assert.equal(
+      assembly.typescriptAdapterStandard.sdkProvisioningTerms.includes(
+        provider.typescriptAdapter.sdkProvisioning,
+      ),
+      true,
+    );
+    assert.equal(
+      assembly.typescriptAdapterStandard.bindingStrategyTerms.includes(
+        provider.typescriptAdapter.bindingStrategy,
+      ),
+      true,
+    );
+    assert.equal(
+      assembly.typescriptAdapterStandard.bundlePolicyTerms.includes(
+        provider.typescriptAdapter.bundlePolicy,
+      ),
+      true,
+    );
+    assert.equal(
+      assembly.typescriptAdapterStandard.runtimeBridgeStatusTerms.includes(
+        provider.typescriptAdapter.runtimeBridgeStatus,
+      ),
+      true,
+    );
+    assert.equal(
+      assembly.typescriptAdapterStandard.officialVendorSdkRequirementTerms.includes(
+        provider.typescriptAdapter.officialVendorSdkRequirement,
+      ),
+      true,
+    );
     assert.equal(typeof provider.typescriptPackage?.packageName, 'string');
     assert.equal(typeof provider.typescriptPackage?.sourceModule, 'string');
     assert.equal(typeof provider.typescriptPackage?.driverFactory, 'string');

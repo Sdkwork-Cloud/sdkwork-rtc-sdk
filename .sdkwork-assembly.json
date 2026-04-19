@@ -83,6 +83,38 @@
       "reserved": "Official but not yet executable runtime-bridge workspace"
     }
   },
+  "typescriptAdapterStandard": {
+    "sdkProvisioningTerms": [
+      "consumer-supplied"
+    ],
+    "bindingStrategyTerms": [
+      "native-factory"
+    ],
+    "bundlePolicyTerms": [
+      "must-not-bundle"
+    ],
+    "runtimeBridgeStatusTerms": [
+      "reference-baseline"
+    ],
+    "officialVendorSdkRequirementTerms": [
+      "required"
+    ],
+    "referenceContract": {
+      "sdkProvisioning": "consumer-supplied",
+      "bindingStrategy": "native-factory",
+      "bundlePolicy": "must-not-bundle",
+      "runtimeBridgeStatus": "reference-baseline",
+      "officialVendorSdkRequirement": "required"
+    }
+  },
+  "typescriptPackageStandard": {
+    "packageNamePattern": "@sdkwork/rtc-sdk-provider-{providerKey}",
+    "sourceModulePattern": "../../src/providers/{providerKey}.ts",
+    "driverFactoryPattern": "create{providerPascal}RtcDriver",
+    "metadataSymbolPattern": "{providerUpperSnake}_RTC_PROVIDER_METADATA",
+    "moduleSymbolPattern": "{providerUpperSnake}_RTC_PROVIDER_MODULE",
+    "rootPublicRule": "builtin-aligned"
+  },
   "providerPackageBoundaryStandard": {
     "modeTerms": [
       "catalog-governed-mixed",
