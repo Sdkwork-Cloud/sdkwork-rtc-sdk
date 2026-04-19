@@ -41,6 +41,45 @@ export const RTC_PROVIDER_ACTIVATION_STATUSES = Object.freeze([
   'control-metadata-only',
 ]);
 
+export const RTC_PROVIDER_PACKAGE_BOUNDARY_MODES = Object.freeze([
+  'catalog-governed-mixed',
+  'scaffold-per-provider-package',
+]);
+
+export const RTC_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES = Object.freeze([
+  'builtin-only',
+  'none',
+]);
+
+export const RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS = Object.freeze([
+  'root_public_reference_boundary',
+  'package_reference_boundary',
+  'future-runtime-bridge-only',
+]);
+
+export const RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS = Object.freeze([
+  'reference-baseline',
+  'reserved',
+]);
+
+export const RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES = Object.freeze({
+  reference: Object.freeze({
+    mode: 'catalog-governed-mixed',
+    rootPublicPolicy: 'builtin-only',
+    lifecycleStatusTerms: Object.freeze([
+      'root_public_reference_boundary',
+      'package_reference_boundary',
+    ]),
+    runtimeBridgeStatusTerms: Object.freeze(['reference-baseline']),
+  }),
+  reserved: Object.freeze({
+    mode: 'scaffold-per-provider-package',
+    rootPublicPolicy: 'none',
+    lifecycleStatusTerms: Object.freeze(['future-runtime-bridge-only']),
+    runtimeBridgeStatusTerms: Object.freeze(['reserved']),
+  }),
+});
+
 export const REQUIRED_RTC_CAPABILITIES = Object.freeze([
   'session',
   'join',

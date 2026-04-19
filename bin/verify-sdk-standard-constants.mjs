@@ -1,10 +1,15 @@
+import {
+  RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
+} from './rtc-standard-contract-constants.mjs';
+
 export const REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS = Object.freeze([
-  'root_public_reference_boundary',
-  'package_reference_boundary',
+  ...RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reference.lifecycleStatusTerms,
 ]);
 
 export const REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS =
-  Object.freeze(['reference-baseline']);
+  Object.freeze([...RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reference.runtimeBridgeStatusTerms]);
 
 export const LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS = Object.freeze([
   'reserved TypeScript provider package boundaries',
@@ -18,32 +23,22 @@ export const KNOWN_PROVIDER_PACKAGE_TEMPLATE_TOKENS = Object.freeze([
 ]);
 
 export const KNOWN_RESERVED_PROVIDER_PACKAGE_SCAFFOLD_STATUSES = Object.freeze([
-  'future-runtime-bridge-only',
+  ...RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reserved.lifecycleStatusTerms,
 ]);
 
 export const KNOWN_RESERVED_PROVIDER_PACKAGE_RUNTIME_BRIDGE_STATUSES = Object.freeze([
-  'reserved',
+  ...RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reserved.runtimeBridgeStatusTerms,
 ]);
 
 export const REQUIRED_RESERVED_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS = Object.freeze([
-  'future-runtime-bridge-only',
+  ...RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reserved.lifecycleStatusTerms,
 ]);
 
 export const REQUIRED_RESERVED_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS =
-  Object.freeze(['reserved']);
+  Object.freeze([...RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reserved.runtimeBridgeStatusTerms]);
 
 export const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS =
-  Object.freeze([
-    ...new Set([
-      ...REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
-      ...KNOWN_RESERVED_PROVIDER_PACKAGE_SCAFFOLD_STATUSES,
-    ]),
-  ]);
+  Object.freeze([...RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS]);
 
 export const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS =
-  Object.freeze([
-    ...new Set([
-      ...REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
-      ...KNOWN_RESERVED_PROVIDER_PACKAGE_RUNTIME_BRIDGE_STATUSES,
-    ]),
-  ]);
+  Object.freeze([...RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS]);

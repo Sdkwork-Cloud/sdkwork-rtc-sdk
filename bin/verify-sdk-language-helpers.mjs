@@ -385,6 +385,8 @@ export function getGoPublicStructFieldContracts(languageEntry) {
         /RoleHighlights\s+\[\]string/,
         /ProviderSelectionContract\s+RtcLanguageWorkspaceProviderSelectionContract/,
         /ProviderSupportContract\s+RtcLanguageWorkspaceProviderSupportContract/,
+        /ProviderActivationContract\s+RtcLanguageWorkspaceProviderActivationContract/,
+        /ProviderPackageBoundaryContract\s+RtcLanguageWorkspaceProviderPackageBoundaryContract/,
       ],
     },
     {

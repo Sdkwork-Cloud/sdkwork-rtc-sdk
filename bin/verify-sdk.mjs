@@ -27,6 +27,11 @@ import {
   RTC_CAPABILITY_SURFACES,
   RTC_LANGUAGE_MATURITY_TIERS,
   RTC_PROVIDER_ACTIVATION_STATUSES,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_MODES,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES,
+  RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
   RTC_PROVIDER_SELECTION_SOURCES,
   RTC_PROVIDER_SUPPORT_STATUSES,
   RTC_PROVIDER_EXTENSION_ACCESSES,
@@ -66,14 +71,10 @@ function fail(message) {
   throw new Error(message);
 }
 
-const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_MODES = [
-  'catalog-governed-mixed',
-  'scaffold-per-provider-package',
-];
-const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES = [
-  'builtin-only',
-  'none',
-];
+const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_MODES =
+  RTC_PROVIDER_PACKAGE_BOUNDARY_MODES;
+const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES =
+  RTC_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES;
 const REQUIRED_RESERVED_LANGUAGE_CONTRACT_TOKENS = [
   'RtcProviderDriver',
   'RtcDriverManager',
@@ -145,6 +146,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /language workspace catalog/i, label: 'language workspace catalog contract' },
       { pattern: /providerSelectionContract/, label: 'language workspace providerSelectionContract' },
       { pattern: /providerSupportContract/, label: 'language workspace providerSupportContract' },
+      { pattern: /providerActivationContract/, label: 'language workspace providerActivationContract' },
+      { pattern: /providerPackageBoundaryContract/, label: 'language workspace providerPackageBoundaryContract' },
+      { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard' },
+      { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard' },
       { pattern: /providerPackageBoundary/, label: 'language workspace providerPackageBoundary contract' },
       { pattern: /rootPublicPolicy/, label: 'language workspace rootPublicPolicy contract' },
       { pattern: /catalog-governed-mixed/, label: 'TypeScript mixed boundary mode contract' },
@@ -200,6 +205,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /language-workspace-catalog\.ts/, label: 'internal docs TypeScript language workspace catalog index' },
       { pattern: /providerSelectionContract/, label: 'internal docs providerSelectionContract coverage' },
       { pattern: /providerSupportContract/, label: 'internal docs providerSupportContract coverage' },
+      { pattern: /providerActivationContract/, label: 'internal docs providerActivationContract coverage' },
+      { pattern: /providerPackageBoundaryContract/, label: 'internal docs providerPackageBoundaryContract coverage' },
+      { pattern: /providerActivationStandard/, label: 'internal docs providerActivationStandard coverage' },
+      { pattern: /providerPackageBoundaryStandard/, label: 'internal docs providerPackageBoundaryStandard coverage' },
       { pattern: /providerPackageBoundary/, label: 'internal docs providerPackageBoundary coverage' },
       { pattern: /rootPublicPolicy/, label: 'internal docs rootPublicPolicy coverage' },
       { pattern: /catalog-governed-mixed/, label: 'internal docs TypeScript mixed boundary mode coverage' },
@@ -299,8 +308,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /language workspace catalog/i, label: 'language workspace catalog documentation contract' },
       { pattern: /providerSelectionContract/, label: 'language workspace providerSelectionContract contract' },
       { pattern: /providerSupportContract/, label: 'language workspace providerSupportContract contract' },
+      { pattern: /providerActivationContract/, label: 'language workspace providerActivationContract contract' },
+      { pattern: /providerPackageBoundaryContract/, label: 'language workspace providerPackageBoundaryContract contract' },
       { pattern: /providerSelectionStandard/, label: 'assembly-driven providerSelectionStandard contract' },
       { pattern: /providerSupportStandard/, label: 'assembly-driven providerSupportStandard contract' },
+      { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard contract' },
+      { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard contract' },
       { pattern: /providerActivations/, label: 'language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'assembly-driven TypeScript provider package contract' },
       { pattern: /providerPackageBoundary/, label: 'language workspace provider package boundary contract' },
@@ -474,6 +487,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /createRtcProviderSupportState/, label: 'provider adapter provider support state helper contract' },
       { pattern: /providerSelectionContract/, label: 'provider adapter language workspace providerSelectionContract contract' },
       { pattern: /providerSupportContract/, label: 'provider adapter language workspace providerSupportContract contract' },
+      { pattern: /providerActivationContract/, label: 'provider adapter language workspace providerActivationContract contract' },
+      { pattern: /providerPackageBoundaryContract/, label: 'provider adapter language workspace package boundary contract vocabulary' },
+      { pattern: /providerActivationStandard/, label: 'provider adapter assembly-driven providerActivationStandard contract' },
+      { pattern: /providerPackageBoundaryStandard/, label: 'provider adapter assembly-driven providerPackageBoundaryStandard contract' },
       { pattern: /providerPackageBoundary/, label: 'provider adapter language workspace package boundary contract' },
       {
         pattern: /rootPublicPolicy/,
@@ -552,8 +569,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /language workspace catalog/i, label: 'verification of language workspace catalog contract' },
       { pattern: /providerSelectionContract/, label: 'verification of language workspace providerSelectionContract contract' },
       { pattern: /providerSupportContract/, label: 'verification of language workspace providerSupportContract contract' },
+      { pattern: /providerActivationContract/, label: 'verification of language workspace providerActivationContract contract' },
+      { pattern: /providerPackageBoundaryContract/, label: 'verification of language workspace providerPackageBoundaryContract contract' },
       { pattern: /providerSelectionStandard/, label: 'verification of assembly-driven providerSelectionStandard contract' },
       { pattern: /providerSupportStandard/, label: 'verification of assembly-driven providerSupportStandard contract' },
+      { pattern: /providerActivationStandard/, label: 'verification of assembly-driven providerActivationStandard contract' },
+      { pattern: /providerPackageBoundaryStandard/, label: 'verification of assembly-driven providerPackageBoundaryStandard contract' },
       { pattern: /providerActivations/, label: 'verification of language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'verification of assembly-driven TypeScript provider package contract' },
       {
@@ -809,6 +830,50 @@ function assertLanguageWorkspaceProviderSupportContractContent(language, contrac
   );
 }
 
+function assertLanguageWorkspaceProviderActivationContractContent(language, contract, content, label) {
+  if (!contract) {
+    fail(`${label} is missing providerActivationContract for ${language}`);
+  }
+
+  assertRequiredTerms(
+    content,
+    contract.statusTerms,
+    `${label} providerActivationContract.statusTerms`,
+  );
+}
+
+function assertLanguageWorkspaceProviderPackageBoundaryContractContent(
+  language,
+  contract,
+  content,
+  label,
+) {
+  if (!contract) {
+    fail(`${label} is missing providerPackageBoundaryContract for ${language}`);
+  }
+
+  assertRequiredTerms(
+    content,
+    contract.modeTerms,
+    `${label} providerPackageBoundaryContract.modeTerms`,
+  );
+  assertRequiredTerms(
+    content,
+    contract.rootPublicPolicyTerms,
+    `${label} providerPackageBoundaryContract.rootPublicPolicyTerms`,
+  );
+  assertRequiredTerms(
+    content,
+    contract.lifecycleStatusTerms,
+    `${label} providerPackageBoundaryContract.lifecycleStatusTerms`,
+  );
+  assertRequiredTerms(
+    content,
+    contract.runtimeBridgeStatusTerms,
+    `${label} providerPackageBoundaryContract.runtimeBridgeStatusTerms`,
+  );
+}
+
 function renderNormalizedStringArray(values) {
   return normalizeStringArray(values).join(', ');
 }
@@ -862,6 +927,8 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     providers,
     providerSelectionStandard,
     providerSupportStandard,
+    providerActivationStandard,
+    providerPackageBoundaryStandard,
   } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
@@ -1011,6 +1078,72 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     RTC_PROVIDER_SUPPORT_STATUSES,
     'Assembly providerSupportStandard.statusTerms',
   );
+
+  if (
+    !Array.isArray(providerActivationStandard?.statusTerms) ||
+    providerActivationStandard.statusTerms.length === 0
+  ) {
+    fail('providerActivationStandard.statusTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    providerActivationStandard.statusTerms,
+    RTC_PROVIDER_ACTIVATION_STATUSES,
+    'Assembly providerActivationStandard.statusTerms',
+  );
+
+  if (
+    !Array.isArray(providerPackageBoundaryStandard?.modeTerms) ||
+    providerPackageBoundaryStandard.modeTerms.length === 0
+  ) {
+    fail('providerPackageBoundaryStandard.modeTerms must be a non-empty array');
+  }
+  if (
+    !Array.isArray(providerPackageBoundaryStandard?.rootPublicPolicyTerms) ||
+    providerPackageBoundaryStandard.rootPublicPolicyTerms.length === 0
+  ) {
+    fail('providerPackageBoundaryStandard.rootPublicPolicyTerms must be a non-empty array');
+  }
+  if (
+    !Array.isArray(providerPackageBoundaryStandard?.lifecycleStatusTerms) ||
+    providerPackageBoundaryStandard.lifecycleStatusTerms.length === 0
+  ) {
+    fail('providerPackageBoundaryStandard.lifecycleStatusTerms must be a non-empty array');
+  }
+  if (
+    !Array.isArray(providerPackageBoundaryStandard?.runtimeBridgeStatusTerms) ||
+    providerPackageBoundaryStandard.runtimeBridgeStatusTerms.length === 0
+  ) {
+    fail('providerPackageBoundaryStandard.runtimeBridgeStatusTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    providerPackageBoundaryStandard.modeTerms,
+    RTC_PROVIDER_PACKAGE_BOUNDARY_MODES,
+    'Assembly providerPackageBoundaryStandard.modeTerms',
+  );
+  assertExactNormalizedTerms(
+    providerPackageBoundaryStandard.rootPublicPolicyTerms,
+    RTC_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES,
+    'Assembly providerPackageBoundaryStandard.rootPublicPolicyTerms',
+  );
+  assertExactNormalizedTerms(
+    providerPackageBoundaryStandard.lifecycleStatusTerms,
+    RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
+    'Assembly providerPackageBoundaryStandard.lifecycleStatusTerms',
+  );
+  assertExactNormalizedTerms(
+    providerPackageBoundaryStandard.runtimeBridgeStatusTerms,
+    RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
+    'Assembly providerPackageBoundaryStandard.runtimeBridgeStatusTerms',
+  );
+
+  if (
+    JSON.stringify(providerPackageBoundaryStandard?.profiles ?? {}) !==
+    JSON.stringify(RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES)
+  ) {
+    fail('providerPackageBoundaryStandard.profiles must exactly match the canonical profile map');
+  }
 
   for (const languageEntry of assembly.languages ?? []) {
     if (typeof languageEntry.displayName !== 'string' || languageEntry.displayName.length === 0) {
@@ -1415,7 +1548,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         fail(`Language provider activation activationStatus must be declared for ${languageEntry.language}: ${providerActivation.providerKey}`);
       }
 
-      if (!RTC_PROVIDER_ACTIVATION_STATUSES.includes(providerActivation.activationStatus)) {
+      if (!providerActivationStandard.statusTerms.includes(providerActivation.activationStatus)) {
         fail(`Language provider activation activationStatus is not recognized for ${languageEntry.language}: ${providerActivation.providerKey}`);
       }
 
@@ -1911,6 +2044,18 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       workspaceCatalogContent,
       `Language workspace catalog for ${languageEntry.language}`,
     );
+    assertLanguageWorkspaceProviderActivationContractContent(
+      languageEntry.language,
+      providerActivationStandard,
+      workspaceCatalogContent,
+      `Language workspace catalog for ${languageEntry.language}`,
+    );
+    assertLanguageWorkspaceProviderPackageBoundaryContractContent(
+      languageEntry.language,
+      providerPackageBoundaryStandard,
+      workspaceCatalogContent,
+      `Language workspace catalog for ${languageEntry.language}`,
+    );
     assertNoLegacyTypeScriptProviderPackageBoundaryTerms(
       workspaceCatalogContent,
       `Language workspace catalog for ${languageEntry.language}`,
@@ -1930,6 +2075,8 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       'defaultProviderContract',
       'providerSelectionContract',
       'providerSupportContract',
+      'providerActivationContract',
+      'providerPackageBoundaryContract',
       'providerPackageBoundary',
     ]) {
       assertReservedLanguageToken(
@@ -2595,7 +2742,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         }
       }
 
-      for (const activationStatus of RTC_PROVIDER_ACTIVATION_STATUSES) {
+      for (const activationStatus of providerActivationStandard.statusTerms) {
         if (!new RegExp(escapeRegExp(activationStatus)).test(providerActivationCatalogContent)) {
           fail(`Language metadata scaffold provider activation catalog status drift for ${languageEntry.language}: ${activationStatus}`);
         }
@@ -3165,11 +3312,18 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'defaultProviderContract',
     'providerSelectionContract',
     'providerSupportContract',
+    'providerActivationContract',
+    'providerPackageBoundaryContract',
     'getRtcLanguageWorkspaceCatalog',
     'getRtcLanguageWorkspaceByLanguage',
     'getRtcLanguageWorkspace',
     ...RTC_PROVIDER_SELECTION_SOURCES,
     ...RTC_PROVIDER_SUPPORT_STATUSES,
+    ...RTC_PROVIDER_ACTIVATION_STATUSES,
+    ...RTC_PROVIDER_PACKAGE_BOUNDARY_MODES,
+    ...RTC_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES,
+    ...RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
+    ...RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(languageWorkspaceCatalogContent)) {
       fail(`TypeScript language workspace catalog token drift: ${token}`);

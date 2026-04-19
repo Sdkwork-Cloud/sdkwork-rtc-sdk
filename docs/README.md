@@ -54,10 +54,14 @@ The TypeScript executable baseline fixes these standard modules as the executabl
   Includes `getRtcLanguageWorkspaceByLanguage(...)` so the official language matrix stays
   queryable by language key inside the executable baseline.
   Each `RtcLanguageWorkspaceCatalogEntry` also declares `defaultProviderContract`,
-  `providerSelectionContract`, `providerSupportContract`, and `providerPackageBoundary` so
-  default-provider identity, provider-selection precedence, provider-support vocabulary, and
+  `providerSelectionContract`, `providerSupportContract`, `providerActivationContract`,
+  `providerPackageBoundaryContract`, and `providerPackageBoundary` so default-provider identity,
+  provider-selection precedence, provider-support vocabulary, provider-activation vocabulary, and
   package-boundary semantics stay explicit across languages instead of being inferred from
   TypeScript-only package manifests or reserved-language scaffold prose.
+  The same catalog also preserves the assembly-driven top-level standards
+  `providerSelectionStandard`, `providerSupportStandard`, `providerActivationStandard`, and
+  `providerPackageBoundaryStandard` through those machine-readable contracts.
   TypeScript stays `catalog-governed-mixed` with `rootPublicPolicy` set to `builtin-only`,
   while reserved languages stay `scaffold-per-provider-package` with `rootPublicPolicy` set to
   `none`.

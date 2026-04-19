@@ -14,8 +14,10 @@ final class RtcLanguageWorkspaceCatalogEntry {
     required this.defaultProviderContract,
     required this.providerSelectionContract,
     required this.providerSupportContract,
+    required this.providerActivationContract,
     required this.metadataScaffold,
     required this.resolutionScaffold,
+    required this.providerPackageBoundaryContract,
     required this.providerPackageBoundary,
     required this.providerPackageScaffold,
   });
@@ -34,8 +36,10 @@ final class RtcLanguageWorkspaceCatalogEntry {
   final RtcLanguageWorkspaceDefaultProviderContract defaultProviderContract;
   final RtcLanguageWorkspaceProviderSelectionContract providerSelectionContract;
   final RtcLanguageWorkspaceProviderSupportContract providerSupportContract;
+  final RtcLanguageWorkspaceProviderActivationContract providerActivationContract;
   final RtcLanguageWorkspaceMetadataScaffold metadataScaffold;
   final RtcLanguageWorkspaceResolutionScaffold resolutionScaffold;
+  final RtcLanguageWorkspaceProviderPackageBoundaryContract providerPackageBoundaryContract;
   final RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary;
   final RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold;
 }
@@ -72,6 +76,14 @@ final class RtcLanguageWorkspaceProviderSupportContract {
   final List<String> statusTerms;
 }
 
+final class RtcLanguageWorkspaceProviderActivationContract {
+  const RtcLanguageWorkspaceProviderActivationContract({
+    required this.statusTerms,
+  });
+
+  final List<String> statusTerms;
+}
+
 final class RtcLanguageWorkspaceMetadataScaffold {
   const RtcLanguageWorkspaceMetadataScaffold({
     required this.providerCatalogRelativePath,
@@ -102,6 +114,20 @@ final class RtcLanguageWorkspaceResolutionScaffold {
   final String dataSourceRelativePath;
   final String providerSupportRelativePath;
   final String providerPackageLoaderRelativePath;
+}
+
+final class RtcLanguageWorkspaceProviderPackageBoundaryContract {
+  const RtcLanguageWorkspaceProviderPackageBoundaryContract({
+    required this.modeTerms,
+    required this.rootPublicPolicyTerms,
+    required this.lifecycleStatusTerms,
+    required this.runtimeBridgeStatusTerms,
+  });
+
+  final List<String> modeTerms;
+  final List<String> rootPublicPolicyTerms;
+  final List<String> lifecycleStatusTerms;
+  final List<String> runtimeBridgeStatusTerms;
 }
 
 final class RtcLanguageWorkspaceProviderPackageBoundary {
@@ -189,6 +215,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider-catalog.ts",
         capabilityCatalogRelativePath: "src/capability-catalog.ts",
@@ -202,6 +231,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "src/data-source.ts",
         providerSupportRelativePath: "src/provider-support.ts",
         providerPackageLoaderRelativePath: "src/provider-package-loader.ts",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "catalog-governed-mixed",
@@ -243,6 +278,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "lib/src/rtc_provider_catalog.dart",
         capabilityCatalogRelativePath: "lib/src/rtc_capability_catalog.dart",
@@ -256,6 +294,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "lib/src/rtc_data_source.dart",
         providerSupportRelativePath: "lib/src/rtc_provider_support.dart",
         providerPackageLoaderRelativePath: "lib/src/rtc_provider_package_loader.dart",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -310,6 +354,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider_catalog.rs",
         capabilityCatalogRelativePath: "src/capability_catalog.rs",
@@ -323,6 +370,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "src/data_source.rs",
         providerSupportRelativePath: "src/provider_support.rs",
         providerPackageLoaderRelativePath: "src/provider_package_loader.rs",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -377,6 +430,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderCatalog.java",
         capabilityCatalogRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.java",
@@ -390,6 +446,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java",
         providerSupportRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java",
         providerPackageLoaderRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.java",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -444,6 +506,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderCatalog.cs",
         capabilityCatalogRelativePath: "src/SDKWork.Rtc.Sdk/RtcCapabilityCatalog.cs",
@@ -457,6 +522,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "src/SDKWork.Rtc.Sdk/RtcDataSource.cs",
         providerSupportRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs",
         providerPackageLoaderRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -511,6 +582,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "Sources/RtcSdk/RtcProviderCatalog.swift",
         capabilityCatalogRelativePath: "Sources/RtcSdk/RtcCapabilityCatalog.swift",
@@ -524,6 +598,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "Sources/RtcSdk/RtcDataSource.swift",
         providerSupportRelativePath: "Sources/RtcSdk/RtcProviderSupport.swift",
         providerPackageLoaderRelativePath: "Sources/RtcSdk/RtcProviderPackageLoader.swift",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -578,6 +658,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderCatalog.kt",
         capabilityCatalogRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.kt",
@@ -591,6 +674,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcDataSource.kt",
         providerSupportRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt",
         providerPackageLoaderRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.kt",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -645,6 +734,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "rtcstandard/provider_catalog.go",
         capabilityCatalogRelativePath: "rtcstandard/capability_catalog.go",
@@ -658,6 +750,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "rtcstandard/data_source.go",
         providerSupportRelativePath: "rtcstandard/provider_support.go",
         providerPackageLoaderRelativePath: "rtcstandard/provider_package_loader.go",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",
@@ -712,6 +810,9 @@ final class RtcLanguageWorkspaceCatalog {
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>["root-public-builtin", "package-boundary", "control-metadata-only"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "sdkwork_rtc_sdk/provider_catalog.py",
         capabilityCatalogRelativePath: "sdkwork_rtc_sdk/capability_catalog.py",
@@ -725,6 +826,12 @@ final class RtcLanguageWorkspaceCatalog {
         dataSourceRelativePath: "sdkwork_rtc_sdk/data_source.py",
         providerSupportRelativePath: "sdkwork_rtc_sdk/provider_support.py",
         providerPackageLoaderRelativePath: "sdkwork_rtc_sdk/provider_package_loader.py",
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>["catalog-governed-mixed", "scaffold-per-provider-package"],
+        rootPublicPolicyTerms: <String>["builtin-only", "none"],
+        lifecycleStatusTerms: <String>["root_public_reference_boundary", "package_reference_boundary", "future-runtime-bridge-only"],
+        runtimeBridgeStatusTerms: <String>["reference-baseline", "reserved"],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: "scaffold-per-provider-package",

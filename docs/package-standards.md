@@ -227,6 +227,10 @@ Each language workspace catalog entry must also preserve a machine-readable
 assembly-driven default provider identity, a machine-readable `providerSelectionContract` aligned
 to `providerSelectionStandard`, and a machine-readable `providerSupportContract` aligned to
 `providerSupportStandard`.
+Each language workspace catalog entry must also preserve a machine-readable
+`providerActivationContract` aligned to `providerActivationStandard`.
+Each language workspace catalog entry must also preserve a machine-readable
+`providerPackageBoundaryContract` aligned to `providerPackageBoundaryStandard`.
 
 Allowed `providerActivations[].activationStatus` values in the current standard:
 
@@ -286,6 +290,15 @@ language workspace catalog and must declare:
   language workspace
 - `providerSupportContract.statusTerms` as the canonical provider-support vocabulary used by that
   language workspace
+- `providerActivationContract.statusTerms` as the canonical provider-activation vocabulary used by
+  that language workspace
+- `providerPackageBoundaryContract.modeTerms` as the canonical package-boundary mode vocabulary
+- `providerPackageBoundaryContract.rootPublicPolicyTerms` as the canonical root-public-policy
+  vocabulary
+- `providerPackageBoundaryContract.lifecycleStatusTerms` as the canonical package-boundary
+  lifecycle vocabulary
+- `providerPackageBoundaryContract.runtimeBridgeStatusTerms` as the canonical package-boundary
+  runtime-bridge vocabulary
 - `providerPackageBoundary.mode` as the language-wide package-boundary mode
 - `providerPackageBoundary.rootPublicPolicy` as the language-wide root public exposure policy
 - `providerPackageBoundary.lifecycleStatusTerms` as the canonical lifecycle vocabulary used by that
@@ -312,6 +325,16 @@ The current standard also fixes the boundary vocabularies:
 - every language `providerSelectionContract.defaultSource` must be `default_provider`
 - every language `providerSupportContract.statusTerms` must be
   `builtin_registered`, `official_registered`, `official_unregistered`, `unknown`
+- every language `providerActivationContract.statusTerms` must be
+  `root-public-builtin`, `package-boundary`, `control-metadata-only`
+- every language `providerPackageBoundaryContract.modeTerms` must be
+  `catalog-governed-mixed`, `scaffold-per-provider-package`
+- every language `providerPackageBoundaryContract.rootPublicPolicyTerms` must be
+  `builtin-only`, `none`
+- every language `providerPackageBoundaryContract.lifecycleStatusTerms` must be
+  `root_public_reference_boundary`, `package_reference_boundary`, `future-runtime-bridge-only`
+- every language `providerPackageBoundaryContract.runtimeBridgeStatusTerms` must be
+  `reference-baseline`, `reserved`
 - TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
   `root_public_reference_boundary` and `package_reference_boundary`
 - TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be

@@ -312,6 +312,25 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
         statusTerms: [...assembly.providerSupportStandard.statusTerms],
       }
     : undefined;
+  const providerActivationContract = Array.isArray(assembly.providerActivationStandard?.statusTerms)
+    ? {
+        statusTerms: [...assembly.providerActivationStandard.statusTerms],
+      }
+    : undefined;
+  const providerPackageBoundaryContract =
+    Array.isArray(assembly.providerPackageBoundaryStandard?.modeTerms) &&
+    Array.isArray(assembly.providerPackageBoundaryStandard?.rootPublicPolicyTerms) &&
+    Array.isArray(assembly.providerPackageBoundaryStandard?.lifecycleStatusTerms) &&
+    Array.isArray(assembly.providerPackageBoundaryStandard?.runtimeBridgeStatusTerms)
+      ? {
+          modeTerms: [...assembly.providerPackageBoundaryStandard.modeTerms],
+          rootPublicPolicyTerms: [...assembly.providerPackageBoundaryStandard.rootPublicPolicyTerms],
+          lifecycleStatusTerms: [...assembly.providerPackageBoundaryStandard.lifecycleStatusTerms],
+          runtimeBridgeStatusTerms: [
+            ...assembly.providerPackageBoundaryStandard.runtimeBridgeStatusTerms,
+          ],
+        }
+      : undefined;
 
   return (assembly.languages ?? []).map((languageEntry) => ({
     language: languageEntry.language,
@@ -328,6 +347,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     defaultProviderContract,
     providerSelectionContract,
     providerSupportContract,
+    providerActivationContract,
     metadataScaffold: languageEntry.metadataScaffold
       ? {
           providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
@@ -351,6 +371,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
             languageEntry.resolutionScaffold.providerPackageLoaderRelativePath,
         }
       : undefined,
+    providerPackageBoundaryContract,
     providerPackageBoundary: languageEntry.providerPackageBoundary
       ? {
           mode: languageEntry.providerPackageBoundary.mode,
@@ -392,11 +413,13 @@ Language workspace catalog:
 
 - workspace catalog: \`${languageEntry.workspaceCatalogRelativePath}\`
 - workspace catalog entries also keep \`workspaceCatalogRelativePath\`,
-  \`defaultProviderContract\`, \`providerSelectionContract\`, \`providerSupportContract\`, and any
-  declared \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
+  \`defaultProviderContract\`, \`providerSelectionContract\`, \`providerSupportContract\`,
+  \`providerActivationContract\`, \`providerPackageBoundaryContract\`, and any declared
+  \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
   \`providerPackageScaffold\` boundaries so consumers can inspect official assembly-driven module
-  locations, workspace-wide default provider identity, selection precedence, and support-status
-  vocabulary without rereading the assembly.
+  locations, workspace-wide default provider identity, selection precedence, support-status
+  vocabulary, activation-status vocabulary, and package-boundary vocabulary without rereading the
+  assembly.
 `;
 }
 
@@ -500,6 +523,33 @@ function renderTypeScriptLanguageWorkspaceProviderSupportContract(
   })`;
 }
 
+function renderTypeScriptLanguageWorkspaceProviderActivationContract(
+  providerActivationContract,
+) {
+  if (!providerActivationContract) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerActivationContract.statusTerms)}),
+  })`;
+}
+
+function renderTypeScriptLanguageWorkspaceProviderPackageBoundaryContract(
+  providerPackageBoundaryContract,
+) {
+  if (!providerPackageBoundaryContract) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageBoundaryContract.modeTerms)}),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageBoundaryContract.rootPublicPolicyTerms)}),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageBoundaryContract.lifecycleStatusTerms)}),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageBoundaryContract.runtimeBridgeStatusTerms)}),
+  })`;
+}
+
 function renderTypeScriptLanguageWorkspaceCatalog(assembly) {
   const entries = buildLanguageWorkspaceCatalogEntries(assembly);
 
@@ -529,8 +579,10 @@ ${entries
   defaultProviderContract: ${renderTypeScriptLanguageWorkspaceDefaultProviderContract(entry.defaultProviderContract)},
   providerSelectionContract: ${renderTypeScriptLanguageWorkspaceProviderSelectionContract(entry.providerSelectionContract)},
   providerSupportContract: ${renderTypeScriptLanguageWorkspaceProviderSupportContract(entry.providerSupportContract)},
+  providerActivationContract: ${renderTypeScriptLanguageWorkspaceProviderActivationContract(entry.providerActivationContract)},
   metadataScaffold: ${renderTypeScriptLanguageWorkspaceMetadataScaffold(entry.metadataScaffold)},
   resolutionScaffold: ${renderTypeScriptLanguageWorkspaceResolutionScaffold(entry.resolutionScaffold)},
+  providerPackageBoundaryContract: ${renderTypeScriptLanguageWorkspaceProviderPackageBoundaryContract(entry.providerPackageBoundaryContract)},
   providerPackageBoundary: ${renderTypeScriptLanguageWorkspaceProviderPackageBoundary(entry.providerPackageBoundary)},
   providerPackageScaffold: ${renderTypeScriptLanguageWorkspaceProviderPackageScaffold(entry.providerPackageScaffold)},
 });`;

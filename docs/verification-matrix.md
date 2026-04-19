@@ -26,6 +26,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `defaultProviderContract` materialized into every language workspace catalog
 - the assembly-driven `providerSelectionContract` materialized into every language workspace catalog
 - the assembly-driven `providerSupportContract` materialized into every language workspace catalog
+- the assembly-driven `providerActivationContract` materialized into every language workspace catalog
+- the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -110,6 +112,11 @@ The root verifier must confirm:
 - `.sdkwork-assembly.json` declares `providerSelectionStandard.sourceTerms`,
   `providerSelectionStandard.precedence`, and `providerSelectionStandard.defaultSource`
 - `.sdkwork-assembly.json` declares `providerSupportStandard.statusTerms`
+- `.sdkwork-assembly.json` declares `providerActivationStandard.statusTerms`
+- `.sdkwork-assembly.json` declares `providerPackageBoundaryStandard.modeTerms`,
+  `providerPackageBoundaryStandard.rootPublicPolicyTerms`,
+  `providerPackageBoundaryStandard.lifecycleStatusTerms`,
+  and `providerPackageBoundaryStandard.runtimeBridgeStatusTerms`
 - `capabilityCatalog` exists, is unique by `capabilityKey`, and covers the workspace capability set
 - `providerExtensionCatalog` exists, is unique by `extensionKey`, and covers the workspace provider
   extension key set
@@ -141,6 +148,11 @@ The root verifier must confirm:
 - every language workspace catalog preserves `providerSelectionContract.sourceTerms`,
   `providerSelectionContract.precedence`, and `providerSelectionContract.defaultSource`
 - every language workspace catalog preserves `providerSupportContract.statusTerms`
+- every language workspace catalog preserves `providerActivationContract.statusTerms`
+- every language workspace catalog preserves `providerPackageBoundaryContract.modeTerms`,
+  `providerPackageBoundaryContract.rootPublicPolicyTerms`,
+  `providerPackageBoundaryContract.lifecycleStatusTerms`, and
+  `providerPackageBoundaryContract.runtimeBridgeStatusTerms`
 - every language declares the assembly-driven language-provider activation matrix as
   `providerActivations`
 - every language declares an assembly-driven `providerPackageBoundary`

@@ -33,6 +33,55 @@
       "unknown"
     ]
   },
+  "providerActivationStandard": {
+    "statusTerms": [
+      "root-public-builtin",
+      "package-boundary",
+      "control-metadata-only"
+    ]
+  },
+  "providerPackageBoundaryStandard": {
+    "modeTerms": [
+      "catalog-governed-mixed",
+      "scaffold-per-provider-package"
+    ],
+    "rootPublicPolicyTerms": [
+      "builtin-only",
+      "none"
+    ],
+    "lifecycleStatusTerms": [
+      "root_public_reference_boundary",
+      "package_reference_boundary",
+      "future-runtime-bridge-only"
+    ],
+    "runtimeBridgeStatusTerms": [
+      "reference-baseline",
+      "reserved"
+    ],
+    "profiles": {
+      "reference": {
+        "mode": "catalog-governed-mixed",
+        "rootPublicPolicy": "builtin-only",
+        "lifecycleStatusTerms": [
+          "root_public_reference_boundary",
+          "package_reference_boundary"
+        ],
+        "runtimeBridgeStatusTerms": [
+          "reference-baseline"
+        ]
+      },
+      "reserved": {
+        "mode": "scaffold-per-provider-package",
+        "rootPublicPolicy": "none",
+        "lifecycleStatusTerms": [
+          "future-runtime-bridge-only"
+        ],
+        "runtimeBridgeStatusTerms": [
+          "reserved"
+        ]
+      }
+    }
+  },
   "officialLanguages": [
     "typescript",
     "flutter",

@@ -8731,6 +8731,25 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
         statusTerms: [...assembly.providerSupportStandard.statusTerms],
       }
     : undefined;
+  const providerActivationContract = Array.isArray(assembly.providerActivationStandard?.statusTerms)
+    ? {
+        statusTerms: [...assembly.providerActivationStandard.statusTerms],
+      }
+    : undefined;
+  const providerPackageBoundaryContract =
+    Array.isArray(assembly.providerPackageBoundaryStandard?.modeTerms) &&
+    Array.isArray(assembly.providerPackageBoundaryStandard?.rootPublicPolicyTerms) &&
+    Array.isArray(assembly.providerPackageBoundaryStandard?.lifecycleStatusTerms) &&
+    Array.isArray(assembly.providerPackageBoundaryStandard?.runtimeBridgeStatusTerms)
+      ? {
+          modeTerms: [...assembly.providerPackageBoundaryStandard.modeTerms],
+          rootPublicPolicyTerms: [...assembly.providerPackageBoundaryStandard.rootPublicPolicyTerms],
+          lifecycleStatusTerms: [...assembly.providerPackageBoundaryStandard.lifecycleStatusTerms],
+          runtimeBridgeStatusTerms: [
+            ...assembly.providerPackageBoundaryStandard.runtimeBridgeStatusTerms,
+          ],
+        }
+      : undefined;
 
   return (assembly.languages ?? []).map((languageEntry) => ({
     language: languageEntry.language,
@@ -8747,6 +8766,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     defaultProviderContract,
     providerSelectionContract,
     providerSupportContract,
+    providerActivationContract,
     metadataScaffold: languageEntry.metadataScaffold
       ? {
           providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
@@ -8770,6 +8790,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
             languageEntry.resolutionScaffold.providerPackageLoaderRelativePath,
         }
       : undefined,
+    providerPackageBoundaryContract,
     providerPackageBoundary: languageEntry.providerPackageBoundary
       ? {
           mode: languageEntry.providerPackageBoundary.mode,
@@ -8839,6 +8860,9 @@ ${entry.roleHighlights.map((roleHighlight) => `        ${q(roleHighlight)},`).jo
       providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
         statusTerms: <String>[${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}],
       ),
+      providerActivationContract: RtcLanguageWorkspaceProviderActivationContract(
+        statusTerms: <String>[${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')}],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')},
         capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')},
@@ -8852,6 +8876,12 @@ ${entry.roleHighlights.map((roleHighlight) => `        ${q(roleHighlight)},`).jo
         dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')},
         providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')},
         providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')},
+      ),
+      providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract(
+        modeTerms: <String>[${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}],
+        rootPublicPolicyTerms: <String>[${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}],
+        lifecycleStatusTerms: <String>[${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}],
+        runtimeBridgeStatusTerms: <String>[${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}],
       ),
       providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary(
         mode: ${q(entry.providerPackageBoundary?.mode ?? '')},
@@ -8899,8 +8929,10 @@ final class RtcLanguageWorkspaceCatalogEntry {
     required this.defaultProviderContract,
     required this.providerSelectionContract,
     required this.providerSupportContract,
+    required this.providerActivationContract,
     required this.metadataScaffold,
     required this.resolutionScaffold,
+    required this.providerPackageBoundaryContract,
     required this.providerPackageBoundary,
     required this.providerPackageScaffold,
   });
@@ -8919,8 +8951,10 @@ final class RtcLanguageWorkspaceCatalogEntry {
   final RtcLanguageWorkspaceDefaultProviderContract defaultProviderContract;
   final RtcLanguageWorkspaceProviderSelectionContract providerSelectionContract;
   final RtcLanguageWorkspaceProviderSupportContract providerSupportContract;
+  final RtcLanguageWorkspaceProviderActivationContract providerActivationContract;
   final RtcLanguageWorkspaceMetadataScaffold metadataScaffold;
   final RtcLanguageWorkspaceResolutionScaffold resolutionScaffold;
+  final RtcLanguageWorkspaceProviderPackageBoundaryContract providerPackageBoundaryContract;
   final RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary;
   final RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold;
 }
@@ -8957,6 +8991,14 @@ final class RtcLanguageWorkspaceProviderSupportContract {
   final List<String> statusTerms;
 }
 
+final class RtcLanguageWorkspaceProviderActivationContract {
+  const RtcLanguageWorkspaceProviderActivationContract({
+    required this.statusTerms,
+  });
+
+  final List<String> statusTerms;
+}
+
 final class RtcLanguageWorkspaceMetadataScaffold {
   const RtcLanguageWorkspaceMetadataScaffold({
     required this.providerCatalogRelativePath,
@@ -8987,6 +9029,20 @@ final class RtcLanguageWorkspaceResolutionScaffold {
   final String dataSourceRelativePath;
   final String providerSupportRelativePath;
   final String providerPackageLoaderRelativePath;
+}
+
+final class RtcLanguageWorkspaceProviderPackageBoundaryContract {
+  const RtcLanguageWorkspaceProviderPackageBoundaryContract({
+    required this.modeTerms,
+    required this.rootPublicPolicyTerms,
+    required this.lifecycleStatusTerms,
+    required this.runtimeBridgeStatusTerms,
+  });
+
+  final List<String> modeTerms;
+  final List<String> rootPublicPolicyTerms;
+  final List<String> lifecycleStatusTerms;
+  final List<String> runtimeBridgeStatusTerms;
 }
 
 final class RtcLanguageWorkspaceProviderPackageBoundary {
@@ -9051,7 +9107,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `    RtcLanguageWorkspaceCatalogEntry { language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: &[${entry.roleHighlights.map(q).join(', ')}], defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract { providerKey: ${q(entry.defaultProviderContract?.providerKey ?? '')}, pluginId: ${q(entry.defaultProviderContract?.pluginId ?? '')}, driverId: ${q(entry.defaultProviderContract?.driverId ?? '')} }, providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract { sourceTerms: &[${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}], precedence: &[${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}], defaultSource: ${q(entry.providerSelectionContract?.defaultSource ?? '')} }, providerSupportContract: RtcLanguageWorkspaceProviderSupportContract { statusTerms: &[${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}] }, metadataScaffold: RtcLanguageWorkspaceMetadataScaffold { providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')} }, resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold { driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')} }, providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary { mode: ${q(entry.providerPackageBoundary?.mode ?? '')}, rootPublicPolicy: ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, lifecycleStatusTerms: &[${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}], runtimeBridgeStatusTerms: &[${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}] }, providerPackageScaffold: ${entry.providerPackageScaffold ? `Some(RtcLanguageWorkspaceProviderPackageScaffold { relativePath: ${q(entry.providerPackageScaffold.relativePath)}, directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, packagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, templateTokens: &[${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], sourceTemplateTokens: &[${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, status: ${q(entry.providerPackageScaffold.status)} })` : 'None'} },`,
+            `    RtcLanguageWorkspaceCatalogEntry { language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: &[${entry.roleHighlights.map(q).join(', ')}], defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract { providerKey: ${q(entry.defaultProviderContract?.providerKey ?? '')}, pluginId: ${q(entry.defaultProviderContract?.pluginId ?? '')}, driverId: ${q(entry.defaultProviderContract?.driverId ?? '')} }, providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract { sourceTerms: &[${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}], precedence: &[${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}], defaultSource: ${q(entry.providerSelectionContract?.defaultSource ?? '')} }, providerSupportContract: RtcLanguageWorkspaceProviderSupportContract { statusTerms: &[${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}] }, providerActivationContract: RtcLanguageWorkspaceProviderActivationContract { statusTerms: &[${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')}] }, metadataScaffold: RtcLanguageWorkspaceMetadataScaffold { providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')} }, resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold { driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')} }, providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract { modeTerms: &[${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}], rootPublicPolicyTerms: &[${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}], lifecycleStatusTerms: &[${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}], runtimeBridgeStatusTerms: &[${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}] }, providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary { mode: ${q(entry.providerPackageBoundary?.mode ?? '')}, rootPublicPolicy: ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, lifecycleStatusTerms: &[${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}], runtimeBridgeStatusTerms: &[${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}] }, providerPackageScaffold: ${entry.providerPackageScaffold ? `Some(RtcLanguageWorkspaceProviderPackageScaffold { relativePath: ${q(entry.providerPackageScaffold.relativePath)}, directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, packagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, templateTokens: &[${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], sourceTemplateTokens: &[${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, status: ${q(entry.providerPackageScaffold.status)} })` : 'None'} },`,
         )
         .join('\n');
 
@@ -9083,6 +9139,12 @@ pub struct RtcLanguageWorkspaceProviderSupportContract {
 
 #[derive(Clone, Copy)]
 #[allow(non_snake_case)]
+pub struct RtcLanguageWorkspaceProviderActivationContract {
+    pub statusTerms: &'static [&'static str],
+}
+
+#[derive(Clone, Copy)]
+#[allow(non_snake_case)]
 pub struct RtcLanguageWorkspaceMetadataScaffold {
     pub providerCatalogRelativePath: &'static str,
     pub capabilityCatalogRelativePath: &'static str,
@@ -9099,6 +9161,15 @@ pub struct RtcLanguageWorkspaceResolutionScaffold {
     pub dataSourceRelativePath: &'static str,
     pub providerSupportRelativePath: &'static str,
     pub providerPackageLoaderRelativePath: &'static str,
+}
+
+#[derive(Clone, Copy)]
+#[allow(non_snake_case)]
+pub struct RtcLanguageWorkspaceProviderPackageBoundaryContract {
+    pub modeTerms: &'static [&'static str],
+    pub rootPublicPolicyTerms: &'static [&'static str],
+    pub lifecycleStatusTerms: &'static [&'static str],
+    pub runtimeBridgeStatusTerms: &'static [&'static str],
 }
 
 #[derive(Clone, Copy)]
@@ -9144,8 +9215,10 @@ pub struct RtcLanguageWorkspaceCatalogEntry {
     pub defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract,
     pub providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract,
     pub providerSupportContract: RtcLanguageWorkspaceProviderSupportContract,
+    pub providerActivationContract: RtcLanguageWorkspaceProviderActivationContract,
     pub metadataScaffold: RtcLanguageWorkspaceMetadataScaffold,
     pub resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold,
+    pub providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract,
     pub providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary,
     pub providerPackageScaffold: Option<RtcLanguageWorkspaceProviderPackageScaffold>,
 }
@@ -9165,7 +9238,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `      new RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, List.of(${entry.roleHighlights.map(q).join(', ')}), new RtcLanguageWorkspaceDefaultProviderContract(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), new RtcLanguageWorkspaceProviderSelectionContract(List.of(${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}), ${q(entry.providerSelectionContract?.defaultSource ?? '')}), new RtcLanguageWorkspaceProviderSupportContract(List.of(${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')})), new RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), new RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), new RtcLanguageWorkspaceProviderPackageBoundary(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, List.of(${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')})), ${entry.providerPackageScaffold ? `new RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, List.of(${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}), List.of(${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}), ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'})`,
+            `      new RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, List.of(${entry.roleHighlights.map(q).join(', ')}), new RtcLanguageWorkspaceDefaultProviderContract(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), new RtcLanguageWorkspaceProviderSelectionContract(List.of(${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}), ${q(entry.providerSelectionContract?.defaultSource ?? '')}), new RtcLanguageWorkspaceProviderSupportContract(List.of(${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')})), new RtcLanguageWorkspaceProviderActivationContract(List.of(${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')})), new RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), new RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), new RtcLanguageWorkspaceProviderPackageBoundaryContract(List.of(${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')})), new RtcLanguageWorkspaceProviderPackageBoundary(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, List.of(${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}), List.of(${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')})), ${entry.providerPackageScaffold ? `new RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, List.of(${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}), List.of(${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}), ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'})`,
         )
         .join(',\n');
 
@@ -9204,8 +9277,10 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       RtcLanguageWorkspaceDefaultProviderContract defaultProviderContract,
       RtcLanguageWorkspaceProviderSelectionContract providerSelectionContract,
       RtcLanguageWorkspaceProviderSupportContract providerSupportContract,
+      RtcLanguageWorkspaceProviderActivationContract providerActivationContract,
       RtcLanguageWorkspaceMetadataScaffold metadataScaffold,
       RtcLanguageWorkspaceResolutionScaffold resolutionScaffold,
+      RtcLanguageWorkspaceProviderPackageBoundaryContract providerPackageBoundaryContract,
       RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary,
       RtcLanguageWorkspaceProviderPackageScaffold providerPackageScaffold
   ) {
@@ -9230,6 +9305,11 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
   ) {
   }
 
+  public record RtcLanguageWorkspaceProviderActivationContract(
+      List<String> statusTerms
+  ) {
+  }
+
   public record RtcLanguageWorkspaceMetadataScaffold(
       String providerCatalogRelativePath,
       String capabilityCatalogRelativePath,
@@ -9245,6 +9325,14 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       String dataSourceRelativePath,
       String providerSupportRelativePath,
       String providerPackageLoaderRelativePath
+  ) {
+  }
+
+  public record RtcLanguageWorkspaceProviderPackageBoundaryContract(
+      List<String> modeTerms,
+      List<String> rootPublicPolicyTerms,
+      List<String> lifecycleStatusTerms,
+      List<String> runtimeBridgeStatusTerms
   ) {
   }
 
@@ -9280,7 +9368,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        new(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, new List<string> { ${entry.roleHighlights.map(q).join(', ')} }, new(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), new(new List<string> { ${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')} }, ${q(entry.providerSelectionContract?.defaultSource ?? '')}), new(new List<string> { ${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')} }), new(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), new(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), new(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, new List<string> { ${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')} }), ${entry.providerPackageScaffold ? `new(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, new List<string> { ${entry.providerPackageScaffold.templateTokens.map(q).join(', ')} }, new List<string> { ${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')} }, ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'}),`,
+            `        new(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, new List<string> { ${entry.roleHighlights.map(q).join(', ')} }, new(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), new(new List<string> { ${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')} }, ${q(entry.providerSelectionContract?.defaultSource ?? '')}), new(new List<string> { ${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')} }), new(new List<string> { ${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')} }), new(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), new(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), new(new List<string> { ${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')} }), new(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, new List<string> { ${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')} }, new List<string> { ${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')} }), ${entry.providerPackageScaffold ? `new(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, new List<string> { ${entry.providerPackageScaffold.templateTokens.map(q).join(', ')} }, new List<string> { ${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')} }, ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'}),`,
         )
         .join('\n');
 
@@ -9308,8 +9396,10 @@ public sealed record RtcLanguageWorkspaceCatalogEntry(
     RtcLanguageWorkspaceDefaultProviderContract defaultProviderContract,
     RtcLanguageWorkspaceProviderSelectionContract providerSelectionContract,
     RtcLanguageWorkspaceProviderSupportContract providerSupportContract,
+    RtcLanguageWorkspaceProviderActivationContract providerActivationContract,
     RtcLanguageWorkspaceMetadataScaffold metadataScaffold,
     RtcLanguageWorkspaceResolutionScaffold resolutionScaffold,
+    RtcLanguageWorkspaceProviderPackageBoundaryContract providerPackageBoundaryContract,
     RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary,
     RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold
 );
@@ -9330,6 +9420,10 @@ public sealed record RtcLanguageWorkspaceProviderSupportContract(
     IReadOnlyList<string> statusTerms
 );
 
+public sealed record RtcLanguageWorkspaceProviderActivationContract(
+    IReadOnlyList<string> statusTerms
+);
+
 public sealed record RtcLanguageWorkspaceMetadataScaffold(
     string providerCatalogRelativePath,
     string capabilityCatalogRelativePath,
@@ -9344,6 +9438,13 @@ public sealed record RtcLanguageWorkspaceResolutionScaffold(
     string dataSourceRelativePath,
     string providerSupportRelativePath,
     string providerPackageLoaderRelativePath
+);
+
+public sealed record RtcLanguageWorkspaceProviderPackageBoundaryContract(
+    IReadOnlyList<string> modeTerms,
+    IReadOnlyList<string> rootPublicPolicyTerms,
+    IReadOnlyList<string> lifecycleStatusTerms,
+    IReadOnlyList<string> runtimeBridgeStatusTerms
 );
 
 public sealed record RtcLanguageWorkspaceProviderPackageBoundary(
@@ -9385,7 +9486,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        .init(language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: [${entry.roleHighlights.map(q).join(', ')}], defaultProviderContract: .init(providerKey: ${q(entry.defaultProviderContract?.providerKey ?? '')}, pluginId: ${q(entry.defaultProviderContract?.pluginId ?? '')}, driverId: ${q(entry.defaultProviderContract?.driverId ?? '')}), providerSelectionContract: .init(sourceTerms: [${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}], precedence: [${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}], defaultSource: ${q(entry.providerSelectionContract?.defaultSource ?? '')}), providerSupportContract: .init(statusTerms: [${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}]), metadataScaffold: .init(providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), resolutionScaffold: .init(driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), providerPackageBoundary: .init(mode: ${q(entry.providerPackageBoundary?.mode ?? '')}, rootPublicPolicy: ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, lifecycleStatusTerms: [${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}], runtimeBridgeStatusTerms: [${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}]), providerPackageScaffold: ${entry.providerPackageScaffold ? `.init(relativePath: ${q(entry.providerPackageScaffold.relativePath)}, directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, packagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, templateTokens: [${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], sourceTemplateTokens: [${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, status: ${q(entry.providerPackageScaffold.status)})` : 'nil'}),`,
+            `        .init(language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: [${entry.roleHighlights.map(q).join(', ')}], defaultProviderContract: .init(providerKey: ${q(entry.defaultProviderContract?.providerKey ?? '')}, pluginId: ${q(entry.defaultProviderContract?.pluginId ?? '')}, driverId: ${q(entry.defaultProviderContract?.driverId ?? '')}), providerSelectionContract: .init(sourceTerms: [${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}], precedence: [${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}], defaultSource: ${q(entry.providerSelectionContract?.defaultSource ?? '')}), providerSupportContract: .init(statusTerms: [${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}]), providerActivationContract: .init(statusTerms: [${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')}]), metadataScaffold: .init(providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), resolutionScaffold: .init(driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), providerPackageBoundaryContract: .init(modeTerms: [${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}], rootPublicPolicyTerms: [${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}], lifecycleStatusTerms: [${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}], runtimeBridgeStatusTerms: [${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}]), providerPackageBoundary: .init(mode: ${q(entry.providerPackageBoundary?.mode ?? '')}, rootPublicPolicy: ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, lifecycleStatusTerms: [${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}], runtimeBridgeStatusTerms: [${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}]), providerPackageScaffold: ${entry.providerPackageScaffold ? `.init(relativePath: ${q(entry.providerPackageScaffold.relativePath)}, directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, packagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, templateTokens: [${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], sourceTemplateTokens: [${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, status: ${q(entry.providerPackageScaffold.status)})` : 'nil'}),`,
         )
         .join('\n');
 
@@ -9408,8 +9509,10 @@ public struct RtcLanguageWorkspaceCatalogEntry {
     public let defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract
     public let providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract
     public let providerSupportContract: RtcLanguageWorkspaceProviderSupportContract
+    public let providerActivationContract: RtcLanguageWorkspaceProviderActivationContract
     public let metadataScaffold: RtcLanguageWorkspaceMetadataScaffold
     public let resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold
+    public let providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract
     public let providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary
     public let providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold?
 }
@@ -9430,6 +9533,10 @@ public struct RtcLanguageWorkspaceProviderSupportContract {
     public let statusTerms: [String]
 }
 
+public struct RtcLanguageWorkspaceProviderActivationContract {
+    public let statusTerms: [String]
+}
+
 public struct RtcLanguageWorkspaceMetadataScaffold {
     public let providerCatalogRelativePath: String
     public let capabilityCatalogRelativePath: String
@@ -9444,6 +9551,13 @@ public struct RtcLanguageWorkspaceResolutionScaffold {
     public let dataSourceRelativePath: String
     public let providerSupportRelativePath: String
     public let providerPackageLoaderRelativePath: String
+}
+
+public struct RtcLanguageWorkspaceProviderPackageBoundaryContract {
+    public let modeTerms: [String]
+    public let rootPublicPolicyTerms: [String]
+    public let lifecycleStatusTerms: [String]
+    public let runtimeBridgeStatusTerms: [String]
 }
 
 public struct RtcLanguageWorkspaceProviderPackageBoundary {
@@ -9483,7 +9597,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, listOf(${entry.roleHighlights.map(q).join(', ')}), RtcLanguageWorkspaceDefaultProviderContract(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), RtcLanguageWorkspaceProviderSelectionContract(listOf(${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}), ${q(entry.providerSelectionContract?.defaultSource ?? '')}), RtcLanguageWorkspaceProviderSupportContract(listOf(${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')})), RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), RtcLanguageWorkspaceProviderPackageBoundary(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, listOf(${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')})), ${entry.providerPackageScaffold ? `RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, listOf(${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}), listOf(${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}), ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'}),`,
+            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, listOf(${entry.roleHighlights.map(q).join(', ')}), RtcLanguageWorkspaceDefaultProviderContract(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), RtcLanguageWorkspaceProviderSelectionContract(listOf(${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}), ${q(entry.providerSelectionContract?.defaultSource ?? '')}), RtcLanguageWorkspaceProviderSupportContract(listOf(${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')})), RtcLanguageWorkspaceProviderActivationContract(listOf(${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')})), RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), RtcLanguageWorkspaceProviderPackageBoundaryContract(listOf(${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')})), RtcLanguageWorkspaceProviderPackageBoundary(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, listOf(${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}), listOf(${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')})), ${entry.providerPackageScaffold ? `RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, listOf(${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}), listOf(${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}), ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'}),`,
         )
         .join('\n');
 
@@ -9508,8 +9622,10 @@ data class RtcLanguageWorkspaceCatalogEntry(
     val defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract,
     val providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract,
     val providerSupportContract: RtcLanguageWorkspaceProviderSupportContract,
+    val providerActivationContract: RtcLanguageWorkspaceProviderActivationContract,
     val metadataScaffold: RtcLanguageWorkspaceMetadataScaffold,
     val resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold,
+    val providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract,
     val providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary,
     val providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold?,
 )
@@ -9530,6 +9646,10 @@ data class RtcLanguageWorkspaceProviderSupportContract(
     val statusTerms: List<String>,
 )
 
+data class RtcLanguageWorkspaceProviderActivationContract(
+    val statusTerms: List<String>,
+)
+
 data class RtcLanguageWorkspaceMetadataScaffold(
     val providerCatalogRelativePath: String,
     val capabilityCatalogRelativePath: String,
@@ -9544,6 +9664,13 @@ data class RtcLanguageWorkspaceResolutionScaffold(
     val dataSourceRelativePath: String,
     val providerSupportRelativePath: String,
     val providerPackageLoaderRelativePath: String,
+)
+
+data class RtcLanguageWorkspaceProviderPackageBoundaryContract(
+    val modeTerms: List<String>,
+    val rootPublicPolicyTerms: List<String>,
+    val lifecycleStatusTerms: List<String>,
+    val runtimeBridgeStatusTerms: List<String>,
 )
 
 data class RtcLanguageWorkspaceProviderPackageBoundary(
@@ -9583,7 +9710,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `    {Language: ${q(entry.language)}, Workspace: ${q(entry.workspace)}, WorkspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, DisplayName: ${q(entry.displayName)}, PublicPackage: ${q(entry.publicPackage)}, MaturityTier: ${q(entry.maturityTier)}, ControlSdk: ${entry.controlSdk ? 'true' : 'false'}, RuntimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, CurrentRole: ${q(entry.currentRole)}, WorkspaceSummary: ${q(entry.workspaceSummary)}, RoleHighlights: []string{${entry.roleHighlights.map(q).join(', ')}}, DefaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract{ProviderKey: ${q(entry.defaultProviderContract?.providerKey ?? '')}, PluginId: ${q(entry.defaultProviderContract?.pluginId ?? '')}, DriverId: ${q(entry.defaultProviderContract?.driverId ?? '')}}, ProviderSelectionContract: RtcLanguageWorkspaceProviderSelectionContract{SourceTerms: []string{${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}}, Precedence: []string{${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}}, DefaultSource: ${q(entry.providerSelectionContract?.defaultSource ?? '')}}, ProviderSupportContract: RtcLanguageWorkspaceProviderSupportContract{StatusTerms: []string{${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}}}, MetadataScaffold: RtcLanguageWorkspaceMetadataScaffold{ProviderCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, CapabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ProviderExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ProviderPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ProviderActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ProviderSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}}, ResolutionScaffold: RtcLanguageWorkspaceResolutionScaffold{DriverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, DataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ProviderSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ProviderPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}}, ProviderPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary{Mode: ${q(entry.providerPackageBoundary?.mode ?? '')}, RootPublicPolicy: ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, LifecycleStatusTerms: []string{${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}}, RuntimeBridgeStatusTerms: []string{${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}}}, ProviderPackageScaffold: ${entry.providerPackageScaffold ? `&RtcLanguageWorkspaceProviderPackageScaffold{RelativePath: ${q(entry.providerPackageScaffold.relativePath)}, DirectoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, PackagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, ManifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, ReadmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, SourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, SourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, TemplateTokens: []string{${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}}, SourceTemplateTokens: []string{${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}}, RuntimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, RootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, Status: ${q(entry.providerPackageScaffold.status)}}` : 'nil'}},`,
+            `    {Language: ${q(entry.language)}, Workspace: ${q(entry.workspace)}, WorkspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, DisplayName: ${q(entry.displayName)}, PublicPackage: ${q(entry.publicPackage)}, MaturityTier: ${q(entry.maturityTier)}, ControlSdk: ${entry.controlSdk ? 'true' : 'false'}, RuntimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, CurrentRole: ${q(entry.currentRole)}, WorkspaceSummary: ${q(entry.workspaceSummary)}, RoleHighlights: []string{${entry.roleHighlights.map(q).join(', ')}}, DefaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract{ProviderKey: ${q(entry.defaultProviderContract?.providerKey ?? '')}, PluginId: ${q(entry.defaultProviderContract?.pluginId ?? '')}, DriverId: ${q(entry.defaultProviderContract?.driverId ?? '')}}, ProviderSelectionContract: RtcLanguageWorkspaceProviderSelectionContract{SourceTerms: []string{${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}}, Precedence: []string{${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}}, DefaultSource: ${q(entry.providerSelectionContract?.defaultSource ?? '')}}, ProviderSupportContract: RtcLanguageWorkspaceProviderSupportContract{StatusTerms: []string{${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}}}, ProviderActivationContract: RtcLanguageWorkspaceProviderActivationContract{StatusTerms: []string{${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')}}}, MetadataScaffold: RtcLanguageWorkspaceMetadataScaffold{ProviderCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, CapabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ProviderExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ProviderPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ProviderActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ProviderSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}}, ResolutionScaffold: RtcLanguageWorkspaceResolutionScaffold{DriverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, DataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ProviderSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ProviderPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}}, ProviderPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract{ModeTerms: []string{${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}}, RootPublicPolicyTerms: []string{${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}}, LifecycleStatusTerms: []string{${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}}, RuntimeBridgeStatusTerms: []string{${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}}}, ProviderPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary{Mode: ${q(entry.providerPackageBoundary?.mode ?? '')}, RootPublicPolicy: ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, LifecycleStatusTerms: []string{${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}}, RuntimeBridgeStatusTerms: []string{${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}}}, ProviderPackageScaffold: ${entry.providerPackageScaffold ? `&RtcLanguageWorkspaceProviderPackageScaffold{RelativePath: ${q(entry.providerPackageScaffold.relativePath)}, DirectoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, PackagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, ManifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, ReadmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, SourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, SourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, TemplateTokens: []string{${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}}, SourceTemplateTokens: []string{${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}}, RuntimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, RootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, Status: ${q(entry.providerPackageScaffold.status)}}` : 'nil'}},`,
         )
         .join('\n');
 
@@ -9608,8 +9735,10 @@ type RtcLanguageWorkspaceCatalogEntry struct {
     DefaultProviderContract      RtcLanguageWorkspaceDefaultProviderContract
     ProviderSelectionContract    RtcLanguageWorkspaceProviderSelectionContract
     ProviderSupportContract      RtcLanguageWorkspaceProviderSupportContract
+    ProviderActivationContract   RtcLanguageWorkspaceProviderActivationContract
     MetadataScaffold             RtcLanguageWorkspaceMetadataScaffold
     ResolutionScaffold           RtcLanguageWorkspaceResolutionScaffold
+    ProviderPackageBoundaryContract RtcLanguageWorkspaceProviderPackageBoundaryContract
     ProviderPackageBoundary      RtcLanguageWorkspaceProviderPackageBoundary
     ProviderPackageScaffold      *RtcLanguageWorkspaceProviderPackageScaffold
 }
@@ -9630,6 +9759,10 @@ type RtcLanguageWorkspaceProviderSupportContract struct {
     StatusTerms []string
 }
 
+type RtcLanguageWorkspaceProviderActivationContract struct {
+    StatusTerms []string
+}
+
 type RtcLanguageWorkspaceMetadataScaffold struct {
     ProviderCatalogRelativePath       string
     CapabilityCatalogRelativePath     string
@@ -9644,6 +9777,13 @@ type RtcLanguageWorkspaceResolutionScaffold struct {
     DataSourceRelativePath        string
     ProviderSupportRelativePath   string
     ProviderPackageLoaderRelativePath string
+}
+
+type RtcLanguageWorkspaceProviderPackageBoundaryContract struct {
+    ModeTerms                 []string
+    RootPublicPolicyTerms     []string
+    LifecycleStatusTerms      []string
+    RuntimeBridgeStatusTerms  []string
 }
 
 type RtcLanguageWorkspaceProviderPackageBoundary struct {
@@ -9683,7 +9823,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'True' : 'False'}, ${entry.runtimeBridge ? 'True' : 'False'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, [${entry.roleHighlights.map(q).join(', ')}], RtcLanguageWorkspaceDefaultProviderContract(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), RtcLanguageWorkspaceProviderSelectionContract([${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}], [${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}], ${q(entry.providerSelectionContract?.defaultSource ?? '')}), RtcLanguageWorkspaceProviderSupportContract([${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}]), RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), RtcLanguageWorkspaceProviderPackageBoundary(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, [${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}], [${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}]), ${entry.providerPackageScaffold ? `RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, [${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], [${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'True' : 'False'}, ${q(entry.providerPackageScaffold.status)})` : 'None'}),`,
+            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'True' : 'False'}, ${entry.runtimeBridge ? 'True' : 'False'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, [${entry.roleHighlights.map(q).join(', ')}], RtcLanguageWorkspaceDefaultProviderContract(${q(entry.defaultProviderContract?.providerKey ?? '')}, ${q(entry.defaultProviderContract?.pluginId ?? '')}, ${q(entry.defaultProviderContract?.driverId ?? '')}), RtcLanguageWorkspaceProviderSelectionContract([${(entry.providerSelectionContract?.sourceTerms ?? []).map(q).join(', ')}], [${(entry.providerSelectionContract?.precedence ?? []).map(q).join(', ')}], ${q(entry.providerSelectionContract?.defaultSource ?? '')}), RtcLanguageWorkspaceProviderSupportContract([${(entry.providerSupportContract?.statusTerms ?? []).map(q).join(', ')}]), RtcLanguageWorkspaceProviderActivationContract([${(entry.providerActivationContract?.statusTerms ?? []).map(q).join(', ')}]), RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), RtcLanguageWorkspaceProviderPackageBoundaryContract([${(entry.providerPackageBoundaryContract?.modeTerms ?? []).map(q).join(', ')}], [${(entry.providerPackageBoundaryContract?.rootPublicPolicyTerms ?? []).map(q).join(', ')}], [${(entry.providerPackageBoundaryContract?.lifecycleStatusTerms ?? []).map(q).join(', ')}], [${(entry.providerPackageBoundaryContract?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}]), RtcLanguageWorkspaceProviderPackageBoundary(${q(entry.providerPackageBoundary?.mode ?? '')}, ${q(entry.providerPackageBoundary?.rootPublicPolicy ?? '')}, [${(entry.providerPackageBoundary?.lifecycleStatusTerms ?? []).map(q).join(', ')}], [${(entry.providerPackageBoundary?.runtimeBridgeStatusTerms ?? []).map(q).join(', ')}]), ${entry.providerPackageScaffold ? `RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, [${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], [${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'True' : 'False'}, ${q(entry.providerPackageScaffold.status)})` : 'None'}),`,
         )
         .join('\n');
 
@@ -9711,8 +9851,10 @@ class RtcLanguageWorkspaceCatalogEntry:
     defaultProviderContract: "RtcLanguageWorkspaceDefaultProviderContract"
     providerSelectionContract: "RtcLanguageWorkspaceProviderSelectionContract"
     providerSupportContract: "RtcLanguageWorkspaceProviderSupportContract"
+    providerActivationContract: "RtcLanguageWorkspaceProviderActivationContract"
     metadataScaffold: "RtcLanguageWorkspaceMetadataScaffold"
     resolutionScaffold: "RtcLanguageWorkspaceResolutionScaffold"
+    providerPackageBoundaryContract: "RtcLanguageWorkspaceProviderPackageBoundaryContract"
     providerPackageBoundary: "RtcLanguageWorkspaceProviderPackageBoundary"
     providerPackageScaffold: Optional["RtcLanguageWorkspaceProviderPackageScaffold"]
 
@@ -9737,6 +9879,11 @@ class RtcLanguageWorkspaceProviderSupportContract:
 
 
 @dataclass(frozen=True)
+class RtcLanguageWorkspaceProviderActivationContract:
+    statusTerms: list[str]
+
+
+@dataclass(frozen=True)
 class RtcLanguageWorkspaceMetadataScaffold:
     providerCatalogRelativePath: str
     capabilityCatalogRelativePath: str
@@ -9752,6 +9899,14 @@ class RtcLanguageWorkspaceResolutionScaffold:
     dataSourceRelativePath: str
     providerSupportRelativePath: str
     providerPackageLoaderRelativePath: str
+
+
+@dataclass(frozen=True)
+class RtcLanguageWorkspaceProviderPackageBoundaryContract:
+    modeTerms: list[str]
+    rootPublicPolicyTerms: list[str]
+    lifecycleStatusTerms: list[str]
+    runtimeBridgeStatusTerms: list[str]
 
 
 @dataclass(frozen=True)

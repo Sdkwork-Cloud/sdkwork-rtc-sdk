@@ -188,6 +188,13 @@ assembly-driven default provider identity, a `providerSelectionContract` with
 `sourceTerms`, `precedence`, and `defaultSource` aligned to the assembly-driven
 `providerSelectionStandard`, and a `providerSupportContract` with `statusTerms` aligned to the
 assembly-driven `providerSupportStandard`.
+Each `RtcLanguageWorkspaceCatalogEntry` must also keep a machine-readable
+`providerActivationContract` with `statusTerms` aligned to the assembly-driven
+`providerActivationStandard`.
+Each `RtcLanguageWorkspaceCatalogEntry` must also keep a machine-readable
+`providerPackageBoundaryContract` with `modeTerms`, `rootPublicPolicyTerms`,
+`lifecycleStatusTerms`, and `runtimeBridgeStatusTerms` aligned to the assembly-driven
+`providerPackageBoundaryStandard`.
 
 Reserved non-TypeScript metadata scaffolds must keep the same explicit lookup semantics with
 language-idiomatic naming:
@@ -234,6 +241,13 @@ It must also preserve `providerSelectionContract.sourceTerms`,
 `providerSelectionContract.precedence`, `providerSelectionContract.defaultSource`, and
 `providerSupportContract.statusTerms` so selection precedence and provider-support vocabulary stay
 assembly-governed across languages instead of becoming runtime-private conventions.
+It must also preserve `providerActivationContract.statusTerms` so provider activation vocabulary
+stays assembly-governed through `providerActivationStandard`, and
+`providerPackageBoundaryContract.modeTerms`,
+`providerPackageBoundaryContract.rootPublicPolicyTerms`,
+`providerPackageBoundaryContract.lifecycleStatusTerms`, and
+`providerPackageBoundaryContract.runtimeBridgeStatusTerms` so the allowed package-boundary
+vocabulary stays assembly-governed through `providerPackageBoundaryStandard`.
 TypeScript is the only `catalog-governed-mixed` workspace and keeps
 `rootPublicPolicy` fixed at `builtin-only`, while reserved languages stay
 `scaffold-per-provider-package` and keep `rootPublicPolicy` fixed at `none`.

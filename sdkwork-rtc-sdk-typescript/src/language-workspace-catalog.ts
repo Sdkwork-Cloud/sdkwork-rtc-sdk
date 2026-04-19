@@ -28,6 +28,9 @@ export const TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalo
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider-catalog.ts',
     capabilityCatalogRelativePath: 'src/capability-catalog.ts',
@@ -41,6 +44,12 @@ export const TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalo
     dataSourceRelativePath: 'src/data-source.ts',
     providerSupportRelativePath: 'src/provider-support.ts',
     providerPackageLoaderRelativePath: 'src/provider-package-loader.ts',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'catalog-governed-mixed',
@@ -76,6 +85,9 @@ export const FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEn
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'lib/src/rtc_provider_catalog.dart',
     capabilityCatalogRelativePath: 'lib/src/rtc_capability_catalog.dart',
@@ -89,6 +101,12 @@ export const FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEn
     dataSourceRelativePath: 'lib/src/rtc_data_source.dart',
     providerSupportRelativePath: 'lib/src/rtc_provider_support.dart',
     providerPackageLoaderRelativePath: 'lib/src/rtc_provider_package_loader.dart',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -137,6 +155,9 @@ export const RUST_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider_catalog.rs',
     capabilityCatalogRelativePath: 'src/capability_catalog.rs',
@@ -150,6 +171,12 @@ export const RUST_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
     dataSourceRelativePath: 'src/data_source.rs',
     providerSupportRelativePath: 'src/provider_support.rs',
     providerPackageLoaderRelativePath: 'src/provider_package_loader.rs',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -198,6 +225,9 @@ export const JAVA_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderCatalog.java',
     capabilityCatalogRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.java',
@@ -211,6 +241,12 @@ export const JAVA_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
     dataSourceRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java',
     providerSupportRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java',
     providerPackageLoaderRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.java',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -259,6 +295,9 @@ export const CSHARP_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderCatalog.cs',
     capabilityCatalogRelativePath: 'src/SDKWork.Rtc.Sdk/RtcCapabilityCatalog.cs',
@@ -272,6 +311,12 @@ export const CSHARP_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     dataSourceRelativePath: 'src/SDKWork.Rtc.Sdk/RtcDataSource.cs',
     providerSupportRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs',
     providerPackageLoaderRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -320,6 +365,9 @@ export const SWIFT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntr
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'Sources/RtcSdk/RtcProviderCatalog.swift',
     capabilityCatalogRelativePath: 'Sources/RtcSdk/RtcCapabilityCatalog.swift',
@@ -333,6 +381,12 @@ export const SWIFT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntr
     dataSourceRelativePath: 'Sources/RtcSdk/RtcDataSource.swift',
     providerSupportRelativePath: 'Sources/RtcSdk/RtcProviderSupport.swift',
     providerPackageLoaderRelativePath: 'Sources/RtcSdk/RtcProviderPackageLoader.swift',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -381,6 +435,9 @@ export const KOTLIN_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderCatalog.kt',
     capabilityCatalogRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.kt',
@@ -394,6 +451,12 @@ export const KOTLIN_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     dataSourceRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcDataSource.kt',
     providerSupportRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt',
     providerPackageLoaderRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.kt',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -442,6 +505,9 @@ export const GO_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry =
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'rtcstandard/provider_catalog.go',
     capabilityCatalogRelativePath: 'rtcstandard/capability_catalog.go',
@@ -455,6 +521,12 @@ export const GO_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry =
     dataSourceRelativePath: 'rtcstandard/data_source.go',
     providerSupportRelativePath: 'rtcstandard/provider_support.go',
     providerPackageLoaderRelativePath: 'rtcstandard/provider_package_loader.go',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',
@@ -503,6 +575,9 @@ export const PYTHON_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
   providerSupportContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
+  providerActivationContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'sdkwork_rtc_sdk/provider_catalog.py',
     capabilityCatalogRelativePath: 'sdkwork_rtc_sdk/capability_catalog.py',
@@ -516,6 +591,12 @@ export const PYTHON_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     dataSourceRelativePath: 'sdkwork_rtc_sdk/data_source.py',
     providerSupportRelativePath: 'sdkwork_rtc_sdk/provider_support.py',
     providerPackageLoaderRelativePath: 'sdkwork_rtc_sdk/provider_package_loader.py',
+  }),
+  providerPackageBoundaryContract: freezeRtcRuntimeValue({
+    modeTerms: freezeRtcRuntimeValue(['catalog-governed-mixed', 'scaffold-per-provider-package'] as const),
+    rootPublicPolicyTerms: freezeRtcRuntimeValue(['builtin-only', 'none'] as const),
+    lifecycleStatusTerms: freezeRtcRuntimeValue(['root_public_reference_boundary', 'package_reference_boundary', 'future-runtime-bridge-only'] as const),
+    runtimeBridgeStatusTerms: freezeRtcRuntimeValue(['reference-baseline', 'reserved'] as const),
   }),
   providerPackageBoundary: freezeRtcRuntimeValue({
     mode: 'scaffold-per-provider-package',

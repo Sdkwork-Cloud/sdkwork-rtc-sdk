@@ -37,11 +37,13 @@ Language workspace catalog:
 
 - workspace catalog: `Sources/RtcSdk/RtcLanguageWorkspaceCatalog.swift`
 - workspace catalog entries also keep `workspaceCatalogRelativePath`,
-  `defaultProviderContract`, `providerSelectionContract`, `providerSupportContract`, and any
-  declared `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
+  `defaultProviderContract`, `providerSelectionContract`, `providerSupportContract`,
+  `providerActivationContract`, `providerPackageBoundaryContract`, and any declared
+  `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
   `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
-  locations, workspace-wide default provider identity, selection precedence, and support-status
-  vocabulary without rereading the assembly.
+  locations, workspace-wide default provider identity, selection precedence, support-status
+  vocabulary, activation-status vocabulary, and package-boundary vocabulary without rereading the
+  assembly.
 
 
 Provider package boundary:

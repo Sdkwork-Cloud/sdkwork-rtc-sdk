@@ -86,6 +86,20 @@ Their `RtcDriverManager` scaffolds must query the provider catalog and provider-
 then delegate support-state construction to the provider-support helper module instead of keeping
 ad hoc support-classification logic inline.
 
+The assembly-driven `providerActivationStandard` is canonical, and every language workspace catalog
+must preserve it through `providerActivationContract.statusTerms`.
+Reserved non-TypeScript language workspaces must preserve the same vocabulary in their provider
+activation catalogs so activation exposure stays assembly-governed instead of becoming
+language-private wording.
+
+The assembly-driven `providerPackageBoundaryStandard` is canonical, and every language workspace
+catalog must preserve it through `providerPackageBoundaryContract.modeTerms`,
+`providerPackageBoundaryContract.rootPublicPolicyTerms`,
+`providerPackageBoundaryContract.lifecycleStatusTerms`, and
+`providerPackageBoundaryContract.runtimeBridgeStatusTerms`.
+Provider adapters must consume those standard vocabularies and must not invent alternate
+package-boundary status or root-public-policy terms locally.
+
 Runtime registration must reject:
 
 - provider keys that are not present in the official catalog
