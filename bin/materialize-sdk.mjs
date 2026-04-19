@@ -1,9 +1,14 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { assertRtcAssemblyWorkspaceBaseline } from './rtc-standard-assembly-baseline.mjs';
-import { readJsonFile } from './rtc-standard-json-helpers.mjs';
+import {
+  readJsonFile,
+  readUtf8File,
+  resolveRtcSdkWorkspaceRoot,
+  writeUtf8File,
+} from './rtc-standard-file-helpers.mjs';
 import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
 import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
 import {
@@ -31,7 +36,7 @@ const PROVIDER_TIER_SUMMARIES = {
 };
 
 function readMaterializedTemplate(workspaceRoot, relativePath) {
-  return readFileSync(path.join(workspaceRoot, 'bin', 'templates', relativePath), 'utf8');
+  return readUtf8File(path.join(workspaceRoot, 'bin', 'templates', relativePath));
 }
 
 function renderStringLiteral(value) {
@@ -78,9 +83,9 @@ function getReferenceTypeScriptAdapterContract(assembly) {
 
 function writeIfChanged(workspaceRoot, filePath, nextContent, changedFiles) {
   mkdirSync(path.dirname(filePath), { recursive: true });
-  const currentContent = existsSync(filePath) ? readFileSync(filePath, 'utf8') : null;
+  const currentContent = existsSync(filePath) ? readUtf8File(filePath) : null;
   if (currentContent !== nextContent) {
-    writeFileSync(filePath, nextContent, 'utf8');
+    writeUtf8File(filePath, nextContent);
     changedFiles.push(path.relative(workspaceRoot, filePath).replace(/\\/g, '/'));
   }
 }
@@ -1328,8 +1333,7 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
   return entries;
 }
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(scriptDir, '..');
+const workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url);
 const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : null;
 const isCliEntry = invokedPath === import.meta.url;
 

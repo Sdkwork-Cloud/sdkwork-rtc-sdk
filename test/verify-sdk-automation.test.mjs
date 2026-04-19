@@ -2,8 +2,12 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { readJsonFile as readJson } from '../bin/rtc-standard-json-helpers.mjs';
+import { pathToFileURL } from 'node:url';
+import {
+  readJsonFile as readJson,
+  resolveRtcSdkSdksReadmePath,
+  resolveRtcSdkWorkspaceRoot,
+} from '../bin/rtc-standard-file-helpers.mjs';
 import {
   RTC_TEMPLATE_MATERIALIZED_FILES,
   RTC_TEMPLATE_SOURCE_FILES,
@@ -52,10 +56,9 @@ import {
   matchesReservedLanguageToken,
 } from '../bin/verify-sdk-language-helpers.mjs';
 
-const testDir = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(testDir, '..');
+const workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url);
 const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
-const sdksReadmePath = path.resolve(workspaceRoot, '..', 'README.md');
+const sdksReadmePath = resolveRtcSdkSdksReadmePath(import.meta.url);
 
 function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
   const boundary = languageEntry.providerPackageBoundary;

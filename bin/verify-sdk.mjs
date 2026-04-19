@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { buildRtcSdkMaterializationPlan, RTC_SDK_STALE_MATERIALIZED_FILES } from './materialize-sdk.mjs';
 import { assertRtcAssemblyWorkspaceBaseline } from './rtc-standard-assembly-baseline.mjs';
-import { readJsonFile } from './rtc-standard-json-helpers.mjs';
+import { readJsonFile, resolveRtcSdkWorkspaceRoot } from './rtc-standard-file-helpers.mjs';
 import {
   buildLanguageProviderActivationCatalogEntries,
   buildProviderPackageManifestPath,
@@ -3126,8 +3126,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   }
 }
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(scriptDir, '..');
+const workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url);
 const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : null;
 const isCliEntry = invokedPath === import.meta.url;
 

@@ -1,8 +1,11 @@
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readJsonFile, writePrettyJsonFile } from '../bin/rtc-standard-json-helpers.mjs';
+import {
+  readJsonFile,
+  resolveRtcSdkWorkspaceRoot,
+  writePrettyJsonFile,
+} from '../bin/rtc-standard-file-helpers.mjs';
 import {
   buildProviderPackageManifestPath,
   buildProviderPackageReadmePath,
@@ -131,7 +134,7 @@ export function buildRtcVerifierFixtureFileList(assembly) {
 
 export function createRtcVerifierFixture(
   mutator,
-  workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+  workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url),
 ) {
   const fixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'sdkwork-rtc-sdk-verify-'));
   const workspaceCopy = path.join(fixtureRoot, 'sdkwork-rtc-sdk');

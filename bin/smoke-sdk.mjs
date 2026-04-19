@@ -2,7 +2,11 @@
 import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
+import {
+  resolveRtcSdkAppRootFromWorkspaceRoot,
+  resolveRtcSdkWorkspaceRoot,
+} from './rtc-standard-file-helpers.mjs';
 
 function fail(message) {
   throw new Error(message);
@@ -149,7 +153,7 @@ export function runRtcSdkSmoke(workspaceRoot) {
   const requiredResults = [];
   const optionalPassed = [];
   const optionalSkipped = [];
-  const repoRoot = path.resolve(workspaceRoot, '..', '..');
+  const repoRoot = resolveRtcSdkAppRootFromWorkspaceRoot(workspaceRoot);
 
   requiredResults.push(
     runRequiredNodeStep(
@@ -234,8 +238,7 @@ export function runRtcSdkSmoke(workspaceRoot) {
   printSummary(requiredResults, optionalPassed, optionalSkipped);
 }
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(scriptDir, '..');
+const workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url);
 const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : null;
 const isCliEntry = invokedPath === import.meta.url;
 
