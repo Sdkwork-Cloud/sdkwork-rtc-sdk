@@ -8,20 +8,15 @@ import {
   RTC_TEMPLATE_MATERIALIZED_FILES,
   RTC_TEMPLATE_SOURCE_FILES,
 } from '../bin/materialize-sdk-template-assets.mjs';
+import {
+  KNOWN_PROVIDER_PACKAGE_TEMPLATE_TOKENS,
+  LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS,
+  REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
+} from '../bin/verify-sdk-standard-constants.mjs';
 
 const workspaceRoot = path.resolve('sdks/sdkwork-rtc-sdk');
 const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
 const sdksReadmePath = path.resolve('sdks/README.md');
-const KNOWN_PROVIDER_PACKAGE_TEMPLATE_TOKENS = ['{providerKey}', '{providerPascal}'];
-const LEGACY_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_TERMS = [
-  'reserved TypeScript provider package boundaries',
-  'builtin_reference_boundary',
-  'official_reserved_boundary',
-];
-const REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS = [
-  'root_public_reference_boundary',
-  'package_reference_boundary',
-];
 
 function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
