@@ -24,6 +24,8 @@ import {
   OPTIONAL_RTC_CAPABILITIES,
   REQUIRED_RTC_CAPABILITIES,
   RTC_CAPABILITY_CATEGORIES,
+  RTC_CAPABILITY_NEGOTIATION_RULES,
+  RTC_CAPABILITY_NEGOTIATION_STATUSES,
   RTC_CAPABILITY_SURFACES,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
   DEFAULT_TYPESCRIPT_PACKAGE_STANDARD,
@@ -130,6 +132,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       },
       { pattern: /hasRtcProviderExtension/, label: 'provider extension membership helper' },
       { pattern: /getRtcLanguageWorkspaceByLanguage/, label: 'language workspace lookup helper' },
+      { pattern: /capability-negotiation\.ts/, label: 'TypeScript capability negotiation module path' },
+      { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'capability negotiation status helper' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_STATUSES/, label: 'capability negotiation status catalog' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_RULES/, label: 'capability negotiation rule catalog' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'provider support status helper' },
       { pattern: /createRtcProviderSupportState/, label: 'provider support state helper' },
       { pattern: /provider package loader/i, label: 'provider package loader documentation' },
@@ -154,6 +160,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerActivationContract/, label: 'language workspace providerActivationContract' },
       { pattern: /providerPackageBoundaryContract/, label: 'language workspace providerPackageBoundaryContract' },
       { pattern: /capabilityStandard/, label: 'assembly-driven capabilityStandard' },
+      { pattern: /capabilityNegotiationStandard/, label: 'assembly-driven capabilityNegotiationStandard' },
       { pattern: /providerExtensionStandard/, label: 'assembly-driven providerExtensionStandard' },
       { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard' },
       { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard' },
@@ -219,6 +226,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerActivationContract/, label: 'internal docs providerActivationContract coverage' },
       { pattern: /providerPackageBoundaryContract/, label: 'internal docs providerPackageBoundaryContract coverage' },
       { pattern: /capabilityStandard/, label: 'internal docs capabilityStandard coverage' },
+      { pattern: /capabilityNegotiationStandard/, label: 'internal docs capabilityNegotiationStandard coverage' },
       { pattern: /providerExtensionStandard/, label: 'internal docs providerExtensionStandard coverage' },
       { pattern: /providerActivationStandard/, label: 'internal docs providerActivationStandard coverage' },
       { pattern: /providerPackageBoundaryStandard/, label: 'internal docs providerPackageBoundaryStandard coverage' },
@@ -243,6 +251,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /getRtcProviderPackageByProviderKey/, label: 'internal docs provider package lookup helper index' },
       { pattern: /getRtcProviderPackageByPackageIdentity/, label: 'internal docs provider package identity lookup helper index' },
       { pattern: /getRtcProviderActivationByProviderKey/, label: 'internal docs provider activation lookup helper index' },
+      { pattern: /capability-negotiation\.ts/, label: 'internal docs capability negotiation index' },
+      { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'internal docs capability negotiation helper index' },
       { pattern: /provider-package-loader\.ts/, label: 'internal docs provider package loader index' },
       { pattern: /createRtcProviderPackageLoader/, label: 'internal docs provider package loader factory index' },
       { pattern: /resolveRtcProviderPackageLoadTarget/, label: 'internal docs provider package target resolver index' },
@@ -330,6 +340,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSelectionStandard/, label: 'assembly-driven providerSelectionStandard contract' },
       { pattern: /providerSupportStandard/, label: 'assembly-driven providerSupportStandard contract' },
       { pattern: /capabilityStandard/, label: 'assembly-driven capabilityStandard contract' },
+      { pattern: /capabilityNegotiationStandard/, label: 'assembly-driven capabilityNegotiationStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard contract' },
       { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard contract' },
@@ -420,6 +431,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       },
       { pattern: /hasRtcProviderExtension/, label: 'provider extension membership helper contract' },
       { pattern: /RtcProviderSupportStateRequest/, label: 'provider support request contract' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_STATUSES/, label: 'capability negotiation status catalog contract' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_RULES/, label: 'capability negotiation rule catalog contract' },
+      { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'capability negotiation resolver contract' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'provider support status helper contract' },
       { pattern: /createRtcProviderSupportState/, label: 'provider support state helper contract' },
       { pattern: /getBuiltinRtcProviderMetadataByKey/, label: 'builtin provider catalog lookup helper contract' },
@@ -506,6 +520,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         label: 'provider adapter provider extension by provider helper contract',
       },
       { pattern: /hasRtcProviderExtension/, label: 'provider adapter provider extension membership helper contract' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_STATUSES/, label: 'provider adapter capability negotiation status catalog contract' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_RULES/, label: 'provider adapter capability negotiation rule catalog contract' },
+      { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'provider adapter capability negotiation resolver contract' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'provider adapter provider support status helper contract' },
       { pattern: /createRtcProviderSupportState/, label: 'provider adapter provider support state helper contract' },
       { pattern: /providerSelectionContract/, label: 'provider adapter language workspace providerSelectionContract contract' },
@@ -513,6 +530,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerActivationContract/, label: 'provider adapter language workspace providerActivationContract contract' },
       { pattern: /providerPackageBoundaryContract/, label: 'provider adapter language workspace package boundary contract vocabulary' },
       { pattern: /capabilityStandard/, label: 'provider adapter assembly-driven capabilityStandard contract' },
+      { pattern: /capabilityNegotiationStandard/, label: 'provider adapter assembly-driven capabilityNegotiationStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'provider adapter assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'provider adapter assembly-driven providerActivationStandard contract' },
       { pattern: /providerPackageBoundaryStandard/, label: 'provider adapter assembly-driven providerPackageBoundaryStandard contract' },
@@ -603,6 +621,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSelectionStandard/, label: 'verification of assembly-driven providerSelectionStandard contract' },
       { pattern: /providerSupportStandard/, label: 'verification of assembly-driven providerSupportStandard contract' },
       { pattern: /capabilityStandard/, label: 'verification of assembly-driven capabilityStandard contract' },
+      { pattern: /capabilityNegotiationStandard/, label: 'verification of assembly-driven capabilityNegotiationStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'verification of assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'verification of assembly-driven providerActivationStandard contract' },
       { pattern: /providerPackageBoundaryStandard/, label: 'verification of assembly-driven providerPackageBoundaryStandard contract' },
@@ -734,6 +753,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         label: 'verification of provider extension by provider lookup helper contract',
       },
       { pattern: /hasRtcProviderExtension/, label: 'verification of provider extension membership helper contract' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_STATUSES/, label: 'verification of capability negotiation status catalog contract' },
+      { pattern: /RTC_CAPABILITY_NEGOTIATION_RULES/, label: 'verification of capability negotiation rule catalog contract' },
+      { pattern: /resolveRtcCapabilityNegotiationStatus/, label: 'verification of capability negotiation resolver contract' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'verification of provider support status helper contract' },
       { pattern: /createRtcProviderSupportState/, label: 'verification of provider support state helper contract' },
       { pattern: /root-public-builtin/, label: 'verification of language provider root-public-builtin contract' },
@@ -963,6 +985,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     providerSelectionStandard,
     providerSupportStandard,
     capabilityStandard,
+    capabilityNegotiationStandard,
     providerExtensionStandard,
     providerActivationStandard,
     providerPackageBoundaryStandard,
@@ -1144,6 +1167,26 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     RTC_CAPABILITY_SURFACES,
     'Assembly capabilityStandard.surfaceTerms',
   );
+
+  if (
+    !Array.isArray(capabilityNegotiationStandard?.statusTerms) ||
+    capabilityNegotiationStandard.statusTerms.length === 0
+  ) {
+    fail('capabilityNegotiationStandard.statusTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    capabilityNegotiationStandard.statusTerms,
+    RTC_CAPABILITY_NEGOTIATION_STATUSES,
+    'Assembly capabilityNegotiationStandard.statusTerms',
+  );
+
+  if (
+    JSON.stringify(capabilityNegotiationStandard?.statusRules ?? {}) !==
+    JSON.stringify(RTC_CAPABILITY_NEGOTIATION_RULES)
+  ) {
+    fail('capabilityNegotiationStandard.statusRules must exactly match the canonical negotiation rules');
+  }
 
   if (
     !Array.isArray(providerExtensionStandard?.accessTerms) ||
@@ -3469,7 +3512,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   );
   const typeScriptIndexContent = readFileSync(typeScriptIndexPath, 'utf8');
 
-  for (const token of ['./provider-package-loader.js']) {
+  for (const token of ['./capability-negotiation.js', './provider-package-loader.js']) {
     if (!new RegExp(escapeRegExp(token)).test(typeScriptIndexContent)) {
       fail(`TypeScript index export drift: ${token}`);
     }
@@ -3581,6 +3624,28 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(providerSelectionContent)) {
       fail(`TypeScript provider selection token drift: ${token}`);
+    }
+  }
+
+  const capabilityNegotiationPath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'capability-negotiation.ts',
+  );
+  const capabilityNegotiationContent = readFileSync(capabilityNegotiationPath, 'utf8');
+
+  for (const token of [
+    'RtcCapabilityNegotiationStatus',
+    'RtcCapabilityNegotiationRule',
+    'RTC_CAPABILITY_NEGOTIATION_STATUSES',
+    'RTC_CAPABILITY_NEGOTIATION_RULES',
+    'resolveRtcCapabilityNegotiationStatus',
+    ...RTC_CAPABILITY_NEGOTIATION_STATUSES,
+    ...Object.values(RTC_CAPABILITY_NEGOTIATION_RULES),
+  ]) {
+    if (!new RegExp(escapeRegExp(token)).test(capabilityNegotiationContent)) {
+      fail(`TypeScript capability negotiation token drift: ${token}`);
     }
   }
 

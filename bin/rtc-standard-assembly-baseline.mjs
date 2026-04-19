@@ -1,5 +1,7 @@
 import {
   RTC_CAPABILITY_CATEGORIES,
+  RTC_CAPABILITY_NEGOTIATION_RULES,
+  RTC_CAPABILITY_NEGOTIATION_STATUSES,
   RTC_CAPABILITY_SURFACES,
   BUILTIN_RTC_PROVIDER_KEYS,
   DEFAULT_RTC_PROVIDER_KEY,
@@ -126,6 +128,27 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   if (!hasExactArray(capabilityStandard.surfaceTerms, RTC_CAPABILITY_SURFACES)) {
     throw new Error(
       `capabilityStandard.surfaceTerms must be ${RTC_CAPABILITY_SURFACES.join(', ')}`,
+    );
+  }
+
+  const capabilityNegotiationStandard = assembly.capabilityNegotiationStandard ?? {};
+  if (
+    !hasExactArray(
+      capabilityNegotiationStandard.statusTerms,
+      RTC_CAPABILITY_NEGOTIATION_STATUSES,
+    )
+  ) {
+    throw new Error(
+      `capabilityNegotiationStandard.statusTerms must be ${RTC_CAPABILITY_NEGOTIATION_STATUSES.join(', ')}`,
+    );
+  }
+
+  if (
+    JSON.stringify(capabilityNegotiationStandard.statusRules ?? {}) !==
+    JSON.stringify(RTC_CAPABILITY_NEGOTIATION_RULES)
+  ) {
+    throw new Error(
+      'capabilityNegotiationStandard.statusRules must exactly match the canonical negotiation rules',
     );
   }
 
@@ -370,6 +393,7 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     providerSupportStandard,
     providerActivationStandard,
     capabilityStandard,
+    capabilityNegotiationStandard,
     providerExtensionStandard,
     providerTierStandard,
     languageMaturityStandard,

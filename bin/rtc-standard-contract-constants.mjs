@@ -126,6 +126,18 @@ export const RTC_CAPABILITY_SURFACES = Object.freeze([
   'cross-surface',
 ]);
 
+export const RTC_CAPABILITY_NEGOTIATION_STATUSES = Object.freeze([
+  'supported',
+  'degraded',
+  'unsupported',
+]);
+
+export const RTC_CAPABILITY_NEGOTIATION_RULES = Object.freeze({
+  supported: 'all-requested-capabilities-available',
+  degraded: 'all-required-capabilities-available_optional-capabilities-missing',
+  unsupported: 'required-capabilities-missing',
+});
+
 export const RTC_PROVIDER_EXTENSION_ACCESSES = Object.freeze([
   'unwrap-only',
   'extension-object',

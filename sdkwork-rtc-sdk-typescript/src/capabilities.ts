@@ -13,6 +13,11 @@ import {
   cloneRtcCapabilitySupportState,
   freezeRtcRuntimeValue,
 } from './runtime-freeze.js';
+import {
+  RTC_CAPABILITY_NEGOTIATION_RULES,
+  RTC_CAPABILITY_NEGOTIATION_STATUSES,
+  resolveRtcCapabilityNegotiationStatus,
+} from './capability-negotiation.js';
 import type {
   RtcCapabilityNegotiationRequest,
   RtcCapabilityNegotiationResult,
@@ -117,12 +122,10 @@ export function negotiateCapabilities(
   }
 
   return cloneRtcCapabilityNegotiationResult({
-    status:
-      missingRequired.length > 0
-        ? 'unsupported'
-        : missingOptional.length > 0
-          ? 'degraded'
-          : 'supported',
+    status: resolveRtcCapabilityNegotiationStatus(
+      missingRequired.length,
+      missingOptional.length,
+    ),
     supportedRequired,
     missingRequired,
     supportedOptional,
@@ -134,7 +137,10 @@ export function negotiateCapabilities(
 export {
   OPTIONAL_RTC_CAPABILITIES,
   REQUIRED_RTC_CAPABILITIES,
+  RTC_CAPABILITY_NEGOTIATION_RULES,
+  RTC_CAPABILITY_NEGOTIATION_STATUSES,
   RTC_CAPABILITY_CATALOG,
   getRtcCapabilityCatalog,
   getRtcCapabilityDescriptor,
+  resolveRtcCapabilityNegotiationStatus,
 };

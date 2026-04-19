@@ -5,6 +5,26 @@ async function loadSdk() {
   return import('../dist/index.js');
 }
 
+test('capability negotiation standard exports stable statuses, rules, and resolver semantics', async () => {
+  const sdk = await loadSdk();
+
+  assert.deepEqual(sdk.RTC_CAPABILITY_NEGOTIATION_STATUSES, [
+    'supported',
+    'degraded',
+    'unsupported',
+  ]);
+  assert.deepEqual(sdk.RTC_CAPABILITY_NEGOTIATION_RULES, {
+    supported: 'all-requested-capabilities-available',
+    degraded: 'all-required-capabilities-available_optional-capabilities-missing',
+    unsupported: 'required-capabilities-missing',
+  });
+  assert.equal(sdk.resolveRtcCapabilityNegotiationStatus(0, 0), 'supported');
+  assert.equal(sdk.resolveRtcCapabilityNegotiationStatus(0, 2), 'degraded');
+  assert.equal(sdk.resolveRtcCapabilityNegotiationStatus(1, 0), 'unsupported');
+  assert.equal(Object.isFrozen(sdk.RTC_CAPABILITY_NEGOTIATION_STATUSES), true);
+  assert.equal(Object.isFrozen(sdk.RTC_CAPABILITY_NEGOTIATION_RULES), true);
+});
+
 test('data source negotiates optional capability degradation with surface-aware missing sets', async () => {
   const { RtcDataSource, createBuiltinRtcDriverManager } = await loadSdk();
 

@@ -619,6 +619,7 @@ function renderTypeScriptWorkspaceReadme(languageEntry, assembly) {
     ...(languageEntry.roleHighlights ?? []),
     'assembly-driven language workspace catalog at src/language-workspace-catalog.ts',
     'standard provider selection helpers at src/provider-selection.ts',
+    'standard capability negotiation helpers at src/capability-negotiation.ts',
     'standard provider support helpers at src/provider-support.ts',
     'assembly-driven provider package catalog at src/provider-package-catalog.ts',
     'standard provider package loader and installer SPI at src/provider-package-loader.ts',
@@ -819,6 +820,14 @@ function renderCapabilityMatrix(assembly) {
       assembly.capabilityStandard?.surfaceTerms ?? [],
     )}`,
   ].join('\n');
+  const capabilityNegotiationStandardLines = [
+    `- \`capabilityNegotiationStandard.statusTerms\`: ${renderMarkdownCodeList(
+      assembly.capabilityNegotiationStandard?.statusTerms ?? [],
+    )}`,
+    `- \`capabilityNegotiationStandard.statusRules.supported\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.supported ?? ''}\``,
+    `- \`capabilityNegotiationStandard.statusRules.degraded\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.degraded ?? ''}\``,
+    `- \`capabilityNegotiationStandard.statusRules.unsupported\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.unsupported ?? ''}\``,
+  ].join('\n');
   const providerExtensionStandardLines = [
     `- \`providerExtensionStandard.accessTerms\`: ${renderMarkdownCodeList(
       assembly.providerExtensionStandard?.accessTerms ?? [],
@@ -874,6 +883,10 @@ ${languageMaturitySummaryLines}
 ## Capability Standard
 
 ${capabilityStandardLines}
+
+## Capability Negotiation Standard
+
+${capabilityNegotiationStandardLines}
 
 ## Provider Extension Standard
 

@@ -28,8 +28,9 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerSupportContract` materialized into every language workspace catalog
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
-- the assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`,
-  and `languageMaturityStandard` materialized into docs and matrix assets
+- the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
+  `providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard`
+  materialized into docs and matrix assets
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -117,6 +118,8 @@ The root verifier must confirm:
 - `.sdkwork-assembly.json` declares `providerActivationStandard.statusTerms`
 - `.sdkwork-assembly.json` declares `capabilityStandard.categoryTerms` and
   `capabilityStandard.surfaceTerms`
+- `.sdkwork-assembly.json` declares `capabilityNegotiationStandard.statusTerms` and
+  `capabilityNegotiationStandard.statusRules`
 - `.sdkwork-assembly.json` declares `providerExtensionStandard.accessTerms` and
   `providerExtensionStandard.statusTerms`
 - `.sdkwork-assembly.json` declares `providerTierStandard.tierTerms` and
@@ -301,6 +304,9 @@ The root verifier must confirm:
 - the TypeScript provider package runtime bridge prerequisite contract stays aligned
 - the TypeScript provider selection module exists and preserves the standard selection tokens and
   precedence sources
+- the TypeScript capability negotiation module exists and preserves
+  `RTC_CAPABILITY_NEGOTIATION_STATUSES`, `RTC_CAPABILITY_NEGOTIATION_RULES`, and
+  `resolveRtcCapabilityNegotiationStatus(...)`
 - the TypeScript provider support module exists and preserves the standard support-status tokens,
   status set, and the public helpers `resolveRtcProviderSupportStatus(...)` and
   `createRtcProviderSupportState(...)`

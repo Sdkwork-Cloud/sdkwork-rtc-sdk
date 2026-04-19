@@ -27,6 +27,7 @@ Rules:
 - provider package descriptors for the TypeScript baseline materialize into
   `src/provider-package-catalog.ts`
 - provider selection helpers live in `src/provider-selection.ts`
+- capability negotiation helpers live in `src/capability-negotiation.ts`
 - provider support helpers live in `src/provider-support.ts`
 - the materialized provider catalog must expose `DEFAULT_RTC_PROVIDER_KEY`,
   `DEFAULT_RTC_PROVIDER_PLUGIN_ID`, and `DEFAULT_RTC_PROVIDER_DRIVER_ID`
@@ -94,6 +95,10 @@ Rules:
 - `.sdkwork-assembly.json` must declare `providerSupportStandard.statusTerms`
 - the provider support status set is fixed as `builtin_registered`, `official_registered`,
   `official_unregistered`, and `unknown`
+- the capability negotiation module must expose `RTC_CAPABILITY_NEGOTIATION_STATUSES`,
+  `RTC_CAPABILITY_NEGOTIATION_RULES`, and `resolveRtcCapabilityNegotiationStatus(...)`
+- `.sdkwork-assembly.json` must declare `capabilityNegotiationStandard.statusTerms` and
+  `capabilityNegotiationStandard.statusRules`
 - reserved non-TypeScript language resolution scaffolds must delegate provider-support
   classification to that standalone helper module after provider catalog and provider activation
   lookup instead of re-embedding status logic inside driver managers
@@ -132,6 +137,8 @@ Rules:
 - provider extension access values are standardized as `unwrap-only` or `extension-object`
 - provider extension status values are standardized as `reference-baseline` or `reserved`
 - `capabilityStandard` is the canonical source for capability `categoryTerms` and `surfaceTerms`
+- `capabilityNegotiationStandard` is the canonical source for capability negotiation `statusTerms`
+  and `statusRules`
 - `providerExtensionStandard` is the canonical source for provider extension `accessTerms` and
   `statusTerms`
 - `providerTierStandard` is the canonical source for provider `tierTerms` and `tierSummaries`

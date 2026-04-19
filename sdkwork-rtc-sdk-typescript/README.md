@@ -29,6 +29,7 @@ Current role:
 - TypeScript runtime bridge baseline reference-baseline with official vendor SDK requirement required
 - assembly-driven language workspace catalog at src/language-workspace-catalog.ts
 - standard provider selection helpers at src/provider-selection.ts
+- standard capability negotiation helpers at src/capability-negotiation.ts
 - standard provider support helpers at src/provider-support.ts
 - assembly-driven provider package catalog at src/provider-package-catalog.ts
 - standard provider package loader and installer SPI at src/provider-package-loader.ts

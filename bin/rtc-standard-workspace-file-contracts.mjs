@@ -16,6 +16,7 @@ export const RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES = Object.freeze([
   'sdkwork-rtc-sdk-typescript/README.md',
   'sdkwork-rtc-sdk-typescript/bin/package-task.mjs',
   'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',
+  'sdkwork-rtc-sdk-typescript/src/capability-negotiation.ts',
   'sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts',
   'sdkwork-rtc-sdk-typescript/src/provider-selection.ts',
   'sdkwork-rtc-sdk-typescript/src/provider-support.ts',

@@ -51,6 +51,18 @@
       "cross-surface"
     ]
   },
+  "capabilityNegotiationStandard": {
+    "statusTerms": [
+      "supported",
+      "degraded",
+      "unsupported"
+    ],
+    "statusRules": {
+      "supported": "all-requested-capabilities-available",
+      "degraded": "all-required-capabilities-available_optional-capabilities-missing",
+      "unsupported": "required-capabilities-missing"
+    }
+  },
   "providerExtensionStandard": {
     "accessTerms": [
       "unwrap-only",

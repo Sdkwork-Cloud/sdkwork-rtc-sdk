@@ -19,6 +19,13 @@ support boundaries, and maturity tiers stay exact and verifiable.
 - `capabilityStandard.categoryTerms`: `required-baseline`, `optional-advanced`
 - `capabilityStandard.surfaceTerms`: `control-plane`, `runtime-bridge`, `cross-surface`
 
+## Capability Negotiation Standard
+
+- `capabilityNegotiationStandard.statusTerms`: `supported`, `degraded`, `unsupported`
+- `capabilityNegotiationStandard.statusRules.supported`: `all-requested-capabilities-available`
+- `capabilityNegotiationStandard.statusRules.degraded`: `all-required-capabilities-available_optional-capabilities-missing`
+- `capabilityNegotiationStandard.statusRules.unsupported`: `required-capabilities-missing`
+
 ## Provider Extension Standard
 
 - `providerExtensionStandard.accessTerms`: `unwrap-only`, `extension-object`

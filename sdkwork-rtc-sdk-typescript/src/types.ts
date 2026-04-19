@@ -84,6 +84,10 @@ export interface RtcCapabilityNegotiationRequest {
 }
 
 export type RtcCapabilityNegotiationStatus = 'supported' | 'degraded' | 'unsupported';
+export type RtcCapabilityNegotiationRule =
+  | 'all-requested-capabilities-available'
+  | 'all-required-capabilities-available_optional-capabilities-missing'
+  | 'required-capabilities-missing';
 
 export interface RtcCapabilityNegotiationSurfaceMap {
   controlPlane: readonly RtcCapabilityKey[];

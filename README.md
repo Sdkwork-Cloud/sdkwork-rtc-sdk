@@ -35,8 +35,9 @@ This workspace standardizes:
 - provider extension metadata and escape hatch contracts from one assembly source of truth
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
-- assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`, and
-  `languageMaturityStandard` vocabularies
+- assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
+  `providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard`
+  vocabularies
 - assembly-driven `typescriptAdapterStandard` and `typescriptPackageStandard` contracts for
   TypeScript provider adapter and package identity normalization
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
@@ -95,6 +96,8 @@ The top-level assembly also fixes the shared vocabulary standards:
 
 - `capabilityStandard.categoryTerms`
 - `capabilityStandard.surfaceTerms`
+- `capabilityNegotiationStandard.statusTerms`
+- `capabilityNegotiationStandard.statusRules`
 - `providerExtensionStandard.accessTerms`
 - `providerExtensionStandard.statusTerms`
 - `providerTierStandard.tierTerms`
@@ -179,6 +182,12 @@ The TypeScript capability catalog module at `sdkwork-rtc-sdk-typescript/src/capa
 must also keep `getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)` stable so
 capability metadata stays queryable by capability key instead of being reimplemented through ad hoc
 array scans.
+
+The TypeScript capability negotiation module at
+`sdkwork-rtc-sdk-typescript/src/capability-negotiation.ts` must also keep
+`RTC_CAPABILITY_NEGOTIATION_STATUSES`, `RTC_CAPABILITY_NEGOTIATION_RULES`, and
+`resolveRtcCapabilityNegotiationStatus(...)` stable so negotiation outcomes and downgrade rules stay
+assembly-governed instead of being re-embedded as ad hoc string literals inside runtime entrypoints.
 
 The TypeScript provider-package catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts` must also keep

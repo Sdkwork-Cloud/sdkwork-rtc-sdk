@@ -14,6 +14,9 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.parseRtcProviderUrl, 'function');
   assert.equal(typeof sdk.RTC_PROVIDER_SELECTION_SOURCES, 'object');
   assert.equal(typeof sdk.RTC_PROVIDER_SELECTION_PRECEDENCE, 'object');
+  assert.equal(typeof sdk.resolveRtcCapabilityNegotiationStatus, 'function');
+  assert.equal(typeof sdk.RTC_CAPABILITY_NEGOTIATION_STATUSES, 'object');
+  assert.equal(typeof sdk.RTC_CAPABILITY_NEGOTIATION_RULES, 'object');
   assert.equal(typeof sdk.resolveRtcProviderSupportStatus, 'function');
   assert.equal(typeof sdk.createRtcProviderSupportState, 'function');
   assert.equal(typeof sdk.RTC_PROVIDER_SUPPORT_STATUSES, 'object');

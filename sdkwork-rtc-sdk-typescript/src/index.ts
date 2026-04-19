@@ -1,6 +1,7 @@
 export * from './errors.js';
 export * from './types.js';
 export * from './capability-catalog.js';
+export * from './capability-negotiation.js';
 export * from './language-workspace-catalog.js';
 export * from './provider-selection.js';
 export * from './provider-support.js';

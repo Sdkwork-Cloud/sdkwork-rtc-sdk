@@ -100,8 +100,9 @@ catalog must preserve it through `providerPackageBoundaryContract.modeTerms`,
 Provider adapters must consume those standard vocabularies and must not invent alternate
 package-boundary status or root-public-policy terms locally.
 
-The assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`, and
-`languageMaturityStandard` are also canonical.
+The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
+`providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard` are also
+canonical.
 Provider adapters, catalogs, and docs must consume those top-level vocabularies instead of
 redeclaring capability categories, capability surfaces, extension access/status terms, provider
 tiers, or language maturity tiers in isolated module-local constants.
@@ -405,6 +406,11 @@ Unsupported capabilities must not be faked.
 ## Capability Negotiation Rule
 
 The core contract must support explicit capability negotiation and degradation decisions.
+The TypeScript executable baseline keeps that contract explicit through
+`src/capability-negotiation.ts`, which owns `RTC_CAPABILITY_NEGOTIATION_STATUSES`,
+`RTC_CAPABILITY_NEGOTIATION_RULES`, and `resolveRtcCapabilityNegotiationStatus(...)`.
+The assembly-driven `capabilityNegotiationStandard` is canonical for both status vocabulary and
+status-rule vocabulary.
 
 Stable negotiation result statuses are:
 

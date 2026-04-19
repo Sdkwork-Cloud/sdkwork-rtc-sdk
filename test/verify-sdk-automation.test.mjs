@@ -43,6 +43,8 @@ import {
 } from '../bin/verify-sdk-standard-constants.mjs';
 import {
   BUILTIN_RTC_PROVIDER_KEYS,
+  RTC_CAPABILITY_NEGOTIATION_RULES,
+  RTC_CAPABILITY_NEGOTIATION_STATUSES,
   DEFAULT_RTC_PROVIDER_KEY,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
@@ -104,6 +106,10 @@ const EXPECTED_TYPESCRIPT_PACKAGE_STANDARD = {
   metadataSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_METADATA',
   moduleSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_MODULE',
   rootPublicRule: 'builtin-aligned',
+};
+const EXPECTED_CAPABILITY_NEGOTIATION_STANDARD = {
+  statusTerms: RTC_CAPABILITY_NEGOTIATION_STATUSES,
+  statusRules: RTC_CAPABILITY_NEGOTIATION_RULES,
 };
 
 function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
@@ -215,6 +221,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /providerActivationContract/);
   assert.match(rootReadme, /providerPackageBoundaryContract/);
   assert.match(rootReadme, /capabilityStandard/);
+  assert.match(rootReadme, /capabilityNegotiationStandard/);
   assert.match(rootReadme, /providerExtensionStandard/);
   assert.match(rootReadme, /providerTierStandard/);
   assert.match(rootReadme, /languageMaturityStandard/);
@@ -255,6 +262,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /providerActivationContract/);
   assert.match(docsReadme, /providerPackageBoundaryContract/);
   assert.match(docsReadme, /capabilityStandard/);
+  assert.match(docsReadme, /capabilityNegotiationStandard/);
   assert.match(docsReadme, /providerExtensionStandard/);
   assert.match(docsReadme, /providerTierStandard/);
   assert.match(docsReadme, /languageMaturityStandard/);
@@ -298,6 +306,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /providerActivationStandard/);
   assert.match(packageStandards, /providerPackageBoundaryStandard/);
   assert.match(packageStandards, /capabilityStandard/);
+  assert.match(packageStandards, /capabilityNegotiationStandard/);
   assert.match(packageStandards, /providerExtensionStandard/);
   assert.match(packageStandards, /providerTierStandard/);
   assert.match(packageStandards, /languageMaturityStandard/);
@@ -412,6 +421,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /providerActivationStandard/);
   assert.match(providerAdapterStandard, /providerPackageBoundaryStandard/);
   assert.match(providerAdapterStandard, /capabilityStandard/);
+  assert.match(providerAdapterStandard, /capabilityNegotiationStandard/);
   assert.match(providerAdapterStandard, /providerExtensionStandard/);
   assert.match(providerAdapterStandard, /providerTierStandard/);
   assert.match(providerAdapterStandard, /languageMaturityStandard/);
@@ -513,11 +523,13 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /providerActivationStandard/);
   assert.match(verificationMatrix, /providerPackageBoundaryStandard/);
   assert.match(verificationMatrix, /capabilityStandard/);
+  assert.match(verificationMatrix, /capabilityNegotiationStandard/);
   assert.match(verificationMatrix, /providerExtensionStandard/);
   assert.match(verificationMatrix, /providerTierStandard/);
   assert.match(verificationMatrix, /languageMaturityStandard/);
   assert.match(verificationMatrix, /typescriptAdapterStandard/);
   assert.match(verificationMatrix, /typescriptPackageStandard/);
+  assert.match(capabilityMatrix, /capabilityNegotiationStandard/);
   assert.match(verificationMatrix, /providerActivations/);
   assert.match(verificationMatrix, /typescriptPackage/);
   assert.match(verificationMatrix, /providerPackageBoundary/);
@@ -771,6 +783,10 @@ test('rtc assembly declares official languages and default provider', () => {
     categoryTerms: RTC_CAPABILITY_CATEGORIES,
     surfaceTerms: RTC_CAPABILITY_SURFACES,
   });
+  assert.deepEqual(
+    assembly.capabilityNegotiationStandard,
+    EXPECTED_CAPABILITY_NEGOTIATION_STANDARD,
+  );
   assert.deepEqual(assembly.providerExtensionStandard, {
     accessTerms: ['unwrap-only', 'extension-object'],
     statusTerms: ['reference-baseline', 'reserved'],

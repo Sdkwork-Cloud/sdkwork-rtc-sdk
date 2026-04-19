@@ -10,7 +10,7 @@ Current docs:
   JDBC-style driver and adapter rules.
 - `multilanguage-capability-matrix.md`
   Capability catalog, provider extension catalog, provider tiers, language roles, maturity tiers,
-  `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`,
+  `capabilityStandard`, `capabilityNegotiationStandard`, `providerExtensionStandard`, `providerTierStandard`,
   `languageMaturityStandard`,
   runtime support boundaries, assembly-driven language workspace catalog paths, cross-language
   `providerPackageBoundary` modes and root-public policies, TypeScript runtime bridge baselines,
@@ -36,6 +36,10 @@ The TypeScript executable baseline fixes these standard modules as the executabl
   standardized by provider key.
 - provider selection: `sdkwork-rtc-sdk-typescript/src/provider-selection.ts`
   Keeps JDBC-style provider selection precedence explicit.
+- capability negotiation: `sdkwork-rtc-sdk-typescript/src/capability-negotiation.ts`
+  Keeps `RTC_CAPABILITY_NEGOTIATION_STATUSES`, `RTC_CAPABILITY_NEGOTIATION_RULES`, and
+  `resolveRtcCapabilityNegotiationStatus(...)` explicit so capability negotiation statuses,
+  downgrade rules, and resolution semantics stay standardized.
 - provider support: `sdkwork-rtc-sdk-typescript/src/provider-support.ts`
   Keeps provider support classification and support-state construction explicit.
 - provider package catalog: `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts`
@@ -63,9 +67,10 @@ The TypeScript executable baseline fixes these standard modules as the executabl
   TypeScript-only package manifests or reserved-language scaffold prose.
   The same catalog also preserves the assembly-driven top-level standards
   `providerSelectionStandard`, `providerSupportStandard`, `providerActivationStandard`,
-  `providerPackageBoundaryStandard`, `capabilityStandard`, `providerExtensionStandard`,
-  `providerTierStandard`, `languageMaturityStandard`, `typescriptAdapterStandard`, and
-  `typescriptPackageStandard` through those machine-readable contracts.
+  `providerPackageBoundaryStandard`, `capabilityStandard`, `capabilityNegotiationStandard`,
+  `providerExtensionStandard`, `providerTierStandard`, `languageMaturityStandard`,
+  `typescriptAdapterStandard`, and `typescriptPackageStandard` through those machine-readable
+  contracts.
   TypeScript stays `catalog-governed-mixed` with `rootPublicPolicy` set to `builtin-only`,
   while reserved languages stay `scaffold-per-provider-package` with `rootPublicPolicy` set to
   `none`.
