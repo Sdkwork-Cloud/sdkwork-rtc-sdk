@@ -207,6 +207,7 @@ test('materialized rtc language workspace catalog matches the assembly language 
     languageWorkspaceCatalog.RTC_LANGUAGE_WORKSPACE_CATALOG.map((entry) => ({
       language: entry.language,
       workspace: entry.workspace,
+      workspaceCatalogRelativePath: entry.workspaceCatalogRelativePath,
       displayName: entry.displayName,
       publicPackage: entry.publicPackage,
       maturityTier: entry.maturityTier,
@@ -215,10 +216,14 @@ test('materialized rtc language workspace catalog matches the assembly language 
       currentRole: entry.currentRole,
       workspaceSummary: entry.workspaceSummary,
       roleHighlights: entry.roleHighlights,
+      metadataScaffold: entry.metadataScaffold,
+      resolutionScaffold: entry.resolutionScaffold,
+      providerPackageScaffold: entry.providerPackageScaffold,
     })),
     assembly.languages.map((languageEntry) => ({
       language: languageEntry.language,
       workspace: languageEntry.workspace,
+      workspaceCatalogRelativePath: languageEntry.workspaceCatalogRelativePath,
       displayName: languageEntry.displayName,
       publicPackage: languageEntry.publicPackage,
       maturityTier: languageEntry.maturityTier,
@@ -227,6 +232,9 @@ test('materialized rtc language workspace catalog matches the assembly language 
       currentRole: languageEntry.currentRole,
       workspaceSummary: languageEntry.workspaceSummary,
       roleHighlights: languageEntry.roleHighlights,
+      metadataScaffold: languageEntry.metadataScaffold,
+      resolutionScaffold: languageEntry.resolutionScaffold,
+      providerPackageScaffold: languageEntry.providerPackageScaffold,
     })),
   );
   assert.equal(typeof rootSdk.getRtcLanguageWorkspaceByLanguage, 'function');
@@ -269,6 +277,17 @@ test('materialized rtc provider catalog is runtime-frozen', async () => {
   assert.equal(Object.isFrozen(provider.typescriptAdapter), true);
   assert.equal(Object.isFrozen(provider.typescriptPackage), true);
   assert.equal(Object.isFrozen(languageWorkspaceEntry.roleHighlights), true);
+  if (languageWorkspaceEntry.metadataScaffold) {
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.metadataScaffold), true);
+  }
+  if (languageWorkspaceEntry.resolutionScaffold) {
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.resolutionScaffold), true);
+  }
+  if (languageWorkspaceEntry.providerPackageScaffold) {
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.providerPackageScaffold), true);
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.providerPackageScaffold.templateTokens), true);
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.providerPackageScaffold.sourceTemplateTokens), true);
+  }
   assert.throws(() => {
     provider.displayName = 'drifted provider';
   }, /TypeError/);

@@ -667,6 +667,20 @@
         "TypeScript provider package statuses standardize built-in root-public packages as root_public_reference_boundary and executable non-builtin packages as package_reference_boundary",
         "TypeScript runtime bridge baseline reference-baseline with official vendor SDK requirement required"
       ],
+      "metadataScaffold": {
+        "providerCatalogRelativePath": "src/provider-catalog.ts",
+        "capabilityCatalogRelativePath": "src/capability-catalog.ts",
+        "providerExtensionCatalogRelativePath": "src/provider-extension-catalog.ts",
+        "providerPackageCatalogRelativePath": "src/provider-package-catalog.ts",
+        "providerActivationCatalogRelativePath": "src/provider-activation-catalog.ts",
+        "providerSelectionRelativePath": "src/provider-selection.ts"
+      },
+      "resolutionScaffold": {
+        "driverManagerRelativePath": "src/driver-manager.ts",
+        "dataSourceRelativePath": "src/data-source.ts",
+        "providerSupportRelativePath": "src/provider-support.ts",
+        "providerPackageLoaderRelativePath": "src/provider-package-loader.ts"
+      },
       "providerActivations": [
         {
           "providerKey": "volcengine",

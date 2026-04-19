@@ -44,6 +44,9 @@ native client factories and expose vendor escape hatches through `unwrap()`.
 Language workspace catalog:
 
 - workspace catalog: `src/language-workspace-catalog.ts`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Standards references:

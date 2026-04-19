@@ -163,9 +163,48 @@ export type RtcProviderSelectionSource =
 
 export type RtcLanguageWorkspaceMaturityTier = 'reference' | 'reserved';
 
+export interface RtcLanguageWorkspaceMetadataScaffold {
+  providerCatalogRelativePath: string;
+  capabilityCatalogRelativePath: string;
+  providerExtensionCatalogRelativePath: string;
+  providerPackageCatalogRelativePath: string;
+  providerActivationCatalogRelativePath: string;
+  providerSelectionRelativePath: string;
+}
+
+export interface RtcLanguageWorkspaceResolutionScaffold {
+  driverManagerRelativePath: string;
+  dataSourceRelativePath: string;
+  providerSupportRelativePath: string;
+  providerPackageLoaderRelativePath: string;
+}
+
+export type RtcProviderPackageRuntimeBridgeStatus =
+  | RtcTypeScriptAdapterContract['runtimeBridgeStatus']
+  | 'reserved';
+
+export type RtcLanguageWorkspaceProviderPackageScaffoldStatus =
+  | 'future-runtime-bridge-only';
+
+export interface RtcLanguageWorkspaceProviderPackageScaffold {
+  relativePath: string;
+  directoryPattern: string;
+  packagePattern: string;
+  manifestFileName: string;
+  readmeFileName: string;
+  sourceFilePattern: string;
+  sourceSymbolPattern: string;
+  templateTokens: readonly string[];
+  sourceTemplateTokens: readonly string[];
+  runtimeBridgeStatus: RtcProviderPackageRuntimeBridgeStatus;
+  rootPublic: boolean;
+  status: RtcLanguageWorkspaceProviderPackageScaffoldStatus;
+}
+
 export interface RtcLanguageWorkspaceCatalogEntry {
   language: string;
   workspace: string;
+  workspaceCatalogRelativePath: string;
   displayName: string;
   publicPackage: string;
   maturityTier: RtcLanguageWorkspaceMaturityTier;
@@ -174,6 +213,9 @@ export interface RtcLanguageWorkspaceCatalogEntry {
   currentRole: string;
   workspaceSummary: string;
   roleHighlights: readonly string[];
+  metadataScaffold?: RtcLanguageWorkspaceMetadataScaffold;
+  resolutionScaffold?: RtcLanguageWorkspaceResolutionScaffold;
+  providerPackageScaffold?: RtcLanguageWorkspaceProviderPackageScaffold;
 }
 
 export type RtcProviderPackageCatalogStatus =

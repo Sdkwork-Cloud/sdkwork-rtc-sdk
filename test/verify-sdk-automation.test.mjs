@@ -1481,6 +1481,7 @@ test('official language workspaces expose language workspace catalog assets', ()
     for (const token of [
       'language',
       'workspace',
+      'workspaceCatalogRelativePath',
       'displayName',
       'publicPackage',
       'maturityTier',
@@ -1489,6 +1490,9 @@ test('official language workspaces expose language workspace catalog assets', ()
       'currentRole',
       'workspaceSummary',
       'roleHighlights',
+      'metadataScaffold',
+      'resolutionScaffold',
+      'providerPackageScaffold',
     ]) {
       assert.equal(
         matchesReservedLanguageToken(languageEntry.language, content, token),

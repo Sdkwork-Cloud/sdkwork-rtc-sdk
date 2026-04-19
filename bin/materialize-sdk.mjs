@@ -275,6 +275,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
   return (assembly.languages ?? []).map((languageEntry) => ({
     language: languageEntry.language,
     workspace: languageEntry.workspace,
+    workspaceCatalogRelativePath: languageEntry.workspaceCatalogRelativePath,
     displayName: languageEntry.displayName,
     publicPackage: languageEntry.publicPackage,
     maturityTier: languageEntry.maturityTier,
@@ -283,6 +284,47 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     currentRole: languageEntry.currentRole,
     workspaceSummary: languageEntry.workspaceSummary,
     roleHighlights: [...(languageEntry.roleHighlights ?? [])],
+    metadataScaffold: languageEntry.metadataScaffold
+      ? {
+          providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
+          capabilityCatalogRelativePath: languageEntry.metadataScaffold.capabilityCatalogRelativePath,
+          providerExtensionCatalogRelativePath:
+            languageEntry.metadataScaffold.providerExtensionCatalogRelativePath,
+          providerPackageCatalogRelativePath:
+            languageEntry.metadataScaffold.providerPackageCatalogRelativePath,
+          providerActivationCatalogRelativePath:
+            languageEntry.metadataScaffold.providerActivationCatalogRelativePath,
+          providerSelectionRelativePath:
+            languageEntry.metadataScaffold.providerSelectionRelativePath,
+        }
+      : undefined,
+    resolutionScaffold: languageEntry.resolutionScaffold
+      ? {
+          driverManagerRelativePath: languageEntry.resolutionScaffold.driverManagerRelativePath,
+          dataSourceRelativePath: languageEntry.resolutionScaffold.dataSourceRelativePath,
+          providerSupportRelativePath: languageEntry.resolutionScaffold.providerSupportRelativePath,
+          providerPackageLoaderRelativePath:
+            languageEntry.resolutionScaffold.providerPackageLoaderRelativePath,
+        }
+      : undefined,
+    providerPackageScaffold: languageEntry.providerPackageScaffold
+      ? {
+          relativePath: languageEntry.providerPackageScaffold.relativePath,
+          directoryPattern: languageEntry.providerPackageScaffold.directoryPattern,
+          packagePattern: languageEntry.providerPackageScaffold.packagePattern,
+          manifestFileName: languageEntry.providerPackageScaffold.manifestFileName,
+          readmeFileName: languageEntry.providerPackageScaffold.readmeFileName,
+          sourceFilePattern: languageEntry.providerPackageScaffold.sourceFilePattern,
+          sourceSymbolPattern: languageEntry.providerPackageScaffold.sourceSymbolPattern,
+          templateTokens: [...(languageEntry.providerPackageScaffold.templateTokens ?? [])],
+          sourceTemplateTokens: [
+            ...(languageEntry.providerPackageScaffold.sourceTemplateTokens ?? []),
+          ],
+          runtimeBridgeStatus: languageEntry.providerPackageScaffold.runtimeBridgeStatus,
+          rootPublic: languageEntry.providerPackageScaffold.rootPublic === true,
+          status: languageEntry.providerPackageScaffold.status,
+        }
+      : undefined,
   }));
 }
 
@@ -295,7 +337,59 @@ function renderLanguageWorkspaceCatalogSection(languageEntry) {
 Language workspace catalog:
 
 - workspace catalog: \`${languageEntry.workspaceCatalogRelativePath}\`
+- workspace catalog entries also keep \`workspaceCatalogRelativePath\` plus any declared
+  \`metadataScaffold\`, \`resolutionScaffold\`, and \`providerPackageScaffold\` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 `;
+}
+
+function renderTypeScriptLanguageWorkspaceMetadataScaffold(metadataScaffold) {
+  if (!metadataScaffold) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    providerCatalogRelativePath: ${renderStringLiteral(metadataScaffold.providerCatalogRelativePath)},
+    capabilityCatalogRelativePath: ${renderStringLiteral(metadataScaffold.capabilityCatalogRelativePath)},
+    providerExtensionCatalogRelativePath: ${renderStringLiteral(metadataScaffold.providerExtensionCatalogRelativePath)},
+    providerPackageCatalogRelativePath: ${renderStringLiteral(metadataScaffold.providerPackageCatalogRelativePath)},
+    providerActivationCatalogRelativePath: ${renderStringLiteral(metadataScaffold.providerActivationCatalogRelativePath)},
+    providerSelectionRelativePath: ${renderStringLiteral(metadataScaffold.providerSelectionRelativePath)},
+  })`;
+}
+
+function renderTypeScriptLanguageWorkspaceResolutionScaffold(resolutionScaffold) {
+  if (!resolutionScaffold) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    driverManagerRelativePath: ${renderStringLiteral(resolutionScaffold.driverManagerRelativePath)},
+    dataSourceRelativePath: ${renderStringLiteral(resolutionScaffold.dataSourceRelativePath)},
+    providerSupportRelativePath: ${renderStringLiteral(resolutionScaffold.providerSupportRelativePath)},
+    providerPackageLoaderRelativePath: ${renderStringLiteral(resolutionScaffold.providerPackageLoaderRelativePath)},
+  })`;
+}
+
+function renderTypeScriptLanguageWorkspaceProviderPackageScaffold(providerPackageScaffold) {
+  if (!providerPackageScaffold) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    relativePath: ${renderStringLiteral(providerPackageScaffold.relativePath)},
+    directoryPattern: ${renderStringLiteral(providerPackageScaffold.directoryPattern)},
+    packagePattern: ${renderStringLiteral(providerPackageScaffold.packagePattern)},
+    manifestFileName: ${renderStringLiteral(providerPackageScaffold.manifestFileName)},
+    readmeFileName: ${renderStringLiteral(providerPackageScaffold.readmeFileName)},
+    sourceFilePattern: ${renderStringLiteral(providerPackageScaffold.sourceFilePattern)},
+    sourceSymbolPattern: ${renderStringLiteral(providerPackageScaffold.sourceSymbolPattern)},
+    templateTokens: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageScaffold.templateTokens)}),
+    sourceTemplateTokens: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerPackageScaffold.sourceTemplateTokens)}),
+    runtimeBridgeStatus: ${renderStringLiteral(providerPackageScaffold.runtimeBridgeStatus)},
+    rootPublic: ${providerPackageScaffold.rootPublic ? 'true' : 'false'},
+    status: ${renderStringLiteral(providerPackageScaffold.status)},
+  })`;
 }
 
 function renderTypeScriptLanguageWorkspaceCatalog(assembly) {
@@ -315,6 +409,7 @@ ${entries
     return `export const ${constantName}: RtcLanguageWorkspaceCatalogEntry = freezeRtcRuntimeValue({
   language: ${renderStringLiteral(entry.language)},
   workspace: ${renderStringLiteral(entry.workspace)},
+  workspaceCatalogRelativePath: ${renderStringLiteral(entry.workspaceCatalogRelativePath)},
   displayName: ${renderStringLiteral(entry.displayName)},
   publicPackage: ${renderStringLiteral(entry.publicPackage)},
   maturityTier: ${renderStringLiteral(entry.maturityTier)},
@@ -323,6 +418,9 @@ ${entries
   currentRole: ${renderStringLiteral(entry.currentRole)},
   workspaceSummary: ${renderStringLiteral(entry.workspaceSummary)},
   roleHighlights: freezeRtcRuntimeValue(${renderReadonlyStringArray(entry.roleHighlights)}),
+  metadataScaffold: ${renderTypeScriptLanguageWorkspaceMetadataScaffold(entry.metadataScaffold)},
+  resolutionScaffold: ${renderTypeScriptLanguageWorkspaceResolutionScaffold(entry.resolutionScaffold)},
+  providerPackageScaffold: ${renderTypeScriptLanguageWorkspaceProviderPackageScaffold(entry.providerPackageScaffold)},
 });`;
   })
   .join('\n\n')}

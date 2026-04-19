@@ -27,6 +27,9 @@ This workspace is the reserved Python standard boundary for provider metadata, d
 Language workspace catalog:
 
 - workspace catalog: `sdkwork_rtc_sdk/language_workspace_catalog.py`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Package scaffold:

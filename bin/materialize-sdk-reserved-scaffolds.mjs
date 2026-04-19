@@ -8868,6 +8868,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
   return (assembly.languages ?? []).map((languageEntry) => ({
     language: languageEntry.language,
     workspace: languageEntry.workspace,
+    workspaceCatalogRelativePath: languageEntry.workspaceCatalogRelativePath,
     displayName: languageEntry.displayName,
     publicPackage: languageEntry.publicPackage,
     maturityTier: languageEntry.maturityTier,
@@ -8876,6 +8877,47 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     currentRole: languageEntry.currentRole,
     workspaceSummary: languageEntry.workspaceSummary,
     roleHighlights: [...(languageEntry.roleHighlights ?? [])],
+    metadataScaffold: languageEntry.metadataScaffold
+      ? {
+          providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
+          capabilityCatalogRelativePath: languageEntry.metadataScaffold.capabilityCatalogRelativePath,
+          providerExtensionCatalogRelativePath:
+            languageEntry.metadataScaffold.providerExtensionCatalogRelativePath,
+          providerPackageCatalogRelativePath:
+            languageEntry.metadataScaffold.providerPackageCatalogRelativePath,
+          providerActivationCatalogRelativePath:
+            languageEntry.metadataScaffold.providerActivationCatalogRelativePath,
+          providerSelectionRelativePath:
+            languageEntry.metadataScaffold.providerSelectionRelativePath,
+        }
+      : undefined,
+    resolutionScaffold: languageEntry.resolutionScaffold
+      ? {
+          driverManagerRelativePath: languageEntry.resolutionScaffold.driverManagerRelativePath,
+          dataSourceRelativePath: languageEntry.resolutionScaffold.dataSourceRelativePath,
+          providerSupportRelativePath: languageEntry.resolutionScaffold.providerSupportRelativePath,
+          providerPackageLoaderRelativePath:
+            languageEntry.resolutionScaffold.providerPackageLoaderRelativePath,
+        }
+      : undefined,
+    providerPackageScaffold: languageEntry.providerPackageScaffold
+      ? {
+          relativePath: languageEntry.providerPackageScaffold.relativePath,
+          directoryPattern: languageEntry.providerPackageScaffold.directoryPattern,
+          packagePattern: languageEntry.providerPackageScaffold.packagePattern,
+          manifestFileName: languageEntry.providerPackageScaffold.manifestFileName,
+          readmeFileName: languageEntry.providerPackageScaffold.readmeFileName,
+          sourceFilePattern: languageEntry.providerPackageScaffold.sourceFilePattern,
+          sourceSymbolPattern: languageEntry.providerPackageScaffold.sourceSymbolPattern,
+          templateTokens: [...(languageEntry.providerPackageScaffold.templateTokens ?? [])],
+          sourceTemplateTokens: [
+            ...(languageEntry.providerPackageScaffold.sourceTemplateTokens ?? []),
+          ],
+          runtimeBridgeStatus: languageEntry.providerPackageScaffold.runtimeBridgeStatus,
+          rootPublic: languageEntry.providerPackageScaffold.rootPublic === true,
+          status: languageEntry.providerPackageScaffold.status,
+        }
+      : undefined,
   }));
 }
 
@@ -8893,6 +8935,7 @@ function renderReservedLanguageWorkspaceCatalogPlan(languageEntry, assembly) {
           (entry) => `    RtcLanguageWorkspaceCatalogEntry(
       language: ${q(entry.language)},
       workspace: ${q(entry.workspace)},
+      workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)},
       displayName: ${q(entry.displayName)},
       publicPackage: ${q(entry.publicPackage)},
       maturityTier: ${q(entry.maturityTier)},
@@ -8903,6 +8946,36 @@ function renderReservedLanguageWorkspaceCatalogPlan(languageEntry, assembly) {
       roleHighlights: <String>[
 ${entry.roleHighlights.map((roleHighlight) => `        ${q(roleHighlight)},`).join('\n')}
       ],
+      metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
+        providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')},
+        capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')},
+        providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')},
+        providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')},
+        providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')},
+        providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')},
+      ),
+      resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold(
+        driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')},
+        dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')},
+        providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')},
+        providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')},
+      ),
+      providerPackageScaffold: ${entry.providerPackageScaffold
+        ? `RtcLanguageWorkspaceProviderPackageScaffold(
+        relativePath: ${q(entry.providerPackageScaffold.relativePath)},
+        directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)},
+        packagePattern: ${q(entry.providerPackageScaffold.packagePattern)},
+        manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)},
+        readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)},
+        sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)},
+        sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)},
+        templateTokens: <String>[${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}],
+        sourceTemplateTokens: <String>[${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}],
+        runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)},
+        rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'},
+        status: ${q(entry.providerPackageScaffold.status)},
+      )`
+        : 'null'},
     ),`,
         )
         .join('\n');
@@ -8915,6 +8988,7 @@ final class RtcLanguageWorkspaceCatalogEntry {
   const RtcLanguageWorkspaceCatalogEntry({
     required this.language,
     required this.workspace,
+    required this.workspaceCatalogRelativePath,
     required this.displayName,
     required this.publicPackage,
     required this.maturityTier,
@@ -8923,10 +8997,14 @@ final class RtcLanguageWorkspaceCatalogEntry {
     required this.currentRole,
     required this.workspaceSummary,
     required this.roleHighlights,
+    required this.metadataScaffold,
+    required this.resolutionScaffold,
+    required this.providerPackageScaffold,
   });
 
   final String language;
   final String workspace;
+  final String workspaceCatalogRelativePath;
   final String displayName;
   final String publicPackage;
   final String maturityTier;
@@ -8935,6 +9013,71 @@ final class RtcLanguageWorkspaceCatalogEntry {
   final String currentRole;
   final String workspaceSummary;
   final List<String> roleHighlights;
+  final RtcLanguageWorkspaceMetadataScaffold metadataScaffold;
+  final RtcLanguageWorkspaceResolutionScaffold resolutionScaffold;
+  final RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold;
+}
+
+final class RtcLanguageWorkspaceMetadataScaffold {
+  const RtcLanguageWorkspaceMetadataScaffold({
+    required this.providerCatalogRelativePath,
+    required this.capabilityCatalogRelativePath,
+    required this.providerExtensionCatalogRelativePath,
+    required this.providerPackageCatalogRelativePath,
+    required this.providerActivationCatalogRelativePath,
+    required this.providerSelectionRelativePath,
+  });
+
+  final String providerCatalogRelativePath;
+  final String capabilityCatalogRelativePath;
+  final String providerExtensionCatalogRelativePath;
+  final String providerPackageCatalogRelativePath;
+  final String providerActivationCatalogRelativePath;
+  final String providerSelectionRelativePath;
+}
+
+final class RtcLanguageWorkspaceResolutionScaffold {
+  const RtcLanguageWorkspaceResolutionScaffold({
+    required this.driverManagerRelativePath,
+    required this.dataSourceRelativePath,
+    required this.providerSupportRelativePath,
+    required this.providerPackageLoaderRelativePath,
+  });
+
+  final String driverManagerRelativePath;
+  final String dataSourceRelativePath;
+  final String providerSupportRelativePath;
+  final String providerPackageLoaderRelativePath;
+}
+
+final class RtcLanguageWorkspaceProviderPackageScaffold {
+  const RtcLanguageWorkspaceProviderPackageScaffold({
+    required this.relativePath,
+    required this.directoryPattern,
+    required this.packagePattern,
+    required this.manifestFileName,
+    required this.readmeFileName,
+    required this.sourceFilePattern,
+    required this.sourceSymbolPattern,
+    required this.templateTokens,
+    required this.sourceTemplateTokens,
+    required this.runtimeBridgeStatus,
+    required this.rootPublic,
+    required this.status,
+  });
+
+  final String relativePath;
+  final String directoryPattern;
+  final String packagePattern;
+  final String manifestFileName;
+  final String readmeFileName;
+  final String sourceFilePattern;
+  final String sourceSymbolPattern;
+  final List<String> templateTokens;
+  final List<String> sourceTemplateTokens;
+  final String runtimeBridgeStatus;
+  final bool rootPublic;
+  final String status;
 }
 
 final class RtcLanguageWorkspaceCatalog {
@@ -8955,7 +9098,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `    RtcLanguageWorkspaceCatalogEntry { language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: &[${entry.roleHighlights.map(q).join(', ')}] },`,
+            `    RtcLanguageWorkspaceCatalogEntry { language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: &[${entry.roleHighlights.map(q).join(', ')}], metadataScaffold: RtcLanguageWorkspaceMetadataScaffold { providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')} }, resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold { driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')} }, providerPackageScaffold: ${entry.providerPackageScaffold ? `Some(RtcLanguageWorkspaceProviderPackageScaffold { relativePath: ${q(entry.providerPackageScaffold.relativePath)}, directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, packagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, templateTokens: &[${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], sourceTemplateTokens: &[${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, status: ${q(entry.providerPackageScaffold.status)} })` : 'None'} },`,
         )
         .join('\n');
 
@@ -8965,9 +9108,47 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
           content: lines(`
 #[derive(Clone, Copy)]
 #[allow(non_snake_case)]
+pub struct RtcLanguageWorkspaceMetadataScaffold {
+    pub providerCatalogRelativePath: &'static str,
+    pub capabilityCatalogRelativePath: &'static str,
+    pub providerExtensionCatalogRelativePath: &'static str,
+    pub providerPackageCatalogRelativePath: &'static str,
+    pub providerActivationCatalogRelativePath: &'static str,
+    pub providerSelectionRelativePath: &'static str,
+}
+
+#[derive(Clone, Copy)]
+#[allow(non_snake_case)]
+pub struct RtcLanguageWorkspaceResolutionScaffold {
+    pub driverManagerRelativePath: &'static str,
+    pub dataSourceRelativePath: &'static str,
+    pub providerSupportRelativePath: &'static str,
+    pub providerPackageLoaderRelativePath: &'static str,
+}
+
+#[derive(Clone, Copy)]
+#[allow(non_snake_case)]
+pub struct RtcLanguageWorkspaceProviderPackageScaffold {
+    pub relativePath: &'static str,
+    pub directoryPattern: &'static str,
+    pub packagePattern: &'static str,
+    pub manifestFileName: &'static str,
+    pub readmeFileName: &'static str,
+    pub sourceFilePattern: &'static str,
+    pub sourceSymbolPattern: &'static str,
+    pub templateTokens: &'static [&'static str],
+    pub sourceTemplateTokens: &'static [&'static str],
+    pub runtimeBridgeStatus: &'static str,
+    pub rootPublic: bool,
+    pub status: &'static str,
+}
+
+#[derive(Clone, Copy)]
+#[allow(non_snake_case)]
 pub struct RtcLanguageWorkspaceCatalogEntry {
     pub language: &'static str,
     pub workspace: &'static str,
+    pub workspaceCatalogRelativePath: &'static str,
     pub displayName: &'static str,
     pub publicPackage: &'static str,
     pub maturityTier: &'static str,
@@ -8976,6 +9157,9 @@ pub struct RtcLanguageWorkspaceCatalogEntry {
     pub currentRole: &'static str,
     pub workspaceSummary: &'static str,
     pub roleHighlights: &'static [&'static str],
+    pub metadataScaffold: RtcLanguageWorkspaceMetadataScaffold,
+    pub resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold,
+    pub providerPackageScaffold: Option<RtcLanguageWorkspaceProviderPackageScaffold>,
 }
 
 pub struct RtcLanguageWorkspaceCatalog;
@@ -8993,7 +9177,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `      new RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, List.of(${entry.roleHighlights.map(q).join(', ')}))`,
+            `      new RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, List.of(${entry.roleHighlights.map(q).join(', ')}), new RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), new RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), ${entry.providerPackageScaffold ? `new RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, List.of(${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}), List.of(${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}), ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'})`,
         )
         .join(',\n');
 
@@ -9020,6 +9204,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
   public record RtcLanguageWorkspaceCatalogEntry(
       String language,
       String workspace,
+      String workspaceCatalogRelativePath,
       String displayName,
       String publicPackage,
       String maturityTier,
@@ -9027,7 +9212,44 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       boolean runtimeBridge,
       String currentRole,
       String workspaceSummary,
-      List<String> roleHighlights
+      List<String> roleHighlights,
+      RtcLanguageWorkspaceMetadataScaffold metadataScaffold,
+      RtcLanguageWorkspaceResolutionScaffold resolutionScaffold,
+      RtcLanguageWorkspaceProviderPackageScaffold providerPackageScaffold
+  ) {
+  }
+
+  public record RtcLanguageWorkspaceMetadataScaffold(
+      String providerCatalogRelativePath,
+      String capabilityCatalogRelativePath,
+      String providerExtensionCatalogRelativePath,
+      String providerPackageCatalogRelativePath,
+      String providerActivationCatalogRelativePath,
+      String providerSelectionRelativePath
+  ) {
+  }
+
+  public record RtcLanguageWorkspaceResolutionScaffold(
+      String driverManagerRelativePath,
+      String dataSourceRelativePath,
+      String providerSupportRelativePath,
+      String providerPackageLoaderRelativePath
+  ) {
+  }
+
+  public record RtcLanguageWorkspaceProviderPackageScaffold(
+      String relativePath,
+      String directoryPattern,
+      String packagePattern,
+      String manifestFileName,
+      String readmeFileName,
+      String sourceFilePattern,
+      String sourceSymbolPattern,
+      List<String> templateTokens,
+      List<String> sourceTemplateTokens,
+      String runtimeBridgeStatus,
+      boolean rootPublic,
+      String status
   ) {
   }
 }
@@ -9039,7 +9261,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        new(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, new List<string> { ${entry.roleHighlights.map(q).join(', ')} }),`,
+            `        new(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, new List<string> { ${entry.roleHighlights.map(q).join(', ')} }, new(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), new(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), ${entry.providerPackageScaffold ? `new(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, new List<string> { ${entry.providerPackageScaffold.templateTokens.map(q).join(', ')} }, new List<string> { ${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')} }, ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'}),`,
         )
         .join('\n');
 
@@ -9055,6 +9277,7 @@ namespace Sdkwork.Rtc.Sdk;
 public sealed record RtcLanguageWorkspaceCatalogEntry(
     string language,
     string workspace,
+    string workspaceCatalogRelativePath,
     string displayName,
     string publicPackage,
     string maturityTier,
@@ -9062,7 +9285,41 @@ public sealed record RtcLanguageWorkspaceCatalogEntry(
     bool runtimeBridge,
     string currentRole,
     string workspaceSummary,
-    IReadOnlyList<string> roleHighlights
+    IReadOnlyList<string> roleHighlights,
+    RtcLanguageWorkspaceMetadataScaffold metadataScaffold,
+    RtcLanguageWorkspaceResolutionScaffold resolutionScaffold,
+    RtcLanguageWorkspaceProviderPackageScaffold? providerPackageScaffold
+);
+
+public sealed record RtcLanguageWorkspaceMetadataScaffold(
+    string providerCatalogRelativePath,
+    string capabilityCatalogRelativePath,
+    string providerExtensionCatalogRelativePath,
+    string providerPackageCatalogRelativePath,
+    string providerActivationCatalogRelativePath,
+    string providerSelectionRelativePath
+);
+
+public sealed record RtcLanguageWorkspaceResolutionScaffold(
+    string driverManagerRelativePath,
+    string dataSourceRelativePath,
+    string providerSupportRelativePath,
+    string providerPackageLoaderRelativePath
+);
+
+public sealed record RtcLanguageWorkspaceProviderPackageScaffold(
+    string relativePath,
+    string directoryPattern,
+    string packagePattern,
+    string manifestFileName,
+    string readmeFileName,
+    string sourceFilePattern,
+    string sourceSymbolPattern,
+    IReadOnlyList<string> templateTokens,
+    IReadOnlyList<string> sourceTemplateTokens,
+    string runtimeBridgeStatus,
+    bool rootPublic,
+    string status
 );
 
 public static class RtcLanguageWorkspaceCatalog
@@ -9082,7 +9339,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        .init(language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: [${entry.roleHighlights.map(q).join(', ')}]),`,
+            `        .init(language: ${q(entry.language)}, workspace: ${q(entry.workspace)}, workspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, displayName: ${q(entry.displayName)}, publicPackage: ${q(entry.publicPackage)}, maturityTier: ${q(entry.maturityTier)}, controlSdk: ${entry.controlSdk ? 'true' : 'false'}, runtimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, currentRole: ${q(entry.currentRole)}, workspaceSummary: ${q(entry.workspaceSummary)}, roleHighlights: [${entry.roleHighlights.map(q).join(', ')}], metadataScaffold: .init(providerCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, capabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, providerExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, providerPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, providerActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, providerSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), resolutionScaffold: .init(driverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, dataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, providerSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, providerPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), providerPackageScaffold: ${entry.providerPackageScaffold ? `.init(relativePath: ${q(entry.providerPackageScaffold.relativePath)}, directoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, packagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, manifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, readmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, sourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, sourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, templateTokens: [${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], sourceTemplateTokens: [${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], runtimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, rootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, status: ${q(entry.providerPackageScaffold.status)})` : 'nil'}),`,
         )
         .join('\n');
 
@@ -9093,6 +9350,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
 public struct RtcLanguageWorkspaceCatalogEntry {
     public let language: String
     public let workspace: String
+    public let workspaceCatalogRelativePath: String
     public let displayName: String
     public let publicPackage: String
     public let maturityTier: String
@@ -9101,6 +9359,40 @@ public struct RtcLanguageWorkspaceCatalogEntry {
     public let currentRole: String
     public let workspaceSummary: String
     public let roleHighlights: [String]
+    public let metadataScaffold: RtcLanguageWorkspaceMetadataScaffold
+    public let resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold
+    public let providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold?
+}
+
+public struct RtcLanguageWorkspaceMetadataScaffold {
+    public let providerCatalogRelativePath: String
+    public let capabilityCatalogRelativePath: String
+    public let providerExtensionCatalogRelativePath: String
+    public let providerPackageCatalogRelativePath: String
+    public let providerActivationCatalogRelativePath: String
+    public let providerSelectionRelativePath: String
+}
+
+public struct RtcLanguageWorkspaceResolutionScaffold {
+    public let driverManagerRelativePath: String
+    public let dataSourceRelativePath: String
+    public let providerSupportRelativePath: String
+    public let providerPackageLoaderRelativePath: String
+}
+
+public struct RtcLanguageWorkspaceProviderPackageScaffold {
+    public let relativePath: String
+    public let directoryPattern: String
+    public let packagePattern: String
+    public let manifestFileName: String
+    public let readmeFileName: String
+    public let sourceFilePattern: String
+    public let sourceSymbolPattern: String
+    public let templateTokens: [String]
+    public let sourceTemplateTokens: [String]
+    public let runtimeBridgeStatus: String
+    public let rootPublic: Bool
+    public let status: String
 }
 
 public enum RtcLanguageWorkspaceCatalog {
@@ -9118,7 +9410,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, listOf(${entry.roleHighlights.map(q).join(', ')})),`,
+            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'true' : 'false'}, ${entry.runtimeBridge ? 'true' : 'false'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, listOf(${entry.roleHighlights.map(q).join(', ')}), RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), ${entry.providerPackageScaffold ? `RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, listOf(${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}), listOf(${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}), ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, ${q(entry.providerPackageScaffold.status)})` : 'null'}),`,
         )
         .join('\n');
 
@@ -9131,6 +9423,7 @@ package com.sdkwork.rtc.metadata
 data class RtcLanguageWorkspaceCatalogEntry(
     val language: String,
     val workspace: String,
+    val workspaceCatalogRelativePath: String,
     val displayName: String,
     val publicPackage: String,
     val maturityTier: String,
@@ -9139,6 +9432,40 @@ data class RtcLanguageWorkspaceCatalogEntry(
     val currentRole: String,
     val workspaceSummary: String,
     val roleHighlights: List<String>,
+    val metadataScaffold: RtcLanguageWorkspaceMetadataScaffold,
+    val resolutionScaffold: RtcLanguageWorkspaceResolutionScaffold,
+    val providerPackageScaffold: RtcLanguageWorkspaceProviderPackageScaffold?,
+)
+
+data class RtcLanguageWorkspaceMetadataScaffold(
+    val providerCatalogRelativePath: String,
+    val capabilityCatalogRelativePath: String,
+    val providerExtensionCatalogRelativePath: String,
+    val providerPackageCatalogRelativePath: String,
+    val providerActivationCatalogRelativePath: String,
+    val providerSelectionRelativePath: String,
+)
+
+data class RtcLanguageWorkspaceResolutionScaffold(
+    val driverManagerRelativePath: String,
+    val dataSourceRelativePath: String,
+    val providerSupportRelativePath: String,
+    val providerPackageLoaderRelativePath: String,
+)
+
+data class RtcLanguageWorkspaceProviderPackageScaffold(
+    val relativePath: String,
+    val directoryPattern: String,
+    val packagePattern: String,
+    val manifestFileName: String,
+    val readmeFileName: String,
+    val sourceFilePattern: String,
+    val sourceSymbolPattern: String,
+    val templateTokens: List<String>,
+    val sourceTemplateTokens: List<String>,
+    val runtimeBridgeStatus: String,
+    val rootPublic: Boolean,
+    val status: String,
 )
 
 object RtcLanguageWorkspaceCatalog {
@@ -9156,7 +9483,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `    {Language: ${q(entry.language)}, Workspace: ${q(entry.workspace)}, DisplayName: ${q(entry.displayName)}, PublicPackage: ${q(entry.publicPackage)}, MaturityTier: ${q(entry.maturityTier)}, ControlSdk: ${entry.controlSdk ? 'true' : 'false'}, RuntimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, CurrentRole: ${q(entry.currentRole)}, WorkspaceSummary: ${q(entry.workspaceSummary)}, RoleHighlights: []string{${entry.roleHighlights.map(q).join(', ')}}},`,
+            `    {Language: ${q(entry.language)}, Workspace: ${q(entry.workspace)}, WorkspaceCatalogRelativePath: ${q(entry.workspaceCatalogRelativePath)}, DisplayName: ${q(entry.displayName)}, PublicPackage: ${q(entry.publicPackage)}, MaturityTier: ${q(entry.maturityTier)}, ControlSdk: ${entry.controlSdk ? 'true' : 'false'}, RuntimeBridge: ${entry.runtimeBridge ? 'true' : 'false'}, CurrentRole: ${q(entry.currentRole)}, WorkspaceSummary: ${q(entry.workspaceSummary)}, RoleHighlights: []string{${entry.roleHighlights.map(q).join(', ')}}, MetadataScaffold: RtcLanguageWorkspaceMetadataScaffold{ProviderCatalogRelativePath: ${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, CapabilityCatalogRelativePath: ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ProviderExtensionCatalogRelativePath: ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ProviderPackageCatalogRelativePath: ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ProviderActivationCatalogRelativePath: ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ProviderSelectionRelativePath: ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}}, ResolutionScaffold: RtcLanguageWorkspaceResolutionScaffold{DriverManagerRelativePath: ${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, DataSourceRelativePath: ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ProviderSupportRelativePath: ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ProviderPackageLoaderRelativePath: ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}}, ProviderPackageScaffold: ${entry.providerPackageScaffold ? `&RtcLanguageWorkspaceProviderPackageScaffold{RelativePath: ${q(entry.providerPackageScaffold.relativePath)}, DirectoryPattern: ${q(entry.providerPackageScaffold.directoryPattern)}, PackagePattern: ${q(entry.providerPackageScaffold.packagePattern)}, ManifestFileName: ${q(entry.providerPackageScaffold.manifestFileName)}, ReadmeFileName: ${q(entry.providerPackageScaffold.readmeFileName)}, SourceFilePattern: ${q(entry.providerPackageScaffold.sourceFilePattern)}, SourceSymbolPattern: ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, TemplateTokens: []string{${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}}, SourceTemplateTokens: []string{${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}}, RuntimeBridgeStatus: ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, RootPublic: ${entry.providerPackageScaffold.rootPublic ? 'true' : 'false'}, Status: ${q(entry.providerPackageScaffold.status)}}` : 'nil'}},`,
         )
         .join('\n');
 
@@ -9167,16 +9494,51 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
 package rtcstandard
 
 type RtcLanguageWorkspaceCatalogEntry struct {
-    Language         string
-    Workspace        string
-    DisplayName      string
-    PublicPackage    string
-    MaturityTier     string
-    ControlSdk       bool
-    RuntimeBridge    bool
-    CurrentRole      string
-    WorkspaceSummary string
-    RoleHighlights   []string
+    Language                     string
+    Workspace                    string
+    WorkspaceCatalogRelativePath string
+    DisplayName                  string
+    PublicPackage                string
+    MaturityTier                 string
+    ControlSdk                   bool
+    RuntimeBridge                bool
+    CurrentRole                  string
+    WorkspaceSummary             string
+    RoleHighlights               []string
+    MetadataScaffold             RtcLanguageWorkspaceMetadataScaffold
+    ResolutionScaffold           RtcLanguageWorkspaceResolutionScaffold
+    ProviderPackageScaffold      *RtcLanguageWorkspaceProviderPackageScaffold
+}
+
+type RtcLanguageWorkspaceMetadataScaffold struct {
+    ProviderCatalogRelativePath       string
+    CapabilityCatalogRelativePath     string
+    ProviderExtensionCatalogRelativePath string
+    ProviderPackageCatalogRelativePath string
+    ProviderActivationCatalogRelativePath string
+    ProviderSelectionRelativePath     string
+}
+
+type RtcLanguageWorkspaceResolutionScaffold struct {
+    DriverManagerRelativePath     string
+    DataSourceRelativePath        string
+    ProviderSupportRelativePath   string
+    ProviderPackageLoaderRelativePath string
+}
+
+type RtcLanguageWorkspaceProviderPackageScaffold struct {
+    RelativePath        string
+    DirectoryPattern    string
+    PackagePattern      string
+    ManifestFileName    string
+    ReadmeFileName      string
+    SourceFilePattern   string
+    SourceSymbolPattern string
+    TemplateTokens      []string
+    SourceTemplateTokens []string
+    RuntimeBridgeStatus string
+    RootPublic          bool
+    Status              string
 }
 
 type RtcLanguageWorkspaceCatalog struct{}
@@ -9194,7 +9556,7 @@ ${renderReservedLanguageWorkspaceLookupHelper(languageEntry.language)}
       const workspaceEntries = entries
         .map(
           (entry) =>
-            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'True' : 'False'}, ${entry.runtimeBridge ? 'True' : 'False'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, [${entry.roleHighlights.map(q).join(', ')}]),`,
+            `        RtcLanguageWorkspaceCatalogEntry(${q(entry.language)}, ${q(entry.workspace)}, ${q(entry.workspaceCatalogRelativePath)}, ${q(entry.displayName)}, ${q(entry.publicPackage)}, ${q(entry.maturityTier)}, ${entry.controlSdk ? 'True' : 'False'}, ${entry.runtimeBridge ? 'True' : 'False'}, ${q(entry.currentRole)}, ${q(entry.workspaceSummary)}, [${entry.roleHighlights.map(q).join(', ')}], RtcLanguageWorkspaceMetadataScaffold(${q(entry.metadataScaffold?.providerCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.capabilityCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerExtensionCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerPackageCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerActivationCatalogRelativePath ?? '')}, ${q(entry.metadataScaffold?.providerSelectionRelativePath ?? '')}), RtcLanguageWorkspaceResolutionScaffold(${q(entry.resolutionScaffold?.driverManagerRelativePath ?? '')}, ${q(entry.resolutionScaffold?.dataSourceRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerSupportRelativePath ?? '')}, ${q(entry.resolutionScaffold?.providerPackageLoaderRelativePath ?? '')}), ${entry.providerPackageScaffold ? `RtcLanguageWorkspaceProviderPackageScaffold(${q(entry.providerPackageScaffold.relativePath)}, ${q(entry.providerPackageScaffold.directoryPattern)}, ${q(entry.providerPackageScaffold.packagePattern)}, ${q(entry.providerPackageScaffold.manifestFileName)}, ${q(entry.providerPackageScaffold.readmeFileName)}, ${q(entry.providerPackageScaffold.sourceFilePattern)}, ${q(entry.providerPackageScaffold.sourceSymbolPattern)}, [${entry.providerPackageScaffold.templateTokens.map(q).join(', ')}], [${entry.providerPackageScaffold.sourceTemplateTokens.map(q).join(', ')}], ${q(entry.providerPackageScaffold.runtimeBridgeStatus)}, ${entry.providerPackageScaffold.rootPublic ? 'True' : 'False'}, ${q(entry.providerPackageScaffold.status)})` : 'None'}),`,
         )
         .join('\n');
 
@@ -9210,6 +9572,7 @@ from typing import Optional
 class RtcLanguageWorkspaceCatalogEntry:
     language: str
     workspace: str
+    workspaceCatalogRelativePath: str
     displayName: str
     publicPackage: str
     maturityTier: str
@@ -9218,6 +9581,43 @@ class RtcLanguageWorkspaceCatalogEntry:
     currentRole: str
     workspaceSummary: str
     roleHighlights: list[str]
+    metadataScaffold: "RtcLanguageWorkspaceMetadataScaffold"
+    resolutionScaffold: "RtcLanguageWorkspaceResolutionScaffold"
+    providerPackageScaffold: Optional["RtcLanguageWorkspaceProviderPackageScaffold"]
+
+
+@dataclass(frozen=True)
+class RtcLanguageWorkspaceMetadataScaffold:
+    providerCatalogRelativePath: str
+    capabilityCatalogRelativePath: str
+    providerExtensionCatalogRelativePath: str
+    providerPackageCatalogRelativePath: str
+    providerActivationCatalogRelativePath: str
+    providerSelectionRelativePath: str
+
+
+@dataclass(frozen=True)
+class RtcLanguageWorkspaceResolutionScaffold:
+    driverManagerRelativePath: str
+    dataSourceRelativePath: str
+    providerSupportRelativePath: str
+    providerPackageLoaderRelativePath: str
+
+
+@dataclass(frozen=True)
+class RtcLanguageWorkspaceProviderPackageScaffold:
+    relativePath: str
+    directoryPattern: str
+    packagePattern: str
+    manifestFileName: str
+    readmeFileName: str
+    sourceFilePattern: str
+    sourceSymbolPattern: str
+    templateTokens: list[str]
+    sourceTemplateTokens: list[str]
+    runtimeBridgeStatus: str
+    rootPublic: bool
+    status: str
 
 
 class RtcLanguageWorkspaceCatalog:

@@ -27,6 +27,9 @@ This workspace is the reserved Kotlin standard boundary for provider metadata, d
 Language workspace catalog:
 
 - workspace catalog: `src/main/kotlin/com/sdkwork/rtc/metadata/RtcLanguageWorkspaceCatalog.kt`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Package scaffold:

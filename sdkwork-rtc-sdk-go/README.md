@@ -27,6 +27,9 @@ This workspace is the reserved Go standard boundary for provider metadata, drive
 Language workspace catalog:
 
 - workspace catalog: `rtcstandard/language_workspace_catalog.go`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Package scaffold:

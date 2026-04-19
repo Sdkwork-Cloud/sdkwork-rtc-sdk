@@ -27,6 +27,9 @@ This workspace is materialized now so the official language matrix stays explici
 Language workspace catalog:
 
 - workspace catalog: `lib/src/rtc_language_workspace_catalog.dart`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Package scaffold:

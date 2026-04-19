@@ -27,6 +27,9 @@ This workspace is the reserved Swift standard boundary for provider metadata, dr
 Language workspace catalog:
 
 - workspace catalog: `Sources/RtcSdk/RtcLanguageWorkspaceCatalog.swift`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Package scaffold:

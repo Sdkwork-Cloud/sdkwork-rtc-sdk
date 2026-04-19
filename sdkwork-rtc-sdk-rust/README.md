@@ -27,6 +27,9 @@ This workspace is the reserved Rust standard boundary for provider metadata, sel
 Language workspace catalog:
 
 - workspace catalog: `src/language_workspace_catalog.rs`
+- workspace catalog entries also keep `workspaceCatalogRelativePath` plus any declared
+  `metadataScaffold`, `resolutionScaffold`, and `providerPackageScaffold` boundaries so
+  consumers can inspect official assembly-driven module locations without rereading the assembly.
 
 
 Package scaffold:
