@@ -3,6 +3,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildRtcSdkMaterializationPlan, RTC_SDK_STALE_MATERIALIZED_FILES } from './materialize-sdk.mjs';
+import {
+  RTC_TEMPLATE_MATERIALIZED_FILES,
+  RTC_TEMPLATE_SOURCE_FILES,
+} from './materialize-sdk-template-assets.mjs';
 
 function fail(message) {
   throw new Error(message);
@@ -1313,21 +1317,12 @@ function getGoPublicStructFieldContracts(languageEntry) {
 
 export function verifyRtcSdkWorkspace(workspaceRoot) {
   const requiredFiles = [
-    'README.md',
     '.gitignore',
     '.sdkwork-assembly.json',
-    'docs/README.md',
-    'docs/package-standards.md',
-    'docs/provider-adapter-standard.md',
     'docs/multilanguage-capability-matrix.md',
-    'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
-    'bin/templates/root-readme.md',
-    'bin/templates/docs-readme.md',
-    'bin/templates/package-standards.md',
-    'bin/templates/provider-adapter-standard.md',
-    'bin/templates/typescript-providers-readme.md',
-    'bin/templates/verification-matrix.md',
+    ...RTC_TEMPLATE_MATERIALIZED_FILES,
+    ...RTC_TEMPLATE_SOURCE_FILES,
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
     'bin/smoke-sdk.mjs',

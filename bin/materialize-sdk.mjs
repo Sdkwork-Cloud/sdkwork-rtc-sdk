@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
+import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
 
 export const RTC_SDK_STALE_MATERIALIZED_FILES = [
   'sdkwork-rtc-sdk-typescript/src/providers/catalog.ts',
@@ -1321,33 +1322,13 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
   const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
   const assembly = readJson(assemblyPath);
   const entries = [
-    {
-      relativePath: 'README.md',
-      content: readMaterializedTemplate(workspaceRoot, 'root-readme.md'),
-    },
-    {
-      relativePath: 'docs/README.md',
-      content: readMaterializedTemplate(workspaceRoot, 'docs-readme.md'),
-    },
-    {
-      relativePath: 'docs/package-standards.md',
-      content: readMaterializedTemplate(workspaceRoot, 'package-standards.md'),
-    },
-    {
-      relativePath: 'docs/provider-adapter-standard.md',
-      content: readMaterializedTemplate(workspaceRoot, 'provider-adapter-standard.md'),
-    },
+    ...RTC_TEMPLATE_MATERIALIZATION_ASSETS.map((asset) => ({
+      relativePath: asset.materializedRelativePath,
+      content: readMaterializedTemplate(workspaceRoot, asset.templateRelativePath),
+    })),
     {
       relativePath: 'docs/multilanguage-capability-matrix.md',
       content: renderCapabilityMatrix(assembly),
-    },
-    {
-      relativePath: 'docs/verification-matrix.md',
-      content: readMaterializedTemplate(workspaceRoot, 'verification-matrix.md'),
-    },
-    {
-      relativePath: 'sdkwork-rtc-sdk-typescript/providers/README.md',
-      content: readMaterializedTemplate(workspaceRoot, 'typescript-providers-readme.md'),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',

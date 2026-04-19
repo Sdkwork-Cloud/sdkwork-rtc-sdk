@@ -4,6 +4,10 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { pathToFileURL } from 'node:url';
+import {
+  RTC_TEMPLATE_MATERIALIZED_FILES,
+  RTC_TEMPLATE_SOURCE_FILES,
+} from '../bin/materialize-sdk-template-assets.mjs';
 
 const workspaceRoot = path.resolve('sdks/sdkwork-rtc-sdk');
 const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
@@ -571,21 +575,12 @@ function createVerifierFixture(mutator) {
   const workspaceCopy = path.join(fixtureRoot, 'sdkwork-rtc-sdk');
 
   const filesToCopy = [
-    'README.md',
     '.gitignore',
     '.sdkwork-assembly.json',
-    'docs/README.md',
-    'docs/package-standards.md',
-    'docs/provider-adapter-standard.md',
     'docs/multilanguage-capability-matrix.md',
-    'docs/verification-matrix.md',
     'bin/materialize-sdk.mjs',
-    'bin/templates/root-readme.md',
-    'bin/templates/docs-readme.md',
-    'bin/templates/package-standards.md',
-    'bin/templates/provider-adapter-standard.md',
-    'bin/templates/typescript-providers-readme.md',
-    'bin/templates/verification-matrix.md',
+    ...RTC_TEMPLATE_MATERIALIZED_FILES,
+    ...RTC_TEMPLATE_SOURCE_FILES,
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
     'bin/smoke-sdk.mjs',
@@ -771,20 +766,11 @@ test('sdk overview lists sdkwork-rtc-sdk workspace', () => {
 
 test('root rtc workspace contract files exist', () => {
   const requiredFiles = [
-    'README.md',
     '.gitignore',
     '.sdkwork-assembly.json',
-    'docs/README.md',
-    'docs/package-standards.md',
-    'docs/provider-adapter-standard.md',
     'docs/multilanguage-capability-matrix.md',
-    'docs/verification-matrix.md',
-    'bin/templates/root-readme.md',
-    'bin/templates/docs-readme.md',
-    'bin/templates/package-standards.md',
-    'bin/templates/provider-adapter-standard.md',
-    'bin/templates/typescript-providers-readme.md',
-    'bin/templates/verification-matrix.md',
+    ...RTC_TEMPLATE_MATERIALIZED_FILES,
+    ...RTC_TEMPLATE_SOURCE_FILES,
   ];
 
   for (const relativePath of requiredFiles) {
@@ -3488,13 +3474,10 @@ test('root materializer repairs provider package, provider catalog, and language
 
     const firstRun = materializerModule.materializeRtcSdkWorkspace(fixture.workspaceCopy);
     assert.ok(firstRun.changedFiles.length >= 7);
-    assert.ok(firstRun.changedFiles.includes('README.md'));
-    assert.ok(firstRun.changedFiles.includes('docs/README.md'));
-    assert.ok(firstRun.changedFiles.includes('docs/package-standards.md'));
-    assert.ok(firstRun.changedFiles.includes('docs/provider-adapter-standard.md'));
+    for (const relativePath of RTC_TEMPLATE_MATERIALIZED_FILES) {
+      assert.ok(firstRun.changedFiles.includes(relativePath));
+    }
     assert.ok(firstRun.changedFiles.includes('docs/multilanguage-capability-matrix.md'));
-    assert.ok(firstRun.changedFiles.includes('docs/verification-matrix.md'));
-    assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-typescript/providers/README.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/provider-package-scaffold.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/pom.xml'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/README.md'));
