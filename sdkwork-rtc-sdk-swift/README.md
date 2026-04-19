@@ -20,7 +20,7 @@ Current role:
 - no runtime bridge is claimed in the current landing
 - code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
 - metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
 
 This workspace is the reserved Swift standard boundary for provider metadata, driver selection, and future iOS or macOS runtime bridge integration.
 
@@ -57,6 +57,7 @@ Resolution scaffold:
 - driver manager: `Sources/RtcSdk/RtcDriverManager.swift`
 - data source: `Sources/RtcSdk/RtcDataSource.swift`
 - provider support: `Sources/RtcSdk/RtcProviderSupport.swift`
+- provider package loader: `Sources/RtcSdk/RtcProviderPackageLoader.swift`
 
 
 Provider package scaffold:

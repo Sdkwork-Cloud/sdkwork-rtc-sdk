@@ -20,7 +20,7 @@ Current role:
 - no runtime bridge is claimed in the current landing
 - code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
 - metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
 
 This workspace is the reserved Rust standard boundary for provider metadata, selection, and future control-plane integration.
 
@@ -57,6 +57,7 @@ Resolution scaffold:
 - driver manager: `src/driver_manager.rs`
 - data source: `src/data_source.rs`
 - provider support: `src/provider_support.rs`
+- provider package loader: `src/provider_package_loader.rs`
 
 
 Provider package scaffold:

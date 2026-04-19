@@ -39,3 +39,13 @@ func GetRtcProviderPackageByProviderKey(providerKey string) *RtcProviderPackageC
 
     return nil
 }
+
+func GetRtcProviderPackageByPackageIdentity(packageIdentity string) *RtcProviderPackageCatalogEntry {
+    for index := range OFFICIAL_RTC_PROVIDER_PACKAGES {
+        if OFFICIAL_RTC_PROVIDER_PACKAGES[index].PackageIdentity == packageIdentity {
+            return &OFFICIAL_RTC_PROVIDER_PACKAGES[index]
+        }
+    }
+
+    return nil
+}

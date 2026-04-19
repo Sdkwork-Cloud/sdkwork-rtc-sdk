@@ -32,4 +32,7 @@ object RtcProviderPackageCatalog {
 fun getRtcProviderPackageByProviderKey(providerKey: String): RtcProviderPackageCatalogEntry? =
         entries.firstOrNull { it.providerKey == providerKey }
 
+    fun getRtcProviderPackageByPackageIdentity(packageIdentity: String): RtcProviderPackageCatalogEntry? =
+        entries.firstOrNull { it.packageIdentity == packageIdentity }
+
 }

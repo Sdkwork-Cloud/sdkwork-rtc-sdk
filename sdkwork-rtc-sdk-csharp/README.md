@@ -20,7 +20,7 @@ Current role:
 - no runtime bridge is claimed in the current landing
 - code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
 - metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
 
 This workspace is the reserved C# standard boundary for provider metadata, driver selection, and future desktop or server-side control integration.
 
@@ -57,6 +57,7 @@ Resolution scaffold:
 - driver manager: `src/SDKWork.Rtc.Sdk/RtcDriverManager.cs`
 - data source: `src/SDKWork.Rtc.Sdk/RtcDataSource.cs`
 - provider support: `src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs`
+- provider package loader: `src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs`
 
 
 Provider package scaffold:

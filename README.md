@@ -17,8 +17,8 @@ It is a workspace, not a single package. The workspace owns:
 - materialized future provider package manifest and README boundaries for reserved language workspaces
 - materialized metadata-only source stub boundaries for reserved language provider packages
 - metadata/catalog scaffold boundaries for reserved language workspaces
-- metadata-only driver manager, data source, and provider support scaffold boundaries for reserved
-  language workspaces
+- metadata-only driver manager, data source, provider support, and provider package loader
+  scaffold boundaries for reserved language workspaces
 - package-level documentation for provider adapters, capability matrices, and verification
 
 ## Scope
@@ -188,7 +188,7 @@ language-idiomatic naming:
 
 - provider catalog by provider key
 - provider package catalog by provider key
-- TypeScript provider package catalog by package identity
+- provider package catalog by package identity
 - provider activation catalog by provider key
 - capability descriptor by capability key
 - provider extension catalog by extension key and provider key
@@ -198,16 +198,19 @@ Canonical forms:
 
 - Flutter, Java, Swift, Kotlin:
   `getRtcProviderByProviderKey(...)`, `getRtcProviderPackageByProviderKey(...)`,
+  `getRtcProviderPackageByPackageIdentity(...)`,
   `getRtcProviderActivationByProviderKey(...)`, `getRtcCapabilityDescriptor(...)`,
   `getRtcProviderExtensionDescriptor(...)`, `getRtcProviderExtensionsForProvider(...)`,
   `hasRtcProviderExtension(...)`, `getRtcLanguageWorkspaceByLanguage(...)`
 - C#, Go:
   `GetRtcProviderByProviderKey(...)`, `GetRtcProviderPackageByProviderKey(...)`,
+  `GetRtcProviderPackageByPackageIdentity(...)`,
   `GetRtcProviderActivationByProviderKey(...)`, `GetRtcCapabilityDescriptor(...)`,
   `GetRtcProviderExtensionDescriptor(...)`, `GetRtcProviderExtensionsForProvider(...)`,
   `HasRtcProviderExtension(...)`, `GetRtcLanguageWorkspaceByLanguage(...)`
 - Rust, Python:
   `get_rtc_provider_by_provider_key(...)`, `get_rtc_provider_package_by_provider_key(...)`,
+  `get_rtc_provider_package_by_package_identity(...)`,
   `get_rtc_provider_activation_by_provider_key(...)`, `get_rtc_capability_descriptor(...)`,
   `get_rtc_provider_extension_descriptor(...)`, `get_rtc_provider_extensions_for_provider(...)`,
   `has_rtc_provider_extension(...)`, `get_rtc_language_workspace_by_language(...)`
@@ -242,12 +245,16 @@ single package barrel or package initializer:
 
 Those root public entrypoints must re-expose the standard contract, provider catalog, provider
 package catalog, provider activation catalog, capability catalog, provider extension catalog,
-language workspace catalog, provider-selection helpers, provider-support helpers, driver manager,
-and data source without forcing consumers onto private module paths.
+language workspace catalog, provider-selection helpers, provider-package loader helpers,
+provider-support helpers, driver manager, and data source without forcing consumers onto private
+module paths.
 
 The TypeScript root public entrypoint may additionally expose the provider package loader and
 installer SPI because that surface is provider-neutral package-boundary infrastructure, not a
 non-builtin driver factory.
+Reserved non-TypeScript language workspaces must also reserve one provider-package loader scaffold
+per language so future runtime bridge work inherits a deterministic package-resolution and
+package-installation boundary before executable adapters land.
 
 Go reserved-language public structs must also export their shared DTO fields in PascalCase so the
 standard metadata stays usable from external packages. The required public field family includes
@@ -296,7 +303,8 @@ Use it to rematerialize:
 - reserved language future provider package manifests, READMEs, and metadata-only source stubs
 - reserved language metadata scaffolds for provider catalog, provider package catalog, capability
   catalog, provider activation catalog, provider extension catalog, and provider selection
-- reserved language resolution scaffolds for driver manager, data source, and provider support
+- reserved language resolution scaffolds for driver manager, data source, provider support, and
+  provider package loader
 - the assembly-driven language workspace catalog matrix inside
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven language-provider activation matrix inside
@@ -362,6 +370,7 @@ The verifier is responsible for:
 - reserved language provider package scaffold presence
 - reserved language future provider package boundary presence
 - reserved language provider package source stub presence
+- reserved language provider package loader scaffold presence
 
 ## Ownership Rules
 

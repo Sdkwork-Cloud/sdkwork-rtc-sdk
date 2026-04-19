@@ -727,7 +727,7 @@
         "future Flutter runtime bridge work must follow the TypeScript baseline contract",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "lib/src/rtc_standard_contract.dart",
@@ -744,7 +744,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "lib/src/rtc_driver_manager.dart",
         "dataSourceRelativePath": "lib/src/rtc_data_source.dart",
-        "providerSupportRelativePath": "lib/src/rtc_provider_support.dart"
+        "providerSupportRelativePath": "lib/src/rtc_provider_support.dart",
+        "providerPackageLoaderRelativePath": "lib/src/rtc_provider_package_loader.dart"
       },
       "packageScaffold": {
         "buildSystem": "flutter-pub",
@@ -829,7 +830,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "src/lib.rs",
@@ -846,7 +847,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "src/driver_manager.rs",
         "dataSourceRelativePath": "src/data_source.rs",
-        "providerSupportRelativePath": "src/provider_support.rs"
+        "providerSupportRelativePath": "src/provider_support.rs",
+        "providerPackageLoaderRelativePath": "src/provider_package_loader.rs"
       },
       "packageScaffold": {
         "buildSystem": "cargo",
@@ -930,7 +932,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "src/main/java/com/sdkwork/rtc/standard/RtcStandardContract.java",
@@ -947,7 +949,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "src/main/java/com/sdkwork/rtc/metadata/RtcDriverManager.java",
         "dataSourceRelativePath": "src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java",
-        "providerSupportRelativePath": "src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java"
+        "providerSupportRelativePath": "src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java",
+        "providerPackageLoaderRelativePath": "src/main/java/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.java"
       },
       "packageScaffold": {
         "buildSystem": "maven",
@@ -1032,7 +1035,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "src/SDKWork.Rtc.Sdk/RtcStandardContract.cs",
@@ -1049,7 +1052,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "src/SDKWork.Rtc.Sdk/RtcDriverManager.cs",
         "dataSourceRelativePath": "src/SDKWork.Rtc.Sdk/RtcDataSource.cs",
-        "providerSupportRelativePath": "src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs"
+        "providerSupportRelativePath": "src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs",
+        "providerPackageLoaderRelativePath": "src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs"
       },
       "packageScaffold": {
         "buildSystem": "dotnet-sdk",
@@ -1133,7 +1137,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "Sources/RtcSdk/RtcStandardContract.swift",
@@ -1150,7 +1154,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "Sources/RtcSdk/RtcDriverManager.swift",
         "dataSourceRelativePath": "Sources/RtcSdk/RtcDataSource.swift",
-        "providerSupportRelativePath": "Sources/RtcSdk/RtcProviderSupport.swift"
+        "providerSupportRelativePath": "Sources/RtcSdk/RtcProviderSupport.swift",
+        "providerPackageLoaderRelativePath": "Sources/RtcSdk/RtcProviderPackageLoader.swift"
       },
       "packageScaffold": {
         "buildSystem": "swift-package-manager",
@@ -1234,7 +1239,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "src/main/kotlin/com/sdkwork/rtc/standard/RtcStandardContract.kt",
@@ -1251,7 +1256,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "src/main/kotlin/com/sdkwork/rtc/metadata/RtcDriverManager.kt",
         "dataSourceRelativePath": "src/main/kotlin/com/sdkwork/rtc/metadata/RtcDataSource.kt",
-        "providerSupportRelativePath": "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt"
+        "providerSupportRelativePath": "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt",
+        "providerPackageLoaderRelativePath": "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.kt"
       },
       "packageScaffold": {
         "buildSystem": "gradle-kotlin-dsl",
@@ -1336,7 +1342,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "rtcstandard/contract.go",
@@ -1353,7 +1359,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "rtcstandard/driver_manager.go",
         "dataSourceRelativePath": "rtcstandard/data_source.go",
-        "providerSupportRelativePath": "rtcstandard/provider_support.go"
+        "providerSupportRelativePath": "rtcstandard/provider_support.go",
+        "providerPackageLoaderRelativePath": "rtcstandard/provider_package_loader.go"
       },
       "packageScaffold": {
         "buildSystem": "go-modules",
@@ -1437,7 +1444,7 @@
         "no runtime bridge is claimed in the current landing",
         "code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing",
         "metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing",
-        "resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing"
+        "resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing"
       ],
       "contractScaffold": {
         "relativePath": "sdkwork_rtc_sdk/standard_contract.py",
@@ -1454,7 +1461,8 @@
       "resolutionScaffold": {
         "driverManagerRelativePath": "sdkwork_rtc_sdk/driver_manager.py",
         "dataSourceRelativePath": "sdkwork_rtc_sdk/data_source.py",
-        "providerSupportRelativePath": "sdkwork_rtc_sdk/provider_support.py"
+        "providerSupportRelativePath": "sdkwork_rtc_sdk/provider_support.py",
+        "providerPackageLoaderRelativePath": "sdkwork_rtc_sdk/provider_package_loader.py"
       },
       "packageScaffold": {
         "buildSystem": "pyproject",

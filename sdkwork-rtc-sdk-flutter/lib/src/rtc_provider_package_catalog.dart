@@ -185,3 +185,13 @@ RtcProviderPackageCatalogEntry? getRtcProviderPackageByProviderKey(String provid
 
   return null;
 }
+
+RtcProviderPackageCatalogEntry? getRtcProviderPackageByPackageIdentity(String packageIdentity) {
+  for (final entry in RtcProviderPackageCatalog.entries) {
+    if (entry.packageIdentity == packageIdentity) {
+      return entry;
+    }
+  }
+
+  return null;
+}

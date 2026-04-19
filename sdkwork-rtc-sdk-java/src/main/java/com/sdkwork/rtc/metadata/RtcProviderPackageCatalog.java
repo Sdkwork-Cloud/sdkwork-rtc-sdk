@@ -28,6 +28,16 @@ public static Optional<RtcProviderPackageCatalogEntry> getRtcProviderPackageByPr
     return Optional.empty();
   }
 
+  public static Optional<RtcProviderPackageCatalogEntry> getRtcProviderPackageByPackageIdentity(String packageIdentity) {
+    for (var entry : ENTRIES) {
+      if (entry.packageIdentity().equals(packageIdentity)) {
+        return Optional.of(entry);
+      }
+    }
+
+    return Optional.empty();
+  }
+
 
   private RtcProviderPackageCatalog() {
   }

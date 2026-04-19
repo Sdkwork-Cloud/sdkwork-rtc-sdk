@@ -36,4 +36,7 @@ public static class RtcProviderPackageCatalog
 public static RtcProviderPackageCatalogEntry? GetRtcProviderPackageByProviderKey(string providerKey) =>
         Entries.FirstOrDefault(entry => entry.providerKey == providerKey);
 
+    public static RtcProviderPackageCatalogEntry? GetRtcProviderPackageByPackageIdentity(string packageIdentity) =>
+        Entries.FirstOrDefault(entry => entry.packageIdentity == packageIdentity);
+
 }

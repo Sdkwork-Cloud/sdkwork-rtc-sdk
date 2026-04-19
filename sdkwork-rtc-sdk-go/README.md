@@ -20,7 +20,7 @@ Current role:
 - no runtime bridge is claimed in the current landing
 - code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
 - metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
 
 This workspace is the reserved Go standard boundary for provider metadata, driver selection, and future control-plane tooling integration.
 
@@ -57,6 +57,7 @@ Resolution scaffold:
 - driver manager: `rtcstandard/driver_manager.go`
 - data source: `rtcstandard/data_source.go`
 - provider support: `rtcstandard/provider_support.go`
+- provider package loader: `rtcstandard/provider_package_loader.go`
 
 
 Provider package scaffold:

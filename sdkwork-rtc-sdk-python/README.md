@@ -20,7 +20,7 @@ Current role:
 - no runtime bridge is claimed in the current landing
 - code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
 - metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
 
 This workspace is the reserved Python standard boundary for provider metadata, driver selection, and future automation or control-plane integration.
 
@@ -57,6 +57,7 @@ Resolution scaffold:
 - driver manager: `sdkwork_rtc_sdk/driver_manager.py`
 - data source: `sdkwork_rtc_sdk/data_source.py`
 - provider support: `sdkwork_rtc_sdk/provider_support.py`
+- provider package loader: `sdkwork_rtc_sdk/provider_package_loader.py`
 
 
 Provider package scaffold:

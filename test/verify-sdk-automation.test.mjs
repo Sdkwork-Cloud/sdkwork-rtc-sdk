@@ -155,7 +155,7 @@ function getReservedLanguageLookupHelperPatterns(language) {
     case 'flutter':
       return {
         providerCatalog: [/getRtcProviderByProviderKey/],
-        providerPackageCatalog: [/getRtcProviderPackageByProviderKey/],
+        providerPackageCatalog: [/getRtcProviderPackageByProviderKey/, /getRtcProviderPackageByPackageIdentity/],
         providerActivationCatalog: [/getRtcProviderActivationByProviderKey/],
         capabilityCatalog: [/getRtcCapabilityCatalog/, /getRtcCapabilityDescriptor/],
         providerExtensionCatalog: [
@@ -179,6 +179,20 @@ function getReservedLanguageLookupHelperPatterns(language) {
           /resolveRtcProviderSupportStatus/,
           /createRtcProviderSupportState/,
         ],
+        providerPackageLoader: [
+          /RtcProviderPackageLoadRequest/,
+          /RtcResolvedProviderPackageLoadTarget/,
+          /RtcProviderPackageLoader/,
+          /createRtcProviderPackageLoader/,
+          /resolveRtcProviderPackageLoadTarget/,
+          /loadRtcProviderModule/,
+          /installRtcProviderPackage/,
+          /installRtcProviderPackages/,
+          /provider_package_not_found/,
+          /provider_package_identity_mismatch/,
+          /provider_package_load_failed/,
+          /provider_module_export_missing/,
+        ],
         driverManagerDelegates: [
           /resolveRtcProviderSelection/,
           /getRtcProviderByProviderKey/,
@@ -189,7 +203,7 @@ function getReservedLanguageLookupHelperPatterns(language) {
     case 'rust':
       return {
         providerCatalog: [/get_rtc_provider_by_provider_key/],
-        providerPackageCatalog: [/get_rtc_provider_package_by_provider_key/],
+        providerPackageCatalog: [/get_rtc_provider_package_by_provider_key/, /get_rtc_provider_package_by_package_identity/],
         providerActivationCatalog: [/get_rtc_provider_activation_by_provider_key/],
         capabilityCatalog: [/get_rtc_capability_catalog/, /get_rtc_capability_descriptor/],
         providerExtensionCatalog: [
@@ -213,6 +227,20 @@ function getReservedLanguageLookupHelperPatterns(language) {
           /resolve_rtc_provider_support_status/,
           /create_rtc_provider_support_state/,
         ],
+        providerPackageLoader: [
+          /RtcProviderPackageLoadRequest/,
+          /RtcResolvedProviderPackageLoadTarget/,
+          /RtcProviderPackageLoader/,
+          /create_rtc_provider_package_loader/,
+          /resolve_rtc_provider_package_load_target/,
+          /load_rtc_provider_module/,
+          /install_rtc_provider_package/,
+          /install_rtc_provider_packages/,
+          /provider_package_not_found/,
+          /provider_package_identity_mismatch/,
+          /provider_package_load_failed/,
+          /provider_module_export_missing/,
+        ],
         driverManagerDelegates: [
           /resolve_rtc_provider_selection/,
           /get_rtc_provider_by_provider_key/,
@@ -225,7 +253,7 @@ function getReservedLanguageLookupHelperPatterns(language) {
     case 'kotlin':
       return {
         providerCatalog: [/getRtcProviderByProviderKey/],
-        providerPackageCatalog: [/getRtcProviderPackageByProviderKey/],
+        providerPackageCatalog: [/getRtcProviderPackageByProviderKey/, /getRtcProviderPackageByPackageIdentity/],
         providerActivationCatalog: [/getRtcProviderActivationByProviderKey/],
         capabilityCatalog: [/getRtcCapabilityCatalog/, /getRtcCapabilityDescriptor/],
         providerExtensionCatalog: [
@@ -249,6 +277,20 @@ function getReservedLanguageLookupHelperPatterns(language) {
           /resolveRtcProviderSupportStatus/,
           /createRtcProviderSupportState/,
         ],
+        providerPackageLoader: [
+          /RtcProviderPackageLoadRequest/,
+          /RtcResolvedProviderPackageLoadTarget/,
+          /RtcProviderPackageLoader/,
+          /createRtcProviderPackageLoader/,
+          /resolveRtcProviderPackageLoadTarget/,
+          /loadRtcProviderModule/,
+          /installRtcProviderPackage/,
+          /installRtcProviderPackages/,
+          /provider_package_not_found/,
+          /provider_package_identity_mismatch/,
+          /provider_package_load_failed/,
+          /provider_module_export_missing/,
+        ],
         driverManagerDelegates: [
           /resolveRtcProviderSelection/,
           /getRtcProviderByProviderKey/,
@@ -260,7 +302,7 @@ function getReservedLanguageLookupHelperPatterns(language) {
     case 'go':
       return {
         providerCatalog: [/GetRtcProviderByProviderKey/],
-        providerPackageCatalog: [/GetRtcProviderPackageByProviderKey/],
+        providerPackageCatalog: [/GetRtcProviderPackageByProviderKey/, /GetRtcProviderPackageByPackageIdentity/],
         providerActivationCatalog: [/GetRtcProviderActivationByProviderKey/],
         capabilityCatalog: [/GetRtcCapabilityCatalog/, /GetRtcCapabilityDescriptor/],
         providerExtensionCatalog: [
@@ -284,6 +326,20 @@ function getReservedLanguageLookupHelperPatterns(language) {
           /ResolveRtcProviderSupportStatus/,
           /CreateRtcProviderSupportState/,
         ],
+        providerPackageLoader: [
+          /RtcProviderPackageLoadRequest/,
+          /RtcResolvedProviderPackageLoadTarget/,
+          /RtcProviderPackageLoader/,
+          /CreateRtcProviderPackageLoader/,
+          /ResolveRtcProviderPackageLoadTarget/,
+          /LoadRtcProviderModule/,
+          /InstallRtcProviderPackage/,
+          /InstallRtcProviderPackages/,
+          /provider_package_not_found/,
+          /provider_package_identity_mismatch/,
+          /provider_package_load_failed/,
+          /provider_module_export_missing/,
+        ],
         driverManagerDelegates: [
           /ResolveRtcProviderSelection/,
           /GetRtcProviderByProviderKey/,
@@ -294,7 +350,7 @@ function getReservedLanguageLookupHelperPatterns(language) {
     case 'python':
       return {
         providerCatalog: [/get_rtc_provider_by_provider_key/],
-        providerPackageCatalog: [/get_rtc_provider_package_by_provider_key/],
+        providerPackageCatalog: [/get_rtc_provider_package_by_provider_key/, /get_rtc_provider_package_by_package_identity/],
         providerActivationCatalog: [/get_rtc_provider_activation_by_provider_key/],
         capabilityCatalog: [/get_rtc_capability_catalog/, /get_rtc_capability_descriptor/],
         providerExtensionCatalog: [
@@ -317,6 +373,20 @@ function getReservedLanguageLookupHelperPatterns(language) {
           /RtcProviderSupportStateRequest/,
           /resolve_rtc_provider_support_status/,
           /create_rtc_provider_support_state/,
+        ],
+        providerPackageLoader: [
+          /RtcProviderPackageLoadRequest/,
+          /RtcResolvedProviderPackageLoadTarget/,
+          /RtcProviderPackageLoader/,
+          /create_rtc_provider_package_loader/,
+          /resolve_rtc_provider_package_load_target/,
+          /load_rtc_provider_module/,
+          /install_rtc_provider_package/,
+          /install_rtc_provider_packages/,
+          /provider_package_not_found/,
+          /provider_package_identity_mismatch/,
+          /provider_package_load_failed/,
+          /provider_module_export_missing/,
         ],
         driverManagerDelegates: [
           /resolve_rtc_provider_selection/,
@@ -380,6 +450,7 @@ function getReservedLanguageRootPublicContract(languageEntry) {
           /export 'src\/rtc_provider_extension_catalog\.dart';/,
           /export 'src\/rtc_language_workspace_catalog\.dart';/,
           /export 'src\/rtc_provider_selection\.dart';/,
+          /export 'src\/rtc_provider_package_loader\.dart';/,
           /export 'src\/rtc_provider_support\.dart';/,
           /export 'src\/rtc_driver_manager\.dart';/,
           /export 'src\/rtc_data_source\.dart';/,
@@ -394,10 +465,13 @@ function getReservedLanguageRootPublicContract(languageEntry) {
           /from \.provider_activation_catalog import \(/,
           /from \.language_workspace_catalog import \(/,
           /from \.provider_selection import \(/,
+          /from \.provider_package_loader import \(/,
           /from \.provider_support import \(/,
           /ParsedRtcProviderUrl/,
           /RTC_PROVIDER_SELECTION_SOURCES/,
           /RTC_PROVIDER_SUPPORT_STATUSES/,
+          /create_rtc_provider_package_loader/,
+          /resolve_rtc_provider_package_load_target/,
           /get_rtc_provider_extensions_for_provider/,
           /get_rtc_language_workspace_by_language/,
           /__all__ = \[/,
@@ -628,6 +702,11 @@ function createVerifierFixture(mutator) {
         `${languageEntry.workspace}/${languageEntry.resolutionScaffold.providerSupportRelativePath}`,
       );
     }
+    if (typeof languageEntry.resolutionScaffold?.providerPackageLoaderRelativePath === 'string') {
+      filesToCopy.push(
+        `${languageEntry.workspace}/${languageEntry.resolutionScaffold.providerPackageLoaderRelativePath}`,
+      );
+    }
   }
 
   filesToCopy.push('sdkwork-rtc-sdk-typescript/providers/README.md');
@@ -765,10 +844,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /getOfficialRtcProviderMetadataByKey/);
   assert.match(rootReadme, /getRtcProviderByProviderKey/);
   assert.match(rootReadme, /getRtcProviderPackageByProviderKey/);
+  assert.match(rootReadme, /getRtcProviderPackageByPackageIdentity/);
   assert.match(rootReadme, /getRtcProviderActivationByProviderKey/);
   assert.match(rootReadme, /getRtcLanguageWorkspaceByLanguage/);
   assert.match(rootReadme, /resolveRtcProviderSupportStatus/);
   assert.match(rootReadme, /createRtcProviderSupportState/);
+  assert.match(rootReadme, /provider package loader/i);
   assert.match(rootReadme, /@sdkwork\/rtc-sdk-provider-<providerKey>/);
   assert.match(rootReadme, /\.\.\/\.\.\/src\/providers\/<providerKey>\.ts/);
   assert.match(rootReadme, /create<ProviderPascal>RtcDriver/);
@@ -785,9 +866,11 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /getOfficialRtcProviderMetadataByKey/);
   assert.match(docsReadme, /getRtcProviderByProviderKey/);
   assert.match(docsReadme, /getRtcProviderPackageByProviderKey/);
+  assert.match(docsReadme, /getRtcProviderPackageByPackageIdentity/);
   assert.match(docsReadme, /getRtcProviderActivationByProviderKey/);
   assert.match(docsReadme, /getRtcLanguageWorkspaceByLanguage/);
   assert.match(docsReadme, /provider support classification/i);
+  assert.match(docsReadme, /provider package loader/i);
   assert.match(docsReadme, /provider lookup by key/i);
 
   assert.match(packageStandards, /index\.js/);
@@ -831,12 +914,20 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /providerActivationCatalogRelativePath/);
   assert.match(packageStandards, /provider activation catalog/i);
   assert.match(packageStandards, /providerExtensionCatalogRelativePath/);
+  assert.match(packageStandards, /providerPackageLoaderRelativePath/);
   assert.match(packageStandards, /driver manager/i);
   assert.match(packageStandards, /data source/i);
   assert.match(packageStandards, /provider support/i);
+  assert.match(packageStandards, /provider package loader/i);
   assert.match(packageStandards, /getRtcLanguageWorkspaceByLanguage/);
   assert.match(packageStandards, /getRtcProviderActivationByProviderKey/);
   assert.match(packageStandards, /getRtcProviderPackageByProviderKey/);
+  assert.match(packageStandards, /getRtcProviderPackageByPackageIdentity/);
+  assert.match(packageStandards, /createRtcProviderPackageLoader/);
+  assert.match(packageStandards, /resolveRtcProviderPackageLoadTarget/);
+  assert.match(packageStandards, /loadRtcProviderModule/);
+  assert.match(packageStandards, /installRtcProviderPackage/);
+  assert.match(packageStandards, /installRtcProviderPackages/);
   assert.match(packageStandards, /getRtcProviderByProviderKey/);
   assert.match(packageStandards, /RtcProviderSupportStateRequest/);
   assert.match(packageStandards, /resolveRtcProviderSupportStatus/);
@@ -880,11 +971,21 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /degraded/i);
   assert.match(providerAdapterStandard, /unsupported/i);
   assert.match(providerAdapterStandard, /getRtcProviderPackageByProviderKey/);
+  assert.match(providerAdapterStandard, /getRtcProviderPackageByPackageIdentity/);
   assert.match(providerAdapterStandard, /getRtcProviderActivationByProviderKey/);
   assert.match(providerAdapterStandard, /getRtcLanguageWorkspaceByLanguage/);
   assert.match(providerAdapterStandard, /getRtcProviderByProviderKey/);
   assert.match(providerAdapterStandard, /resolveRtcProviderSupportStatus/);
   assert.match(providerAdapterStandard, /createRtcProviderSupportState/);
+  assert.match(providerAdapterStandard, /createRtcProviderPackageLoader/);
+  assert.match(providerAdapterStandard, /resolveRtcProviderPackageLoadTarget/);
+  assert.match(providerAdapterStandard, /loadRtcProviderModule/);
+  assert.match(providerAdapterStandard, /installRtcProviderPackage/);
+  assert.match(providerAdapterStandard, /installRtcProviderPackages/);
+  assert.match(providerAdapterStandard, /provider_package_not_found/);
+  assert.match(providerAdapterStandard, /provider_package_identity_mismatch/);
+  assert.match(providerAdapterStandard, /provider_package_load_failed/);
+  assert.match(providerAdapterStandard, /provider_module_export_missing/);
   assert.match(providerAdapterStandard, /provider extension metadata/i);
   assert.match(providerAdapterStandard, /unwrap-only/i);
   assert.match(providerAdapterStandard, /extension-object/i);
@@ -909,6 +1010,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(capabilityMatrix, /Provider Extension Catalog/i);
   assert.match(capabilityMatrix, /Provider package catalog/i);
   assert.match(capabilityMatrix, /Provider activation catalog/i);
+  assert.match(capabilityMatrix, /Reserved Language Resolution Scaffold Matrix/i);
+  assert.match(capabilityMatrix, /Provider package loader/i);
   assert.match(capabilityMatrix, /Reserved Language Provider Package Scaffold Matrix/i);
   assert.match(capabilityMatrix, /Directory pattern/i);
   assert.match(capabilityMatrix, /Package pattern/i);
@@ -974,10 +1077,22 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /providerActivationCatalogRelativePath/);
   assert.match(verificationMatrix, /provider activation catalog/i);
   assert.match(verificationMatrix, /providerExtensionCatalogRelativePath/);
+  assert.match(verificationMatrix, /providerPackageLoaderRelativePath/);
   assert.match(verificationMatrix, /driver manager/i);
   assert.match(verificationMatrix, /data source/i);
   assert.match(verificationMatrix, /provider support/i);
+  assert.match(verificationMatrix, /provider package loader/i);
   assert.match(verificationMatrix, /getRtcProviderPackageByProviderKey/);
+  assert.match(verificationMatrix, /getRtcProviderPackageByPackageIdentity/);
+  assert.match(verificationMatrix, /createRtcProviderPackageLoader/);
+  assert.match(verificationMatrix, /resolveRtcProviderPackageLoadTarget/);
+  assert.match(verificationMatrix, /loadRtcProviderModule/);
+  assert.match(verificationMatrix, /installRtcProviderPackage/);
+  assert.match(verificationMatrix, /installRtcProviderPackages/);
+  assert.match(verificationMatrix, /provider_package_not_found/);
+  assert.match(verificationMatrix, /provider_package_identity_mismatch/);
+  assert.match(verificationMatrix, /provider_package_load_failed/);
+  assert.match(verificationMatrix, /provider_module_export_missing/);
   assert.match(verificationMatrix, /getRtcProviderActivationByProviderKey/);
   assert.match(verificationMatrix, /getRtcLanguageWorkspaceByLanguage/);
   assert.match(verificationMatrix, /getRtcProviderByProviderKey/);
@@ -2157,7 +2272,7 @@ test('reserved language workspaces expose metadata catalog, provider package cat
   }
 });
 
-test('reserved language workspaces expose metadata-only driver manager, data source, and standalone provider support helper scaffold files', () => {
+test('reserved language workspaces expose metadata-only driver manager, data source, provider support, and provider package loader scaffold files', () => {
   const assembly = readJson(assemblyPath);
 
   for (const languageEntry of getReservedLanguageResolutionScaffolds(assembly)) {
@@ -2176,6 +2291,11 @@ test('reserved language workspaces expose metadata-only driver manager, data sou
       'string',
       `expected resolutionScaffold.providerSupportRelativePath for ${languageEntry.language}`,
     );
+    assert.equal(
+      typeof languageEntry.resolutionScaffold?.providerPackageLoaderRelativePath,
+      'string',
+      `expected resolutionScaffold.providerPackageLoaderRelativePath for ${languageEntry.language}`,
+    );
 
     const driverManagerPath = path.join(
       workspaceRoot,
@@ -2192,10 +2312,16 @@ test('reserved language workspaces expose metadata-only driver manager, data sou
       languageEntry.workspace,
       languageEntry.resolutionScaffold.providerSupportRelativePath,
     );
+    const providerPackageLoaderPath = path.join(
+      workspaceRoot,
+      languageEntry.workspace,
+      languageEntry.resolutionScaffold.providerPackageLoaderRelativePath,
+    );
 
     assert.equal(existsSync(driverManagerPath), true, `expected ${driverManagerPath} to exist`);
     assert.equal(existsSync(dataSourcePath), true, `expected ${dataSourcePath} to exist`);
     assert.equal(existsSync(providerSupportPath), true, `expected ${providerSupportPath} to exist`);
+    assert.equal(existsSync(providerPackageLoaderPath), true, `expected ${providerPackageLoaderPath} to exist`);
 
     const driverManager = readFileSync(driverManagerPath, 'utf8');
     assert.match(driverManager, /RtcDriverManager/);
@@ -2225,6 +2351,24 @@ test('reserved language workspaces expose metadata-only driver manager, data sou
     assert.match(providerSupport, /unknown/);
     for (const pattern of getReservedLanguageLookupHelperPatterns(languageEntry.language).providerSupport) {
       assert.match(providerSupport, pattern);
+    }
+
+    const providerPackageLoader = readFileSync(providerPackageLoaderPath, 'utf8');
+    assert.match(providerPackageLoader, /RtcProviderPackageLoadRequest/);
+    assert.match(providerPackageLoader, /RtcResolvedProviderPackageLoadTarget/);
+    assert.match(providerPackageLoader, /provider_package_not_found/);
+    assert.match(providerPackageLoader, /provider_package_identity_mismatch/);
+    assert.match(providerPackageLoader, /provider_package_load_failed/);
+    assert.match(providerPackageLoader, /provider_module_export_missing/);
+    if (languageEntry.language === 'csharp') {
+      assert.doesNotMatch(
+        providerPackageLoader,
+        /\bvar namespace\s*=/,
+        'csharp provider package loader must not use the reserved namespace keyword as a local variable',
+      );
+    }
+    for (const pattern of getReservedLanguageLookupHelperPatterns(languageEntry.language).providerPackageLoader) {
+      assert.match(providerPackageLoader, pattern);
     }
   }
 });
@@ -2289,6 +2433,12 @@ test('language workspace readmes align with the assembly language matrix', () =>
       assert.match(
         readme,
         new RegExp(
+          languageEntry.resolutionScaffold.providerPackageLoaderRelativePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        ),
+      );
+      assert.match(
+        readme,
+        new RegExp(
           languageEntry.metadataScaffold.providerPackageCatalogRelativePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
         ),
       );
@@ -2330,6 +2480,10 @@ test('multilanguage capability matrix aligns with the assembly language and prov
   assert.match(
     matrix,
     /\| Language \| Provider catalog \| Provider package catalog \| Provider activation catalog \| Capability catalog \| Provider extension catalog \| Provider selection \|/,
+  );
+  assert.match(
+    matrix,
+    /\| Language \| Driver manager \| Data source \| Provider support \| Provider package loader \|/,
   );
   assert.match(
     matrix,

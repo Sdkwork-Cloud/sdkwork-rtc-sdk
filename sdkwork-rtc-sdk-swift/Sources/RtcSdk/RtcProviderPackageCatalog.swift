@@ -31,4 +31,8 @@ public static func getRtcProviderPackageByProviderKey(_ providerKey: String) -> 
         entries.first { $0.providerKey == providerKey }
     }
 
+    public static func getRtcProviderPackageByPackageIdentity(_ packageIdentity: String) -> RtcProviderPackageCatalogEntry? {
+        entries.first { $0.packageIdentity == packageIdentity }
+    }
+
 }

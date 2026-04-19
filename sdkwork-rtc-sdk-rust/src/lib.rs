@@ -5,6 +5,7 @@ pub mod language_workspace_catalog;
 pub mod provider_activation_catalog;
 pub mod provider_catalog;
 pub mod provider_package_catalog;
+pub mod provider_package_loader;
 pub mod provider_extension_catalog;
 pub mod provider_selection;
 pub mod provider_support;

@@ -37,3 +37,11 @@ pub fn get_rtc_provider_package_by_provider_key(
         .iter()
         .find(|entry| entry.providerKey == provider_key)
 }
+
+pub fn get_rtc_provider_package_by_package_identity(
+    package_identity: &str,
+) -> Option<&'static RtcProviderPackageCatalogEntry> {
+    OFFICIAL_RTC_PROVIDER_PACKAGES
+        .iter()
+        .find(|entry| entry.packageIdentity == package_identity)
+}

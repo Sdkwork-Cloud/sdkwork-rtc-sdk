@@ -46,6 +46,7 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   catalog entry
 - every TypeScript provider package extension key contract
 - every TypeScript provider package vendor SDK contract
+- every reserved language provider package loader scaffold
 - and remove stale legacy generated assets that belong to superseded standard layouts
 
 ## Root Verification Entry Point
@@ -180,19 +181,33 @@ The root verifier must confirm:
   `providerCatalogRelativePath`, `providerPackageCatalogRelativePath`,
   `providerActivationCatalogRelativePath`, `capabilityCatalogRelativePath`,
   `providerExtensionCatalogRelativePath`, `providerSelectionRelativePath`
+- every reserved language resolution scaffold declares the required relative-path fields:
+  `driverManagerRelativePath`, `dataSourceRelativePath`, `providerSupportRelativePath`, and
+  `providerPackageLoaderRelativePath`
 - every reserved non-TypeScript language declares an assembly-driven `resolutionScaffold`
 - every reserved non-TypeScript language workspace ships the declared driver manager, data source,
-  and provider support scaffold files
+  provider support, and provider package loader scaffold files
 - every reserved language resolution scaffold preserves the standard resolution tokens:
   `RtcDriverManager`, `resolveSelection`, `describeProviderSupport`, `listProviderSupport`,
   `RtcDataSource`, `RtcDataSourceOptions`, `describeSelection`, `defaultProviderKey`,
-  `RtcProviderSupport`, `builtin`, `official`, `registered`, `official_unregistered`, `unknown`
+  `RtcProviderSupport`, `builtin`, `official`, `registered`, `official_unregistered`, `unknown`,
+  `RtcProviderPackageLoadRequest`, `RtcResolvedProviderPackageLoadTarget`,
+  `RtcProviderPackageLoader`, `provider_package_not_found`,
+  `provider_package_identity_mismatch`, `provider_package_load_failed`,
+  `provider_module_export_missing`
 - every reserved language provider-selection scaffold preserves explicit helper coverage for source
   catalogs, precedence catalogs, provider-URL parsing, and selection resolution with
   language-idiomatic naming
 - every reserved language provider-support scaffold preserves explicit helper coverage for
   support-status catalogs, `RtcProviderSupportStateRequest`, status resolution, and support-state
   construction with language-idiomatic naming
+- every reserved language provider-package catalog preserves explicit provider-key and
+  package-identity lookup with language-idiomatic naming
+- every reserved language provider-package loader scaffold preserves explicit helper coverage for
+  package-boundary resolution, provider-module loading, single-package installation, batch package
+  installation, and the stable failure codes `provider_package_not_found`,
+  `provider_package_identity_mismatch`, `provider_package_load_failed`, and
+  `provider_module_export_missing`
 - every reserved language driver-manager scaffold delegates selection resolution to the
   provider-selection helper module and support-state construction to the provider-support helper
   module after provider catalog and provider-activation lookup
@@ -264,6 +279,8 @@ The root verifier must confirm:
   with the standard root public entrypoint contract
 - the reserved Python package root at `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`
   remains aligned with the standard root public entrypoint contract
+- reserved root public entrypoints preserve the provider package loader surface without deep
+  imports
 - reserved Go metadata and resolution DTOs preserve PascalCase public struct fields such as
   `ProviderKey`, `PluginId`, `DriverId`, `PackageIdentity`, `RuntimeBridgeStatus`, and
   `DefaultProviderKey`

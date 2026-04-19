@@ -277,6 +277,16 @@ RtcProviderPackageCatalogEntry? getRtcProviderPackageByProviderKey(String provid
 
   return null;
 }
+
+RtcProviderPackageCatalogEntry? getRtcProviderPackageByPackageIdentity(String packageIdentity) {
+  for (final entry in RtcProviderPackageCatalog.entries) {
+    if (entry.packageIdentity == packageIdentity) {
+      return entry;
+    }
+  }
+
+  return null;
+}
 `);
     case 'rust':
       return lines(`
@@ -286,6 +296,14 @@ pub fn get_rtc_provider_package_by_provider_key(
     OFFICIAL_RTC_PROVIDER_PACKAGES
         .iter()
         .find(|entry| entry.providerKey == provider_key)
+}
+
+pub fn get_rtc_provider_package_by_package_identity(
+    package_identity: &str,
+) -> Option<&'static RtcProviderPackageCatalogEntry> {
+    OFFICIAL_RTC_PROVIDER_PACKAGES
+        .iter()
+        .find(|entry| entry.packageIdentity == package_identity)
 }
 `);
     case 'java':
@@ -299,22 +317,42 @@ pub fn get_rtc_provider_package_by_provider_key(
 
     return Optional.empty();
   }
+
+  public static Optional<RtcProviderPackageCatalogEntry> getRtcProviderPackageByPackageIdentity(String packageIdentity) {
+    for (var entry : ENTRIES) {
+      if (entry.packageIdentity().equals(packageIdentity)) {
+        return Optional.of(entry);
+      }
+    }
+
+    return Optional.empty();
+  }
 `);
     case 'csharp':
       return lines(`
     public static RtcProviderPackageCatalogEntry? GetRtcProviderPackageByProviderKey(string providerKey) =>
         Entries.FirstOrDefault(entry => entry.providerKey == providerKey);
+
+    public static RtcProviderPackageCatalogEntry? GetRtcProviderPackageByPackageIdentity(string packageIdentity) =>
+        Entries.FirstOrDefault(entry => entry.packageIdentity == packageIdentity);
 `);
     case 'swift':
       return lines(`
     public static func getRtcProviderPackageByProviderKey(_ providerKey: String) -> RtcProviderPackageCatalogEntry? {
         entries.first { $0.providerKey == providerKey }
     }
+
+    public static func getRtcProviderPackageByPackageIdentity(_ packageIdentity: String) -> RtcProviderPackageCatalogEntry? {
+        entries.first { $0.packageIdentity == packageIdentity }
+    }
 `);
     case 'kotlin':
       return lines(`
     fun getRtcProviderPackageByProviderKey(providerKey: String): RtcProviderPackageCatalogEntry? =
         entries.firstOrNull { it.providerKey == providerKey }
+
+    fun getRtcProviderPackageByPackageIdentity(packageIdentity: String): RtcProviderPackageCatalogEntry? =
+        entries.firstOrNull { it.packageIdentity == packageIdentity }
 `);
     case 'go':
       return lines(`
@@ -327,12 +365,30 @@ func GetRtcProviderPackageByProviderKey(providerKey string) *RtcProviderPackageC
 
     return nil
 }
+
+func GetRtcProviderPackageByPackageIdentity(packageIdentity string) *RtcProviderPackageCatalogEntry {
+    for index := range OFFICIAL_RTC_PROVIDER_PACKAGES {
+        if OFFICIAL_RTC_PROVIDER_PACKAGES[index].PackageIdentity == packageIdentity {
+            return &OFFICIAL_RTC_PROVIDER_PACKAGES[index]
+        }
+    }
+
+    return nil
+}
 `);
     case 'python':
       return lines(`
 def get_rtc_provider_package_by_provider_key(provider_key: str) -> Optional[RtcProviderPackageCatalogEntry]:
     for entry in RtcProviderPackageCatalog.entries:
         if entry.providerKey == provider_key:
+            return entry
+
+    return None
+
+
+def get_rtc_provider_package_by_package_identity(package_identity: str) -> Optional[RtcProviderPackageCatalogEntry]:
+    for entry in RtcProviderPackageCatalog.entries:
+        if entry.packageIdentity == package_identity:
             return entry
 
     return None
@@ -2290,6 +2346,1127 @@ def create_rtc_provider_support_state(
   }
 }
 
+function renderReservedLanguageProviderPackageLoaderModule(language) {
+  switch (language) {
+    case 'flutter':
+      return lines(`
+import 'rtc_provider_package_catalog.dart';
+
+final class RtcProviderPackageLoaderException implements Exception {
+  const RtcProviderPackageLoaderException(this.code, this.message);
+
+  final String code;
+  final String message;
+
+  @override
+  String toString() => 'RtcProviderPackageLoaderException($code): $message';
+}
+
+final class RtcProviderPackageLoadRequest {
+  const RtcProviderPackageLoadRequest({
+    this.providerKey,
+    this.packageIdentity,
+  });
+
+  final String? providerKey;
+  final String? packageIdentity;
+}
+
+final class RtcResolvedProviderPackageLoadTarget {
+  const RtcResolvedProviderPackageLoadTarget({
+    required this.packageEntry,
+  });
+
+  final RtcProviderPackageCatalogEntry packageEntry;
+}
+
+typedef RtcProviderModuleNamespace = Object?;
+typedef RtcProviderPackageImportFn = RtcProviderModuleNamespace Function(
+  RtcResolvedProviderPackageLoadTarget target,
+);
+typedef RtcProviderPackageLoader = RtcProviderModuleNamespace Function(
+  RtcProviderPackageLoadRequest request,
+);
+
+final class RtcProviderPackageInstallRequest {
+  const RtcProviderPackageInstallRequest({
+    required this.driverManager,
+    required this.loadRequest,
+  });
+
+  final Object driverManager;
+  final RtcProviderPackageLoadRequest loadRequest;
+}
+
+RtcResolvedProviderPackageLoadTarget resolveRtcProviderPackageLoadTarget(
+  RtcProviderPackageLoadRequest request,
+) {
+  final packageByProviderKey = request.providerKey == null
+      ? null
+      : getRtcProviderPackageByProviderKey(request.providerKey!);
+  final packageByIdentity = request.packageIdentity == null
+      ? null
+      : getRtcProviderPackageByPackageIdentity(request.packageIdentity!);
+
+  if (packageByProviderKey != null &&
+      packageByIdentity != null &&
+      packageByProviderKey.packageIdentity != packageByIdentity.packageIdentity) {
+    throw const RtcProviderPackageLoaderException(
+      'provider_package_identity_mismatch',
+      'providerKey and packageIdentity must resolve to the same provider package boundary.',
+    );
+  }
+
+  final resolvedPackage = packageByProviderKey ?? packageByIdentity;
+  if (resolvedPackage == null) {
+    throw const RtcProviderPackageLoaderException(
+      'provider_package_not_found',
+      'No official provider package matches the requested provider boundary.',
+    );
+  }
+
+  return RtcResolvedProviderPackageLoadTarget(packageEntry: resolvedPackage);
+}
+
+RtcProviderPackageLoader createRtcProviderPackageLoader({
+  required RtcProviderPackageImportFn importPackage,
+}) {
+  return (request) => loadRtcProviderModule(
+        request,
+        importPackage: importPackage,
+      );
+}
+
+RtcProviderModuleNamespace loadRtcProviderModule(
+  RtcProviderPackageLoadRequest request, {
+  required RtcProviderPackageImportFn importPackage,
+}) {
+  final target = resolveRtcProviderPackageLoadTarget(request);
+
+  try {
+    final namespace = importPackage(target);
+    if (namespace == null) {
+      throw const RtcProviderPackageLoaderException(
+        'provider_module_export_missing',
+        'Reserved provider package loader scaffold requires an executable provider module namespace.',
+      );
+    }
+
+    return namespace;
+  } on RtcProviderPackageLoaderException {
+    rethrow;
+  } catch (error) {
+    throw RtcProviderPackageLoaderException(
+      'provider_package_load_failed',
+      'Reserved provider package loader scaffold could not load ${'$'}{target.packageEntry.packageIdentity}: ${'$'}error',
+    );
+  }
+}
+
+void installRtcProviderPackage(
+  RtcProviderPackageInstallRequest request, {
+  required RtcProviderPackageImportFn importPackage,
+}) {
+  loadRtcProviderModule(
+    request.loadRequest,
+    importPackage: importPackage,
+  );
+
+  throw const RtcProviderPackageLoaderException(
+    'provider_package_load_failed',
+    'Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.',
+  );
+}
+
+void installRtcProviderPackages(
+  Iterable<RtcProviderPackageInstallRequest> requests, {
+  required RtcProviderPackageImportFn importPackage,
+}) {
+  final materializedRequests = requests.toList(growable: false);
+  for (final request in materializedRequests) {
+    loadRtcProviderModule(
+      request.loadRequest,
+      importPackage: importPackage,
+    );
+  }
+
+  if (materializedRequests.isNotEmpty) {
+    throw const RtcProviderPackageLoaderException(
+      'provider_package_load_failed',
+      'Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.',
+    );
+  }
+}
+`);
+    case 'rust':
+      return lines(`
+use std::collections::BTreeMap;
+
+use crate::provider_package_catalog::{
+    get_rtc_provider_package_by_package_identity, get_rtc_provider_package_by_provider_key,
+    RtcProviderPackageCatalogEntry,
+};
+
+#[derive(Debug, Clone)]
+pub struct RtcProviderPackageLoaderError {
+    pub code: &'static str,
+    pub message: String,
+}
+
+impl RtcProviderPackageLoaderError {
+    pub fn new(code: &'static str, message: impl Into<String>) -> Self {
+        Self {
+            code,
+            message: message.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+#[allow(non_snake_case)]
+pub struct RtcProviderPackageLoadRequest {
+    pub providerKey: Option<String>,
+    pub packageIdentity: Option<String>,
+}
+
+#[allow(non_snake_case)]
+pub struct RtcResolvedProviderPackageLoadTarget {
+    pub packageEntry: &'static RtcProviderPackageCatalogEntry,
+}
+
+pub type RtcProviderModuleNamespace = BTreeMap<String, String>;
+pub type RtcProviderPackageImportFn =
+    fn(&RtcResolvedProviderPackageLoadTarget) -> Result<RtcProviderModuleNamespace, RtcProviderPackageLoaderError>;
+pub type RtcProviderPackageLoader = Box<
+    dyn Fn(RtcProviderPackageLoadRequest) -> Result<RtcProviderModuleNamespace, RtcProviderPackageLoaderError>,
+>;
+
+#[allow(non_snake_case)]
+pub struct RtcProviderPackageInstallRequest<TDriverManager> {
+    pub driverManager: TDriverManager,
+    pub loadRequest: RtcProviderPackageLoadRequest,
+}
+
+pub fn resolve_rtc_provider_package_load_target(
+    request: &RtcProviderPackageLoadRequest,
+) -> Result<RtcResolvedProviderPackageLoadTarget, RtcProviderPackageLoaderError> {
+    let package_by_provider_key = request
+        .providerKey
+        .as_deref()
+        .and_then(get_rtc_provider_package_by_provider_key);
+    let package_by_identity = request
+        .packageIdentity
+        .as_deref()
+        .and_then(get_rtc_provider_package_by_package_identity);
+
+    if let (Some(provider_key_entry), Some(package_identity_entry)) =
+        (package_by_provider_key, package_by_identity)
+    {
+        if provider_key_entry.packageIdentity != package_identity_entry.packageIdentity {
+            return Err(RtcProviderPackageLoaderError::new(
+                "provider_package_identity_mismatch",
+                "providerKey and packageIdentity must resolve to the same provider package boundary.",
+            ));
+        }
+    }
+
+    let resolved_package = package_by_provider_key.or(package_by_identity).ok_or_else(|| {
+        RtcProviderPackageLoaderError::new(
+            "provider_package_not_found",
+            "No official provider package matches the requested provider boundary.",
+        )
+    })?;
+
+    Ok(RtcResolvedProviderPackageLoadTarget {
+        packageEntry: resolved_package,
+    })
+}
+
+pub fn create_rtc_provider_package_loader(
+    import_package: RtcProviderPackageImportFn,
+) -> RtcProviderPackageLoader {
+    Box::new(move |request| load_rtc_provider_module(&request, import_package))
+}
+
+pub fn load_rtc_provider_module(
+    request: &RtcProviderPackageLoadRequest,
+    import_package: RtcProviderPackageImportFn,
+) -> Result<RtcProviderModuleNamespace, RtcProviderPackageLoaderError> {
+    let target = resolve_rtc_provider_package_load_target(request)?;
+    let namespace = import_package(&target).map_err(|error| {
+        if error.code == "provider_package_load_failed" || error.code == "provider_module_export_missing" {
+            error
+        } else {
+            RtcProviderPackageLoaderError::new(
+                "provider_package_load_failed",
+                format!(
+                    "Reserved provider package loader scaffold could not load {}: {}",
+                    target.packageEntry.packageIdentity, error.message
+                ),
+            )
+        }
+    })?;
+
+    if namespace.is_empty() {
+        return Err(RtcProviderPackageLoaderError::new(
+            "provider_module_export_missing",
+            "Reserved provider package loader scaffold requires an executable provider module namespace.",
+        ));
+    }
+
+    Ok(namespace)
+}
+
+pub fn install_rtc_provider_package<TDriverManager>(
+    request: &RtcProviderPackageInstallRequest<TDriverManager>,
+    import_package: RtcProviderPackageImportFn,
+) -> Result<(), RtcProviderPackageLoaderError> {
+    let _namespace = load_rtc_provider_module(&request.loadRequest, import_package)?;
+
+    Err(RtcProviderPackageLoaderError::new(
+        "provider_package_load_failed",
+        "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+    ))
+}
+
+pub fn install_rtc_provider_packages<TDriverManager>(
+    requests: &[RtcProviderPackageInstallRequest<TDriverManager>],
+    import_package: RtcProviderPackageImportFn,
+) -> Result<(), RtcProviderPackageLoaderError> {
+    for request in requests {
+        let _namespace = load_rtc_provider_module(&request.loadRequest, import_package)?;
+    }
+
+    if !requests.is_empty() {
+        return Err(RtcProviderPackageLoaderError::new(
+            "provider_package_load_failed",
+            "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+        ));
+    }
+
+    Ok(())
+}
+`);
+    case 'java':
+      return lines(`
+package com.sdkwork.rtc.metadata;
+
+import java.util.List;
+import java.util.Optional;
+
+public final class RtcProviderPackageLoader {
+
+  public static final String PROVIDER_PACKAGE_NOT_FOUND = "provider_package_not_found";
+  public static final String PROVIDER_PACKAGE_IDENTITY_MISMATCH = "provider_package_identity_mismatch";
+  public static final String PROVIDER_PACKAGE_LOAD_FAILED = "provider_package_load_failed";
+  public static final String PROVIDER_MODULE_EXPORT_MISSING = "provider_module_export_missing";
+
+  public record RtcProviderPackageLoadRequest(
+      String providerKey,
+      String packageIdentity
+  ) {
+  }
+
+  public record RtcResolvedProviderPackageLoadTarget(
+      RtcProviderPackageCatalog.RtcProviderPackageCatalogEntry packageEntry
+  ) {
+  }
+
+  @FunctionalInterface
+  public interface RtcProviderPackageImportFn {
+    Object importPackage(RtcResolvedProviderPackageLoadTarget target);
+  }
+
+  @FunctionalInterface
+  public interface RtcProviderPackageLoaderFn {
+    Object load(RtcProviderPackageLoadRequest request);
+  }
+
+  public record RtcProviderPackageInstallRequest(
+      Object driverManager,
+      RtcProviderPackageLoadRequest loadRequest
+  ) {
+  }
+
+  public static RtcResolvedProviderPackageLoadTarget resolveRtcProviderPackageLoadTarget(
+      RtcProviderPackageLoadRequest request
+  ) {
+    var resolvedRequest = request == null
+        ? new RtcProviderPackageLoadRequest(null, null)
+        : request;
+    var packageByProviderKey = Optional.ofNullable(resolvedRequest.providerKey())
+        .flatMap(RtcProviderPackageCatalog::getRtcProviderPackageByProviderKey);
+    var packageByIdentity = Optional.ofNullable(resolvedRequest.packageIdentity())
+        .flatMap(RtcProviderPackageCatalog::getRtcProviderPackageByPackageIdentity);
+
+    if (packageByProviderKey.isPresent() && packageByIdentity.isPresent()
+        && !packageByProviderKey.get().packageIdentity().equals(packageByIdentity.get().packageIdentity())) {
+      throw new RtcProviderPackageLoaderException(
+          PROVIDER_PACKAGE_IDENTITY_MISMATCH,
+          "providerKey and packageIdentity must resolve to the same provider package boundary."
+      );
+    }
+
+    var resolvedPackage = packageByProviderKey.or(() -> packageByIdentity).orElseThrow(() ->
+        new RtcProviderPackageLoaderException(
+            PROVIDER_PACKAGE_NOT_FOUND,
+            "No official provider package matches the requested provider boundary."
+        )
+    );
+
+    return new RtcResolvedProviderPackageLoadTarget(resolvedPackage);
+  }
+
+  public static RtcProviderPackageLoaderFn createRtcProviderPackageLoader(
+      RtcProviderPackageImportFn importPackage
+  ) {
+    return request -> loadRtcProviderModule(request, importPackage);
+  }
+
+  public static Object loadRtcProviderModule(
+      RtcProviderPackageLoadRequest request,
+      RtcProviderPackageImportFn importPackage
+  ) {
+    var target = resolveRtcProviderPackageLoadTarget(request);
+
+    try {
+      var namespace = importPackage.importPackage(target);
+      if (namespace == null) {
+        throw new RtcProviderPackageLoaderException(
+            PROVIDER_MODULE_EXPORT_MISSING,
+            "Reserved provider package loader scaffold requires an executable provider module namespace."
+        );
+      }
+
+      return namespace;
+    } catch (RtcProviderPackageLoaderException error) {
+      throw error;
+    } catch (RuntimeException error) {
+      throw new RtcProviderPackageLoaderException(
+          PROVIDER_PACKAGE_LOAD_FAILED,
+          "Reserved provider package loader scaffold could not load "
+              + target.packageEntry().packageIdentity()
+              + ": "
+              + error.getMessage()
+      );
+    }
+  }
+
+  public static void installRtcProviderPackage(
+      RtcProviderPackageInstallRequest request,
+      RtcProviderPackageImportFn importPackage
+  ) {
+    loadRtcProviderModule(request.loadRequest(), importPackage);
+
+    throw new RtcProviderPackageLoaderException(
+        PROVIDER_PACKAGE_LOAD_FAILED,
+        "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands."
+    );
+  }
+
+  public static void installRtcProviderPackages(
+      List<RtcProviderPackageInstallRequest> requests,
+      RtcProviderPackageImportFn importPackage
+  ) {
+    for (var request : requests) {
+      loadRtcProviderModule(request.loadRequest(), importPackage);
+    }
+
+    if (!requests.isEmpty()) {
+      throw new RtcProviderPackageLoaderException(
+          PROVIDER_PACKAGE_LOAD_FAILED,
+          "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands."
+      );
+    }
+  }
+
+  public static final class RtcProviderPackageLoaderException extends RuntimeException {
+    private final String code;
+
+    public RtcProviderPackageLoaderException(String code, String message) {
+      super(message);
+      this.code = code;
+    }
+
+    public String code() {
+      return code;
+    }
+  }
+
+  private RtcProviderPackageLoader() {
+  }
+}
+`);
+    case 'csharp':
+      return lines(`
+namespace Sdkwork.Rtc.Sdk;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public sealed class RtcProviderPackageLoaderException : Exception
+{
+    public RtcProviderPackageLoaderException(string code, string message)
+        : base(message)
+    {
+        this.code = code;
+    }
+
+    public string code { get; }
+}
+
+public sealed record RtcProviderPackageLoadRequest(
+    string? providerKey = null,
+    string? packageIdentity = null
+);
+
+public sealed record RtcResolvedProviderPackageLoadTarget(
+    RtcProviderPackageCatalogEntry packageEntry
+);
+
+public delegate object? RtcProviderPackageImportFn(RtcResolvedProviderPackageLoadTarget target);
+public delegate object? RtcProviderPackageLoaderFn(RtcProviderPackageLoadRequest request);
+
+public sealed record RtcProviderPackageInstallRequest(
+    object driverManager,
+    RtcProviderPackageLoadRequest loadRequest
+);
+
+public static class RtcProviderPackageLoader
+{
+    public const string ProviderPackageNotFound = "provider_package_not_found";
+    public const string ProviderPackageIdentityMismatch = "provider_package_identity_mismatch";
+    public const string ProviderPackageLoadFailed = "provider_package_load_failed";
+    public const string ProviderModuleExportMissing = "provider_module_export_missing";
+
+    public static RtcResolvedProviderPackageLoadTarget ResolveRtcProviderPackageLoadTarget(
+        RtcProviderPackageLoadRequest? request
+    )
+    {
+        request ??= new RtcProviderPackageLoadRequest();
+        var packageByProviderKey = string.IsNullOrWhiteSpace(request.providerKey)
+            ? null
+            : RtcProviderPackageCatalog.GetRtcProviderPackageByProviderKey(request.providerKey!);
+        var packageByIdentity = string.IsNullOrWhiteSpace(request.packageIdentity)
+            ? null
+            : RtcProviderPackageCatalog.GetRtcProviderPackageByPackageIdentity(request.packageIdentity!);
+
+        if (packageByProviderKey is not null
+            && packageByIdentity is not null
+            && !string.Equals(packageByProviderKey.packageIdentity, packageByIdentity.packageIdentity, StringComparison.Ordinal))
+        {
+            throw new RtcProviderPackageLoaderException(
+                ProviderPackageIdentityMismatch,
+                "providerKey and packageIdentity must resolve to the same provider package boundary."
+            );
+        }
+
+        var resolvedPackage = packageByProviderKey ?? packageByIdentity;
+        if (resolvedPackage is null)
+        {
+            throw new RtcProviderPackageLoaderException(
+                ProviderPackageNotFound,
+                "No official provider package matches the requested provider boundary."
+            );
+        }
+
+        return new RtcResolvedProviderPackageLoadTarget(resolvedPackage);
+    }
+
+    public static RtcProviderPackageLoaderFn CreateRtcProviderPackageLoader(
+        RtcProviderPackageImportFn importPackage
+    ) => request => LoadRtcProviderModule(request, importPackage);
+
+    public static object? LoadRtcProviderModule(
+        RtcProviderPackageLoadRequest request,
+        RtcProviderPackageImportFn importPackage
+    )
+    {
+        var target = ResolveRtcProviderPackageLoadTarget(request);
+
+        try
+        {
+            var providerModule = importPackage(target);
+            if (providerModule is null)
+            {
+                throw new RtcProviderPackageLoaderException(
+                    ProviderModuleExportMissing,
+                    "Reserved provider package loader scaffold requires an executable provider module namespace."
+                );
+            }
+
+            return providerModule;
+        }
+        catch (RtcProviderPackageLoaderException)
+        {
+            throw;
+        }
+        catch (Exception error)
+        {
+            throw new RtcProviderPackageLoaderException(
+                ProviderPackageLoadFailed,
+                $"Reserved provider package loader scaffold could not load {target.packageEntry.packageIdentity}: {error.Message}"
+            );
+        }
+    }
+
+    public static void InstallRtcProviderPackage(
+        RtcProviderPackageInstallRequest request,
+        RtcProviderPackageImportFn importPackage
+    )
+    {
+        _ = LoadRtcProviderModule(request.loadRequest, importPackage);
+
+        throw new RtcProviderPackageLoaderException(
+            ProviderPackageLoadFailed,
+            "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands."
+        );
+    }
+
+    public static void InstallRtcProviderPackages(
+        IReadOnlyList<RtcProviderPackageInstallRequest> requests,
+        RtcProviderPackageImportFn importPackage
+    )
+    {
+        foreach (var request in requests)
+        {
+            _ = LoadRtcProviderModule(request.loadRequest, importPackage);
+        }
+
+        if (requests.Count > 0)
+        {
+            throw new RtcProviderPackageLoaderException(
+                ProviderPackageLoadFailed,
+                "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands."
+            );
+        }
+    }
+}
+`);
+    case 'swift':
+      return lines(`
+public struct RtcProviderPackageLoaderException: Error {
+    public let code: String
+    public let message: String
+
+    public init(code: String, message: String) {
+        self.code = code
+        self.message = message
+    }
+}
+
+public struct RtcProviderPackageLoadRequest {
+    public let providerKey: String?
+    public let packageIdentity: String?
+
+    public init(providerKey: String? = nil, packageIdentity: String? = nil) {
+        self.providerKey = providerKey
+        self.packageIdentity = packageIdentity
+    }
+}
+
+public struct RtcResolvedProviderPackageLoadTarget {
+    public let packageEntry: RtcProviderPackageCatalogEntry
+
+    public init(packageEntry: RtcProviderPackageCatalogEntry) {
+        self.packageEntry = packageEntry
+    }
+}
+
+public typealias RtcProviderModuleNamespace = [String: String]
+public typealias RtcProviderPackageImportFn = (RtcResolvedProviderPackageLoadTarget) throws -> RtcProviderModuleNamespace
+public typealias RtcProviderPackageLoader = (RtcProviderPackageLoadRequest) throws -> RtcProviderModuleNamespace
+
+public struct RtcProviderPackageInstallRequest {
+    public let driverManager: Any
+    public let loadRequest: RtcProviderPackageLoadRequest
+
+    public init(driverManager: Any, loadRequest: RtcProviderPackageLoadRequest) {
+        self.driverManager = driverManager
+        self.loadRequest = loadRequest
+    }
+}
+
+public func resolveRtcProviderPackageLoadTarget(
+    _ request: RtcProviderPackageLoadRequest
+) throws -> RtcResolvedProviderPackageLoadTarget {
+    let packageByProviderKey = request.providerKey.flatMap(RtcProviderPackageCatalog.getRtcProviderPackageByProviderKey)
+    let packageByIdentity = request.packageIdentity.flatMap(RtcProviderPackageCatalog.getRtcProviderPackageByPackageIdentity)
+
+    if let providerKeyEntry = packageByProviderKey,
+       let packageIdentityEntry = packageByIdentity,
+       providerKeyEntry.packageIdentity != packageIdentityEntry.packageIdentity {
+        throw RtcProviderPackageLoaderException(
+            code: "provider_package_identity_mismatch",
+            message: "providerKey and packageIdentity must resolve to the same provider package boundary."
+        )
+    }
+
+    guard let resolvedPackage = packageByProviderKey ?? packageByIdentity else {
+        throw RtcProviderPackageLoaderException(
+            code: "provider_package_not_found",
+            message: "No official provider package matches the requested provider boundary."
+        )
+    }
+
+    return RtcResolvedProviderPackageLoadTarget(packageEntry: resolvedPackage)
+}
+
+public func createRtcProviderPackageLoader(
+    importPackage: @escaping RtcProviderPackageImportFn
+) -> RtcProviderPackageLoader {
+    return { request in
+        try loadRtcProviderModule(request, importPackage: importPackage)
+    }
+}
+
+public func loadRtcProviderModule(
+    _ request: RtcProviderPackageLoadRequest,
+    importPackage: RtcProviderPackageImportFn
+) throws -> RtcProviderModuleNamespace {
+    let target = try resolveRtcProviderPackageLoadTarget(request)
+
+    do {
+        let namespace = try importPackage(target)
+        if namespace.isEmpty {
+            throw RtcProviderPackageLoaderException(
+                code: "provider_module_export_missing",
+                message: "Reserved provider package loader scaffold requires an executable provider module namespace."
+            )
+        }
+
+        return namespace
+    } catch let error as RtcProviderPackageLoaderException {
+        throw error
+    } catch {
+        throw RtcProviderPackageLoaderException(
+            code: "provider_package_load_failed",
+            message: "Reserved provider package loader scaffold could not load \\(target.packageEntry.packageIdentity): \\(error)"
+        )
+    }
+}
+
+public func installRtcProviderPackage(
+    _ request: RtcProviderPackageInstallRequest,
+    importPackage: RtcProviderPackageImportFn
+) throws {
+    _ = try loadRtcProviderModule(request.loadRequest, importPackage: importPackage)
+
+    throw RtcProviderPackageLoaderException(
+        code: "provider_package_load_failed",
+        message: "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands."
+    )
+}
+
+public func installRtcProviderPackages(
+    _ requests: [RtcProviderPackageInstallRequest],
+    importPackage: RtcProviderPackageImportFn
+) throws {
+    for request in requests {
+        _ = try loadRtcProviderModule(request.loadRequest, importPackage: importPackage)
+    }
+
+    if !requests.isEmpty {
+        throw RtcProviderPackageLoaderException(
+            code: "provider_package_load_failed",
+            message: "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands."
+        )
+    }
+}
+`);
+    case 'kotlin':
+      return lines(`
+package com.sdkwork.rtc.metadata
+
+class RtcProviderPackageLoaderException(
+    val code: String,
+    override val message: String,
+) : RuntimeException(message)
+
+data class RtcProviderPackageLoadRequest(
+    val providerKey: String? = null,
+    val packageIdentity: String? = null,
+)
+
+data class RtcResolvedProviderPackageLoadTarget(
+    val packageEntry: RtcProviderPackageCatalogEntry,
+)
+
+typealias RtcProviderModuleNamespace = Map<String, String>
+typealias RtcProviderPackageImportFn = (RtcResolvedProviderPackageLoadTarget) -> RtcProviderModuleNamespace
+typealias RtcProviderPackageLoader = (RtcProviderPackageLoadRequest) -> RtcProviderModuleNamespace
+
+data class RtcProviderPackageInstallRequest(
+    val driverManager: Any,
+    val loadRequest: RtcProviderPackageLoadRequest,
+)
+
+fun resolveRtcProviderPackageLoadTarget(
+    request: RtcProviderPackageLoadRequest,
+): RtcResolvedProviderPackageLoadTarget {
+    val packageByProviderKey = request.providerKey?.let { RtcProviderPackageCatalog.getRtcProviderPackageByProviderKey(it) }
+    val packageByIdentity = request.packageIdentity?.let { RtcProviderPackageCatalog.getRtcProviderPackageByPackageIdentity(it) }
+
+    if (packageByProviderKey != null
+        && packageByIdentity != null
+        && packageByProviderKey.packageIdentity != packageByIdentity.packageIdentity
+    ) {
+        throw RtcProviderPackageLoaderException(
+            code = "provider_package_identity_mismatch",
+            message = "providerKey and packageIdentity must resolve to the same provider package boundary.",
+        )
+    }
+
+    val resolvedPackage = packageByProviderKey ?: packageByIdentity
+        ?: throw RtcProviderPackageLoaderException(
+            code = "provider_package_not_found",
+            message = "No official provider package matches the requested provider boundary.",
+        )
+
+    return RtcResolvedProviderPackageLoadTarget(packageEntry = resolvedPackage)
+}
+
+fun createRtcProviderPackageLoader(
+    importPackage: RtcProviderPackageImportFn,
+): RtcProviderPackageLoader = { request ->
+    loadRtcProviderModule(request, importPackage)
+}
+
+fun loadRtcProviderModule(
+    request: RtcProviderPackageLoadRequest,
+    importPackage: RtcProviderPackageImportFn,
+): RtcProviderModuleNamespace {
+    val target = resolveRtcProviderPackageLoadTarget(request)
+
+    return try {
+        val namespace = importPackage(target)
+        if (namespace.isEmpty()) {
+            throw RtcProviderPackageLoaderException(
+                code = "provider_module_export_missing",
+                message = "Reserved provider package loader scaffold requires an executable provider module namespace.",
+            )
+        }
+
+        namespace
+    } catch (error: RtcProviderPackageLoaderException) {
+        throw error
+    } catch (error: RuntimeException) {
+        throw RtcProviderPackageLoaderException(
+            code = "provider_package_load_failed",
+            message = "Reserved provider package loader scaffold could not load ${'$'}{target.packageEntry.packageIdentity}: ${'$'}{error.message}",
+        )
+    }
+}
+
+fun installRtcProviderPackage(
+    request: RtcProviderPackageInstallRequest,
+    importPackage: RtcProviderPackageImportFn,
+) {
+    loadRtcProviderModule(request.loadRequest, importPackage)
+
+    throw RtcProviderPackageLoaderException(
+        code = "provider_package_load_failed",
+        message = "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+    )
+}
+
+fun installRtcProviderPackages(
+    requests: Iterable<RtcProviderPackageInstallRequest>,
+    importPackage: RtcProviderPackageImportFn,
+) {
+    val materializedRequests = requests.toList()
+    materializedRequests.forEach { request ->
+        loadRtcProviderModule(request.loadRequest, importPackage)
+    }
+
+    if (materializedRequests.isNotEmpty()) {
+        throw RtcProviderPackageLoaderException(
+            code = "provider_package_load_failed",
+            message = "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+        )
+    }
+}
+`);
+    case 'go':
+      return lines(`
+package rtcstandard
+
+import "fmt"
+
+type RtcProviderPackageLoaderError struct {
+	Code    string
+	Message string
+}
+
+func (e RtcProviderPackageLoaderError) Error() string {
+	return fmt.Sprintf("%s: %s", e.Code, e.Message)
+}
+
+type RtcProviderPackageLoadRequest struct {
+	ProviderKey     string
+	PackageIdentity string
+}
+
+type RtcResolvedProviderPackageLoadTarget struct {
+	PackageEntry RtcProviderPackageCatalogEntry
+}
+
+type RtcProviderModuleNamespace map[string]string
+type RtcProviderPackageImportFn func(RtcResolvedProviderPackageLoadTarget) (RtcProviderModuleNamespace, error)
+type RtcProviderPackageLoader func(RtcProviderPackageLoadRequest) (RtcProviderModuleNamespace, error)
+
+type RtcProviderPackageInstallRequest struct {
+	DriverManager any
+	LoadRequest   RtcProviderPackageLoadRequest
+}
+
+func ResolveRtcProviderPackageLoadTarget(
+	request RtcProviderPackageLoadRequest,
+) (RtcResolvedProviderPackageLoadTarget, error) {
+	var packageByProviderKey *RtcProviderPackageCatalogEntry
+	if request.ProviderKey != "" {
+		packageByProviderKey = GetRtcProviderPackageByProviderKey(request.ProviderKey)
+	}
+
+	var packageByIdentity *RtcProviderPackageCatalogEntry
+	if request.PackageIdentity != "" {
+		packageByIdentity = GetRtcProviderPackageByPackageIdentity(request.PackageIdentity)
+	}
+
+	if packageByProviderKey != nil && packageByIdentity != nil && packageByProviderKey.PackageIdentity != packageByIdentity.PackageIdentity {
+		return RtcResolvedProviderPackageLoadTarget{}, RtcProviderPackageLoaderError{
+			Code:    "provider_package_identity_mismatch",
+			Message: "providerKey and packageIdentity must resolve to the same provider package boundary.",
+		}
+	}
+
+	resolvedPackage := packageByProviderKey
+	if resolvedPackage == nil {
+		resolvedPackage = packageByIdentity
+	}
+
+	if resolvedPackage == nil {
+		return RtcResolvedProviderPackageLoadTarget{}, RtcProviderPackageLoaderError{
+			Code:    "provider_package_not_found",
+			Message: "No official provider package matches the requested provider boundary.",
+		}
+	}
+
+	return RtcResolvedProviderPackageLoadTarget{PackageEntry: *resolvedPackage}, nil
+}
+
+func CreateRtcProviderPackageLoader(importPackage RtcProviderPackageImportFn) RtcProviderPackageLoader {
+	return func(request RtcProviderPackageLoadRequest) (RtcProviderModuleNamespace, error) {
+		return LoadRtcProviderModule(request, importPackage)
+	}
+}
+
+func LoadRtcProviderModule(
+	request RtcProviderPackageLoadRequest,
+	importPackage RtcProviderPackageImportFn,
+) (RtcProviderModuleNamespace, error) {
+	target, err := ResolveRtcProviderPackageLoadTarget(request)
+	if err != nil {
+		return nil, err
+	}
+
+	namespace, err := importPackage(target)
+	if err != nil {
+		return nil, RtcProviderPackageLoaderError{
+			Code:    "provider_package_load_failed",
+			Message: fmt.Sprintf("Reserved provider package loader scaffold could not load %s: %v", target.PackageEntry.PackageIdentity, err),
+		}
+	}
+
+	if len(namespace) == 0 {
+		return nil, RtcProviderPackageLoaderError{
+			Code:    "provider_module_export_missing",
+			Message: "Reserved provider package loader scaffold requires an executable provider module namespace.",
+		}
+	}
+
+	return namespace, nil
+}
+
+func InstallRtcProviderPackage(
+	request RtcProviderPackageInstallRequest,
+	importPackage RtcProviderPackageImportFn,
+) error {
+	if _, err := LoadRtcProviderModule(request.LoadRequest, importPackage); err != nil {
+		return err
+	}
+
+	return RtcProviderPackageLoaderError{
+		Code:    "provider_package_load_failed",
+		Message: "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+	}
+}
+
+func InstallRtcProviderPackages(
+	requests []RtcProviderPackageInstallRequest,
+	importPackage RtcProviderPackageImportFn,
+) error {
+	for _, request := range requests {
+		if _, err := LoadRtcProviderModule(request.LoadRequest, importPackage); err != nil {
+			return err
+		}
+	}
+
+	if len(requests) > 0 {
+		return RtcProviderPackageLoaderError{
+			Code:    "provider_package_load_failed",
+			Message: "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+		}
+	}
+
+	return nil
+}
+`);
+    case 'python':
+      return lines(`
+from dataclasses import dataclass
+from typing import Any, Callable
+
+from .provider_package_catalog import (
+    RtcProviderPackageCatalogEntry,
+    get_rtc_provider_package_by_package_identity,
+    get_rtc_provider_package_by_provider_key,
+)
+
+
+class RtcProviderPackageLoaderException(Exception):
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+@dataclass(frozen=True)
+class RtcProviderPackageLoadRequest:
+    providerKey: str | None = None
+    packageIdentity: str | None = None
+
+
+@dataclass(frozen=True)
+class RtcResolvedProviderPackageLoadTarget:
+    packageEntry: RtcProviderPackageCatalogEntry
+
+
+RtcProviderModuleNamespace = dict[str, str]
+RtcProviderPackageImportFn = Callable[
+    [RtcResolvedProviderPackageLoadTarget],
+    RtcProviderModuleNamespace,
+]
+RtcProviderPackageLoader = Callable[
+    [RtcProviderPackageLoadRequest],
+    RtcProviderModuleNamespace,
+]
+
+
+@dataclass(frozen=True)
+class RtcProviderPackageInstallRequest:
+    driverManager: Any
+    loadRequest: RtcProviderPackageLoadRequest
+
+
+def resolve_rtc_provider_package_load_target(
+    request: RtcProviderPackageLoadRequest,
+) -> RtcResolvedProviderPackageLoadTarget:
+    package_by_provider_key = (
+        get_rtc_provider_package_by_provider_key(request.providerKey)
+        if request.providerKey
+        else None
+    )
+    package_by_identity = (
+        get_rtc_provider_package_by_package_identity(request.packageIdentity)
+        if request.packageIdentity
+        else None
+    )
+
+    if (
+        package_by_provider_key is not None
+        and package_by_identity is not None
+        and package_by_provider_key.packageIdentity
+        != package_by_identity.packageIdentity
+    ):
+        raise RtcProviderPackageLoaderException(
+            "provider_package_identity_mismatch",
+            "providerKey and packageIdentity must resolve to the same provider package boundary.",
+        )
+
+    resolved_package = package_by_provider_key or package_by_identity
+    if resolved_package is None:
+        raise RtcProviderPackageLoaderException(
+            "provider_package_not_found",
+            "No official provider package matches the requested provider boundary.",
+        )
+
+    return RtcResolvedProviderPackageLoadTarget(packageEntry=resolved_package)
+
+
+def create_rtc_provider_package_loader(
+    import_package: RtcProviderPackageImportFn,
+) -> RtcProviderPackageLoader:
+    def _loader(request: RtcProviderPackageLoadRequest) -> RtcProviderModuleNamespace:
+        return load_rtc_provider_module(request, import_package)
+
+    return _loader
+
+
+def load_rtc_provider_module(
+    request: RtcProviderPackageLoadRequest,
+    import_package: RtcProviderPackageImportFn,
+) -> RtcProviderModuleNamespace:
+    target = resolve_rtc_provider_package_load_target(request)
+
+    try:
+        namespace = import_package(target)
+    except RtcProviderPackageLoaderException:
+        raise
+    except Exception as error:  # pragma: no cover - scaffold-only failure wrapper
+        raise RtcProviderPackageLoaderException(
+            "provider_package_load_failed",
+            f"Reserved provider package loader scaffold could not load {target.packageEntry.packageIdentity}: {error}",
+        ) from error
+
+    if not namespace:
+        raise RtcProviderPackageLoaderException(
+            "provider_module_export_missing",
+            "Reserved provider package loader scaffold requires an executable provider module namespace.",
+        )
+
+    return namespace
+
+
+def install_rtc_provider_package(
+    request: RtcProviderPackageInstallRequest,
+    import_package: RtcProviderPackageImportFn,
+) -> None:
+    load_rtc_provider_module(request.loadRequest, import_package)
+    raise RtcProviderPackageLoaderException(
+        "provider_package_load_failed",
+        "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+    )
+
+
+def install_rtc_provider_packages(
+    requests: list[RtcProviderPackageInstallRequest],
+    import_package: RtcProviderPackageImportFn,
+) -> None:
+    for request in requests:
+        load_rtc_provider_module(request.loadRequest, import_package)
+
+    if requests:
+        raise RtcProviderPackageLoaderException(
+            "provider_package_load_failed",
+            "Reserved provider package installer scaffold cannot register provider modules until a verified runtime bridge lands.",
+        )
+`);
+    default:
+      return '';
+  }
+}
+
 function renderReservedLanguageDriverManagerModule(language) {
   switch (language) {
     case 'flutter':
@@ -4166,6 +5343,7 @@ pub mod language_workspace_catalog;
 pub mod provider_activation_catalog;
 pub mod provider_catalog;
 pub mod provider_package_catalog;
+pub mod provider_package_loader;
 pub mod provider_extension_catalog;
 pub mod provider_selection;
 pub mod provider_support;
@@ -8075,6 +9253,7 @@ export 'src/rtc_capability_catalog.dart';
 export 'src/rtc_provider_extension_catalog.dart';
 export 'src/rtc_language_workspace_catalog.dart';
 export 'src/rtc_provider_selection.dart';
+export 'src/rtc_provider_package_loader.dart';
 export 'src/rtc_provider_support.dart';
 export 'src/rtc_driver_manager.dart';
 export 'src/rtc_data_source.dart';
@@ -8122,7 +9301,22 @@ from .provider_extension_catalog import (
 from .provider_package_catalog import (
     RtcProviderPackageCatalog,
     RtcProviderPackageCatalogEntry,
+    get_rtc_provider_package_by_package_identity,
     get_rtc_provider_package_by_provider_key,
+)
+from .provider_package_loader import (
+    RtcProviderModuleNamespace,
+    RtcProviderPackageImportFn,
+    RtcProviderPackageInstallRequest,
+    RtcProviderPackageLoadRequest,
+    RtcProviderPackageLoader,
+    RtcProviderPackageLoaderException,
+    RtcResolvedProviderPackageLoadTarget,
+    create_rtc_provider_package_loader,
+    install_rtc_provider_package,
+    install_rtc_provider_packages,
+    load_rtc_provider_module,
+    resolve_rtc_provider_package_load_target,
 )
 from .provider_selection import (
     ParsedRtcProviderUrl,
@@ -8172,14 +9366,22 @@ __all__ = [
     "RtcProviderExtensionCatalogEntry",
     "RtcProviderPackageCatalog",
     "RtcProviderPackageCatalogEntry",
+    "RtcProviderPackageImportFn",
+    "RtcProviderPackageInstallRequest",
+    "RtcProviderPackageLoadRequest",
+    "RtcProviderPackageLoader",
+    "RtcProviderPackageLoaderException",
+    "RtcProviderModuleNamespace",
     "RtcProviderSelection",
     "RtcProviderSelectionRequest",
     "RtcProviderSelectionSource",
     "RtcProviderSupport",
     "RtcProviderSupportStateRequest",
     "RtcProviderSupportStatus",
+    "RtcResolvedProviderPackageLoadTarget",
     "RtcRuntimeController",
     "RtcStandardContract",
+    "create_rtc_provider_package_loader",
     "create_rtc_provider_support_state",
     "get_rtc_capability_catalog",
     "get_rtc_capability_descriptor",
@@ -8190,9 +9392,14 @@ __all__ = [
     "get_rtc_provider_extension_descriptor",
     "get_rtc_provider_extensions",
     "get_rtc_provider_extensions_for_provider",
+    "get_rtc_provider_package_by_package_identity",
     "get_rtc_provider_package_by_provider_key",
     "has_rtc_provider_extension",
+    "install_rtc_provider_package",
+    "install_rtc_provider_packages",
+    "load_rtc_provider_module",
     "parse_rtc_provider_url",
+    "resolve_rtc_provider_package_load_target",
     "resolve_rtc_provider_selection",
     "resolve_rtc_provider_support_status",
 ]
@@ -8202,6 +9409,19 @@ __all__ = [
     default:
       return [];
   }
+}
+
+function renderReservedLanguageProviderPackageLoaderPlan(languageEntry) {
+  if (!languageEntry.resolutionScaffold?.providerPackageLoaderRelativePath) {
+    return [];
+  }
+
+  return [
+    {
+      relativePath: `${languageEntry.workspace}/${languageEntry.resolutionScaffold.providerPackageLoaderRelativePath}`,
+      content: renderReservedLanguageProviderPackageLoaderModule(languageEntry.language),
+    },
+  ];
 }
 
 export function buildReservedLanguageMaterializationPlan(languageEntry, assembly) {
@@ -8284,6 +9504,7 @@ export function buildReservedLanguageMaterializationPlan(languageEntry, assembly
     ...renderReservedLanguageRootPublicEntrypointPlan(languageEntry),
     ...renderReservedLanguageWorkspaceCatalogPlan(languageEntry, assembly),
     ...renderReservedLanguageProviderActivationCatalogPlan(languageEntry, assembly),
+    ...renderReservedLanguageProviderPackageLoaderPlan(languageEntry),
     ...renderReservedLanguageProviderPackageScaffoldPlan(languageEntry, assembly),
     ...renderReservedLanguageProviderPackageBoundaryPlan(languageEntry, assembly),
   ];

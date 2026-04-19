@@ -20,7 +20,7 @@ Current role:
 - future Flutter runtime bridge work must follow the TypeScript baseline contract
 - code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
 - metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, and provider support boundaries before runtime bridge landing
+- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
 
 This workspace is materialized now so the official language matrix stays explicit and verifiable. Future Flutter runtime bridge work must follow the same provider-adapter and capability standards as the TypeScript baseline.
 
@@ -57,6 +57,7 @@ Resolution scaffold:
 - driver manager: `lib/src/rtc_driver_manager.dart`
 - data source: `lib/src/rtc_data_source.dart`
 - provider support: `lib/src/rtc_provider_support.dart`
+- provider package loader: `lib/src/rtc_provider_package_loader.dart`
 
 
 Provider package scaffold:

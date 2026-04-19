@@ -38,3 +38,11 @@ def get_rtc_provider_package_by_provider_key(provider_key: str) -> Optional[RtcP
             return entry
 
     return None
+
+
+def get_rtc_provider_package_by_package_identity(package_identity: str) -> Optional[RtcProviderPackageCatalogEntry]:
+    for entry in RtcProviderPackageCatalog.entries:
+        if entry.packageIdentity == package_identity:
+            return entry
+
+    return None

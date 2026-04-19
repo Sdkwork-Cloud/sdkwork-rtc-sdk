@@ -73,8 +73,8 @@ Rules:
 - reserved non-TypeScript language metadata scaffolds must keep the same explicit lookup semantics
   with language-idiomatic helper names:
   `getRtcProviderByProviderKey(...)` / `GetRtcProviderByProviderKey(...)` /
-  `get_rtc_provider_by_provider_key(...)`, plus the corresponding capability and provider-extension
-  helper families
+  `get_rtc_provider_by_provider_key(...)`, plus provider package lookup by provider key and
+  package identity, and the corresponding capability and provider-extension helper families
 - reserved non-TypeScript language metadata scaffolds must also expose standalone provider
   selection helpers with language-idiomatic names for source catalogs, precedence catalogs,
   provider-URL parsing, and selection resolution instead of burying precedence inside
@@ -94,6 +94,19 @@ Rules:
 - reserved non-TypeScript language resolution scaffolds must delegate provider-support
   classification to that standalone helper module after provider catalog and provider activation
   lookup instead of re-embedding status logic inside driver managers
+- reserved non-TypeScript language resolution scaffolds must also expose a standalone provider
+  package loader module through `resolutionScaffold.providerPackageLoaderRelativePath`
+- that reserved provider package loader module must preserve `RtcProviderPackageLoadRequest`,
+  `RtcResolvedProviderPackageLoadTarget`, `RtcProviderPackageLoader`,
+  `createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
+  `loadRtcProviderModule(...)`, `installRtcProviderPackage(...)`, and
+  `installRtcProviderPackages(...)` with language-idiomatic naming
+- that reserved provider package loader module must keep package-boundary lookup explicit through
+  provider-key and package-identity helpers instead of ad hoc array scans
+- that reserved provider package loader module must preserve the stable failure codes
+  `provider_package_not_found`, `provider_package_identity_mismatch`,
+  `provider_package_load_failed`, and `provider_module_export_missing` until an executable runtime
+  bridge is verified
 - the materialized capability catalog must expose one descriptor per capability with a
   `category` and `surface`
 - the materialized capability catalog must keep `getRtcCapabilityCatalog(...)` and
@@ -157,8 +170,9 @@ Rules:
   and `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`
 - those reserved root public entrypoints must re-export the standard contract, provider catalog,
   provider package catalog, provider activation catalog, capability catalog, provider extension
-  catalog, language workspace catalog, provider selection, provider support, driver manager, and
-  data source surfaces instead of pushing consumers onto private submodules
+  catalog, language workspace catalog, provider selection, provider package loader, provider
+  support, driver manager, and data source surfaces instead of pushing consumers onto private
+  submodules
 - reserved Go metadata and resolution DTOs must expose PascalCase public fields such as
   `ProviderKey`, `PluginId`, `DriverId`, `PackageIdentity`, `RuntimeBridgeStatus`, and
   `DefaultProviderKey` so the standard structs remain consumable outside the package
@@ -370,6 +384,12 @@ Every official non-TypeScript reserved workspace must also declare a `resolution
 - driver manager
 - data source
 - provider support
+- provider package loader
+
+That `resolutionScaffold` contract must keep `driverManagerRelativePath`,
+`dataSourceRelativePath`, `providerSupportRelativePath`, and
+`providerPackageLoaderRelativePath` explicit in assembly metadata so each language workspace has a
+deterministic public file boundary for future runtime integration.
 
 Reserved resolution scaffolds must stay provider-neutral and assembly-aligned.
 They must preserve the standard resolution tokens:
@@ -388,10 +408,18 @@ They must preserve the standard resolution tokens:
 - `registered`
 - `official_unregistered`
 - `unknown`
+- `RtcProviderPackageLoadRequest`
+- `RtcResolvedProviderPackageLoadTarget`
+- `RtcProviderPackageLoader`
+- `provider_package_not_found`
+- `provider_package_identity_mismatch`
+- `provider_package_load_failed`
+- `provider_module_export_missing`
 
 These reserved resolution layers are not runtime bridges.
 They exist so every future language implementation inherits the same metadata-only `DriverManager`
-and `DataSource` selection vocabulary before any native RTC SDK is bound.
+and `DataSource` selection vocabulary plus the same provider package loading and installation
+boundary before any native RTC SDK is bound.
 
 Capability descriptors must distinguish control-plane capability metadata from runtime-bridge
 capability metadata.

@@ -213,6 +213,9 @@ discovery stays machine-readable. That provider package catalog must preserve th
 `providerKey`, `pluginId`, `driverId`, `packageIdentity`, `manifestPath`, `readmePath`,
 `sourcePath`, `sourceSymbol`, `builtin`, `rootPublic`, `status`, and `runtimeBridgeStatus`
 metadata that the provider package boundary materializes on disk.
+That reserved provider package catalog must also keep package-boundary lookup explicit through
+provider-key and package-identity helpers with language-idiomatic naming, not through ad hoc array
+scans.
 Each official language must also expose a provider activation catalog so runtime availability,
 root-public exposure, and package-boundary activation stay machine-readable without reading docs or
 inferring from package layout. That catalog must preserve `providerKey`, `pluginId`, `driverId`,
@@ -237,6 +240,27 @@ The TypeScript executable baseline keeps provider extension lookup explicit thro
 Reserved non-TypeScript language workspaces must preserve the same semantics with
 language-idiomatic helper naming for capability and provider-extension catalogs, not just provider
 identity catalogs.
+Each reserved non-TypeScript language workspace must also declare
+`resolutionScaffold.providerPackageLoaderRelativePath` and ship a provider-package loader scaffold.
+That scaffold fixes the future package-resolution and installation boundary before runtime code
+exists. It must preserve:
+
+- `RtcProviderPackageLoadRequest`
+- `RtcResolvedProviderPackageLoadTarget`
+- `RtcProviderPackageLoader`
+- `createRtcProviderPackageLoader(...)`
+- `resolveRtcProviderPackageLoadTarget(...)`
+- `loadRtcProviderModule(...)`
+- `installRtcProviderPackage(...)`
+- `installRtcProviderPackages(...)`
+- `provider_package_not_found`
+- `provider_package_identity_mismatch`
+- `provider_package_load_failed`
+- `provider_module_export_missing`
+
+Reserved root public entrypoints such as `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart` and
+`sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py` must also re-expose that provider-package
+loader surface so consumers do not need private imports for the standard boundary.
 Each official language must also expose a language workspace catalog so language identity, public
 package identity, maturity tier, runtime/control support, current role, workspace summary, and
 role highlights stay machine-readable without scraping README prose. That catalog must preserve

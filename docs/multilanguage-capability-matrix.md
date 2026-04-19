@@ -132,16 +132,16 @@ support boundaries, and maturity tiers stay exact and verifiable.
 
 ## Reserved Language Resolution Scaffold Matrix
 
-| Language | Driver manager | Data source | Provider support |
-| --- | --- | --- | --- |
-| Flutter | `lib/src/rtc_driver_manager.dart` | `lib/src/rtc_data_source.dart` | `lib/src/rtc_provider_support.dart` |
-| Rust | `src/driver_manager.rs` | `src/data_source.rs` | `src/provider_support.rs` |
-| Java | `src/main/java/com/sdkwork/rtc/metadata/RtcDriverManager.java` | `src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java` | `src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java` |
-| C# | `src/SDKWork.Rtc.Sdk/RtcDriverManager.cs` | `src/SDKWork.Rtc.Sdk/RtcDataSource.cs` | `src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs` |
-| Swift | `Sources/RtcSdk/RtcDriverManager.swift` | `Sources/RtcSdk/RtcDataSource.swift` | `Sources/RtcSdk/RtcProviderSupport.swift` |
-| Kotlin | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcDriverManager.kt` | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcDataSource.kt` | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt` |
-| Go | `rtcstandard/driver_manager.go` | `rtcstandard/data_source.go` | `rtcstandard/provider_support.go` |
-| Python | `sdkwork_rtc_sdk/driver_manager.py` | `sdkwork_rtc_sdk/data_source.py` | `sdkwork_rtc_sdk/provider_support.py` |
+| Language | Driver manager | Data source | Provider support | Provider package loader |
+| --- | --- | --- | --- | --- |
+| Flutter | `lib/src/rtc_driver_manager.dart` | `lib/src/rtc_data_source.dart` | `lib/src/rtc_provider_support.dart` | `lib/src/rtc_provider_package_loader.dart` |
+| Rust | `src/driver_manager.rs` | `src/data_source.rs` | `src/provider_support.rs` | `src/provider_package_loader.rs` |
+| Java | `src/main/java/com/sdkwork/rtc/metadata/RtcDriverManager.java` | `src/main/java/com/sdkwork/rtc/metadata/RtcDataSource.java` | `src/main/java/com/sdkwork/rtc/metadata/RtcProviderSupport.java` | `src/main/java/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.java` |
+| C# | `src/SDKWork.Rtc.Sdk/RtcDriverManager.cs` | `src/SDKWork.Rtc.Sdk/RtcDataSource.cs` | `src/SDKWork.Rtc.Sdk/RtcProviderSupport.cs` | `src/SDKWork.Rtc.Sdk/RtcProviderPackageLoader.cs` |
+| Swift | `Sources/RtcSdk/RtcDriverManager.swift` | `Sources/RtcSdk/RtcDataSource.swift` | `Sources/RtcSdk/RtcProviderSupport.swift` | `Sources/RtcSdk/RtcProviderPackageLoader.swift` |
+| Kotlin | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcDriverManager.kt` | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcDataSource.kt` | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderSupport.kt` | `src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderPackageLoader.kt` |
+| Go | `rtcstandard/driver_manager.go` | `rtcstandard/data_source.go` | `rtcstandard/provider_support.go` | `rtcstandard/provider_package_loader.go` |
+| Python | `sdkwork_rtc_sdk/driver_manager.py` | `sdkwork_rtc_sdk/data_source.py` | `sdkwork_rtc_sdk/provider_support.py` | `sdkwork_rtc_sdk/provider_package_loader.py` |
 
 ## Reserved Language Provider Package Scaffold Matrix
 
