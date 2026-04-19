@@ -29,8 +29,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard`
-  materialized into docs and matrix assets
+  `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
+  `languageMaturityStandard` materialized into docs and matrix assets
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -120,6 +120,8 @@ The root verifier must confirm:
   `capabilityStandard.surfaceTerms`
 - `.sdkwork-assembly.json` declares `capabilityNegotiationStandard.statusTerms` and
   `capabilityNegotiationStandard.statusRules`
+- `.sdkwork-assembly.json` declares `errorCodeStandard.codeTerms` and
+  `errorCodeStandard.fallbackCode`
 - `.sdkwork-assembly.json` declares `providerExtensionStandard.accessTerms` and
   `providerExtensionStandard.statusTerms`
 - `.sdkwork-assembly.json` declares `providerTierStandard.tierTerms` and
@@ -307,6 +309,8 @@ The root verifier must confirm:
 - the TypeScript capability negotiation module exists and preserves
   `RTC_CAPABILITY_NEGOTIATION_STATUSES`, `RTC_CAPABILITY_NEGOTIATION_RULES`, and
   `resolveRtcCapabilityNegotiationStatus(...)`
+- the TypeScript errors module exists and preserves `RTC_SDK_ERROR_CODES`,
+  `RTC_SDK_ERROR_FALLBACK_CODE`, `RtcSdkException`, and the canonical fallback `vendor_error`
 - the TypeScript provider support module exists and preserves the standard support-status tokens,
   status set, and the public helpers `resolveRtcProviderSupportStatus(...)` and
   `createRtcProviderSupportState(...)`
@@ -370,8 +374,10 @@ The TypeScript workspace must verify:
   support descriptors, and capability negotiation results remain immutable snapshots
 - `RTC_PROVIDER_SELECTION_SOURCES` and `RTC_PROVIDER_SELECTION_PRECEDENCE` remain `runtime-frozen`
 - `RTC_PROVIDER_SUPPORT_STATUSES` remains `runtime-frozen`
+- `RTC_SDK_ERROR_CODES` remains `runtime-frozen`
 - `parseRtcProviderUrl(...)` and `resolveRtcProviderSelection(...)` remain root-public
 - `resolveRtcProviderSupportStatus(...)` and `createRtcProviderSupportState(...)` remain root-public
+- `RtcSdkException`, `RTC_SDK_ERROR_CODES`, and `RTC_SDK_ERROR_FALLBACK_CODE` remain root-public
 - `getRtcProviderByProviderKey(...)` remains root-public
 - `getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)` remain root-public
 - `getRtcProviderPackageByProviderKey(...)` remains root-public

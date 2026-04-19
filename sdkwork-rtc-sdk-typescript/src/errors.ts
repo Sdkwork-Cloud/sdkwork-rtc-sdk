@@ -1,19 +1,26 @@
-export type RtcSdkErrorCode =
-  | 'provider_package_not_found'
-  | 'provider_package_identity_mismatch'
-  | 'provider_package_load_failed'
-  | 'provider_module_export_missing'
-  | 'provider_module_contract_mismatch'
-  | 'driver_already_registered'
-  | 'driver_not_found'
-  | 'provider_not_official'
-  | 'provider_not_supported'
-  | 'provider_metadata_mismatch'
-  | 'provider_selection_failed'
-  | 'capability_not_supported'
-  | 'invalid_provider_url'
-  | 'native_sdk_not_available'
-  | 'vendor_error';
+import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+
+export const RTC_SDK_ERROR_CODES = freezeRtcRuntimeValue([
+  'provider_package_not_found',
+  'provider_package_identity_mismatch',
+  'provider_package_load_failed',
+  'provider_module_export_missing',
+  'provider_module_contract_mismatch',
+  'driver_already_registered',
+  'driver_not_found',
+  'provider_not_official',
+  'provider_not_supported',
+  'provider_metadata_mismatch',
+  'provider_selection_failed',
+  'capability_not_supported',
+  'invalid_provider_url',
+  'native_sdk_not_available',
+  'vendor_error',
+] as const);
+
+export type RtcSdkErrorCode = (typeof RTC_SDK_ERROR_CODES)[number];
+
+export const RTC_SDK_ERROR_FALLBACK_CODE: RtcSdkErrorCode = 'vendor_error';
 
 export interface RtcSdkExceptionOptions {
   code: RtcSdkErrorCode;

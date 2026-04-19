@@ -828,6 +828,12 @@ function renderCapabilityMatrix(assembly) {
     `- \`capabilityNegotiationStandard.statusRules.degraded\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.degraded ?? ''}\``,
     `- \`capabilityNegotiationStandard.statusRules.unsupported\`: \`${assembly.capabilityNegotiationStandard?.statusRules?.unsupported ?? ''}\``,
   ].join('\n');
+  const errorCodeStandardLines = [
+    `- \`errorCodeStandard.codeTerms\`: ${renderMarkdownCodeList(
+      assembly.errorCodeStandard?.codeTerms ?? [],
+    )}`,
+    `- \`errorCodeStandard.fallbackCode\`: \`${assembly.errorCodeStandard?.fallbackCode ?? ''}\``,
+  ].join('\n');
   const providerExtensionStandardLines = [
     `- \`providerExtensionStandard.accessTerms\`: ${renderMarkdownCodeList(
       assembly.providerExtensionStandard?.accessTerms ?? [],
@@ -887,6 +893,10 @@ ${capabilityStandardLines}
 ## Capability Negotiation Standard
 
 ${capabilityNegotiationStandardLines}
+
+## Error Code Standard
+
+${errorCodeStandardLines}
 
 ## Provider Extension Standard
 

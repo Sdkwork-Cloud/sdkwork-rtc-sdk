@@ -100,7 +100,7 @@ catalog must preserve it through `providerPackageBoundaryContract.modeTerms`,
 Provider adapters must consume those standard vocabularies and must not invent alternate
 package-boundary status or root-public-policy terms locally.
 
-The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
+The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`, `errorCodeStandard`,
 `providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard` are also
 canonical.
 Provider adapters, catalogs, and docs must consume those top-level vocabularies instead of
@@ -441,6 +441,18 @@ This order must stay stable across language implementations.
 
 ## Error Semantics Rule
 
+- the TypeScript errors module at `src/errors.ts` owns `RTC_SDK_ERROR_CODES`,
+  `RTC_SDK_ERROR_FALLBACK_CODE`, and `RtcSdkException`
+- the assembly-driven `errorCodeStandard` is canonical for both the shared error vocabulary and
+  the fallback error contract
+- the canonical RTC SDK error set is `provider_package_not_found`,
+  `provider_package_identity_mismatch`, `provider_package_load_failed`,
+  `provider_module_export_missing`, `provider_module_contract_mismatch`,
+  `driver_already_registered`, `driver_not_found`, `provider_not_official`,
+  `provider_not_supported`, `provider_metadata_mismatch`, `provider_selection_failed`,
+  `capability_not_supported`, `invalid_provider_url`, `native_sdk_not_available`, and
+  `vendor_error`
+- the canonical fallback error remains `vendor_error`
 - use `provider_not_supported` when a provider exists in the official catalog but the current runtime
   has not registered a driver for it
 - use `driver_not_found` only when the requested provider is unknown to the official catalog

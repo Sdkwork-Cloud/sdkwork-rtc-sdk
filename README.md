@@ -32,12 +32,13 @@ This workspace standardizes:
   `sdkwork-rtc-sdk-typescript/src/provider-support.ts`
 - provider metadata and capability declaration from one assembly source of truth
 - explicit capability negotiation and degradation with surface-aware results
+- assembly-driven RTC error vocabulary and fallback semantics
 - provider extension metadata and escape hatch contracts from one assembly source of truth
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
 - assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `providerExtensionStandard`, `providerTierStandard`, and `languageMaturityStandard`
-  vocabularies
+  `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
+  `languageMaturityStandard` vocabularies
 - assembly-driven `typescriptAdapterStandard` and `typescriptPackageStandard` contracts for
   TypeScript provider adapter and package identity normalization
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
@@ -98,6 +99,8 @@ The top-level assembly also fixes the shared vocabulary standards:
 - `capabilityStandard.surfaceTerms`
 - `capabilityNegotiationStandard.statusTerms`
 - `capabilityNegotiationStandard.statusRules`
+- `errorCodeStandard.codeTerms`
+- `errorCodeStandard.fallbackCode`
 - `providerExtensionStandard.accessTerms`
 - `providerExtensionStandard.statusTerms`
 - `providerTierStandard.tierTerms`
@@ -188,6 +191,11 @@ The TypeScript capability negotiation module at
 `RTC_CAPABILITY_NEGOTIATION_STATUSES`, `RTC_CAPABILITY_NEGOTIATION_RULES`, and
 `resolveRtcCapabilityNegotiationStatus(...)` stable so negotiation outcomes and downgrade rules stay
 assembly-governed instead of being re-embedded as ad hoc string literals inside runtime entrypoints.
+
+The TypeScript errors module at `sdkwork-rtc-sdk-typescript/src/errors.ts` must also keep
+`RTC_SDK_ERROR_CODES`, `RTC_SDK_ERROR_FALLBACK_CODE`, and `RtcSdkException` stable so the shared
+error vocabulary stays assembly-governed instead of being re-embedded as ad hoc string literals.
+The canonical fallback remains `vendor_error`.
 
 The TypeScript provider-package catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts` must also keep

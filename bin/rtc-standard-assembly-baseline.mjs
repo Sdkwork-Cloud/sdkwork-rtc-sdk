@@ -3,6 +3,8 @@ import {
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
   RTC_CAPABILITY_SURFACES,
+  RTC_SDK_ERROR_CODES,
+  RTC_SDK_ERROR_FALLBACK_CODE,
   BUILTIN_RTC_PROVIDER_KEYS,
   DEFAULT_RTC_PROVIDER_KEY,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
@@ -149,6 +151,19 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   ) {
     throw new Error(
       'capabilityNegotiationStandard.statusRules must exactly match the canonical negotiation rules',
+    );
+  }
+
+  const errorCodeStandard = assembly.errorCodeStandard ?? {};
+  if (!hasExactArray(errorCodeStandard.codeTerms, RTC_SDK_ERROR_CODES)) {
+    throw new Error(
+      `errorCodeStandard.codeTerms must be ${RTC_SDK_ERROR_CODES.join(', ')}`,
+    );
+  }
+
+  if (errorCodeStandard.fallbackCode !== RTC_SDK_ERROR_FALLBACK_CODE) {
+    throw new Error(
+      `errorCodeStandard.fallbackCode must be ${RTC_SDK_ERROR_FALLBACK_CODE}, received: ${errorCodeStandard.fallbackCode ?? '<missing>'}`,
     );
   }
 
@@ -394,6 +409,7 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     providerActivationStandard,
     capabilityStandard,
     capabilityNegotiationStandard,
+    errorCodeStandard,
     providerExtensionStandard,
     providerTierStandard,
     languageMaturityStandard,

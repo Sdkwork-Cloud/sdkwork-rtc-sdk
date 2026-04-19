@@ -17,6 +17,28 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.resolveRtcCapabilityNegotiationStatus, 'function');
   assert.equal(typeof sdk.RTC_CAPABILITY_NEGOTIATION_STATUSES, 'object');
   assert.equal(typeof sdk.RTC_CAPABILITY_NEGOTIATION_RULES, 'object');
+  assert.equal(typeof sdk.RtcSdkException, 'function');
+  assert.equal(typeof sdk.RTC_SDK_ERROR_CODES, 'object');
+  assert.equal(typeof sdk.RTC_SDK_ERROR_FALLBACK_CODE, 'string');
+  assert.deepEqual(sdk.RTC_SDK_ERROR_CODES, [
+    'provider_package_not_found',
+    'provider_package_identity_mismatch',
+    'provider_package_load_failed',
+    'provider_module_export_missing',
+    'provider_module_contract_mismatch',
+    'driver_already_registered',
+    'driver_not_found',
+    'provider_not_official',
+    'provider_not_supported',
+    'provider_metadata_mismatch',
+    'provider_selection_failed',
+    'capability_not_supported',
+    'invalid_provider_url',
+    'native_sdk_not_available',
+    'vendor_error',
+  ]);
+  assert.equal(Object.isFrozen(sdk.RTC_SDK_ERROR_CODES), true);
+  assert.equal(sdk.RTC_SDK_ERROR_FALLBACK_CODE, 'vendor_error');
   assert.equal(typeof sdk.resolveRtcProviderSupportStatus, 'function');
   assert.equal(typeof sdk.createRtcProviderSupportState, 'function');
   assert.equal(typeof sdk.RTC_PROVIDER_SUPPORT_STATUSES, 'object');

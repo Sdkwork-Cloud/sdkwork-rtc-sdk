@@ -99,6 +99,10 @@ Rules:
   `RTC_CAPABILITY_NEGOTIATION_RULES`, and `resolveRtcCapabilityNegotiationStatus(...)`
 - `.sdkwork-assembly.json` must declare `capabilityNegotiationStandard.statusTerms` and
   `capabilityNegotiationStandard.statusRules`
+- the errors module must expose `RTC_SDK_ERROR_CODES`, `RTC_SDK_ERROR_FALLBACK_CODE`,
+  and `RtcSdkException`
+- `.sdkwork-assembly.json` must declare `errorCodeStandard.codeTerms` and
+  `errorCodeStandard.fallbackCode`
 - reserved non-TypeScript language resolution scaffolds must delegate provider-support
   classification to that standalone helper module after provider catalog and provider activation
   lookup instead of re-embedding status logic inside driver managers
@@ -139,12 +143,22 @@ Rules:
 - `capabilityStandard` is the canonical source for capability `categoryTerms` and `surfaceTerms`
 - `capabilityNegotiationStandard` is the canonical source for capability negotiation `statusTerms`
   and `statusRules`
+- `errorCodeStandard` is the canonical source for the shared RTC SDK error vocabulary and fallback
+  semantics
 - `providerExtensionStandard` is the canonical source for provider extension `accessTerms` and
   `statusTerms`
 - `providerTierStandard` is the canonical source for provider `tierTerms` and `tierSummaries`
 - `languageMaturityStandard` is the canonical source for workspace `tierTerms` and `tierSummaries`
 - capability negotiation status values are standardized as `supported`, `degraded`, and
   `unsupported`
+- RTC SDK error values are standardized as `provider_package_not_found`,
+  `provider_package_identity_mismatch`, `provider_package_load_failed`,
+  `provider_module_export_missing`, `provider_module_contract_mismatch`,
+  `driver_already_registered`, `driver_not_found`, `provider_not_official`,
+  `provider_not_supported`, `provider_metadata_mismatch`, `provider_selection_failed`,
+  `capability_not_supported`, `invalid_provider_url`, `native_sdk_not_available`, and
+  `vendor_error`
+- the shared RTC SDK fallback error must stay `vendor_error`
 - provider package boundaries live under `providers/rtc-sdk-provider-<providerKey>/`
 - every provider package must publish executable `index.js` and `index.d.ts` entrypoints
 - every provider package manifest must declare `exports` so `import` and `default` resolve to

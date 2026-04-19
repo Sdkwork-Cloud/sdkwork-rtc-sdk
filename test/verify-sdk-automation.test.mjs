@@ -111,6 +111,26 @@ const EXPECTED_CAPABILITY_NEGOTIATION_STANDARD = {
   statusTerms: RTC_CAPABILITY_NEGOTIATION_STATUSES,
   statusRules: RTC_CAPABILITY_NEGOTIATION_RULES,
 };
+const EXPECTED_ERROR_CODE_STANDARD = {
+  codeTerms: [
+    'provider_package_not_found',
+    'provider_package_identity_mismatch',
+    'provider_package_load_failed',
+    'provider_module_export_missing',
+    'provider_module_contract_mismatch',
+    'driver_already_registered',
+    'driver_not_found',
+    'provider_not_official',
+    'provider_not_supported',
+    'provider_metadata_mismatch',
+    'provider_selection_failed',
+    'capability_not_supported',
+    'invalid_provider_url',
+    'native_sdk_not_available',
+    'vendor_error',
+  ],
+  fallbackCode: 'vendor_error',
+};
 
 function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
   const boundary = languageEntry.providerPackageBoundary;
@@ -207,6 +227,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /capability negotiation/i);
   assert.match(rootReadme, /degraded/i);
   assert.match(rootReadme, /unsupported/i);
+  assert.match(rootReadme, /errorCodeStandard/);
+  assert.match(rootReadme, /RTC_SDK_ERROR_CODES/);
+  assert.match(rootReadme, /RTC_SDK_ERROR_FALLBACK_CODE/);
+  assert.match(rootReadme, /vendor_error/);
   assert.match(rootReadme, /smoke-sdk\.mjs/);
   assert.match(rootReadme, /full regression/i);
   assert.match(rootReadme, /\.gitignore/);
@@ -222,6 +246,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /providerPackageBoundaryContract/);
   assert.match(rootReadme, /capabilityStandard/);
   assert.match(rootReadme, /capabilityNegotiationStandard/);
+  assert.match(rootReadme, /errorCodeStandard/);
   assert.match(rootReadme, /providerExtensionStandard/);
   assert.match(rootReadme, /providerTierStandard/);
   assert.match(rootReadme, /languageMaturityStandard/);
@@ -263,6 +288,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /providerPackageBoundaryContract/);
   assert.match(docsReadme, /capabilityStandard/);
   assert.match(docsReadme, /capabilityNegotiationStandard/);
+  assert.match(docsReadme, /errorCodeStandard/);
   assert.match(docsReadme, /providerExtensionStandard/);
   assert.match(docsReadme, /providerTierStandard/);
   assert.match(docsReadme, /languageMaturityStandard/);
@@ -285,6 +311,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /getRtcLanguageWorkspaceByLanguage/);
   assert.match(docsReadme, /provider support classification/i);
   assert.match(docsReadme, /provider package loader/i);
+  assert.match(docsReadme, /RTC_SDK_ERROR_CODES/);
+  assert.match(docsReadme, /RTC_SDK_ERROR_FALLBACK_CODE/);
+  assert.match(docsReadme, /vendor_error/);
   assert.match(docsReadme, /provider lookup by key/i);
 
   assert.match(packageStandards, /index\.js/);
@@ -307,6 +336,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /providerPackageBoundaryStandard/);
   assert.match(packageStandards, /capabilityStandard/);
   assert.match(packageStandards, /capabilityNegotiationStandard/);
+  assert.match(packageStandards, /errorCodeStandard/);
   assert.match(packageStandards, /providerExtensionStandard/);
   assert.match(packageStandards, /providerTierStandard/);
   assert.match(packageStandards, /languageMaturityStandard/);
@@ -371,6 +401,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /root-public-builtin/);
   assert.match(packageStandards, /package-boundary/);
   assert.match(packageStandards, /control-metadata-only/);
+  assert.match(packageStandards, /RTC_SDK_ERROR_CODES/);
+  assert.match(packageStandards, /RTC_SDK_ERROR_FALLBACK_CODE/);
+  assert.match(packageStandards, /vendor_error/);
   assert.match(packageStandards, /capabilityCatalog/);
   assert.match(packageStandards, /providerExtensionCatalog/);
   assert.match(packageStandards, /getBuiltinRtcProviderMetadataByKey/);
@@ -406,6 +439,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /capability negotiation/i);
   assert.match(providerAdapterStandard, /degraded/i);
   assert.match(providerAdapterStandard, /unsupported/i);
+  assert.match(providerAdapterStandard, /errorCodeStandard/);
+  assert.match(providerAdapterStandard, /RTC_SDK_ERROR_CODES/);
+  assert.match(providerAdapterStandard, /RTC_SDK_ERROR_FALLBACK_CODE/);
+  assert.match(providerAdapterStandard, /vendor_error/);
   assert.match(providerAdapterStandard, /getRtcProviderPackageByProviderKey/);
   assert.match(providerAdapterStandard, /getRtcProviderPackageByPackageIdentity/);
   assert.match(providerAdapterStandard, /getRtcProviderActivationByProviderKey/);
@@ -422,6 +459,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /providerPackageBoundaryStandard/);
   assert.match(providerAdapterStandard, /capabilityStandard/);
   assert.match(providerAdapterStandard, /capabilityNegotiationStandard/);
+  assert.match(providerAdapterStandard, /errorCodeStandard/);
   assert.match(providerAdapterStandard, /providerExtensionStandard/);
   assert.match(providerAdapterStandard, /providerTierStandard/);
   assert.match(providerAdapterStandard, /languageMaturityStandard/);
@@ -524,12 +562,14 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /providerPackageBoundaryStandard/);
   assert.match(verificationMatrix, /capabilityStandard/);
   assert.match(verificationMatrix, /capabilityNegotiationStandard/);
+  assert.match(verificationMatrix, /errorCodeStandard/);
   assert.match(verificationMatrix, /providerExtensionStandard/);
   assert.match(verificationMatrix, /providerTierStandard/);
   assert.match(verificationMatrix, /languageMaturityStandard/);
   assert.match(verificationMatrix, /typescriptAdapterStandard/);
   assert.match(verificationMatrix, /typescriptPackageStandard/);
   assert.match(capabilityMatrix, /capabilityNegotiationStandard/);
+  assert.match(capabilityMatrix, /errorCodeStandard/);
   assert.match(verificationMatrix, /providerActivations/);
   assert.match(verificationMatrix, /typescriptPackage/);
   assert.match(verificationMatrix, /providerPackageBoundary/);
@@ -590,6 +630,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /capability negotiation/i);
   assert.match(verificationMatrix, /degraded/i);
   assert.match(verificationMatrix, /unsupported/i);
+  assert.match(verificationMatrix, /RTC_SDK_ERROR_CODES/);
+  assert.match(verificationMatrix, /RTC_SDK_ERROR_FALLBACK_CODE/);
+  assert.match(verificationMatrix, /vendor_error/);
   assert.match(verificationMatrix, /runtime-frozen/i);
   assert.match(verificationMatrix, /registerRtcProviderModules/);
   assert.match(verificationMatrix, /provider_module_contract_mismatch/);
@@ -787,6 +830,7 @@ test('rtc assembly declares official languages and default provider', () => {
     assembly.capabilityNegotiationStandard,
     EXPECTED_CAPABILITY_NEGOTIATION_STANDARD,
   );
+  assert.deepEqual(assembly.errorCodeStandard, EXPECTED_ERROR_CODE_STANDARD);
   assert.deepEqual(assembly.providerExtensionStandard, {
     accessTerms: ['unwrap-only', 'extension-object'],
     statusTerms: ['reference-baseline', 'reserved'],
