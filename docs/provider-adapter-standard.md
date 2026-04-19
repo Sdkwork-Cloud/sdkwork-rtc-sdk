@@ -195,6 +195,35 @@ That loader layer must preserve:
 - assembly-declared `moduleSymbol` extraction
 - package-boundary install through `RtcProviderModule`
 
+Each official language must also expose a cross-language `providerPackageBoundary` contract through
+its language workspace catalog.
+That boundary summary is the canonical package-topology contract and must preserve:
+
+- `providerPackageBoundary.mode`
+- `providerPackageBoundary.rootPublicPolicy`
+- `providerPackageBoundary.lifecycleStatusTerms`
+- `providerPackageBoundary.runtimeBridgeStatusTerms`
+
+The current adapter standard fixes only two legal boundary modes:
+
+- TypeScript uses `catalog-governed-mixed`
+- reserved non-TypeScript workspaces use `scaffold-per-provider-package`
+
+The current adapter standard fixes only two legal root public policies:
+
+- TypeScript uses `builtin-only`
+- reserved non-TypeScript workspaces use `none`
+
+The current adapter standard also fixes the canonical status vocabularies:
+
+- TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
+  `root_public_reference_boundary` and `package_reference_boundary`
+- TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be
+  `reference-baseline`
+- reserved non-TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
+  `future-runtime-bridge-only`
+- reserved non-TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be `reserved`
+
 Reserved non-TypeScript workspaces must also declare a `providerPackageScaffold` so future provider
 packages inherit a fixed directory pattern, package identity pattern, and manifest file name before
 runtime bridge work begins.
@@ -216,6 +245,16 @@ metadata that the provider package boundary materializes on disk.
 That reserved provider package catalog must also keep package-boundary lookup explicit through
 provider-key and package-identity helpers with language-idiomatic naming, not through ad hoc array
 scans.
+That reserved scaffold must stay aligned with the cross-language `providerPackageBoundary`
+contract:
+
+- `providerPackageBoundary.mode` stays fixed at `scaffold-per-provider-package`
+- `providerPackageBoundary.rootPublicPolicy` stays fixed at `none`
+- `providerPackageBoundary.lifecycleStatusTerms` stays exactly aligned with the concrete
+  `providerPackageScaffold.status`
+- `providerPackageBoundary.runtimeBridgeStatusTerms` stays exactly aligned with the concrete
+  `providerPackageScaffold.runtimeBridgeStatus`
+
 Each official language must also expose a provider activation catalog so runtime availability,
 root-public exposure, and package-boundary activation stay machine-readable without reading docs or
 inferring from package layout. That catalog must preserve `providerKey`, `pluginId`, `driverId`,

@@ -1008,6 +1008,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /getRtcProviderByProviderKey/);
   assert.match(providerAdapterStandard, /resolveRtcProviderSupportStatus/);
   assert.match(providerAdapterStandard, /createRtcProviderSupportState/);
+  assert.match(providerAdapterStandard, /providerPackageBoundary/);
+  assert.match(providerAdapterStandard, /rootPublicPolicy/);
+  assert.match(providerAdapterStandard, /catalog-governed-mixed/);
+  assert.match(providerAdapterStandard, /scaffold-per-provider-package/);
+  assert.match(providerAdapterStandard, /builtin-only/);
+  assert.match(providerAdapterStandard, /`none`/);
   assert.match(providerAdapterStandard, /createRtcProviderPackageLoader/);
   assert.match(providerAdapterStandard, /resolveRtcProviderPackageLoadTarget/);
   assert.match(providerAdapterStandard, /loadRtcProviderModule/);

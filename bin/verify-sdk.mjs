@@ -472,6 +472,18 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /hasRtcProviderExtension/, label: 'provider adapter provider extension membership helper contract' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'provider adapter provider support status helper contract' },
       { pattern: /createRtcProviderSupportState/, label: 'provider adapter provider support state helper contract' },
+      { pattern: /providerPackageBoundary/, label: 'provider adapter language workspace package boundary contract' },
+      {
+        pattern: /rootPublicPolicy/,
+        label: 'provider adapter language workspace package boundary rootPublicPolicy contract',
+      },
+      { pattern: /catalog-governed-mixed/, label: 'provider adapter TypeScript mixed boundary mode contract' },
+      {
+        pattern: /scaffold-per-provider-package/,
+        label: 'provider adapter reserved scaffold boundary mode contract',
+      },
+      { pattern: /builtin-only/, label: 'provider adapter builtin-only root public policy contract' },
+      { pattern: /`none`/, label: 'provider adapter none root public policy contract' },
       { pattern: /templateTokens/, label: 'provider adapter reserved provider package template token contract' },
       { pattern: /sourceFilePattern/, label: 'provider adapter reserved provider package source file contract' },
       { pattern: /sourceSymbolPattern/, label: 'provider adapter reserved provider package source symbol contract' },
