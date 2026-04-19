@@ -10,27 +10,11 @@ import {
   materializeProviderPackagePattern,
   toPascalCase,
 } from './rtc-standard-shared-helpers.mjs';
-
-const PROVIDER_SELECTION_SOURCES = [
-  'provider_url',
-  'provider_key',
-  'tenant_override',
-  'deployment_profile',
-  'default_provider',
-];
-
-const PROVIDER_SUPPORT_STATUSES = [
-  'builtin_registered',
-  'official_registered',
-  'official_unregistered',
-  'unknown',
-];
-
-const PROVIDER_ACTIVATION_STATUSES = [
-  'root-public-builtin',
-  'package-boundary',
-  'control-metadata-only',
-];
+import {
+  RTC_PROVIDER_ACTIVATION_STATUSES as PROVIDER_ACTIVATION_STATUSES,
+  RTC_PROVIDER_SELECTION_SOURCES as PROVIDER_SELECTION_SOURCES,
+  RTC_PROVIDER_SUPPORT_STATUSES as PROVIDER_SUPPORT_STATUSES,
+} from './rtc-standard-contract-constants.mjs';
 function q(value) {
   return JSON.stringify(String(value));
 }

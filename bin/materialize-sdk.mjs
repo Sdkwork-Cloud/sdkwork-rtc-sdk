@@ -5,11 +5,17 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
 import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
 import {
+  DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
+  RTC_PROVIDER_ACTIVATION_STATUSES as PROVIDER_ACTIVATION_STATUSES,
+} from './rtc-standard-contract-constants.mjs';
+import {
+  buildLanguageProviderActivationCatalogEntries,
   describeProviderActivationStatus,
   materializeProviderPackagePattern,
   toPascalCase,
   toUpperSnakeCase,
 } from './rtc-standard-shared-helpers.mjs';
+import { REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS } from './verify-sdk-standard-constants.mjs';
 
 export const RTC_SDK_STALE_MATERIALIZED_FILES = [
   'sdkwork-rtc-sdk-typescript/src/providers/catalog.ts',
@@ -20,17 +26,6 @@ const PROVIDER_TIER_SUMMARIES = {
   'tier-b': 'Official extension targets with reserved adapter positions',
   'tier-c': 'Future SPI targets',
 };
-
-const PROVIDER_ACTIVATION_STATUSES = [
-  'root-public-builtin',
-  'package-boundary',
-  'control-metadata-only',
-];
-
-const PROVIDER_PACKAGE_CATALOG_STATUSES = [
-  'root_public_reference_boundary',
-  'package_reference_boundary',
-];
 
 function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
@@ -77,13 +72,8 @@ function getReferenceTypeScriptAdapterContract(assembly) {
   return (
     (assembly.providers ?? []).find((provider) => provider.providerKey === assembly.defaults?.providerKey)
       ?.typescriptAdapter ??
-    (assembly.providers ?? [])[0]?.typescriptAdapter ?? {
-      sdkProvisioning: 'consumer-supplied',
-      bindingStrategy: 'native-factory',
-      bundlePolicy: 'must-not-bundle',
-      runtimeBridgeStatus: 'reference-baseline',
-      officialVendorSdkRequirement: 'required',
-    }
+    (assembly.providers ?? [])[0]?.typescriptAdapter ??
+    DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT
   );
 }
 
@@ -205,28 +195,11 @@ function buildTypeScriptProviderActivationCatalogEntries(assembly) {
   const typescriptLanguage = (assembly.languages ?? []).find(
     (languageEntry) => languageEntry.language === 'typescript',
   );
-  const providerByKey = new Map((assembly.providers ?? []).map((provider) => [provider.providerKey, provider]));
+  if (!typescriptLanguage) {
+    return [];
+  }
 
-  return (typescriptLanguage?.providerActivations ?? []).map((providerActivation) => {
-    const provider = providerByKey.get(providerActivation.providerKey);
-    if (!provider) {
-      throw new Error(`Unknown TypeScript provider activation: ${providerActivation.providerKey}`);
-    }
-
-    const activationStatus = providerActivation.activationStatus;
-
-    return {
-      providerKey: provider.providerKey,
-      pluginId: provider.pluginId,
-      driverId: provider.driverId,
-      activationStatus,
-      runtimeBridge: activationStatus !== 'control-metadata-only',
-      rootPublic: activationStatus === 'root-public-builtin',
-      packageBoundary: activationStatus !== 'control-metadata-only',
-      builtin: provider.builtin === true,
-      packageIdentity: provider.typescriptPackage.packageName,
-    };
-  });
+  return buildLanguageProviderActivationCatalogEntries(typescriptLanguage, assembly.providers);
 }
 
 function buildTypeScriptProviderPackageCatalogEntries(assembly) {
@@ -1114,7 +1087,7 @@ function renderTypeScriptProviderPackageCatalog(assembly) {
 import type { RtcProviderPackageCatalogEntry } from './types.js';
 
 export const RTC_PROVIDER_PACKAGE_STATUSES = freezeRtcRuntimeValue(${renderReadonlyStringArray(
-    PROVIDER_PACKAGE_CATALOG_STATUSES,
+    REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
   )});
 
 ${packageEntries

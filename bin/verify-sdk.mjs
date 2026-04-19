@@ -23,6 +23,23 @@ import {
   toUpperSnakeCase,
 } from './rtc-standard-shared-helpers.mjs';
 import {
+  OPTIONAL_RTC_CAPABILITIES,
+  REQUIRED_RTC_CAPABILITIES,
+  RTC_CAPABILITY_CATEGORIES,
+  RTC_CAPABILITY_SURFACES,
+  RTC_LANGUAGE_MATURITY_TIERS,
+  RTC_PROVIDER_ACTIVATION_STATUSES,
+  RTC_PROVIDER_SELECTION_SOURCES,
+  RTC_PROVIDER_SUPPORT_STATUSES,
+  RTC_PROVIDER_EXTENSION_ACCESSES,
+  RTC_PROVIDER_EXTENSION_STATUSES,
+  TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
+  TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
+  TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
+  TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES,
+  TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES,
+} from './rtc-standard-contract-constants.mjs';
+import {
   KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
   KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
   KNOWN_PROVIDER_PACKAGE_TEMPLATE_TOKENS,
@@ -40,42 +57,6 @@ function fail(message) {
 }
 
 const EXPECTED_BUILTIN_PROVIDER_KEYS = ['volcengine', 'aliyun', 'tencent'];
-const EXPECTED_REQUIRED_RTC_CAPABILITIES = [
-  'session',
-  'join',
-  'publish',
-  'subscribe',
-  'mute',
-  'basic-events',
-  'health',
-  'unwrap',
-];
-const KNOWN_OPTIONAL_RTC_CAPABILITIES = [
-  'screen-share',
-  'recording',
-  'cloud-mix',
-  'cdn-relay',
-  'data-channel',
-  'transcription',
-  'beauty',
-  'spatial-audio',
-  'e2ee',
-];
-const KNOWN_RTC_CAPABILITY_CATEGORIES = ['required-baseline', 'optional-advanced'];
-const KNOWN_RTC_CAPABILITY_SURFACES = ['control-plane', 'runtime-bridge', 'cross-surface'];
-const KNOWN_RTC_PROVIDER_EXTENSION_ACCESSES = ['unwrap-only', 'extension-object'];
-const KNOWN_RTC_PROVIDER_EXTENSION_STATUSES = ['reference-baseline', 'reserved'];
-const KNOWN_LANGUAGE_MATURITY_TIERS = ['reference', 'reserved'];
-const KNOWN_TYPESCRIPT_ADAPTER_SDK_PROVISIONING = ['consumer-supplied'];
-const KNOWN_TYPESCRIPT_ADAPTER_BINDING_STRATEGIES = ['native-factory'];
-const KNOWN_TYPESCRIPT_ADAPTER_BUNDLE_POLICIES = ['must-not-bundle'];
-const KNOWN_TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES = ['reference-baseline'];
-const KNOWN_TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS = ['required'];
-const KNOWN_LANGUAGE_PROVIDER_ACTIVATION_STATUSES = [
-  'root-public-builtin',
-  'package-boundary',
-  'control-metadata-only',
-];
 const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_MODES = [
   'catalog-governed-mixed',
   'scaffold-per-provider-package',
@@ -1252,7 +1233,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Capability descriptor category must be declared for ${descriptor.capabilityKey}`);
     }
 
-    if (!KNOWN_RTC_CAPABILITY_CATEGORIES.includes(descriptor.category)) {
+    if (!RTC_CAPABILITY_CATEGORIES.includes(descriptor.category)) {
       fail(`Capability descriptor category is not recognized for ${descriptor.capabilityKey}`);
     }
 
@@ -1260,7 +1241,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Capability descriptor surface must be declared for ${descriptor.capabilityKey}`);
     }
 
-    if (!KNOWN_RTC_CAPABILITY_SURFACES.includes(descriptor.surface)) {
+    if (!RTC_CAPABILITY_SURFACES.includes(descriptor.surface)) {
       fail(`Capability descriptor surface is not recognized for ${descriptor.capabilityKey}`);
     }
   }
@@ -1333,7 +1314,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor surface must be declared for ${descriptor.extensionKey}`);
     }
 
-    if (!KNOWN_RTC_CAPABILITY_SURFACES.includes(descriptor.surface)) {
+    if (!RTC_CAPABILITY_SURFACES.includes(descriptor.surface)) {
       fail(`Provider extension descriptor surface is not recognized for ${descriptor.extensionKey}`);
     }
 
@@ -1341,7 +1322,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor access must be declared for ${descriptor.extensionKey}`);
     }
 
-    if (!KNOWN_RTC_PROVIDER_EXTENSION_ACCESSES.includes(descriptor.access)) {
+    if (!RTC_PROVIDER_EXTENSION_ACCESSES.includes(descriptor.access)) {
       fail(`Provider extension descriptor access is not recognized for ${descriptor.extensionKey}`);
     }
 
@@ -1349,7 +1330,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor status must be declared for ${descriptor.extensionKey}`);
     }
 
-    if (!KNOWN_RTC_PROVIDER_EXTENSION_STATUSES.includes(descriptor.status)) {
+    if (!RTC_PROVIDER_EXTENSION_STATUSES.includes(descriptor.status)) {
       fail(`Provider extension descriptor status is not recognized for ${descriptor.extensionKey}`);
     }
   }
@@ -1375,7 +1356,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Language maturityTier must be declared for ${languageEntry.language}`);
     }
 
-    if (!KNOWN_LANGUAGE_MATURITY_TIERS.includes(languageEntry.maturityTier)) {
+    if (!RTC_LANGUAGE_MATURITY_TIERS.includes(languageEntry.maturityTier)) {
       fail(`Language maturityTier is not recognized for ${languageEntry.language}: ${languageEntry.maturityTier}`);
     }
 
@@ -1762,7 +1743,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         fail(`Language provider activation activationStatus must be declared for ${languageEntry.language}: ${providerActivation.providerKey}`);
       }
 
-      if (!KNOWN_LANGUAGE_PROVIDER_ACTIVATION_STATUSES.includes(providerActivation.activationStatus)) {
+      if (!RTC_PROVIDER_ACTIVATION_STATUSES.includes(providerActivation.activationStatus)) {
         fail(`Language provider activation activationStatus is not recognized for ${languageEntry.language}: ${providerActivation.providerKey}`);
       }
 
@@ -1809,7 +1790,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
 
     if (
       JSON.stringify(provider.requiredCapabilities ?? []) !==
-      JSON.stringify(EXPECTED_REQUIRED_RTC_CAPABILITIES)
+      JSON.stringify(REQUIRED_RTC_CAPABILITIES)
     ) {
       fail(`Provider required capability baseline drift for ${provider.providerKey}`);
     }
@@ -1829,7 +1810,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     for (const capability of provider.optionalCapabilities) {
-      if (!KNOWN_OPTIONAL_RTC_CAPABILITIES.includes(capability)) {
+      if (!OPTIONAL_RTC_CAPABILITIES.includes(capability)) {
         fail(`Provider optional capability ${capability} is not recognized for ${provider.providerKey}`);
       }
 
@@ -1861,7 +1842,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider TypeScript adapter sdkProvisioning must be declared for ${provider.providerKey}`);
     }
 
-    if (!KNOWN_TYPESCRIPT_ADAPTER_SDK_PROVISIONING.includes(provider.typescriptAdapter.sdkProvisioning)) {
+    if (!TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES.includes(provider.typescriptAdapter.sdkProvisioning)) {
       fail(`Provider TypeScript adapter sdkProvisioning is not recognized for ${provider.providerKey}`);
     }
 
@@ -1869,7 +1850,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider TypeScript adapter bindingStrategy must be declared for ${provider.providerKey}`);
     }
 
-    if (!KNOWN_TYPESCRIPT_ADAPTER_BINDING_STRATEGIES.includes(provider.typescriptAdapter.bindingStrategy)) {
+    if (!TYPESCRIPT_ADAPTER_BINDING_STRATEGIES.includes(provider.typescriptAdapter.bindingStrategy)) {
       fail(`Provider TypeScript adapter bindingStrategy is not recognized for ${provider.providerKey}`);
     }
 
@@ -1877,7 +1858,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider TypeScript adapter bundlePolicy must be declared for ${provider.providerKey}`);
     }
 
-    if (!KNOWN_TYPESCRIPT_ADAPTER_BUNDLE_POLICIES.includes(provider.typescriptAdapter.bundlePolicy)) {
+    if (!TYPESCRIPT_ADAPTER_BUNDLE_POLICIES.includes(provider.typescriptAdapter.bundlePolicy)) {
       fail(`Provider TypeScript adapter bundlePolicy is not recognized for ${provider.providerKey}`);
     }
 
@@ -1886,7 +1867,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     if (
-      !KNOWN_TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES.includes(
+      !TYPESCRIPT_ADAPTER_RUNTIME_BRIDGE_STATUSES.includes(
         provider.typescriptAdapter.runtimeBridgeStatus,
       )
     ) {
@@ -1900,7 +1881,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     if (
-      !KNOWN_TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS.includes(
+      !TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS.includes(
         provider.typescriptAdapter.officialVendorSdkRequirement,
       )
     ) {
@@ -2940,7 +2921,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         }
       }
 
-      for (const activationStatus of KNOWN_LANGUAGE_PROVIDER_ACTIVATION_STATUSES) {
+      for (const activationStatus of RTC_PROVIDER_ACTIVATION_STATUSES) {
         if (!new RegExp(escapeRegExp(activationStatus)).test(providerActivationCatalogContent)) {
           fail(`Language metadata scaffold provider activation catalog status drift for ${languageEntry.language}: ${activationStatus}`);
         }
@@ -3007,12 +2988,12 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
           fail(`Language metadata scaffold capability drift for ${languageEntry.language}: ${capabilityKey}`);
         }
       }
-      for (const category of KNOWN_RTC_CAPABILITY_CATEGORIES) {
+      for (const category of RTC_CAPABILITY_CATEGORIES) {
         if (!new RegExp(escapeRegExp(category)).test(capabilityCatalogContent)) {
           fail(`Language metadata scaffold capability category drift for ${languageEntry.language}: ${category}`);
         }
       }
-      for (const surface of KNOWN_RTC_CAPABILITY_SURFACES) {
+      for (const surface of RTC_CAPABILITY_SURFACES) {
         if (!new RegExp(escapeRegExp(surface)).test(capabilityCatalogContent)) {
           fail(`Language metadata scaffold capability surface drift for ${languageEntry.language}: ${surface}`);
         }
@@ -3061,17 +3042,17 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
           fail(`Language metadata scaffold provider extension provider drift for ${languageEntry.language}: ${providerKey}`);
         }
       }
-      for (const surface of KNOWN_RTC_CAPABILITY_SURFACES) {
+      for (const surface of RTC_CAPABILITY_SURFACES) {
         if (!new RegExp(escapeRegExp(surface)).test(providerExtensionCatalogContent)) {
           fail(`Language metadata scaffold provider extension surface drift for ${languageEntry.language}: ${surface}`);
         }
       }
-      for (const access of KNOWN_RTC_PROVIDER_EXTENSION_ACCESSES) {
+      for (const access of RTC_PROVIDER_EXTENSION_ACCESSES) {
         if (!new RegExp(escapeRegExp(access)).test(providerExtensionCatalogContent)) {
           fail(`Language metadata scaffold provider extension access drift for ${languageEntry.language}: ${access}`);
         }
       }
-      for (const status of KNOWN_RTC_PROVIDER_EXTENSION_STATUSES) {
+      for (const status of RTC_PROVIDER_EXTENSION_STATUSES) {
         if (!new RegExp(escapeRegExp(status)).test(providerExtensionCatalogContent)) {
           fail(`Language metadata scaffold provider extension status drift for ${languageEntry.language}: ${status}`);
         }
@@ -3530,17 +3511,13 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'RTC_PROVIDER_SELECTION_SOURCES',
     'RTC_PROVIDER_SELECTION_PRECEDENCE',
     'providerUrl',
-    'provider_url',
     'providerKey',
-    'provider_key',
     'tenantOverrideProviderKey',
-    'tenant_override',
     'deploymentProfileProviderKey',
-    'deployment_profile',
-    'default_provider',
     'parseRtcProviderUrl',
     'resolveRtcProviderSelection',
     'defaultProviderKey',
+    ...RTC_PROVIDER_SELECTION_SOURCES,
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(providerSelectionContent)) {
       fail(`TypeScript provider selection token drift: ${token}`);
@@ -3563,12 +3540,9 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'builtin',
     'official',
     'registered',
-    'builtin_registered',
-    'official_registered',
-    'official_unregistered',
-    'unknown',
     'resolveRtcProviderSupportStatus',
     'createRtcProviderSupportState',
+    ...RTC_PROVIDER_SUPPORT_STATUSES,
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(providerSupportContent)) {
       fail(`TypeScript provider support token drift: ${token}`);
