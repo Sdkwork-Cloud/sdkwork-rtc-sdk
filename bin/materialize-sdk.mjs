@@ -297,6 +297,21 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
           driverId: assembly.defaults.driverId,
         }
       : undefined;
+  const providerSelectionContract =
+    Array.isArray(assembly.providerSelectionStandard?.sourceTerms) &&
+    Array.isArray(assembly.providerSelectionStandard?.precedence) &&
+    typeof assembly.providerSelectionStandard?.defaultSource === 'string'
+      ? {
+          sourceTerms: [...assembly.providerSelectionStandard.sourceTerms],
+          precedence: [...assembly.providerSelectionStandard.precedence],
+          defaultSource: assembly.providerSelectionStandard.defaultSource,
+        }
+      : undefined;
+  const providerSupportContract = Array.isArray(assembly.providerSupportStandard?.statusTerms)
+    ? {
+        statusTerms: [...assembly.providerSupportStandard.statusTerms],
+      }
+    : undefined;
 
   return (assembly.languages ?? []).map((languageEntry) => ({
     language: languageEntry.language,
@@ -311,6 +326,8 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     workspaceSummary: languageEntry.workspaceSummary,
     roleHighlights: [...(languageEntry.roleHighlights ?? [])],
     defaultProviderContract,
+    providerSelectionContract,
+    providerSupportContract,
     metadataScaffold: languageEntry.metadataScaffold
       ? {
           providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
@@ -374,10 +391,12 @@ function renderLanguageWorkspaceCatalogSection(languageEntry) {
 Language workspace catalog:
 
 - workspace catalog: \`${languageEntry.workspaceCatalogRelativePath}\`
-- workspace catalog entries also keep \`workspaceCatalogRelativePath\`, \`defaultProviderContract\`,
-  and any declared \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
+- workspace catalog entries also keep \`workspaceCatalogRelativePath\`,
+  \`defaultProviderContract\`, \`providerSelectionContract\`, \`providerSupportContract\`, and any
+  declared \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
   \`providerPackageScaffold\` boundaries so consumers can inspect official assembly-driven module
-  locations and the workspace-wide default provider identity without rereading the assembly.
+  locations, workspace-wide default provider identity, selection precedence, and support-status
+  vocabulary without rereading the assembly.
 `;
 }
 
@@ -455,6 +474,32 @@ function renderTypeScriptLanguageWorkspaceDefaultProviderContract(defaultProvide
   })`;
 }
 
+function renderTypeScriptLanguageWorkspaceProviderSelectionContract(
+  providerSelectionContract,
+) {
+  if (!providerSelectionContract) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerSelectionContract.sourceTerms)}),
+    precedence: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerSelectionContract.precedence)}),
+    defaultSource: ${renderStringLiteral(providerSelectionContract.defaultSource)},
+  })`;
+}
+
+function renderTypeScriptLanguageWorkspaceProviderSupportContract(
+  providerSupportContract,
+) {
+  if (!providerSupportContract) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(${renderReadonlyStringArray(providerSupportContract.statusTerms)}),
+  })`;
+}
+
 function renderTypeScriptLanguageWorkspaceCatalog(assembly) {
   const entries = buildLanguageWorkspaceCatalogEntries(assembly);
 
@@ -482,6 +527,8 @@ ${entries
   workspaceSummary: ${renderStringLiteral(entry.workspaceSummary)},
   roleHighlights: freezeRtcRuntimeValue(${renderReadonlyStringArray(entry.roleHighlights)}),
   defaultProviderContract: ${renderTypeScriptLanguageWorkspaceDefaultProviderContract(entry.defaultProviderContract)},
+  providerSelectionContract: ${renderTypeScriptLanguageWorkspaceProviderSelectionContract(entry.providerSelectionContract)},
+  providerSupportContract: ${renderTypeScriptLanguageWorkspaceProviderSupportContract(entry.providerSupportContract)},
   metadataScaffold: ${renderTypeScriptLanguageWorkspaceMetadataScaffold(entry.metadataScaffold)},
   resolutionScaffold: ${renderTypeScriptLanguageWorkspaceResolutionScaffold(entry.resolutionScaffold)},
   providerPackageBoundary: ${renderTypeScriptLanguageWorkspaceProviderPackageBoundary(entry.providerPackageBoundary)},

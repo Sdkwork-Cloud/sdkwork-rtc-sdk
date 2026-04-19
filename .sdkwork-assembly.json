@@ -8,6 +8,31 @@
     "pluginId": "rtc-volcengine",
     "driverId": "sdkwork-rtc-driver-volcengine"
   },
+  "providerSelectionStandard": {
+    "sourceTerms": [
+      "provider_url",
+      "provider_key",
+      "tenant_override",
+      "deployment_profile",
+      "default_provider"
+    ],
+    "precedence": [
+      "provider_url",
+      "provider_key",
+      "tenant_override",
+      "deployment_profile",
+      "default_provider"
+    ],
+    "defaultSource": "default_provider"
+  },
+  "providerSupportStandard": {
+    "statusTerms": [
+      "builtin_registered",
+      "official_registered",
+      "official_unregistered",
+      "unknown"
+    ]
+  },
   "officialLanguages": [
     "typescript",
     "flutter",

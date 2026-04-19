@@ -12,6 +12,8 @@ final class RtcLanguageWorkspaceCatalogEntry {
     required this.workspaceSummary,
     required this.roleHighlights,
     required this.defaultProviderContract,
+    required this.providerSelectionContract,
+    required this.providerSupportContract,
     required this.metadataScaffold,
     required this.resolutionScaffold,
     required this.providerPackageBoundary,
@@ -30,6 +32,8 @@ final class RtcLanguageWorkspaceCatalogEntry {
   final String workspaceSummary;
   final List<String> roleHighlights;
   final RtcLanguageWorkspaceDefaultProviderContract defaultProviderContract;
+  final RtcLanguageWorkspaceProviderSelectionContract providerSelectionContract;
+  final RtcLanguageWorkspaceProviderSupportContract providerSupportContract;
   final RtcLanguageWorkspaceMetadataScaffold metadataScaffold;
   final RtcLanguageWorkspaceResolutionScaffold resolutionScaffold;
   final RtcLanguageWorkspaceProviderPackageBoundary providerPackageBoundary;
@@ -46,6 +50,26 @@ final class RtcLanguageWorkspaceDefaultProviderContract {
   final String providerKey;
   final String pluginId;
   final String driverId;
+}
+
+final class RtcLanguageWorkspaceProviderSelectionContract {
+  const RtcLanguageWorkspaceProviderSelectionContract({
+    required this.sourceTerms,
+    required this.precedence,
+    required this.defaultSource,
+  });
+
+  final List<String> sourceTerms;
+  final List<String> precedence;
+  final String defaultSource;
+}
+
+final class RtcLanguageWorkspaceProviderSupportContract {
+  const RtcLanguageWorkspaceProviderSupportContract({
+    required this.statusTerms,
+  });
+
+  final List<String> statusTerms;
 }
 
 final class RtcLanguageWorkspaceMetadataScaffold {
@@ -157,6 +181,14 @@ final class RtcLanguageWorkspaceCatalog {
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
       ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider-catalog.ts",
         capabilityCatalogRelativePath: "src/capability-catalog.ts",
@@ -202,6 +234,14 @@ final class RtcLanguageWorkspaceCatalog {
         providerKey: "volcengine",
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
+      ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "lib/src/rtc_provider_catalog.dart",
@@ -262,6 +302,14 @@ final class RtcLanguageWorkspaceCatalog {
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
       ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider_catalog.rs",
         capabilityCatalogRelativePath: "src/capability_catalog.rs",
@@ -320,6 +368,14 @@ final class RtcLanguageWorkspaceCatalog {
         providerKey: "volcengine",
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
+      ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/main/java/com/sdkwork/rtc/metadata/RtcProviderCatalog.java",
@@ -380,6 +436,14 @@ final class RtcLanguageWorkspaceCatalog {
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
       ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/SDKWork.Rtc.Sdk/RtcProviderCatalog.cs",
         capabilityCatalogRelativePath: "src/SDKWork.Rtc.Sdk/RtcCapabilityCatalog.cs",
@@ -438,6 +502,14 @@ final class RtcLanguageWorkspaceCatalog {
         providerKey: "volcengine",
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
+      ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "Sources/RtcSdk/RtcProviderCatalog.swift",
@@ -498,6 +570,14 @@ final class RtcLanguageWorkspaceCatalog {
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
       ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderCatalog.kt",
         capabilityCatalogRelativePath: "src/main/kotlin/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.kt",
@@ -557,6 +637,14 @@ final class RtcLanguageWorkspaceCatalog {
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
       ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
+      ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "rtcstandard/provider_catalog.go",
         capabilityCatalogRelativePath: "rtcstandard/capability_catalog.go",
@@ -615,6 +703,14 @@ final class RtcLanguageWorkspaceCatalog {
         providerKey: "volcengine",
         pluginId: "rtc-volcengine",
         driverId: "sdkwork-rtc-driver-volcengine",
+      ),
+      providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract(
+        sourceTerms: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        precedence: <String>["provider_url", "provider_key", "tenant_override", "deployment_profile", "default_provider"],
+        defaultSource: "default_provider",
+      ),
+      providerSupportContract: RtcLanguageWorkspaceProviderSupportContract(
+        statusTerms: <String>["builtin_registered", "official_registered", "official_unregistered", "unknown"],
       ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "sdkwork_rtc_sdk/provider_catalog.py",

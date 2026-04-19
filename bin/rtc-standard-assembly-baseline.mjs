@@ -2,6 +2,9 @@ import {
   BUILTIN_RTC_PROVIDER_KEYS,
   DEFAULT_RTC_PROVIDER_KEY,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
+  RTC_PROVIDER_SELECTION_PRECEDENCE,
+  RTC_PROVIDER_SELECTION_SOURCES,
+  RTC_PROVIDER_SUPPORT_STATUSES,
 } from './rtc-standard-contract-constants.mjs';
 
 function hasExactArray(actual, expected) {
@@ -57,8 +60,38 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     );
   }
 
+  const providerSelectionStandard = assembly.providerSelectionStandard ?? {};
+  if (!hasExactArray(providerSelectionStandard.sourceTerms, RTC_PROVIDER_SELECTION_SOURCES)) {
+    throw new Error(
+      `providerSelectionStandard.sourceTerms must be ${RTC_PROVIDER_SELECTION_SOURCES.join(', ')}`,
+    );
+  }
+
+  if (!hasExactArray(providerSelectionStandard.precedence, RTC_PROVIDER_SELECTION_PRECEDENCE)) {
+    throw new Error(
+      `providerSelectionStandard.precedence must be ${RTC_PROVIDER_SELECTION_PRECEDENCE.join(', ')}`,
+    );
+  }
+
+  const canonicalDefaultSelectionSource =
+    RTC_PROVIDER_SELECTION_SOURCES[RTC_PROVIDER_SELECTION_SOURCES.length - 1];
+  if (providerSelectionStandard.defaultSource !== canonicalDefaultSelectionSource) {
+    throw new Error(
+      `providerSelectionStandard.defaultSource must be ${canonicalDefaultSelectionSource}, received: ${providerSelectionStandard.defaultSource ?? '<missing>'}`,
+    );
+  }
+
+  const providerSupportStandard = assembly.providerSupportStandard ?? {};
+  if (!hasExactArray(providerSupportStandard.statusTerms, RTC_PROVIDER_SUPPORT_STATUSES)) {
+    throw new Error(
+      `providerSupportStandard.statusTerms must be ${RTC_PROVIDER_SUPPORT_STATUSES.join(', ')}`,
+    );
+  }
+
   return {
     officialLanguages,
     providers,
+    providerSelectionStandard,
+    providerSupportStandard,
   };
 }

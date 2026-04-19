@@ -47,6 +47,9 @@ import {
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_SURFACES,
+  RTC_PROVIDER_SELECTION_PRECEDENCE,
+  RTC_PROVIDER_SELECTION_SOURCES,
+  RTC_PROVIDER_SUPPORT_STATUSES,
 } from '../bin/rtc-standard-contract-constants.mjs';
 import {
   escapeRegExp,
@@ -164,6 +167,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /source symbol/i);
   assert.match(rootReadme, /provider activation catalog/i);
   assert.match(rootReadme, /defaultProviderContract/);
+  assert.match(rootReadme, /providerSelectionContract/);
+  assert.match(rootReadme, /providerSupportContract/);
   assert.match(rootReadme, /providerPackageBoundary/);
   assert.match(rootReadme, /rootPublicPolicy/);
   assert.match(rootReadme, /catalog-governed-mixed/);
@@ -192,6 +197,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /provider-package-catalog\.ts/);
   assert.match(docsReadme, /language-workspace-catalog\.ts/);
   assert.match(docsReadme, /defaultProviderContract/);
+  assert.match(docsReadme, /providerSelectionContract/);
+  assert.match(docsReadme, /providerSupportContract/);
   assert.match(docsReadme, /providerPackageBoundary/);
   assert.match(docsReadme, /rootPublicPolicy/);
   assert.match(docsReadme, /catalog-governed-mixed/);
@@ -223,9 +230,13 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /roleHighlights/);
   assert.match(packageStandards, /workspaceCatalogRelativePath/);
   assert.match(packageStandards, /language workspace catalog/i);
+  assert.match(packageStandards, /providerSelectionStandard/);
+  assert.match(packageStandards, /providerSupportStandard/);
   assert.match(packageStandards, /providerActivations/);
   assert.match(packageStandards, /typescriptPackage/);
   assert.match(packageStandards, /defaultProviderContract/);
+  assert.match(packageStandards, /providerSelectionContract/);
+  assert.match(packageStandards, /providerSupportContract/);
   assert.match(packageStandards, /providerPackageBoundary/);
   assert.match(packageStandards, /rootPublicPolicy/);
   assert.match(packageStandards, /catalog-governed-mixed/);
@@ -321,6 +332,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /resolveRtcProviderSupportStatus/);
   assert.match(providerAdapterStandard, /createRtcProviderSupportState/);
   assert.match(providerAdapterStandard, /defaultProviderContract/);
+  assert.match(providerAdapterStandard, /providerSelectionContract/);
+  assert.match(providerAdapterStandard, /providerSupportContract/);
   assert.match(providerAdapterStandard, /providerPackageBoundary/);
   assert.match(providerAdapterStandard, /rootPublicPolicy/);
   assert.match(providerAdapterStandard, /catalog-governed-mixed/);
@@ -408,6 +421,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /workspaceCatalogRelativePath/);
   assert.match(verificationMatrix, /language workspace catalog/i);
   assert.match(verificationMatrix, /defaultProviderContract/);
+  assert.match(verificationMatrix, /providerSelectionContract/);
+  assert.match(verificationMatrix, /providerSupportContract/);
+  assert.match(verificationMatrix, /providerSelectionStandard/);
+  assert.match(verificationMatrix, /providerSupportStandard/);
   assert.match(verificationMatrix, /providerActivations/);
   assert.match(verificationMatrix, /typescriptPackage/);
   assert.match(verificationMatrix, /providerPackageBoundary/);
@@ -518,9 +535,23 @@ test('root documentation and materialized readmes describe provider package entr
 
   assert.match(typescriptLanguageWorkspaceCatalog, /providerPackageBoundary/);
   assert.match(typescriptLanguageWorkspaceCatalog, /defaultProviderContract/);
+  assert.match(typescriptLanguageWorkspaceCatalog, /providerSelectionContract/);
+  assert.match(typescriptLanguageWorkspaceCatalog, /providerSupportContract/);
   assert.match(typescriptLanguageWorkspaceCatalog, /providerKey:\s*'volcengine'/);
   assert.match(typescriptLanguageWorkspaceCatalog, /pluginId:\s*'rtc-volcengine'/);
   assert.match(typescriptLanguageWorkspaceCatalog, /driverId:\s*'sdkwork-rtc-driver-volcengine'/);
+  for (const source of RTC_PROVIDER_SELECTION_SOURCES) {
+    assert.match(
+      typescriptLanguageWorkspaceCatalog,
+      new RegExp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    );
+  }
+  for (const status of RTC_PROVIDER_SUPPORT_STATUSES) {
+    assert.match(
+      typescriptLanguageWorkspaceCatalog,
+      new RegExp(status.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    );
+  }
   assert.match(typescriptLanguageWorkspaceCatalog, /catalog-governed-mixed/);
   assert.match(typescriptLanguageWorkspaceCatalog, /builtin-only/);
   assert.match(typescriptLanguageWorkspaceCatalog, /root_public_reference_boundary/);
@@ -603,6 +634,13 @@ test('rtc assembly declares official languages and default provider', () => {
   assert.equal(assembly.workspace, 'sdkwork-rtc-sdk');
   assert.equal(assembly.defaults?.providerKey, DEFAULT_RTC_PROVIDER_KEY);
   assert.deepEqual(assembly.officialLanguages, OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS);
+  assert.deepEqual(assembly.providerSelectionStandard?.sourceTerms, RTC_PROVIDER_SELECTION_SOURCES);
+  assert.deepEqual(assembly.providerSelectionStandard?.precedence, RTC_PROVIDER_SELECTION_PRECEDENCE);
+  assert.equal(
+    assembly.providerSelectionStandard?.defaultSource,
+    RTC_PROVIDER_SELECTION_SOURCES[RTC_PROVIDER_SELECTION_SOURCES.length - 1],
+  );
+  assert.deepEqual(assembly.providerSupportStandard?.statusTerms, RTC_PROVIDER_SUPPORT_STATUSES);
 
   const defaultSelectedProviders = assembly.providers
     .filter((provider) => provider.defaultSelected)
@@ -712,7 +750,6 @@ test('rtc assembly declares official languages and default provider', () => {
     assert.equal(Array.isArray(languageEntry.roleHighlights), true);
     assert.equal(Array.isArray(languageEntry.providerActivations), true);
     assert.equal(languageEntry.providerActivations.length, assembly.providers.length);
-
     if (languageEntry.language !== 'typescript') {
       assert.equal(typeof languageEntry.providerPackageScaffold?.readmeFileName, 'string');
       assert.equal(languageEntry.providerPackageScaffold.readmeFileName, 'README.md');
@@ -853,6 +890,8 @@ test('official language workspaces expose language workspace catalog assets', ()
       'workspaceSummary',
       'roleHighlights',
       'defaultProviderContract',
+      'providerSelectionContract',
+      'providerSupportContract',
       'providerPackageBoundary',
       'metadataScaffold',
       'resolutionScaffold',
@@ -901,6 +940,19 @@ test('official language workspaces expose language workspace catalog assets', ()
     );
 
     assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry);
+    for (const sourceTerm of assembly.providerSelectionStandard.sourceTerms) {
+      assert.match(content, new RegExp(sourceTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+    for (const precedenceTerm of assembly.providerSelectionStandard.precedence) {
+      assert.match(content, new RegExp(precedenceTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+    assert.match(
+      content,
+      new RegExp(assembly.providerSelectionStandard.defaultSource.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    );
+    for (const statusTerm of assembly.providerSupportStandard.statusTerms) {
+      assert.match(content, new RegExp(statusTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
 
     if (languageEntry.language === 'typescript') {
       assert.equal(

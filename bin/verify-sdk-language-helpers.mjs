@@ -379,7 +379,13 @@ export function getGoPublicStructFieldContracts(languageEntry) {
     },
     {
       relativePath: languageEntry.workspaceCatalogRelativePath,
-      patterns: [/Language\s+string/, /PublicPackage\s+string/, /RoleHighlights\s+\[\]string/],
+      patterns: [
+        /Language\s+string/,
+        /PublicPackage\s+string/,
+        /RoleHighlights\s+\[\]string/,
+        /ProviderSelectionContract\s+RtcLanguageWorkspaceProviderSelectionContract/,
+        /ProviderSupportContract\s+RtcLanguageWorkspaceProviderSupportContract/,
+      ],
     },
     {
       relativePath: languageEntry.resolutionScaffold.dataSourceRelativePath,

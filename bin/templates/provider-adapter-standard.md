@@ -57,6 +57,9 @@ selection precedence order:
 
 Provider adapters must consume the resolved provider identity and must not redefine or reorder that
 standard precedence locally.
+The assembly-driven `providerSelectionStandard` is canonical, and every language workspace catalog
+must preserve it through `providerSelectionContract.sourceTerms`,
+`providerSelectionContract.precedence`, and `providerSelectionContract.defaultSource`.
 Reserved non-TypeScript language workspaces must preserve the same rule through standalone
 provider-selection helper modules with language-idiomatic names for source catalogs, precedence
 catalogs, provider-URL parsing, and selection resolution. Their `RtcDriverManager` scaffolds must
@@ -74,6 +77,8 @@ That module owns `resolveRtcProviderSupportStatus(...)`,
 
 Provider adapters and driver wiring must consume that standard support-state classification and must
 not redefine those support statuses locally.
+The assembly-driven `providerSupportStandard` is canonical, and every language workspace catalog
+must preserve it through `providerSupportContract.statusTerms`.
 Reserved non-TypeScript language workspaces must preserve the same rule through standalone
 provider-support helper modules with language-idiomatic names for support-status catalogs,
 `RtcProviderSupportStateRequest` contracts, status resolution, and support-state construction.
@@ -203,6 +208,10 @@ package-topology contracts:
 - `defaultProviderContract.providerKey`
 - `defaultProviderContract.pluginId`
 - `defaultProviderContract.driverId`
+- `providerSelectionContract.sourceTerms`
+- `providerSelectionContract.precedence`
+- `providerSelectionContract.defaultSource`
+- `providerSupportContract.statusTerms`
 - `providerPackageBoundary.mode`
 - `providerPackageBoundary.rootPublicPolicy`
 - `providerPackageBoundary.lifecycleStatusTerms`
@@ -220,6 +229,13 @@ The current adapter standard fixes only two legal root public policies:
 
 The current adapter standard also fixes the canonical status vocabularies:
 
+- every language `providerSelectionContract.sourceTerms` must be
+  `provider_url`, `provider_key`, `tenant_override`, `deployment_profile`, `default_provider`
+- every language `providerSelectionContract.precedence` must be
+  `provider_url`, `provider_key`, `tenant_override`, `deployment_profile`, `default_provider`
+- every language `providerSelectionContract.defaultSource` must be `default_provider`
+- every language `providerSupportContract.statusTerms` must be
+  `builtin_registered`, `official_registered`, `official_unregistered`, `unknown`
 - TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
   `root_public_reference_boundary` and `package_reference_boundary`
 - TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be

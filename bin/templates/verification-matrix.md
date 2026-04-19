@@ -24,6 +24,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the TypeScript language workspace catalog at
   `sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts`
 - the assembly-driven `defaultProviderContract` materialized into every language workspace catalog
+- the assembly-driven `providerSelectionContract` materialized into every language workspace catalog
+- the assembly-driven `providerSupportContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -105,6 +107,9 @@ The root verifier must confirm:
 - `.sdkwork-assembly.json` exists and is parseable
 - the default provider is `volcengine`
 - exactly one provider is marked `defaultSelected`, and it matches the default provider key
+- `.sdkwork-assembly.json` declares `providerSelectionStandard.sourceTerms`,
+  `providerSelectionStandard.precedence`, and `providerSelectionStandard.defaultSource`
+- `.sdkwork-assembly.json` declares `providerSupportStandard.statusTerms`
 - `capabilityCatalog` exists, is unique by `capabilityKey`, and covers the workspace capability set
 - `providerExtensionCatalog` exists, is unique by `extensionKey`, and covers the workspace provider
   extension key set
@@ -133,6 +138,9 @@ The root verifier must confirm:
 - every language workspace ships the declared language workspace catalog file
 - every language workspace catalog preserves `defaultProviderContract.providerKey`,
   `defaultProviderContract.pluginId`, and `defaultProviderContract.driverId`
+- every language workspace catalog preserves `providerSelectionContract.sourceTerms`,
+  `providerSelectionContract.precedence`, and `providerSelectionContract.defaultSource`
+- every language workspace catalog preserves `providerSupportContract.statusTerms`
 - every language declares the assembly-driven language-provider activation matrix as
   `providerActivations`
 - every language declares an assembly-driven `providerPackageBoundary`

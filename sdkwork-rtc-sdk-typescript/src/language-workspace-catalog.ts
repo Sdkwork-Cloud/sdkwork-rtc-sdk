@@ -20,6 +20,14 @@ export const TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalo
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
   }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider-catalog.ts',
     capabilityCatalogRelativePath: 'src/capability-catalog.ts',
@@ -59,6 +67,14 @@ export const FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEn
     providerKey: 'volcengine',
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
+  }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'lib/src/rtc_provider_catalog.dart',
@@ -113,6 +129,14 @@ export const RUST_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
   }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider_catalog.rs',
     capabilityCatalogRelativePath: 'src/capability_catalog.rs',
@@ -165,6 +189,14 @@ export const JAVA_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
     providerKey: 'volcengine',
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
+  }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderCatalog.java',
@@ -219,6 +251,14 @@ export const CSHARP_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
   }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderCatalog.cs',
     capabilityCatalogRelativePath: 'src/SDKWork.Rtc.Sdk/RtcCapabilityCatalog.cs',
@@ -271,6 +311,14 @@ export const SWIFT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntr
     providerKey: 'volcengine',
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
+  }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'Sources/RtcSdk/RtcProviderCatalog.swift',
@@ -325,6 +373,14 @@ export const KOTLIN_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
   }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderCatalog.kt',
     capabilityCatalogRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.kt',
@@ -378,6 +434,14 @@ export const GO_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry =
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
   }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'rtcstandard/provider_catalog.go',
     capabilityCatalogRelativePath: 'rtcstandard/capability_catalog.go',
@@ -430,6 +494,14 @@ export const PYTHON_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
     providerKey: 'volcengine',
     pluginId: 'rtc-volcengine',
     driverId: 'sdkwork-rtc-driver-volcengine',
+  }),
+  providerSelectionContract: freezeRtcRuntimeValue({
+    sourceTerms: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    precedence: freezeRtcRuntimeValue(['provider_url', 'provider_key', 'tenant_override', 'deployment_profile', 'default_provider'] as const),
+    defaultSource: 'default_provider',
+  }),
+  providerSupportContract: freezeRtcRuntimeValue({
+    statusTerms: freezeRtcRuntimeValue(['builtin_registered', 'official_registered', 'official_unregistered', 'unknown'] as const),
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'sdkwork_rtc_sdk/provider_catalog.py',

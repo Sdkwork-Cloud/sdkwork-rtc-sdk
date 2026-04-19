@@ -36,10 +36,12 @@ Default provider contract:
 Language workspace catalog:
 
 - workspace catalog: `rtcstandard/language_workspace_catalog.go`
-- workspace catalog entries also keep `workspaceCatalogRelativePath`, `defaultProviderContract`,
-  and any declared `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
+- workspace catalog entries also keep `workspaceCatalogRelativePath`,
+  `defaultProviderContract`, `providerSelectionContract`, `providerSupportContract`, and any
+  declared `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
   `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
-  locations and the workspace-wide default provider identity without rereading the assembly.
+  locations, workspace-wide default provider identity, selection precedence, and support-status
+  vocabulary without rereading the assembly.
 
 
 Provider package boundary:

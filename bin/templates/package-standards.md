@@ -82,6 +82,8 @@ Rules:
 - the provider selection module must expose `RtcProviderSelectionRequest`,
   `RTC_PROVIDER_SELECTION_SOURCES`, `RTC_PROVIDER_SELECTION_PRECEDENCE`,
   `parseRtcProviderUrl(...)`, and `resolveRtcProviderSelection(...)`
+- `.sdkwork-assembly.json` must declare `providerSelectionStandard.sourceTerms`,
+  `providerSelectionStandard.precedence`, and `providerSelectionStandard.defaultSource`
 - the provider selection precedence order is fixed as `provider_url`, `provider_key`,
   `tenant_override`, `deployment_profile`, and `default_provider`
 - reserved non-TypeScript language resolution scaffolds must delegate provider-selection resolution
@@ -89,6 +91,7 @@ Rules:
 - the provider support module must expose `RtcProviderSupportStateRequest`,
   `RTC_PROVIDER_SUPPORT_STATUSES`, `resolveRtcProviderSupportStatus(...)`, and
   `createRtcProviderSupportState(...)`
+- `.sdkwork-assembly.json` must declare `providerSupportStandard.statusTerms`
 - the provider support status set is fixed as `builtin_registered`, `official_registered`,
   `official_unregistered`, and `unknown`
 - reserved non-TypeScript language resolution scaffolds must delegate provider-support
@@ -221,7 +224,9 @@ identity, package identity, runtime/control support, maturity tier, and role hig
 machine-readable without scraping README prose.
 Each language workspace catalog entry must also preserve a machine-readable
 `defaultProviderContract` with `providerKey`, `pluginId`, and `driverId` aligned to the
-assembly-driven default provider identity.
+assembly-driven default provider identity, a machine-readable `providerSelectionContract` aligned
+to `providerSelectionStandard`, and a machine-readable `providerSupportContract` aligned to
+`providerSupportStandard`.
 
 Allowed `providerActivations[].activationStatus` values in the current standard:
 
@@ -273,6 +278,14 @@ language workspace catalog and must declare:
 - `defaultProviderContract.providerKey` as the default provider key for that language workspace
 - `defaultProviderContract.pluginId` as the default provider plugin id for that language workspace
 - `defaultProviderContract.driverId` as the default provider driver id for that language workspace
+- `providerSelectionContract.sourceTerms` as the canonical selection-source vocabulary used by that
+  language workspace
+- `providerSelectionContract.precedence` as the canonical provider-selection precedence order used
+  by that language workspace
+- `providerSelectionContract.defaultSource` as the canonical fallback selection source used by that
+  language workspace
+- `providerSupportContract.statusTerms` as the canonical provider-support vocabulary used by that
+  language workspace
 - `providerPackageBoundary.mode` as the language-wide package-boundary mode
 - `providerPackageBoundary.rootPublicPolicy` as the language-wide root public exposure policy
 - `providerPackageBoundary.lifecycleStatusTerms` as the canonical lifecycle vocabulary used by that
@@ -292,6 +305,13 @@ The current standard fixes only two legal root public policies:
 
 The current standard also fixes the boundary vocabularies:
 
+- every language `providerSelectionContract.sourceTerms` must be
+  `provider_url`, `provider_key`, `tenant_override`, `deployment_profile`, `default_provider`
+- every language `providerSelectionContract.precedence` must be
+  `provider_url`, `provider_key`, `tenant_override`, `deployment_profile`, `default_provider`
+- every language `providerSelectionContract.defaultSource` must be `default_provider`
+- every language `providerSupportContract.statusTerms` must be
+  `builtin_registered`, `official_registered`, `official_unregistered`, `unknown`
 - TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
   `root_public_reference_boundary` and `package_reference_boundary`
 - TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be

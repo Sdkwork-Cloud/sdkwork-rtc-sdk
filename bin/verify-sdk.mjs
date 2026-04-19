@@ -143,6 +143,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /non-source artifacts/i, label: 'workspace non-source artifact contract' },
       { pattern: /\.sdkwork-assembly\.json.*source/i, label: 'assembly snapshot source-of-truth contract' },
       { pattern: /language workspace catalog/i, label: 'language workspace catalog contract' },
+      { pattern: /providerSelectionContract/, label: 'language workspace providerSelectionContract' },
+      { pattern: /providerSupportContract/, label: 'language workspace providerSupportContract' },
       { pattern: /providerPackageBoundary/, label: 'language workspace providerPackageBoundary contract' },
       { pattern: /rootPublicPolicy/, label: 'language workspace rootPublicPolicy contract' },
       { pattern: /catalog-governed-mixed/, label: 'TypeScript mixed boundary mode contract' },
@@ -196,6 +198,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         label: 'internal docs TypeScript provider extension catalog index',
       },
       { pattern: /language-workspace-catalog\.ts/, label: 'internal docs TypeScript language workspace catalog index' },
+      { pattern: /providerSelectionContract/, label: 'internal docs providerSelectionContract coverage' },
+      { pattern: /providerSupportContract/, label: 'internal docs providerSupportContract coverage' },
       { pattern: /providerPackageBoundary/, label: 'internal docs providerPackageBoundary coverage' },
       { pattern: /rootPublicPolicy/, label: 'internal docs rootPublicPolicy coverage' },
       { pattern: /catalog-governed-mixed/, label: 'internal docs TypeScript mixed boundary mode coverage' },
@@ -293,6 +297,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /roleHighlights/, label: 'language workspace roleHighlights contract' },
       { pattern: /workspaceCatalogRelativePath/, label: 'language workspace catalog path contract' },
       { pattern: /language workspace catalog/i, label: 'language workspace catalog documentation contract' },
+      { pattern: /providerSelectionContract/, label: 'language workspace providerSelectionContract contract' },
+      { pattern: /providerSupportContract/, label: 'language workspace providerSupportContract contract' },
+      { pattern: /providerSelectionStandard/, label: 'assembly-driven providerSelectionStandard contract' },
+      { pattern: /providerSupportStandard/, label: 'assembly-driven providerSupportStandard contract' },
       { pattern: /providerActivations/, label: 'language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'assembly-driven TypeScript provider package contract' },
       { pattern: /providerPackageBoundary/, label: 'language workspace provider package boundary contract' },
@@ -464,6 +472,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /hasRtcProviderExtension/, label: 'provider adapter provider extension membership helper contract' },
       { pattern: /resolveRtcProviderSupportStatus/, label: 'provider adapter provider support status helper contract' },
       { pattern: /createRtcProviderSupportState/, label: 'provider adapter provider support state helper contract' },
+      { pattern: /providerSelectionContract/, label: 'provider adapter language workspace providerSelectionContract contract' },
+      { pattern: /providerSupportContract/, label: 'provider adapter language workspace providerSupportContract contract' },
       { pattern: /providerPackageBoundary/, label: 'provider adapter language workspace package boundary contract' },
       {
         pattern: /rootPublicPolicy/,
@@ -540,6 +550,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /roleHighlights/, label: 'verification of language workspace roleHighlights contract' },
       { pattern: /workspaceCatalogRelativePath/, label: 'verification of language workspace catalog path contract' },
       { pattern: /language workspace catalog/i, label: 'verification of language workspace catalog contract' },
+      { pattern: /providerSelectionContract/, label: 'verification of language workspace providerSelectionContract contract' },
+      { pattern: /providerSupportContract/, label: 'verification of language workspace providerSupportContract contract' },
+      { pattern: /providerSelectionStandard/, label: 'verification of assembly-driven providerSelectionStandard contract' },
+      { pattern: /providerSupportStandard/, label: 'verification of assembly-driven providerSupportStandard contract' },
       { pattern: /providerActivations/, label: 'verification of language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'verification of assembly-driven TypeScript provider package contract' },
       {
@@ -762,6 +776,39 @@ function assertLanguageWorkspaceProviderPackageBoundaryContent(languageEntry, co
   );
 }
 
+function assertLanguageWorkspaceProviderSelectionContractContent(language, contract, content, label) {
+  if (!contract) {
+    fail(`${label} is missing providerSelectionContract for ${language}`);
+  }
+
+  assertRequiredTerms(
+    content,
+    contract.sourceTerms,
+    `${label} providerSelectionContract.sourceTerms`,
+  );
+  assertRequiredTerms(
+    content,
+    contract.precedence,
+    `${label} providerSelectionContract.precedence`,
+  );
+
+  if (!new RegExp(escapeRegExp(contract.defaultSource)).test(content)) {
+    fail(`${label} is missing providerSelectionContract.defaultSource for ${language}`);
+  }
+}
+
+function assertLanguageWorkspaceProviderSupportContractContent(language, contract, content, label) {
+  if (!contract) {
+    fail(`${label} is missing providerSupportContract for ${language}`);
+  }
+
+  assertRequiredTerms(
+    content,
+    contract.statusTerms,
+    `${label} providerSupportContract.statusTerms`,
+  );
+}
+
 function renderNormalizedStringArray(values) {
   return normalizeStringArray(values).join(', ');
 }
@@ -810,7 +857,12 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
 
   const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
   const assembly = readJsonFile(assemblyPath);
-  const { officialLanguages, providers } = assertRtcAssemblyWorkspaceBaseline(assembly);
+  const {
+    officialLanguages,
+    providers,
+    providerSelectionStandard,
+    providerSupportStandard,
+  } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
   const capabilityCatalog = assembly.capabilityCatalog ?? [];
@@ -913,6 +965,52 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor status is not recognized for ${descriptor.extensionKey}`);
     }
   }
+
+  if (
+    !Array.isArray(providerSelectionStandard?.sourceTerms) ||
+    providerSelectionStandard.sourceTerms.length === 0
+  ) {
+    fail('providerSelectionStandard.sourceTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(providerSelectionStandard?.precedence) ||
+    providerSelectionStandard.precedence.length === 0
+  ) {
+    fail('providerSelectionStandard.precedence must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    providerSelectionStandard.sourceTerms,
+    RTC_PROVIDER_SELECTION_SOURCES,
+    'Assembly providerSelectionStandard.sourceTerms',
+  );
+  assertExactNormalizedTerms(
+    providerSelectionStandard.precedence,
+    RTC_PROVIDER_SELECTION_SOURCES,
+    'Assembly providerSelectionStandard.precedence',
+  );
+
+  const canonicalDefaultSelectionSource =
+    RTC_PROVIDER_SELECTION_SOURCES[RTC_PROVIDER_SELECTION_SOURCES.length - 1];
+  if (providerSelectionStandard.defaultSource !== canonicalDefaultSelectionSource) {
+    fail(
+      `Assembly providerSelectionStandard.defaultSource must be ${canonicalDefaultSelectionSource}`,
+    );
+  }
+
+  if (
+    !Array.isArray(providerSupportStandard?.statusTerms) ||
+    providerSupportStandard.statusTerms.length === 0
+  ) {
+    fail('providerSupportStandard.statusTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    providerSupportStandard.statusTerms,
+    RTC_PROVIDER_SUPPORT_STATUSES,
+    'Assembly providerSupportStandard.statusTerms',
+  );
 
   for (const languageEntry of assembly.languages ?? []) {
     if (typeof languageEntry.displayName !== 'string' || languageEntry.displayName.length === 0) {
@@ -1801,6 +1899,18 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       workspaceCatalogContent,
       `Language workspace catalog for ${languageEntry.language}`,
     );
+    assertLanguageWorkspaceProviderSelectionContractContent(
+      languageEntry.language,
+      providerSelectionStandard,
+      workspaceCatalogContent,
+      `Language workspace catalog for ${languageEntry.language}`,
+    );
+    assertLanguageWorkspaceProviderSupportContractContent(
+      languageEntry.language,
+      providerSupportStandard,
+      workspaceCatalogContent,
+      `Language workspace catalog for ${languageEntry.language}`,
+    );
     assertNoLegacyTypeScriptProviderPackageBoundaryTerms(
       workspaceCatalogContent,
       `Language workspace catalog for ${languageEntry.language}`,
@@ -1817,6 +1927,9 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       'currentRole',
       'workspaceSummary',
       'roleHighlights',
+      'defaultProviderContract',
+      'providerSelectionContract',
+      'providerSupportContract',
       'providerPackageBoundary',
     ]) {
       assertReservedLanguageToken(
@@ -3049,9 +3162,14 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     'currentRole',
     'workspaceSummary',
     'roleHighlights',
+    'defaultProviderContract',
+    'providerSelectionContract',
+    'providerSupportContract',
     'getRtcLanguageWorkspaceCatalog',
     'getRtcLanguageWorkspaceByLanguage',
     'getRtcLanguageWorkspace',
+    ...RTC_PROVIDER_SELECTION_SOURCES,
+    ...RTC_PROVIDER_SUPPORT_STATUSES,
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(languageWorkspaceCatalogContent)) {
       fail(`TypeScript language workspace catalog token drift: ${token}`);

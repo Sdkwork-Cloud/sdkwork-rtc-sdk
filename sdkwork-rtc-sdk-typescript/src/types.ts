@@ -185,6 +185,16 @@ export interface RtcLanguageWorkspaceDefaultProviderContract {
   driverId: string;
 }
 
+export interface RtcLanguageWorkspaceProviderSelectionContract {
+  sourceTerms: readonly RtcProviderSelectionSource[];
+  precedence: readonly RtcProviderSelectionSource[];
+  defaultSource: RtcProviderSelectionSource;
+}
+
+export interface RtcLanguageWorkspaceProviderSupportContract {
+  statusTerms: readonly RtcProviderSupportStatus[];
+}
+
 export type RtcProviderPackageRuntimeBridgeStatus =
   | RtcTypeScriptAdapterContract['runtimeBridgeStatus']
   | 'reserved';
@@ -243,6 +253,8 @@ export interface RtcLanguageWorkspaceCatalogEntry {
   workspaceSummary: string;
   roleHighlights: readonly string[];
   defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract;
+  providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract;
+  providerSupportContract: RtcLanguageWorkspaceProviderSupportContract;
   metadataScaffold?: RtcLanguageWorkspaceMetadataScaffold;
   resolutionScaffold?: RtcLanguageWorkspaceResolutionScaffold;
   providerPackageBoundary: RtcLanguageWorkspaceProviderPackageBoundary;
