@@ -4,10 +4,6 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildRtcSdkMaterializationPlan, RTC_SDK_STALE_MATERIALIZED_FILES } from './materialize-sdk.mjs';
 import {
-  RTC_TEMPLATE_MATERIALIZED_FILES,
-  RTC_TEMPLATE_SOURCE_FILES,
-} from './materialize-sdk-template-assets.mjs';
-import {
   buildLanguageProviderActivationCatalogEntries,
   buildProviderPackageManifestPath,
   buildProviderPackageReadmePath,
@@ -58,6 +54,11 @@ import {
   getReservedLanguageRootPublicContract,
   matchesReservedLanguageToken,
 } from './verify-sdk-language-helpers.mjs';
+import {
+  RTC_ROOT_REQUIRED_CONTRACT_FILES,
+  RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
+  RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
+} from './rtc-standard-workspace-file-contracts.mjs';
 
 function fail(message) {
   throw new Error(message);
@@ -767,12 +768,8 @@ function renderNormalizedStringArray(values) {
 
 export function verifyRtcSdkWorkspace(workspaceRoot) {
   const requiredFiles = [
-    '.gitignore',
-    '.sdkwork-assembly.json',
-    'docs/multilanguage-capability-matrix.md',
+    ...RTC_ROOT_REQUIRED_CONTRACT_FILES,
     'bin/materialize-sdk.mjs',
-    ...RTC_TEMPLATE_MATERIALIZED_FILES,
-    ...RTC_TEMPLATE_SOURCE_FILES,
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
     'bin/smoke-sdk.mjs',
@@ -1578,34 +1575,21 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     fail('providerExtensionCatalog must exactly cover the workspace provider extension key set');
   }
 
-  const typeScriptRequiredFiles = [
-    'sdkwork-rtc-sdk-typescript/package.json',
-    'sdkwork-rtc-sdk-typescript/README.md',
-    'sdkwork-rtc-sdk-typescript/bin/package-task.mjs',
-    'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-selection.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-support.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/index.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-catalog.ts',
-  ];
-
-  for (const relativePath of typeScriptRequiredFiles) {
+  for (const relativePath of RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES) {
     if (!existsSync(path.join(workspaceRoot, relativePath))) {
       fail(`Missing required TypeScript workspace file: ${relativePath}`);
     }
   }
 
   const providerPackageRoot = path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'providers');
-  if (!existsSync(path.join(providerPackageRoot, 'README.md'))) {
-    fail('Missing required TypeScript provider package README: sdkwork-rtc-sdk-typescript/providers/README.md');
+  if (!existsSync(path.join(workspaceRoot, RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README))) {
+    fail(`Missing required TypeScript provider package README: ${RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README}`);
   }
 
-  const typeScriptProvidersReadme = readFileSync(path.join(providerPackageRoot, 'README.md'), 'utf8');
+  const typeScriptProvidersReadme = readFileSync(
+    path.join(workspaceRoot, RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README),
+    'utf8',
+  );
   assertRequiredTerms(
     typeScriptProvidersReadme,
     REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,

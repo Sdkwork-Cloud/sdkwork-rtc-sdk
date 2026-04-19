@@ -9,6 +9,12 @@ import {
   RTC_TEMPLATE_SOURCE_FILES,
 } from '../bin/materialize-sdk-template-assets.mjs';
 import {
+  RTC_ROOT_REQUIRED_CONTRACT_FILES,
+  RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
+  RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
+  RTC_TYPESCRIPT_REQUIRED_TEST_FILES,
+} from '../bin/rtc-standard-workspace-file-contracts.mjs';
+import {
   buildLanguageProviderActivationCatalogEntries,
   buildProviderPackageManifestPath,
   buildProviderPackageReadmePath,
@@ -85,31 +91,15 @@ function createVerifierFixture(mutator) {
   const workspaceCopy = path.join(fixtureRoot, 'sdkwork-rtc-sdk');
 
   const filesToCopy = [
-    '.gitignore',
-    '.sdkwork-assembly.json',
-    'docs/multilanguage-capability-matrix.md',
+    ...RTC_ROOT_REQUIRED_CONTRACT_FILES,
     'bin/materialize-sdk.mjs',
-    ...RTC_TEMPLATE_MATERIALIZED_FILES,
-    ...RTC_TEMPLATE_SOURCE_FILES,
     'bin/materialize-sdk.ps1',
     'bin/materialize-sdk.sh',
     'bin/smoke-sdk.mjs',
     'bin/smoke-sdk.ps1',
     'bin/smoke-sdk.sh',
     'bin/verify-sdk.mjs',
-    'sdkwork-rtc-sdk-typescript/package.json',
-    'sdkwork-rtc-sdk-typescript/README.md',
-    'sdkwork-rtc-sdk-typescript/bin/package-task.mjs',
-    'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-selection.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-support.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/index.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-catalog.ts',
+    ...RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
   ];
 
   const assemblySnapshot = readJson(assemblyPath);
@@ -234,7 +224,7 @@ function createVerifierFixture(mutator) {
     }
   }
 
-  filesToCopy.push('sdkwork-rtc-sdk-typescript/providers/README.md');
+  filesToCopy.push(RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README);
   for (const provider of assemblySnapshot.providers) {
     filesToCopy.push(`sdkwork-rtc-sdk-typescript/src/providers/${provider.providerKey}.ts`);
     filesToCopy.push(
@@ -275,15 +265,7 @@ test('sdk overview lists sdkwork-rtc-sdk workspace', () => {
 });
 
 test('root rtc workspace contract files exist', () => {
-  const requiredFiles = [
-    '.gitignore',
-    '.sdkwork-assembly.json',
-    'docs/multilanguage-capability-matrix.md',
-    ...RTC_TEMPLATE_MATERIALIZED_FILES,
-    ...RTC_TEMPLATE_SOURCE_FILES,
-  ];
-
-  for (const relativePath of requiredFiles) {
+  for (const relativePath of RTC_ROOT_REQUIRED_CONTRACT_FILES) {
     assert.equal(
       existsSync(path.join(workspaceRoot, relativePath)),
       true,
@@ -987,31 +969,11 @@ test('root materialization entrypoints exist', () => {
 });
 
 test('typescript workspace baseline files exist', () => {
-  const requiredFiles = [
-    'sdkwork-rtc-sdk-typescript/package.json',
-    'sdkwork-rtc-sdk-typescript/README.md',
-    'sdkwork-rtc-sdk-typescript/bin/package-task.mjs',
-    'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/language-workspace-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-selection.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-support.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/src/index.ts',
-    'sdkwork-rtc-sdk-typescript/src/provider-catalog.ts',
-    'sdkwork-rtc-sdk-typescript/test/provider-extension-catalog.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/capability-negotiation.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/provider-selection-standard.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/provider-support-standard.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/driver-manager.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/data-source.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/built-in-providers.test.mjs',
-    'sdkwork-rtc-sdk-typescript/test/provider-package-loader.test.mjs',
-  ];
-
-  for (const relativePath of requiredFiles) {
+  for (const relativePath of [
+    ...RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
+    RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
+    ...RTC_TYPESCRIPT_REQUIRED_TEST_FILES,
+  ]) {
     assert.equal(
       existsSync(path.join(workspaceRoot, relativePath)),
       true,
