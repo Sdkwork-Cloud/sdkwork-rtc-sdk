@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildRtcSdkMaterializationPlan, RTC_SDK_STALE_MATERIALIZED_FILES } from './materialize-sdk.mjs';
+import { assertRtcAssemblyWorkspaceBaseline } from './rtc-standard-assembly-baseline.mjs';
 import {
   buildLanguageProviderActivationCatalogEntries,
   buildProviderPackageManifestPath,
@@ -19,9 +20,6 @@ import {
   toUpperSnakeCase,
 } from './rtc-standard-shared-helpers.mjs';
 import {
-  BUILTIN_RTC_PROVIDER_KEYS,
-  DEFAULT_RTC_PROVIDER_KEY,
-  OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
   OPTIONAL_RTC_CAPABILITIES,
   REQUIRED_RTC_CAPABILITIES,
   RTC_CAPABILITY_CATEGORIES,
@@ -811,18 +809,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
 
   const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
   const assembly = JSON.parse(readFileSync(assemblyPath, 'utf8'));
-
-  if (assembly.workspace !== 'sdkwork-rtc-sdk') {
-    fail(`Unexpected workspace name: ${assembly.workspace}`);
-  }
-
-  if (assembly.defaults?.providerKey !== DEFAULT_RTC_PROVIDER_KEY) {
-    fail(
-      `Default provider must be ${DEFAULT_RTC_PROVIDER_KEY}, received: ${assembly.defaults?.providerKey ?? '<missing>'}`,
-    );
-  }
-
-  const providers = assembly.providers ?? [];
+  const { officialLanguages, providers } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
   const capabilityCatalog = assembly.capabilityCatalog ?? [];
@@ -875,30 +862,6 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     fail('capabilityCatalog must exactly cover the workspace provider capability set');
   }
 
-  const builtinProviders = providers
-    .filter((provider) => provider.builtin)
-    .map((provider) => provider.providerKey);
-  if (JSON.stringify(builtinProviders) !== JSON.stringify(BUILTIN_RTC_PROVIDER_KEYS)) {
-    fail(`Builtin providers must be ${BUILTIN_RTC_PROVIDER_KEYS.join(', ')}`);
-  }
-
-  const defaultProviderEntry = providers.find(
-    (provider) => provider.providerKey === assembly.defaults?.providerKey,
-  );
-  if (!defaultProviderEntry?.builtin) {
-    fail('Default provider must point at a builtin providers entry');
-  }
-  if (!defaultProviderEntry?.defaultSelected) {
-    fail('Default provider must also be marked as the default-selected provider');
-  }
-
-  const defaultSelectedProviders = providers
-    .filter((provider) => provider.defaultSelected)
-    .map((provider) => provider.providerKey);
-  if (JSON.stringify(defaultSelectedProviders) !== JSON.stringify([assembly.defaults?.providerKey])) {
-    fail('Assembly must declare exactly one defaultSelected provider and it must match defaults.providerKey');
-  }
-
   if (!Array.isArray(providerExtensionCatalog) || providerExtensionCatalog.length === 0) {
     fail('providerExtensionCatalog must declare the workspace provider extension descriptors');
   }
@@ -948,16 +911,6 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     if (!RTC_PROVIDER_EXTENSION_STATUSES.includes(descriptor.status)) {
       fail(`Provider extension descriptor status is not recognized for ${descriptor.extensionKey}`);
     }
-  }
-
-  const officialLanguages = assembly.officialLanguages ?? [];
-  if (
-    !Array.isArray(officialLanguages) ||
-    JSON.stringify(officialLanguages) !== JSON.stringify(OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS)
-  ) {
-    fail(
-      `officialLanguages must declare the full nine-language family: ${OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS.join(', ')}`,
-    );
   }
 
   for (const languageEntry of assembly.languages ?? []) {
