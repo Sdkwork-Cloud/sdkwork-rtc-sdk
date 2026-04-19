@@ -26,7 +26,10 @@ import {
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_SURFACES,
   RTC_LANGUAGE_MATURITY_TIERS,
+  RTC_LANGUAGE_MATURITY_TIER_SUMMARIES,
   RTC_PROVIDER_ACTIVATION_STATUSES,
+  RTC_PROVIDER_EXTENSION_ACCESSES,
+  RTC_PROVIDER_EXTENSION_STATUSES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
   RTC_PROVIDER_PACKAGE_BOUNDARY_MODES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES,
@@ -34,8 +37,8 @@ import {
   RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
   RTC_PROVIDER_SELECTION_SOURCES,
   RTC_PROVIDER_SUPPORT_STATUSES,
-  RTC_PROVIDER_EXTENSION_ACCESSES,
-  RTC_PROVIDER_EXTENSION_STATUSES,
+  RTC_PROVIDER_TIERS,
+  RTC_PROVIDER_TIER_SUMMARIES,
   TYPESCRIPT_ADAPTER_BINDING_STRATEGIES,
   TYPESCRIPT_ADAPTER_BUNDLE_POLICIES,
   TYPESCRIPT_ADAPTER_OFFICIAL_VENDOR_SDK_REQUIREMENTS,
@@ -148,8 +151,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSupportContract/, label: 'language workspace providerSupportContract' },
       { pattern: /providerActivationContract/, label: 'language workspace providerActivationContract' },
       { pattern: /providerPackageBoundaryContract/, label: 'language workspace providerPackageBoundaryContract' },
+      { pattern: /capabilityStandard/, label: 'assembly-driven capabilityStandard' },
+      { pattern: /providerExtensionStandard/, label: 'assembly-driven providerExtensionStandard' },
       { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard' },
       { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard' },
+      { pattern: /providerTierStandard/, label: 'assembly-driven providerTierStandard' },
+      { pattern: /languageMaturityStandard/, label: 'assembly-driven languageMaturityStandard' },
       { pattern: /providerPackageBoundary/, label: 'language workspace providerPackageBoundary contract' },
       { pattern: /rootPublicPolicy/, label: 'language workspace rootPublicPolicy contract' },
       { pattern: /catalog-governed-mixed/, label: 'TypeScript mixed boundary mode contract' },
@@ -207,8 +214,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSupportContract/, label: 'internal docs providerSupportContract coverage' },
       { pattern: /providerActivationContract/, label: 'internal docs providerActivationContract coverage' },
       { pattern: /providerPackageBoundaryContract/, label: 'internal docs providerPackageBoundaryContract coverage' },
+      { pattern: /capabilityStandard/, label: 'internal docs capabilityStandard coverage' },
+      { pattern: /providerExtensionStandard/, label: 'internal docs providerExtensionStandard coverage' },
       { pattern: /providerActivationStandard/, label: 'internal docs providerActivationStandard coverage' },
       { pattern: /providerPackageBoundaryStandard/, label: 'internal docs providerPackageBoundaryStandard coverage' },
+      { pattern: /providerTierStandard/, label: 'internal docs providerTierStandard coverage' },
+      { pattern: /languageMaturityStandard/, label: 'internal docs languageMaturityStandard coverage' },
       { pattern: /providerPackageBoundary/, label: 'internal docs providerPackageBoundary coverage' },
       { pattern: /rootPublicPolicy/, label: 'internal docs rootPublicPolicy coverage' },
       { pattern: /catalog-governed-mixed/, label: 'internal docs TypeScript mixed boundary mode coverage' },
@@ -312,8 +323,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryContract/, label: 'language workspace providerPackageBoundaryContract contract' },
       { pattern: /providerSelectionStandard/, label: 'assembly-driven providerSelectionStandard contract' },
       { pattern: /providerSupportStandard/, label: 'assembly-driven providerSupportStandard contract' },
+      { pattern: /capabilityStandard/, label: 'assembly-driven capabilityStandard contract' },
+      { pattern: /providerExtensionStandard/, label: 'assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard contract' },
       { pattern: /providerPackageBoundaryStandard/, label: 'assembly-driven providerPackageBoundaryStandard contract' },
+      { pattern: /providerTierStandard/, label: 'assembly-driven providerTierStandard contract' },
+      { pattern: /languageMaturityStandard/, label: 'assembly-driven languageMaturityStandard contract' },
       { pattern: /providerActivations/, label: 'language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'assembly-driven TypeScript provider package contract' },
       { pattern: /providerPackageBoundary/, label: 'language workspace provider package boundary contract' },
@@ -489,8 +504,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerSupportContract/, label: 'provider adapter language workspace providerSupportContract contract' },
       { pattern: /providerActivationContract/, label: 'provider adapter language workspace providerActivationContract contract' },
       { pattern: /providerPackageBoundaryContract/, label: 'provider adapter language workspace package boundary contract vocabulary' },
+      { pattern: /capabilityStandard/, label: 'provider adapter assembly-driven capabilityStandard contract' },
+      { pattern: /providerExtensionStandard/, label: 'provider adapter assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'provider adapter assembly-driven providerActivationStandard contract' },
       { pattern: /providerPackageBoundaryStandard/, label: 'provider adapter assembly-driven providerPackageBoundaryStandard contract' },
+      { pattern: /providerTierStandard/, label: 'provider adapter assembly-driven providerTierStandard contract' },
+      { pattern: /languageMaturityStandard/, label: 'provider adapter assembly-driven languageMaturityStandard contract' },
       { pattern: /providerPackageBoundary/, label: 'provider adapter language workspace package boundary contract' },
       {
         pattern: /rootPublicPolicy/,
@@ -573,8 +592,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /providerPackageBoundaryContract/, label: 'verification of language workspace providerPackageBoundaryContract contract' },
       { pattern: /providerSelectionStandard/, label: 'verification of assembly-driven providerSelectionStandard contract' },
       { pattern: /providerSupportStandard/, label: 'verification of assembly-driven providerSupportStandard contract' },
+      { pattern: /capabilityStandard/, label: 'verification of assembly-driven capabilityStandard contract' },
+      { pattern: /providerExtensionStandard/, label: 'verification of assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'verification of assembly-driven providerActivationStandard contract' },
       { pattern: /providerPackageBoundaryStandard/, label: 'verification of assembly-driven providerPackageBoundaryStandard contract' },
+      { pattern: /providerTierStandard/, label: 'verification of assembly-driven providerTierStandard contract' },
+      { pattern: /languageMaturityStandard/, label: 'verification of assembly-driven languageMaturityStandard contract' },
       { pattern: /providerActivations/, label: 'verification of language workspace providerActivations contract' },
       { pattern: /typescriptPackage/, label: 'verification of assembly-driven TypeScript provider package contract' },
       {
@@ -927,8 +950,12 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     providers,
     providerSelectionStandard,
     providerSupportStandard,
+    capabilityStandard,
+    providerExtensionStandard,
     providerActivationStandard,
     providerPackageBoundaryStandard,
+    providerTierStandard,
+    languageMaturityStandard,
   } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
@@ -955,7 +982,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Capability descriptor category must be declared for ${descriptor.capabilityKey}`);
     }
 
-    if (!RTC_CAPABILITY_CATEGORIES.includes(descriptor.category)) {
+    if (!capabilityStandard.categoryTerms.includes(descriptor.category)) {
       fail(`Capability descriptor category is not recognized for ${descriptor.capabilityKey}`);
     }
 
@@ -963,7 +990,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Capability descriptor surface must be declared for ${descriptor.capabilityKey}`);
     }
 
-    if (!RTC_CAPABILITY_SURFACES.includes(descriptor.surface)) {
+    if (!capabilityStandard.surfaceTerms.includes(descriptor.surface)) {
       fail(`Capability descriptor surface is not recognized for ${descriptor.capabilityKey}`);
     }
   }
@@ -1012,7 +1039,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor surface must be declared for ${descriptor.extensionKey}`);
     }
 
-    if (!RTC_CAPABILITY_SURFACES.includes(descriptor.surface)) {
+    if (!capabilityStandard.surfaceTerms.includes(descriptor.surface)) {
       fail(`Provider extension descriptor surface is not recognized for ${descriptor.extensionKey}`);
     }
 
@@ -1020,7 +1047,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor access must be declared for ${descriptor.extensionKey}`);
     }
 
-    if (!RTC_PROVIDER_EXTENSION_ACCESSES.includes(descriptor.access)) {
+    if (!providerExtensionStandard.accessTerms.includes(descriptor.access)) {
       fail(`Provider extension descriptor access is not recognized for ${descriptor.extensionKey}`);
     }
 
@@ -1028,7 +1055,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Provider extension descriptor status must be declared for ${descriptor.extensionKey}`);
     }
 
-    if (!RTC_PROVIDER_EXTENSION_STATUSES.includes(descriptor.status)) {
+    if (!providerExtensionStandard.statusTerms.includes(descriptor.status)) {
       fail(`Provider extension descriptor status is not recognized for ${descriptor.extensionKey}`);
     }
   }
@@ -1077,6 +1104,56 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     providerSupportStandard.statusTerms,
     RTC_PROVIDER_SUPPORT_STATUSES,
     'Assembly providerSupportStandard.statusTerms',
+  );
+
+  if (
+    !Array.isArray(capabilityStandard?.categoryTerms) ||
+    capabilityStandard.categoryTerms.length === 0
+  ) {
+    fail('capabilityStandard.categoryTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(capabilityStandard?.surfaceTerms) ||
+    capabilityStandard.surfaceTerms.length === 0
+  ) {
+    fail('capabilityStandard.surfaceTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    capabilityStandard.categoryTerms,
+    RTC_CAPABILITY_CATEGORIES,
+    'Assembly capabilityStandard.categoryTerms',
+  );
+  assertExactNormalizedTerms(
+    capabilityStandard.surfaceTerms,
+    RTC_CAPABILITY_SURFACES,
+    'Assembly capabilityStandard.surfaceTerms',
+  );
+
+  if (
+    !Array.isArray(providerExtensionStandard?.accessTerms) ||
+    providerExtensionStandard.accessTerms.length === 0
+  ) {
+    fail('providerExtensionStandard.accessTerms must be a non-empty array');
+  }
+
+  if (
+    !Array.isArray(providerExtensionStandard?.statusTerms) ||
+    providerExtensionStandard.statusTerms.length === 0
+  ) {
+    fail('providerExtensionStandard.statusTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    providerExtensionStandard.accessTerms,
+    RTC_PROVIDER_EXTENSION_ACCESSES,
+    'Assembly providerExtensionStandard.accessTerms',
+  );
+  assertExactNormalizedTerms(
+    providerExtensionStandard.statusTerms,
+    RTC_PROVIDER_EXTENSION_STATUSES,
+    'Assembly providerExtensionStandard.statusTerms',
   );
 
   if (
@@ -1145,6 +1222,48 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     fail('providerPackageBoundaryStandard.profiles must exactly match the canonical profile map');
   }
 
+  if (
+    !Array.isArray(providerTierStandard?.tierTerms) ||
+    providerTierStandard.tierTerms.length === 0
+  ) {
+    fail('providerTierStandard.tierTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    providerTierStandard.tierTerms,
+    RTC_PROVIDER_TIERS,
+    'Assembly providerTierStandard.tierTerms',
+  );
+
+  if (
+    JSON.stringify(providerTierStandard?.tierSummaries ?? {}) !==
+    JSON.stringify(RTC_PROVIDER_TIER_SUMMARIES)
+  ) {
+    fail('providerTierStandard.tierSummaries must exactly match the canonical tier summaries');
+  }
+
+  if (
+    !Array.isArray(languageMaturityStandard?.tierTerms) ||
+    languageMaturityStandard.tierTerms.length === 0
+  ) {
+    fail('languageMaturityStandard.tierTerms must be a non-empty array');
+  }
+
+  assertExactNormalizedTerms(
+    languageMaturityStandard.tierTerms,
+    RTC_LANGUAGE_MATURITY_TIERS,
+    'Assembly languageMaturityStandard.tierTerms',
+  );
+
+  if (
+    JSON.stringify(languageMaturityStandard?.tierSummaries ?? {}) !==
+    JSON.stringify(RTC_LANGUAGE_MATURITY_TIER_SUMMARIES)
+  ) {
+    fail(
+      'languageMaturityStandard.tierSummaries must exactly match the canonical maturity summaries',
+    );
+  }
+
   for (const languageEntry of assembly.languages ?? []) {
     if (typeof languageEntry.displayName !== 'string' || languageEntry.displayName.length === 0) {
       fail(`Language workspace contract displayName must be declared for ${languageEntry.language}`);
@@ -1161,7 +1280,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Language maturityTier must be declared for ${languageEntry.language}`);
     }
 
-    if (!RTC_LANGUAGE_MATURITY_TIERS.includes(languageEntry.maturityTier)) {
+    if (!languageMaturityStandard.tierTerms.includes(languageEntry.maturityTier)) {
       fail(`Language maturityTier is not recognized for ${languageEntry.language}: ${languageEntry.maturityTier}`);
     }
 
@@ -1581,6 +1700,14 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   }
 
   for (const provider of providers) {
+    if (typeof provider.tier !== 'string' || provider.tier.length === 0) {
+      fail(`Provider tier must be declared for ${provider.providerKey}`);
+    }
+
+    if (!providerTierStandard.tierTerms.includes(provider.tier)) {
+      fail(`Provider tier is not recognized for ${provider.providerKey}: ${provider.tier}`);
+    }
+
     if (typeof provider.defaultSelected !== 'boolean') {
       fail(`Provider defaultSelected flag is missing for ${provider.providerKey}`);
     }
@@ -2809,12 +2936,12 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
           fail(`Language metadata scaffold capability drift for ${languageEntry.language}: ${capabilityKey}`);
         }
       }
-      for (const category of RTC_CAPABILITY_CATEGORIES) {
+      for (const category of capabilityStandard.categoryTerms) {
         if (!new RegExp(escapeRegExp(category)).test(capabilityCatalogContent)) {
           fail(`Language metadata scaffold capability category drift for ${languageEntry.language}: ${category}`);
         }
       }
-      for (const surface of RTC_CAPABILITY_SURFACES) {
+      for (const surface of capabilityStandard.surfaceTerms) {
         if (!new RegExp(escapeRegExp(surface)).test(capabilityCatalogContent)) {
           fail(`Language metadata scaffold capability surface drift for ${languageEntry.language}: ${surface}`);
         }
@@ -2863,17 +2990,17 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
           fail(`Language metadata scaffold provider extension provider drift for ${languageEntry.language}: ${providerKey}`);
         }
       }
-      for (const surface of RTC_CAPABILITY_SURFACES) {
+      for (const surface of capabilityStandard.surfaceTerms) {
         if (!new RegExp(escapeRegExp(surface)).test(providerExtensionCatalogContent)) {
           fail(`Language metadata scaffold provider extension surface drift for ${languageEntry.language}: ${surface}`);
         }
       }
-      for (const access of RTC_PROVIDER_EXTENSION_ACCESSES) {
+      for (const access of providerExtensionStandard.accessTerms) {
         if (!new RegExp(escapeRegExp(access)).test(providerExtensionCatalogContent)) {
           fail(`Language metadata scaffold provider extension access drift for ${languageEntry.language}: ${access}`);
         }
       }
-      for (const status of RTC_PROVIDER_EXTENSION_STATUSES) {
+      for (const status of providerExtensionStandard.statusTerms) {
         if (!new RegExp(escapeRegExp(status)).test(providerExtensionCatalogContent)) {
           fail(`Language metadata scaffold provider extension status drift for ${languageEntry.language}: ${status}`);
         }

@@ -100,6 +100,12 @@ catalog must preserve it through `providerPackageBoundaryContract.modeTerms`,
 Provider adapters must consume those standard vocabularies and must not invent alternate
 package-boundary status or root-public-policy terms locally.
 
+The assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`, and
+`languageMaturityStandard` are also canonical.
+Provider adapters, catalogs, and docs must consume those top-level vocabularies instead of
+redeclaring capability categories, capability surfaces, extension access/status terms, provider
+tiers, or language maturity tiers in isolated module-local constants.
+
 Runtime registration must reject:
 
 - provider keys that are not present in the official catalog

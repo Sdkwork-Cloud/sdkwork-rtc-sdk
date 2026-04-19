@@ -68,6 +68,21 @@ import {
 const workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url);
 const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
 const sdksReadmePath = resolveRtcSdkSdksReadmePath(import.meta.url);
+const EXPECTED_PROVIDER_TIER_STANDARD = {
+  tierTerms: ['tier-a', 'tier-b', 'tier-c'],
+  tierSummaries: {
+    'tier-a': 'Built-in baseline providers',
+    'tier-b': 'Official extension targets with reserved adapter positions',
+    'tier-c': 'Future SPI targets',
+  },
+};
+const EXPECTED_LANGUAGE_MATURITY_STANDARD = {
+  tierTerms: ['reference', 'reserved'],
+  tierSummaries: {
+    reference: 'Executable baseline language workspace',
+    reserved: 'Official but not yet executable runtime-bridge workspace',
+  },
+};
 
 function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
   const boundary = languageEntry.providerPackageBoundary;
@@ -177,6 +192,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /providerSupportContract/);
   assert.match(rootReadme, /providerActivationContract/);
   assert.match(rootReadme, /providerPackageBoundaryContract/);
+  assert.match(rootReadme, /capabilityStandard/);
+  assert.match(rootReadme, /providerExtensionStandard/);
+  assert.match(rootReadme, /providerTierStandard/);
+  assert.match(rootReadme, /languageMaturityStandard/);
   assert.match(rootReadme, /providerActivationStandard/);
   assert.match(rootReadme, /providerPackageBoundaryStandard/);
   assert.match(rootReadme, /providerPackageBoundary/);
@@ -211,6 +230,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /providerSupportContract/);
   assert.match(docsReadme, /providerActivationContract/);
   assert.match(docsReadme, /providerPackageBoundaryContract/);
+  assert.match(docsReadme, /capabilityStandard/);
+  assert.match(docsReadme, /providerExtensionStandard/);
+  assert.match(docsReadme, /providerTierStandard/);
+  assert.match(docsReadme, /languageMaturityStandard/);
   assert.match(docsReadme, /providerActivationStandard/);
   assert.match(docsReadme, /providerPackageBoundaryStandard/);
   assert.match(docsReadme, /providerPackageBoundary/);
@@ -248,6 +271,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /providerSupportStandard/);
   assert.match(packageStandards, /providerActivationStandard/);
   assert.match(packageStandards, /providerPackageBoundaryStandard/);
+  assert.match(packageStandards, /capabilityStandard/);
+  assert.match(packageStandards, /providerExtensionStandard/);
+  assert.match(packageStandards, /providerTierStandard/);
+  assert.match(packageStandards, /languageMaturityStandard/);
   assert.match(packageStandards, /providerActivations/);
   assert.match(packageStandards, /typescriptPackage/);
   assert.match(packageStandards, /defaultProviderContract/);
@@ -356,6 +383,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /providerPackageBoundaryContract/);
   assert.match(providerAdapterStandard, /providerActivationStandard/);
   assert.match(providerAdapterStandard, /providerPackageBoundaryStandard/);
+  assert.match(providerAdapterStandard, /capabilityStandard/);
+  assert.match(providerAdapterStandard, /providerExtensionStandard/);
+  assert.match(providerAdapterStandard, /providerTierStandard/);
+  assert.match(providerAdapterStandard, /languageMaturityStandard/);
   assert.match(providerAdapterStandard, /providerPackageBoundary/);
   assert.match(providerAdapterStandard, /rootPublicPolicy/);
   assert.match(providerAdapterStandard, /catalog-governed-mixed/);
@@ -451,6 +482,10 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /providerSupportStandard/);
   assert.match(verificationMatrix, /providerActivationStandard/);
   assert.match(verificationMatrix, /providerPackageBoundaryStandard/);
+  assert.match(verificationMatrix, /capabilityStandard/);
+  assert.match(verificationMatrix, /providerExtensionStandard/);
+  assert.match(verificationMatrix, /providerTierStandard/);
+  assert.match(verificationMatrix, /languageMaturityStandard/);
   assert.match(verificationMatrix, /providerActivations/);
   assert.match(verificationMatrix, /typescriptPackage/);
   assert.match(verificationMatrix, /providerPackageBoundary/);
@@ -700,6 +735,16 @@ test('rtc assembly declares official languages and default provider', () => {
   );
   assert.deepEqual(assembly.providerSupportStandard?.statusTerms, RTC_PROVIDER_SUPPORT_STATUSES);
   assert.deepEqual(assembly.providerActivationStandard?.statusTerms, RTC_PROVIDER_ACTIVATION_STATUSES);
+  assert.deepEqual(assembly.capabilityStandard, {
+    categoryTerms: RTC_CAPABILITY_CATEGORIES,
+    surfaceTerms: RTC_CAPABILITY_SURFACES,
+  });
+  assert.deepEqual(assembly.providerExtensionStandard, {
+    accessTerms: ['unwrap-only', 'extension-object'],
+    statusTerms: ['reference-baseline', 'reserved'],
+  });
+  assert.deepEqual(assembly.providerTierStandard, EXPECTED_PROVIDER_TIER_STANDARD);
+  assert.deepEqual(assembly.languageMaturityStandard, EXPECTED_LANGUAGE_MATURITY_STANDARD);
   assert.deepEqual(assembly.providerPackageBoundaryStandard?.modeTerms, RTC_PROVIDER_PACKAGE_BOUNDARY_MODES);
   assert.deepEqual(
     assembly.providerPackageBoundaryStandard?.rootPublicPolicyTerms,

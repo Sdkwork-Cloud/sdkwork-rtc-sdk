@@ -40,6 +40,49 @@
       "control-metadata-only"
     ]
   },
+  "capabilityStandard": {
+    "categoryTerms": [
+      "required-baseline",
+      "optional-advanced"
+    ],
+    "surfaceTerms": [
+      "control-plane",
+      "runtime-bridge",
+      "cross-surface"
+    ]
+  },
+  "providerExtensionStandard": {
+    "accessTerms": [
+      "unwrap-only",
+      "extension-object"
+    ],
+    "statusTerms": [
+      "reference-baseline",
+      "reserved"
+    ]
+  },
+  "providerTierStandard": {
+    "tierTerms": [
+      "tier-a",
+      "tier-b",
+      "tier-c"
+    ],
+    "tierSummaries": {
+      "tier-a": "Built-in baseline providers",
+      "tier-b": "Official extension targets with reserved adapter positions",
+      "tier-c": "Future SPI targets"
+    }
+  },
+  "languageMaturityStandard": {
+    "tierTerms": [
+      "reference",
+      "reserved"
+    ],
+    "tierSummaries": {
+      "reference": "Executable baseline language workspace",
+      "reserved": "Official but not yet executable runtime-bridge workspace"
+    }
+  },
   "providerPackageBoundaryStandard": {
     "modeTerms": [
       "catalog-governed-mixed",

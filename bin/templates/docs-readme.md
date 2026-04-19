@@ -10,6 +10,8 @@ Current docs:
   JDBC-style driver and adapter rules.
 - `multilanguage-capability-matrix.md`
   Capability catalog, provider extension catalog, provider tiers, language roles, maturity tiers,
+  `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`,
+  `languageMaturityStandard`,
   runtime support boundaries, assembly-driven language workspace catalog paths, cross-language
   `providerPackageBoundary` modes and root-public policies, TypeScript runtime bridge baselines,
   reserved language package/build scaffolds, reserved language metadata scaffolds, reserved

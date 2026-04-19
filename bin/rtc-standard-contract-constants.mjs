@@ -41,6 +41,18 @@ export const RTC_PROVIDER_ACTIVATION_STATUSES = Object.freeze([
   'control-metadata-only',
 ]);
 
+export const RTC_PROVIDER_TIERS = Object.freeze([
+  'tier-a',
+  'tier-b',
+  'tier-c',
+]);
+
+export const RTC_PROVIDER_TIER_SUMMARIES = Object.freeze({
+  'tier-a': 'Built-in baseline providers',
+  'tier-b': 'Official extension targets with reserved adapter positions',
+  'tier-c': 'Future SPI targets',
+});
+
 export const RTC_PROVIDER_PACKAGE_BOUNDARY_MODES = Object.freeze([
   'catalog-governed-mixed',
   'scaffold-per-provider-package',
@@ -128,6 +140,11 @@ export const RTC_LANGUAGE_MATURITY_TIERS = Object.freeze([
   'reference',
   'reserved',
 ]);
+
+export const RTC_LANGUAGE_MATURITY_TIER_SUMMARIES = Object.freeze({
+  reference: 'Executable baseline language workspace',
+  reserved: 'Official but not yet executable runtime-bridge workspace',
+});
 
 export const TYPESCRIPT_ADAPTER_SDK_PROVISIONING_VALUES = Object.freeze([
   'consumer-supplied',

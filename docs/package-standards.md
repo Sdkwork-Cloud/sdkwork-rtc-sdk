@@ -131,6 +131,11 @@ Rules:
 - `surface` values are standardized as `control-plane`, `runtime-bridge`, or `cross-surface`
 - provider extension access values are standardized as `unwrap-only` or `extension-object`
 - provider extension status values are standardized as `reference-baseline` or `reserved`
+- `capabilityStandard` is the canonical source for capability `categoryTerms` and `surfaceTerms`
+- `providerExtensionStandard` is the canonical source for provider extension `accessTerms` and
+  `statusTerms`
+- `providerTierStandard` is the canonical source for provider `tierTerms` and `tierSummaries`
+- `languageMaturityStandard` is the canonical source for workspace `tierTerms` and `tierSummaries`
 - capability negotiation status values are standardized as `supported`, `degraded`, and
   `unsupported`
 - provider package boundaries live under `providers/rtc-sdk-provider-<providerKey>/`

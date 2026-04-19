@@ -35,6 +35,8 @@ This workspace standardizes:
 - provider extension metadata and escape hatch contracts from one assembly source of truth
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
+- assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`, and
+  `languageMaturityStandard` vocabularies
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
 - assembly-driven language workspace catalog contracts across the TypeScript baseline and reserved
   language workspaces
@@ -86,6 +88,17 @@ Capability negotiation must stay explicit.
 If all requested capabilities are present, the result is `supported`.
 If required capabilities are present but optional capabilities are missing, the result is `degraded`.
 If any required capability is missing, the result is `unsupported`.
+
+The top-level assembly also fixes the shared vocabulary standards:
+
+- `capabilityStandard.categoryTerms`
+- `capabilityStandard.surfaceTerms`
+- `providerExtensionStandard.accessTerms`
+- `providerExtensionStandard.statusTerms`
+- `providerTierStandard.tierTerms`
+- `providerTierStandard.tierSummaries`
+- `languageMaturityStandard.tierTerms`
+- `languageMaturityStandard.tierSummaries`
 
 The runtime surface is standardized, but vendor media engines are still consumer-supplied.
 Provider adapters delegate runtime work through a consumer-supplied runtime bridge bound to the

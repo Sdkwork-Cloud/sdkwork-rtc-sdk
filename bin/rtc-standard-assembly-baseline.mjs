@@ -1,13 +1,21 @@
 import {
+  RTC_CAPABILITY_CATEGORIES,
+  RTC_CAPABILITY_SURFACES,
   BUILTIN_RTC_PROVIDER_KEYS,
   DEFAULT_RTC_PROVIDER_KEY,
+  RTC_LANGUAGE_MATURITY_TIERS,
+  RTC_LANGUAGE_MATURITY_TIER_SUMMARIES,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
   RTC_PROVIDER_ACTIVATION_STATUSES,
+  RTC_PROVIDER_EXTENSION_ACCESSES,
+  RTC_PROVIDER_EXTENSION_STATUSES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
   RTC_PROVIDER_PACKAGE_BOUNDARY_MODES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_ROOT_PUBLIC_POLICIES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_RUNTIME_BRIDGE_STATUS_TERMS,
+  RTC_PROVIDER_TIERS,
+  RTC_PROVIDER_TIER_SUMMARIES,
   RTC_PROVIDER_SELECTION_PRECEDENCE,
   RTC_PROVIDER_SELECTION_SOURCES,
   RTC_PROVIDER_SUPPORT_STATUSES,
@@ -98,6 +106,62 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   if (!hasExactArray(providerActivationStandard.statusTerms, RTC_PROVIDER_ACTIVATION_STATUSES)) {
     throw new Error(
       `providerActivationStandard.statusTerms must be ${RTC_PROVIDER_ACTIVATION_STATUSES.join(', ')}`,
+    );
+  }
+
+  const capabilityStandard = assembly.capabilityStandard ?? {};
+  if (!hasExactArray(capabilityStandard.categoryTerms, RTC_CAPABILITY_CATEGORIES)) {
+    throw new Error(
+      `capabilityStandard.categoryTerms must be ${RTC_CAPABILITY_CATEGORIES.join(', ')}`,
+    );
+  }
+
+  if (!hasExactArray(capabilityStandard.surfaceTerms, RTC_CAPABILITY_SURFACES)) {
+    throw new Error(
+      `capabilityStandard.surfaceTerms must be ${RTC_CAPABILITY_SURFACES.join(', ')}`,
+    );
+  }
+
+  const providerExtensionStandard = assembly.providerExtensionStandard ?? {};
+  if (!hasExactArray(providerExtensionStandard.accessTerms, RTC_PROVIDER_EXTENSION_ACCESSES)) {
+    throw new Error(
+      `providerExtensionStandard.accessTerms must be ${RTC_PROVIDER_EXTENSION_ACCESSES.join(', ')}`,
+    );
+  }
+
+  if (!hasExactArray(providerExtensionStandard.statusTerms, RTC_PROVIDER_EXTENSION_STATUSES)) {
+    throw new Error(
+      `providerExtensionStandard.statusTerms must be ${RTC_PROVIDER_EXTENSION_STATUSES.join(', ')}`,
+    );
+  }
+
+  const providerTierStandard = assembly.providerTierStandard ?? {};
+  if (!hasExactArray(providerTierStandard.tierTerms, RTC_PROVIDER_TIERS)) {
+    throw new Error(
+      `providerTierStandard.tierTerms must be ${RTC_PROVIDER_TIERS.join(', ')}`,
+    );
+  }
+
+  if (
+    JSON.stringify(providerTierStandard.tierSummaries ?? {}) !==
+    JSON.stringify(RTC_PROVIDER_TIER_SUMMARIES)
+  ) {
+    throw new Error('providerTierStandard.tierSummaries must exactly match the canonical tier summaries');
+  }
+
+  const languageMaturityStandard = assembly.languageMaturityStandard ?? {};
+  if (!hasExactArray(languageMaturityStandard.tierTerms, RTC_LANGUAGE_MATURITY_TIERS)) {
+    throw new Error(
+      `languageMaturityStandard.tierTerms must be ${RTC_LANGUAGE_MATURITY_TIERS.join(', ')}`,
+    );
+  }
+
+  if (
+    JSON.stringify(languageMaturityStandard.tierSummaries ?? {}) !==
+    JSON.stringify(RTC_LANGUAGE_MATURITY_TIER_SUMMARIES)
+  ) {
+    throw new Error(
+      'languageMaturityStandard.tierSummaries must exactly match the canonical maturity summaries',
     );
   }
 
@@ -223,6 +287,10 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     providerSelectionStandard,
     providerSupportStandard,
     providerActivationStandard,
+    capabilityStandard,
+    providerExtensionStandard,
+    providerTierStandard,
+    languageMaturityStandard,
     providerPackageBoundaryStandard,
   };
 }

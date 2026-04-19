@@ -29,12 +29,6 @@ export const RTC_SDK_STALE_MATERIALIZED_FILES = [
   'sdkwork-rtc-sdk-typescript/src/providers/catalog.ts',
 ];
 
-const PROVIDER_TIER_SUMMARIES = {
-  'tier-a': 'Built-in baseline providers',
-  'tier-b': 'Official extension targets with reserved adapter positions',
-  'tier-c': 'Future SPI targets',
-};
-
 function readMaterializedTemplate(workspaceRoot, relativePath) {
   return readUtf8File(path.join(workspaceRoot, 'bin', 'templates', relativePath));
 }
@@ -808,9 +802,30 @@ function renderCapabilityMatrix(assembly) {
       },
     )
     .join('\n');
-  const tierSummaryLines = Object.entries(PROVIDER_TIER_SUMMARIES)
+  const tierSummaryLines = Object.entries(assembly.providerTierStandard?.tierSummaries ?? {})
     .map(([tier, summary]) => `- \`${tier}\`: ${summary}`)
     .join('\n');
+  const languageMaturitySummaryLines = Object.entries(
+    assembly.languageMaturityStandard?.tierSummaries ?? {},
+  )
+    .map(([tier, summary]) => `- \`${tier}\`: ${summary}`)
+    .join('\n');
+  const capabilityStandardLines = [
+    `- \`capabilityStandard.categoryTerms\`: ${renderMarkdownCodeList(
+      assembly.capabilityStandard?.categoryTerms ?? [],
+    )}`,
+    `- \`capabilityStandard.surfaceTerms\`: ${renderMarkdownCodeList(
+      assembly.capabilityStandard?.surfaceTerms ?? [],
+    )}`,
+  ].join('\n');
+  const providerExtensionStandardLines = [
+    `- \`providerExtensionStandard.accessTerms\`: ${renderMarkdownCodeList(
+      assembly.providerExtensionStandard?.accessTerms ?? [],
+    )}`,
+    `- \`providerExtensionStandard.statusTerms\`: ${renderMarkdownCodeList(
+      assembly.providerExtensionStandard?.statusTerms ?? [],
+    )}`,
+  ].join('\n');
 
   return `# RTC SDK Multilanguage Capability Matrix
 
@@ -820,6 +835,18 @@ support boundaries, and maturity tiers stay exact and verifiable.
 ## Provider Tier Semantics
 
 ${tierSummaryLines}
+
+## Language Maturity Semantics
+
+${languageMaturitySummaryLines}
+
+## Capability Standard
+
+${capabilityStandardLines}
+
+## Provider Extension Standard
+
+${providerExtensionStandardLines}
 
 ## Capability Catalog
 

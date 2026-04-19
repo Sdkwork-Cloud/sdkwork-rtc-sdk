@@ -28,6 +28,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerSupportContract` materialized into every language workspace catalog
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
+- the assembly-driven `capabilityStandard`, `providerExtensionStandard`, `providerTierStandard`,
+  and `languageMaturityStandard` materialized into docs and matrix assets
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -113,6 +115,14 @@ The root verifier must confirm:
   `providerSelectionStandard.precedence`, and `providerSelectionStandard.defaultSource`
 - `.sdkwork-assembly.json` declares `providerSupportStandard.statusTerms`
 - `.sdkwork-assembly.json` declares `providerActivationStandard.statusTerms`
+- `.sdkwork-assembly.json` declares `capabilityStandard.categoryTerms` and
+  `capabilityStandard.surfaceTerms`
+- `.sdkwork-assembly.json` declares `providerExtensionStandard.accessTerms` and
+  `providerExtensionStandard.statusTerms`
+- `.sdkwork-assembly.json` declares `providerTierStandard.tierTerms` and
+  `providerTierStandard.tierSummaries`
+- `.sdkwork-assembly.json` declares `languageMaturityStandard.tierTerms` and
+  `languageMaturityStandard.tierSummaries`
 - `.sdkwork-assembly.json` declares `providerPackageBoundaryStandard.modeTerms`,
   `providerPackageBoundaryStandard.rootPublicPolicyTerms`,
   `providerPackageBoundaryStandard.lifecycleStatusTerms`,

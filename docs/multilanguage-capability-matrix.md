@@ -9,6 +9,21 @@ support boundaries, and maturity tiers stay exact and verifiable.
 - `tier-b`: Official extension targets with reserved adapter positions
 - `tier-c`: Future SPI targets
 
+## Language Maturity Semantics
+
+- `reference`: Executable baseline language workspace
+- `reserved`: Official but not yet executable runtime-bridge workspace
+
+## Capability Standard
+
+- `capabilityStandard.categoryTerms`: `required-baseline`, `optional-advanced`
+- `capabilityStandard.surfaceTerms`: `control-plane`, `runtime-bridge`, `cross-surface`
+
+## Provider Extension Standard
+
+- `providerExtensionStandard.accessTerms`: `unwrap-only`, `extension-object`
+- `providerExtensionStandard.statusTerms`: `reference-baseline`, `reserved`
+
 ## Capability Catalog
 
 | Capability key | Category | Surface |
