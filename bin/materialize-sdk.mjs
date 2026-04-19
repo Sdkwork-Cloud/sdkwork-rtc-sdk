@@ -5,7 +5,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
 import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
 import {
+  BUILTIN_RTC_PROVIDER_KEYS,
+  DEFAULT_RTC_PROVIDER_KEY,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
+  OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
   RTC_PROVIDER_ACTIVATION_STATUSES as PROVIDER_ACTIVATION_STATUSES,
 } from './rtc-standard-contract-constants.mjs';
 import {
@@ -596,7 +599,7 @@ function renderCapabilityMatrix(assembly) {
     .filter((languageEntry) => languageEntry.language !== 'typescript')
     .map(
       (languageEntry) => {
-        const defaultProviderKey = assembly.defaults?.providerKey ?? 'volcengine';
+        const defaultProviderKey = assembly.defaults?.providerKey ?? DEFAULT_RTC_PROVIDER_KEY;
         const defaultExample = materializeProviderPackagePattern(
           languageEntry.providerPackageScaffold.packagePattern,
           defaultProviderKey,
@@ -1253,6 +1256,31 @@ export function materializeRtcSdkWorkspace(workspaceRoot) {
 export function buildRtcSdkMaterializationPlan(workspaceRoot) {
   const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
   const assembly = readJson(assemblyPath);
+
+  if (
+    JSON.stringify(assembly.officialLanguages ?? []) !==
+    JSON.stringify(OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS)
+  ) {
+    throw new Error(
+      `RTC assembly officialLanguages drift: expected ${OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS.join(', ')}`,
+    );
+  }
+
+  const builtinProviderKeys = (assembly.providers ?? [])
+    .filter((provider) => provider.builtin)
+    .map((provider) => provider.providerKey);
+  if (JSON.stringify(builtinProviderKeys) !== JSON.stringify(BUILTIN_RTC_PROVIDER_KEYS)) {
+    throw new Error(
+      `RTC assembly builtin providers drift: expected ${BUILTIN_RTC_PROVIDER_KEYS.join(', ')}`,
+    );
+  }
+
+  if ((assembly.defaults?.providerKey ?? DEFAULT_RTC_PROVIDER_KEY) !== DEFAULT_RTC_PROVIDER_KEY) {
+    throw new Error(
+      `RTC assembly default provider drift: expected ${DEFAULT_RTC_PROVIDER_KEY}, received ${assembly.defaults?.providerKey ?? '<missing>'}`,
+    );
+  }
+
   const entries = [
     ...RTC_TEMPLATE_MATERIALIZATION_ASSETS.map((asset) => ({
       relativePath: asset.materializedRelativePath,

@@ -8,6 +8,26 @@ export const RTC_PROVIDER_SELECTION_SOURCES = Object.freeze([
 
 export const RTC_PROVIDER_SELECTION_PRECEDENCE = RTC_PROVIDER_SELECTION_SOURCES;
 
+export const DEFAULT_RTC_PROVIDER_KEY = 'volcengine';
+
+export const BUILTIN_RTC_PROVIDER_KEYS = Object.freeze([
+  'volcengine',
+  'aliyun',
+  'tencent',
+]);
+
+export const OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS = Object.freeze([
+  'typescript',
+  'flutter',
+  'rust',
+  'java',
+  'csharp',
+  'swift',
+  'kotlin',
+  'go',
+  'python',
+]);
+
 export const RTC_PROVIDER_SUPPORT_STATUSES = Object.freeze([
   'builtin_registered',
   'official_registered',

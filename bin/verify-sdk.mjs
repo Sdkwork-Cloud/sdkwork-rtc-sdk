@@ -19,6 +19,9 @@ import {
   toUpperSnakeCase,
 } from './rtc-standard-shared-helpers.mjs';
 import {
+  BUILTIN_RTC_PROVIDER_KEYS,
+  DEFAULT_RTC_PROVIDER_KEY,
+  OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
   OPTIONAL_RTC_CAPABILITIES,
   REQUIRED_RTC_CAPABILITIES,
   RTC_CAPABILITY_CATEGORIES,
@@ -64,7 +67,6 @@ function fail(message) {
   throw new Error(message);
 }
 
-const EXPECTED_BUILTIN_PROVIDER_KEYS = ['volcengine', 'aliyun', 'tencent'];
 const KNOWN_LANGUAGE_WORKSPACE_PROVIDER_PACKAGE_BOUNDARY_MODES = [
   'catalog-governed-mixed',
   'scaffold-per-provider-package',
@@ -814,8 +816,10 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     fail(`Unexpected workspace name: ${assembly.workspace}`);
   }
 
-  if (assembly.defaults?.providerKey !== 'volcengine') {
-    fail(`Default provider must be volcengine, received: ${assembly.defaults?.providerKey ?? '<missing>'}`);
+  if (assembly.defaults?.providerKey !== DEFAULT_RTC_PROVIDER_KEY) {
+    fail(
+      `Default provider must be ${DEFAULT_RTC_PROVIDER_KEY}, received: ${assembly.defaults?.providerKey ?? '<missing>'}`,
+    );
   }
 
   const providers = assembly.providers ?? [];
@@ -874,8 +878,8 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   const builtinProviders = providers
     .filter((provider) => provider.builtin)
     .map((provider) => provider.providerKey);
-  if (JSON.stringify(builtinProviders) !== JSON.stringify(EXPECTED_BUILTIN_PROVIDER_KEYS)) {
-    fail(`Builtin providers must be ${EXPECTED_BUILTIN_PROVIDER_KEYS.join(', ')}`);
+  if (JSON.stringify(builtinProviders) !== JSON.stringify(BUILTIN_RTC_PROVIDER_KEYS)) {
+    fail(`Builtin providers must be ${BUILTIN_RTC_PROVIDER_KEYS.join(', ')}`);
   }
 
   const defaultProviderEntry = providers.find(
@@ -947,8 +951,13 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   }
 
   const officialLanguages = assembly.officialLanguages ?? [];
-  if (!Array.isArray(officialLanguages) || officialLanguages.length !== 9) {
-    fail('officialLanguages must declare the full nine-language family');
+  if (
+    !Array.isArray(officialLanguages) ||
+    JSON.stringify(officialLanguages) !== JSON.stringify(OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS)
+  ) {
+    fail(
+      `officialLanguages must declare the full nine-language family: ${OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS.join(', ')}`,
+    );
   }
 
   for (const languageEntry of assembly.languages ?? []) {

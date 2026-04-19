@@ -33,6 +33,13 @@ import {
   REQUIRED_TYPESCRIPT_PROVIDER_PACKAGE_BOUNDARY_STATUS_TERMS,
 } from '../bin/verify-sdk-standard-constants.mjs';
 import {
+  BUILTIN_RTC_PROVIDER_KEYS,
+  DEFAULT_RTC_PROVIDER_KEY,
+  OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
+  RTC_CAPABILITY_CATEGORIES,
+  RTC_CAPABILITY_SURFACES,
+} from '../bin/rtc-standard-contract-constants.mjs';
+import {
   escapeRegExp,
   getGoPublicStructFieldContracts,
   getReservedLanguageLookupHelperPatterns,
@@ -768,23 +775,18 @@ test('rtc assembly declares official languages and default provider', () => {
   const assembly = readJson(assemblyPath);
 
   assert.equal(assembly.workspace, 'sdkwork-rtc-sdk');
-  assert.equal(assembly.defaults?.providerKey, 'volcengine');
-  assert.deepEqual(assembly.officialLanguages, [
-    'typescript',
-    'flutter',
-    'rust',
-    'java',
-    'csharp',
-    'swift',
-    'kotlin',
-    'go',
-    'python',
-  ]);
+  assert.equal(assembly.defaults?.providerKey, DEFAULT_RTC_PROVIDER_KEY);
+  assert.deepEqual(assembly.officialLanguages, OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS);
 
   const defaultSelectedProviders = assembly.providers
     .filter((provider) => provider.defaultSelected)
     .map((provider) => provider.providerKey);
-  assert.deepEqual(defaultSelectedProviders, ['volcengine']);
+  assert.deepEqual(defaultSelectedProviders, [DEFAULT_RTC_PROVIDER_KEY]);
+
+  const builtinProviders = assembly.providers
+    .filter((provider) => provider.builtin)
+    .map((provider) => provider.providerKey);
+  assert.deepEqual(builtinProviders, BUILTIN_RTC_PROVIDER_KEYS);
 
   assert.equal(Array.isArray(assembly.capabilityCatalog), true);
   assert.equal(assembly.capabilityCatalog.length > 0, true);
@@ -796,6 +798,8 @@ test('rtc assembly declares official languages and default provider', () => {
     assert.equal(typeof descriptor.capabilityKey, 'string');
     assert.equal(typeof descriptor.category, 'string');
     assert.equal(typeof descriptor.surface, 'string');
+    assert.equal(RTC_CAPABILITY_CATEGORIES.includes(descriptor.category), true);
+    assert.equal(RTC_CAPABILITY_SURFACES.includes(descriptor.surface), true);
     assert.equal(capabilityKeys.has(descriptor.capabilityKey), false);
     capabilityKeys.add(descriptor.capabilityKey);
   }
