@@ -7,6 +7,7 @@ export 'rtc_call_controller_models.dart';
 
 import 'rtc_call_controller_message.dart';
 import 'rtc_call_controller_emission.dart';
+import 'rtc_call_controller_subscription.dart';
 import 'rtc_call_controller_contract.dart';
 import 'rtc_call_controller_models.dart';
 import 'rtc_call_controller_state.dart';
@@ -56,30 +57,37 @@ class StandardRtcCallController<TNativeClient> {
     required List<String> watchConversationIds,
   })   : _sdk = sdk,
         _callSession = callSession,
-        _signaling = signaling,
-        _realtimeDispatcher = realtimeDispatcher {
+        _signaling = signaling {
+    _sessionSubscriptionManager = RtcCallControllerSessionSubscriptionManager(
+      signaling: _signaling,
+      onSignal: _handleSessionSignal,
+    );
+    _conversationSubscriptionManager =
+        RtcCallControllerConversationSubscriptionManager(
+      realtimeDispatcher: realtimeDispatcher,
+      onSignal: _handleConversationSignal,
+    );
     _watchedConversationIds.addAll(watchConversationIds);
   }
 
   final ImSdkClient _sdk;
   final StandardRtcCallSession<TNativeClient> _callSession;
   final RtcCallSignalingAdapter _signaling;
-  final RtcImRealtimeDispatcher _realtimeDispatcher;
+  late final RtcCallControllerSessionSubscriptionManager
+      _sessionSubscriptionManager;
+  late final RtcCallControllerConversationSubscriptionManager
+      _conversationSubscriptionManager;
   final Set<RtcCallControllerEventHandler> _eventHandlers =
       <RtcCallControllerEventHandler>{};
   final Set<RtcCallControllerSnapshotHandler> _snapshotHandlers =
       <RtcCallControllerSnapshotHandler>{};
   final Set<String> _watchedConversationIds = <String>{};
-  final Map<String, RtcCallSignalSubscription> _conversationSubscriptions =
-      <String, RtcCallSignalSubscription>{};
 
   RtcCallControllerState _controllerState = RtcCallControllerState.idle;
   RtcCallControllerDirection? _direction;
   RtcIncomingCallInvitation? _activeInvitation;
   RtcCallSignal? _lastSignal;
   Object? _lastError;
-  String? _activeSessionId;
-  RtcCallSignalSubscription? _activeSessionSubscription;
 
   RtcCallControllerSnapshot getSnapshot() => _createSnapshot();
 
@@ -101,28 +109,14 @@ class StandardRtcCallController<TNativeClient> {
     List<String> conversationIds,
   ) async {
     final nextIds = conversationIds.toSet();
-    final removedIds = _watchedConversationIds.difference(nextIds);
-    final addedIds = nextIds.difference(_watchedConversationIds);
-
-    for (final conversationId in removedIds) {
-      _conversationSubscriptions.remove(conversationId)?.unsubscribe();
-      _watchedConversationIds.remove(conversationId);
-    }
-
-    for (final conversationId in addedIds) {
-      _conversationSubscriptions[conversationId] =
-          await _realtimeDispatcher.subscribeConversationSignals(
-        conversationId,
-        (signal) {
-          unawaited(_handleConversationSignal(signal));
-        },
-      );
-      _watchedConversationIds.add(conversationId);
-    }
+    await _conversationSubscriptionManager.replaceWatchedConversations(nextIds);
+    _watchedConversationIds
+      ..clear()
+      ..addAll(nextIds);
 
     _controllerState = resolveRtcCallControllerWatchState(
       watchedConversationCount: _watchedConversationIds.length,
-      activeSessionId: _activeSessionId,
+      activeSessionId: _sessionSubscriptionManager.activeSessionId,
       controllerState: _controllerState,
     );
 
@@ -243,7 +237,7 @@ class StandardRtcCallController<TNativeClient> {
     _direction = RtcCallControllerDirection.incoming;
     _activeInvitation = null;
     _controllerState = RtcCallControllerState.rejected;
-    _clearActiveSessionSubscription();
+    _sessionSubscriptionManager.clear();
     return _emitSnapshot();
   }
 
@@ -282,7 +276,7 @@ class StandardRtcCallController<TNativeClient> {
     await _callSession.end();
     _activeInvitation = null;
     _controllerState = RtcCallControllerState.ended;
-    _clearActiveSessionSubscription();
+    _sessionSubscriptionManager.clear();
     return _emitSnapshot();
   }
 
@@ -324,11 +318,8 @@ class StandardRtcCallController<TNativeClient> {
   }
 
   Future<void> dispose() async {
-    _clearActiveSessionSubscription();
-    for (final subscription in _conversationSubscriptions.values) {
-      subscription.unsubscribe();
-    }
-    _conversationSubscriptions.clear();
+    _sessionSubscriptionManager.clear();
+    _conversationSubscriptionManager.clear();
     _watchedConversationIds.clear();
     _activeInvitation = null;
     _direction = null;
@@ -337,19 +328,7 @@ class StandardRtcCallController<TNativeClient> {
   }
 
   Future<void> _subscribeToSessionSignals(String rtcSessionId) async {
-    if (_activeSessionId == rtcSessionId && _activeSessionSubscription != null) {
-      return;
-    }
-
-    _clearActiveSessionSubscription();
-    _activeSessionId = rtcSessionId;
-    _activeSessionSubscription =
-        await _realtimeDispatcher.subscribeRtcSessionSignals(
-      rtcSessionId,
-      (signal) {
-        unawaited(_handleSessionSignal(signal));
-      },
-    );
+    await _sessionSubscriptionManager.subscribe(rtcSessionId);
   }
 
   Future<void> _handleSessionSignal(RtcCallSignal signal) async {
@@ -380,7 +359,7 @@ class StandardRtcCallController<TNativeClient> {
       );
       _controllerState = nextState;
       _activeInvitation = null;
-      _clearActiveSessionSubscription();
+      _sessionSubscriptionManager.clear();
     }
 
     _emitSignal(signal);
@@ -429,12 +408,6 @@ class StandardRtcCallController<TNativeClient> {
         },
       );
     }
-  }
-
-  void _clearActiveSessionSubscription() {
-    _activeSessionSubscription?.unsubscribe();
-    _activeSessionSubscription = null;
-    _activeSessionId = null;
   }
 
   RtcCallControllerSnapshot _createSnapshot() {

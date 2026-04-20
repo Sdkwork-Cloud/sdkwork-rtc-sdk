@@ -49,6 +49,10 @@ import {
   emitRtcCallControllerSnapshot,
 } from './call-controller-emission.js';
 import {
+  RtcCallControllerConversationSubscriptionManager,
+  RtcCallControllerSessionSubscriptionManager,
+} from './call-controller-subscription.js';
+import {
   createRtcCallControllerSnapshot,
   hasRtcCallControllerActiveCall,
   resolveRtcCallControllerTerminalState,
@@ -59,7 +63,8 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   readonly #sdk: ImRtcCallControllerSdkLike;
   readonly #callSession: StandardRtcCallSession<TNativeClient>;
   readonly #signaling: RtcCallSignalingAdapter;
-  readonly #connectOptions?: CreateStandardRtcCallControllerOptions['connectOptions'];
+  readonly #sessionSubscriptionManager: RtcCallControllerSessionSubscriptionManager;
+  readonly #conversationSubscriptionManager: RtcCallControllerConversationSubscriptionManager;
   readonly #eventHandlers = new Set<RtcCallControllerEventHandler>();
   readonly #snapshotHandlers = new Set<RtcCallControllerSnapshotHandler>();
   readonly #watchedConversationIds = new Set<string>();
@@ -68,16 +73,21 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   #activeInvitation?: import('./call-controller-models.js').RtcIncomingCallInvitation;
   #lastSignal?: RtcCallSignal;
   #lastError?: unknown;
-  #activeSessionSubscription?: { unsubscribe(): void };
-  #activeSessionId?: string;
-  #invitationConnection?: import('./im-signaling.js').ImRtcLiveConnectionLike;
-  #invitationUnsubscribers: Array<() => void> = [];
 
   constructor(options: CreateStandardRtcCallControllerOptions<TNativeClient>) {
     this.#sdk = options.sdk as ImRtcCallControllerSdkLike;
     this.#callSession = options.callSession;
     this.#signaling = options.signaling ?? createImRtcSignalingAdapter(options);
-    this.#connectOptions = options.connectOptions;
+    this.#sessionSubscriptionManager = new RtcCallControllerSessionSubscriptionManager({
+      signaling: this.#signaling,
+      onSignal: (signal) => this.#handleSessionSignal(signal),
+    });
+    this.#conversationSubscriptionManager =
+      new RtcCallControllerConversationSubscriptionManager({
+        sdk: this.#sdk,
+        connectOptions: options.connectOptions,
+        onMessage: (message, context) => this.#handleConversationMessage(message, context),
+      });
     for (const conversationId of options.watchConversationIds ?? []) {
       this.#watchedConversationIds.add(String(conversationId));
     }
@@ -104,15 +114,19 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   async replaceWatchedConversations(
     conversationIds: readonly (string | number)[],
   ): Promise<RtcCallControllerSnapshot> {
-    this.#watchedConversationIds.clear();
+    const nextConversationIds = new Set<string>();
     for (const conversationId of conversationIds) {
-      this.#watchedConversationIds.add(String(conversationId));
+      nextConversationIds.add(String(conversationId));
     }
 
-    await this.#reconnectInvitationWatch();
+    await this.#reconnectInvitationWatch([...nextConversationIds]);
+    this.#watchedConversationIds.clear();
+    for (const conversationId of nextConversationIds) {
+      this.#watchedConversationIds.add(conversationId);
+    }
     this.#controllerState = resolveRtcCallControllerWatchState({
       watchedConversationCount: this.#watchedConversationIds.size,
-      activeSessionId: this.#activeSessionId,
+      activeSessionId: this.#sessionSubscriptionManager.activeSessionId,
       controllerState: this.#controllerState,
     });
     return this.#emitSnapshot();
@@ -219,7 +233,7 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     this.#direction = 'incoming';
     this.#activeInvitation = undefined;
     this.#controllerState = 'rejected';
-    this.#clearActiveSessionSubscription();
+    this.#sessionSubscriptionManager.clear();
     return this.#emitSnapshot();
   }
 
@@ -257,7 +271,7 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     await this.#callSession.end();
     this.#activeInvitation = undefined;
     this.#controllerState = 'ended';
-    this.#clearActiveSessionSubscription();
+    this.#sessionSubscriptionManager.clear();
     return this.#emitSnapshot();
   }
 
@@ -293,8 +307,8 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   }
 
   async dispose(): Promise<void> {
-    this.#clearActiveSessionSubscription();
-    this.#disconnectInvitationWatch();
+    this.#sessionSubscriptionManager.clear();
+    this.#conversationSubscriptionManager.disconnect();
     this.#controllerState = 'idle';
     this.#activeInvitation = undefined;
     this.#direction = undefined;
@@ -302,18 +316,7 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   }
 
   async #subscribeToSessionSignals(rtcSessionId: string): Promise<void> {
-    if (this.#activeSessionId === rtcSessionId && this.#activeSessionSubscription) {
-      return;
-    }
-
-    this.#clearActiveSessionSubscription();
-    this.#activeSessionId = rtcSessionId;
-    this.#activeSessionSubscription = await this.#signaling.subscribeSessionSignals(
-      rtcSessionId,
-      (signal) => {
-        void this.#handleSessionSignal(signal);
-      },
-    );
+    await this.#sessionSubscriptionManager.subscribe(rtcSessionId);
   }
 
   async #handleSessionSignal(signal: RtcCallSignal): Promise<void> {
@@ -342,81 +345,14 @@ export class StandardRtcCallController<TNativeClient = unknown> {
       );
       this.#controllerState = nextState;
       this.#activeInvitation = undefined;
-      this.#clearActiveSessionSubscription();
+      this.#sessionSubscriptionManager.clear();
     }
 
     this.#emitSignal(signal);
   }
 
-  async #reconnectInvitationWatch(): Promise<void> {
-    this.#disconnectInvitationWatch();
-
-    if (!this.#watchedConversationIds.size) {
-      this.#controllerState = resolveRtcCallControllerWatchState({
-        watchedConversationCount: this.#watchedConversationIds.size,
-        activeSessionId: this.#activeSessionId,
-        controllerState: this.#controllerState,
-      });
-      return;
-    }
-
-    if (typeof this.#sdk.connect !== 'function') {
-      throw new RtcSdkException({
-        code: 'signaling_not_available',
-        message:
-          'IM live invitation watch is not available. Provide sdk.connect() for conversation subscriptions.',
-      });
-    }
-
-    const conversationIds = [...this.#watchedConversationIds];
-    const liveConnection = await this.#sdk.connect({
-      ...this.#connectOptions,
-      subscriptions: {
-        conversations: conversationIds,
-        ...(this.#connectOptions?.subscriptions?.rtcSessions
-          ? {
-              rtcSessions: this.#connectOptions.subscriptions.rtcSessions,
-            }
-          : {}),
-        ...(this.#connectOptions?.subscriptions?.items
-          ? {
-              items: this.#connectOptions.subscriptions.items,
-            }
-          : {}),
-      },
-    });
-
-    if (!liveConnection.messages) {
-      liveConnection.disconnect?.();
-      throw new RtcSdkException({
-        code: 'signaling_not_available',
-        message:
-          'IM live invitation watch is missing live.messages.onConversation(...) support.',
-      });
-    }
-
-    this.#invitationConnection = liveConnection;
-    this.#invitationUnsubscribers = conversationIds.map((conversationId) =>
-      liveConnection.messages?.onConversation(conversationId, (message, context) => {
-        void this.#handleConversationMessage(message, context);
-      }) ?? (() => {}),
-    );
-
-    this.#controllerState = resolveRtcCallControllerWatchState({
-      watchedConversationCount: this.#watchedConversationIds.size,
-      activeSessionId: this.#activeSessionId,
-      controllerState: this.#controllerState,
-    });
-  }
-
-  #disconnectInvitationWatch(): void {
-    for (const unsubscribe of this.#invitationUnsubscribers) {
-      unsubscribe();
-    }
-
-    this.#invitationUnsubscribers = [];
-    this.#invitationConnection?.disconnect?.();
-    this.#invitationConnection = undefined;
+  async #reconnectInvitationWatch(conversationIds: readonly string[]): Promise<void> {
+    await this.#conversationSubscriptionManager.reconnect(conversationIds);
   }
 
   async #handleConversationMessage(
@@ -485,12 +421,6 @@ export class StandardRtcCallController<TNativeClient = unknown> {
         },
       });
     }
-  }
-
-  #clearActiveSessionSubscription(): void {
-    this.#activeSessionSubscription?.unsubscribe();
-    this.#activeSessionSubscription = undefined;
-    this.#activeSessionId = undefined;
   }
 
   #createSnapshot(): RtcCallControllerSnapshot {
