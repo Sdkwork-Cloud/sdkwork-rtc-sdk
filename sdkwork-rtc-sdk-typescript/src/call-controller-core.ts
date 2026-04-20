@@ -2,165 +2,65 @@ import { RtcSdkException } from './errors.js';
 import { freezeRtcRuntimeValue } from './runtime-freeze.js';
 import type {
   RtcCallSessionRecord,
-  RtcCallSessionSnapshot,
   RtcCallSignal,
   RtcCallSignalingAdapter,
-  RtcIncomingCallAcceptOptions,
-  RtcIncomingCallRejectOptions,
-  RtcOutgoingCallOptions,
 } from './call-types.js';
 import type { StandardRtcCallSession } from './call-session.js';
+import { createImRtcSignalingAdapter } from './im-signaling.js';
 import {
-  createImRtcSignalingAdapter,
-  type CreateImRtcSignalingAdapterOptions,
-  type ImRtcLiveConnectionLike,
-  type ImRtcLiveMessageContextLike,
-  type ImRtcSdkLike,
-} from './im-signaling.js';
-
-export const RTC_CALL_INVITE_SIGNAL_TYPE = 'sdkwork.rtc.call.invite';
-export const RTC_CALL_ACCEPTED_SIGNAL_TYPE = 'sdkwork.rtc.call.accepted';
-export const RTC_CALL_REJECTED_SIGNAL_TYPE = 'sdkwork.rtc.call.rejected';
-export const RTC_CALL_ENDED_SIGNAL_TYPE = 'sdkwork.rtc.call.ended';
-export const RTC_CALL_OFFER_SIGNAL_TYPE = 'sdkwork.rtc.call.offer';
-export const RTC_CALL_ANSWER_SIGNAL_TYPE = 'sdkwork.rtc.call.answer';
-export const RTC_CALL_ICE_CANDIDATE_SIGNAL_TYPE = 'sdkwork.rtc.call.ice-candidate';
-
-export const RTC_CALL_INVITE_SCHEMA_REF = 'urn:sdkwork:rtc:call:invite:v1';
-export const RTC_CALL_LIFECYCLE_SCHEMA_REF = 'urn:sdkwork:rtc:call:lifecycle:v1';
-export const RTC_CALL_SESSION_DESCRIPTION_SCHEMA_REF =
-  'urn:sdkwork:rtc:call:session-description:v1';
-export const RTC_CALL_ICE_CANDIDATE_SCHEMA_REF =
-  'urn:sdkwork:rtc:call:ice-candidate:v1';
-
-export type RtcCallControllerDirection = 'incoming' | 'outgoing';
-
-export type RtcCallControllerState =
-  | 'idle'
-  | 'watching'
-  | 'incoming_ringing'
-  | 'outgoing_ringing'
-  | 'connecting'
-  | 'connected'
-  | 'rejected'
-  | 'ended'
-  | 'errored';
-
-export interface RtcCallInvitePayload {
-  rtcSessionId: string;
-  conversationId: string;
-  rtcMode: string;
-  roomId?: string;
-  signalingStreamId?: string;
-  initiatorId?: string;
-  initiatorDisplayName?: string;
-  sentAt?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface RtcCallLifecyclePayload {
-  rtcSessionId: string;
-  conversationId?: string;
-  rtcMode?: string;
-  participantId?: string;
-  reason?: string;
-  occurredAt?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface RtcCallSessionDescriptionPayload {
-  sdp: string;
-}
-
-export interface RtcCallIceCandidatePayload {
-  candidate: string;
-  sdpMid?: string;
-  sdpMLineIndex?: number;
-}
-
-export interface RtcIncomingCallInvitation extends RtcCallInvitePayload {
-  occurredAt?: string;
-}
-
-export interface RtcCallControllerSnapshot extends RtcCallSessionSnapshot {
-  controllerState: RtcCallControllerState;
-  direction?: RtcCallControllerDirection;
-  watchedConversationIds: readonly string[];
-  activeInvitation?: RtcIncomingCallInvitation;
-  lastSignal?: RtcCallSignal;
-  lastError?: unknown;
-}
-
-export type RtcCallControllerEvent =
-  | {
-      type: 'snapshot';
-      snapshot: RtcCallControllerSnapshot;
-    }
-  | {
-      type: 'incoming_invitation';
-      invitation: RtcIncomingCallInvitation;
-      snapshot: RtcCallControllerSnapshot;
-    }
-  | {
-      type: 'signal';
-      signal: RtcCallSignal;
-      snapshot: RtcCallControllerSnapshot;
-    }
-  | {
-      type: 'error';
-      error: unknown;
-      snapshot: RtcCallControllerSnapshot;
-    };
-
-export type RtcCallControllerEventHandler = (event: RtcCallControllerEvent) => void;
-export type RtcCallControllerSnapshotHandler = (
-  snapshot: RtcCallControllerSnapshot,
-) => void;
-
-export interface RtcCallControllerOutgoingOptions extends RtcOutgoingCallOptions {
-  conversationId: string;
-  invitationText?: string;
-  invitationMetadata?: Record<string, unknown>;
-  initiatorDisplayName?: string;
-}
-
-export interface RtcCallControllerAcceptOptions extends RtcIncomingCallAcceptOptions {
-  metadata?: Record<string, unknown>;
-}
-
-export interface RtcCallControllerRejectOptions extends RtcIncomingCallRejectOptions {
-  reason?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface RtcCallControllerEndOptions {
-  reason?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface CreateStandardRtcCallControllerOptions<TNativeClient = unknown>
-  extends CreateImRtcSignalingAdapterOptions {
-  callSession: StandardRtcCallSession<TNativeClient>;
-  signaling?: RtcCallSignalingAdapter;
-  watchConversationIds?: readonly (string | number)[];
-}
+  RTC_CALL_ACCEPTED_SIGNAL_TYPE,
+  RTC_CALL_ANSWER_SIGNAL_TYPE,
+  RTC_CALL_ENDED_SIGNAL_TYPE,
+  RTC_CALL_ICE_CANDIDATE_SCHEMA_REF,
+  RTC_CALL_ICE_CANDIDATE_SIGNAL_TYPE,
+  RTC_CALL_INVITE_SCHEMA_REF,
+  RTC_CALL_INVITE_SIGNAL_TYPE,
+  RTC_CALL_LIFECYCLE_SCHEMA_REF,
+  RTC_CALL_OFFER_SIGNAL_TYPE,
+  RTC_CALL_REJECTED_SIGNAL_TYPE,
+  RTC_CALL_SESSION_DESCRIPTION_SCHEMA_REF,
+} from './call-controller-contract.js';
+import type {
+  RtcCallControllerDirection,
+  RtcCallControllerState,
+} from './call-controller-contract.js';
+import type {
+  CreateStandardRtcCallControllerOptions,
+  RtcCallControllerAcceptOptions,
+  RtcCallControllerEndOptions,
+  RtcCallControllerEvent,
+  RtcCallControllerEventHandler,
+  RtcCallControllerOutgoingOptions,
+  RtcCallControllerRejectOptions,
+  RtcCallControllerSnapshot,
+  RtcCallControllerSnapshotHandler,
+  RtcCallIceCandidatePayload,
+  RtcCallInvitePayload,
+  RtcCallLifecyclePayload,
+  RtcCallSessionDescriptionPayload,
+} from './call-controller-models.js';
+import {
+  type ImRtcCallControllerSdkLike,
+  publishRtcConversationSignal,
+  toRtcIncomingCallInvitation,
+} from './call-controller-message.js';
 
 export class StandardRtcCallController<TNativeClient = unknown> {
   readonly #sdk: ImRtcCallControllerSdkLike;
   readonly #callSession: StandardRtcCallSession<TNativeClient>;
   readonly #signaling: RtcCallSignalingAdapter;
-  readonly #connectOptions?: CreateImRtcSignalingAdapterOptions['connectOptions'];
+  readonly #connectOptions?: CreateStandardRtcCallControllerOptions['connectOptions'];
   readonly #eventHandlers = new Set<RtcCallControllerEventHandler>();
   readonly #snapshotHandlers = new Set<RtcCallControllerSnapshotHandler>();
   readonly #watchedConversationIds = new Set<string>();
   #controllerState: RtcCallControllerState = 'idle';
   #direction?: RtcCallControllerDirection;
-  #activeInvitation?: RtcIncomingCallInvitation;
+  #activeInvitation?: import('./call-controller-models.js').RtcIncomingCallInvitation;
   #lastSignal?: RtcCallSignal;
   #lastError?: unknown;
   #activeSessionSubscription?: { unsubscribe(): void };
   #activeSessionId?: string;
-  #invitationConnection?: ImRtcLiveConnectionLike;
+  #invitationConnection?: import('./im-signaling.js').ImRtcLiveConnectionLike;
   #invitationUnsubscribers: Array<() => void> = [];
 
   constructor(options: CreateStandardRtcCallControllerOptions<TNativeClient>) {
@@ -226,7 +126,7 @@ export class StandardRtcCallController<TNativeClient = unknown> {
       sentAt: new Date().toISOString(),
       metadata: options.invitationMetadata,
     });
-    await publishConversationSignal(this.#sdk, options.conversationId, {
+    await publishRtcConversationSignal(this.#sdk, options.conversationId, {
       signalType: RTC_CALL_INVITE_SIGNAL_TYPE,
       schemaRef: RTC_CALL_INVITE_SCHEMA_REF,
       text: options.invitationText ?? 'RTC call invite',
@@ -498,9 +398,9 @@ export class StandardRtcCallController<TNativeClient = unknown> {
 
   async #handleConversationMessage(
     message: unknown,
-    context: ImRtcLiveMessageContextLike,
+    context: import('./im-signaling.js').ImRtcLiveMessageContextLike,
   ): Promise<void> {
-    const invitation = toIncomingCallInvitation(message, context);
+    const invitation = toRtcIncomingCallInvitation(message, context);
     if (!invitation) {
       return;
     }
@@ -610,17 +510,6 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     });
   }
 
-  #emitError(error: unknown): void {
-    this.#lastError = error;
-    this.#controllerState = 'errored';
-    this.#emitEvent({
-      type: 'error',
-      error,
-      snapshot: this.#createSnapshot(),
-    });
-    this.#emitSnapshot();
-  }
-
   #emitEvent(event: RtcCallControllerEvent): void {
     for (const handler of this.#eventHandlers) {
       try {
@@ -632,171 +521,10 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   }
 }
 
-export interface StandardRtcCallControllerStack<TNativeClient = unknown> {
-  readonly callController: StandardRtcCallController<TNativeClient>;
-}
-
 export async function createStandardRtcCallController<TNativeClient = unknown>(
   options: CreateStandardRtcCallControllerOptions<TNativeClient>,
 ): Promise<StandardRtcCallController<TNativeClient>> {
   const controller = new StandardRtcCallController(options);
   await controller.replaceWatchedConversations(options.watchConversationIds ?? []);
   return controller;
-}
-
-interface ImRtcConversationSignalMessageCreateOptions {
-  conversationId: string | number;
-  text?: string;
-  signalType: string;
-  schemaRef?: string;
-  encoding?: string;
-  payload?: string;
-  state?: string;
-}
-
-interface ImRtcCallControllerSdkLike extends ImRtcSdkLike {
-  createSignalMessage?(
-    input: ImRtcConversationSignalMessageCreateOptions,
-  ): unknown;
-  send?(message: unknown): Promise<unknown> | unknown;
-  readonly messages?: {
-    createSignal?(
-      input: ImRtcConversationSignalMessageCreateOptions,
-    ): unknown;
-    send?(message: unknown): Promise<unknown> | unknown;
-  };
-  connect?(
-    options?: NonNullable<CreateImRtcSignalingAdapterOptions['connectOptions']>,
-  ): Promise<ImRtcLiveConnectionLike> | ImRtcLiveConnectionLike;
-}
-
-async function publishConversationSignal(
-  sdk: ImRtcCallControllerSdkLike,
-  conversationId: string,
-  options: {
-    signalType: string;
-    schemaRef?: string;
-    text?: string;
-    payload: unknown;
-  },
-): Promise<void> {
-  const encodedPayload = JSON.stringify(options.payload);
-
-  if (typeof sdk.createSignalMessage === 'function' && typeof sdk.send === 'function') {
-    await sdk.send(
-      sdk.createSignalMessage({
-        conversationId,
-        text: options.text,
-        signalType: options.signalType,
-        schemaRef: options.schemaRef,
-        encoding: 'application/json',
-        payload: encodedPayload,
-      }),
-    );
-    return;
-  }
-
-  if (
-    typeof sdk.messages?.createSignal === 'function'
-    && typeof sdk.messages?.send === 'function'
-  ) {
-    await sdk.messages.send(
-      sdk.messages.createSignal({
-        conversationId,
-        text: options.text,
-        signalType: options.signalType,
-        schemaRef: options.schemaRef,
-        encoding: 'application/json',
-        payload: encodedPayload,
-      }),
-    );
-    return;
-  }
-
-  throw new RtcSdkException({
-    code: 'signaling_not_available',
-    message:
-      'IM conversation invite signaling is not available. Provide createSignalMessage()/send() or messages.createSignal()/messages.send().',
-    details: {
-      conversationId,
-      signalType: options.signalType,
-    },
-  });
-}
-
-function toIncomingCallInvitation(
-  message: unknown,
-  context: ImRtcLiveMessageContextLike,
-): RtcIncomingCallInvitation | undefined {
-  const record = toRecord(message);
-  if (record.type !== 'signal') {
-    return undefined;
-  }
-
-  const content = toRecord(record.content);
-  if (content.signalType !== RTC_CALL_INVITE_SIGNAL_TYPE) {
-    return undefined;
-  }
-
-  const payload = toRecord(normalizePayload(content.payload));
-  const rtcSessionId = toOptionalString(payload.rtcSessionId);
-  const conversationId =
-    toOptionalString(payload.conversationId)
-    ?? toOptionalString(context.conversationId)
-    ?? toOptionalString(context.scopeId);
-  const rtcMode = toOptionalString(payload.rtcMode);
-
-  if (!rtcSessionId || !conversationId || !rtcMode) {
-    return undefined;
-  }
-
-  return freezeRtcRuntimeValue({
-    rtcSessionId,
-    conversationId,
-    rtcMode,
-    roomId: toOptionalString(payload.roomId),
-    signalingStreamId: toOptionalString(payload.signalingStreamId),
-    initiatorId: toOptionalString(payload.initiatorId),
-    initiatorDisplayName: toOptionalString(payload.initiatorDisplayName),
-    sentAt: toOptionalString(payload.sentAt),
-    metadata: toOptionalRecord(payload.metadata),
-    occurredAt: toOptionalString(payload.sentAt) ?? context.receivedAt,
-  });
-}
-
-function normalizePayload(payload: unknown): unknown {
-  if (typeof payload !== 'string') {
-    return payload;
-  }
-
-  const trimmed = payload.trim();
-  if (!trimmed) {
-    return payload;
-  }
-
-  try {
-    return JSON.parse(trimmed);
-  } catch {
-    return payload;
-  }
-}
-
-function toRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  return {};
-}
-
-function toOptionalString(value: unknown): string | undefined {
-  return typeof value === 'string' && value.trim().length > 0 ? value : undefined;
-}
-
-function toOptionalRecord(value: unknown): Record<string, unknown> | undefined {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  return undefined;
 }

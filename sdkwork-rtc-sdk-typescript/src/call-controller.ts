@@ -1,23 +1,12 @@
+export * from './call-controller-contract.js';
 export {
   createStandardRtcCallController,
   StandardRtcCallController,
-  RTC_CALL_ACCEPTED_SIGNAL_TYPE,
-  RTC_CALL_ANSWER_SIGNAL_TYPE,
-  RTC_CALL_ENDED_SIGNAL_TYPE,
-  RTC_CALL_ICE_CANDIDATE_SIGNAL_TYPE,
-  RTC_CALL_INVITE_SCHEMA_REF,
-  RTC_CALL_INVITE_SIGNAL_TYPE,
-  RTC_CALL_LIFECYCLE_SCHEMA_REF,
-  RTC_CALL_OFFER_SIGNAL_TYPE,
-  RTC_CALL_REJECTED_SIGNAL_TYPE,
-  RTC_CALL_SESSION_DESCRIPTION_SCHEMA_REF,
-  RTC_CALL_ICE_CANDIDATE_SCHEMA_REF,
 } from './call-controller-core.js';
 
 export type {
   CreateStandardRtcCallControllerOptions,
   RtcCallControllerAcceptOptions,
-  RtcCallControllerDirection,
   RtcCallControllerEndOptions,
   RtcCallControllerEvent,
   RtcCallControllerEventHandler,
@@ -25,10 +14,9 @@ export type {
   RtcCallControllerRejectOptions,
   RtcCallControllerSnapshot,
   RtcCallControllerSnapshotHandler,
-  RtcCallControllerState,
   RtcCallIceCandidatePayload,
   RtcCallInvitePayload,
   RtcCallLifecyclePayload,
   RtcCallSessionDescriptionPayload,
   RtcIncomingCallInvitation,
-} from './call-controller-core.js';
+} from './call-controller-models.js';
