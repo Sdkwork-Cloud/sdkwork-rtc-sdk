@@ -17,6 +17,7 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - `docs/README.md`
 - `docs/multilanguage-capability-matrix.md`
 - official language workspace READMEs
+- `docs/usage-guide.md`
 - the assembly-driven language workspace display names, current roles, summaries, and role
   highlights used by those READMEs
 - the assembly-driven language workspace catalog matrix materialized into
@@ -224,6 +225,8 @@ The root verifier must confirm:
 - every executable reference language `runtimeBaseline` preserves `vendorSdkPackage`,
   `vendorSdkImportPath`, `signalingSdkPackage`, `signalingSdkImportPath`,
   `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
+- `docs/usage-guide.md` preserves the default provider constants and executable
+  `runtimeBaseline` details for the current runnable baselines
 - every executable reference language manifest declares the `runtimeBaseline.vendorSdkPackage`
   and `runtimeBaseline.signalingSdkPackage` dependency identities
 - every language workspace catalog preserves `providerPackageBoundaryContract.modeTerms`,

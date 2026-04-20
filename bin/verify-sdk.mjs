@@ -748,6 +748,28 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
     ],
   },
   {
+    relativePath: 'docs/usage-guide.md',
+    clauses: [
+      { pattern: /TypeScript is the executable web\/browser baseline/i, label: 'usage guide TypeScript baseline statement' },
+      { pattern: /Flutter is the executable mobile baseline/i, label: 'usage guide Flutter baseline statement' },
+      { pattern: /DEFAULT_RTC_PROVIDER_KEY/, label: 'usage guide default provider key constant' },
+      { pattern: /DEFAULT_RTC_PROVIDER_PLUGIN_ID/, label: 'usage guide default provider plugin constant' },
+      { pattern: /DEFAULT_RTC_PROVIDER_DRIVER_ID/, label: 'usage guide default provider driver constant' },
+      { pattern: /createStandardRtcCallControllerStack/, label: 'usage guide recommended rtc entrypoint' },
+      { pattern: /StandardRtcCallController/, label: 'usage guide standard call controller contract' },
+      { pattern: /sdkwork-im-sdk/, label: 'usage guide signaling standard reference' },
+      { pattern: /typescript-volcengine-im-usage\.md/, label: 'usage guide TypeScript detailed guide link' },
+      { pattern: /flutter-volcengine-im-usage\.md/, label: 'usage guide Flutter detailed guide link' },
+      { pattern: /runtime-backed/, label: 'usage guide runtime-backed smoke mode reference' },
+      { pattern: /analysis-backed/, label: 'usage guide analysis-backed smoke mode reference' },
+      { pattern: /providerUrl/, label: 'usage guide providerUrl precedence reference' },
+      { pattern: /providerKey/, label: 'usage guide providerKey precedence reference' },
+      { pattern: /tenantOverrideProviderKey/, label: 'usage guide tenant override precedence reference' },
+      { pattern: /deploymentProfileProviderKey/, label: 'usage guide deployment profile precedence reference' },
+      { pattern: /defaultProvider/, label: 'usage guide default provider precedence reference' },
+    ],
+  },
+  {
     relativePath: 'docs/verification-matrix.md',
     clauses: [
       { pattern: /DEFAULT_RTC_PROVIDER_KEY/, label: 'verification of default provider key constant' },
@@ -1371,10 +1393,30 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   } = assertRtcAssemblyWorkspaceBaseline(assembly);
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
+  const usageGuideContent = readFileSync(path.join(workspaceRoot, 'docs', 'usage-guide.md'), 'utf8');
   const capabilityCatalog = assembly.capabilityCatalog ?? [];
   const providerExtensionCatalog = assembly.providerExtensionCatalog ?? [];
   const capabilityDescriptorByKey = new Map();
   const providerExtensionDescriptorByKey = new Map();
+
+  for (const defaultValue of [
+    assembly.defaults?.providerKey ?? '',
+    assembly.defaults?.pluginId ?? '',
+    assembly.defaults?.driverId ?? '',
+  ]) {
+    if (defaultValue && !new RegExp(escapeRegExp(defaultValue)).test(usageGuideContent)) {
+      fail(`Usage guide is missing default contract value: ${defaultValue}`);
+    }
+  }
+
+  for (const languageEntry of officialLanguages.filter((entry) => entry.runtimeBaseline)) {
+    assertLanguageWorkspaceRuntimeBaselineContent(
+      languageEntry.language,
+      languageEntry.runtimeBaseline,
+      usageGuideContent,
+      'docs/usage-guide.md',
+    );
+  }
 
   if (!Array.isArray(capabilityCatalog) || capabilityCatalog.length === 0) {
     fail('capabilityCatalog must declare the workspace capability descriptors');

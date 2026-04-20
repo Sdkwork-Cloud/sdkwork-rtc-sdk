@@ -30,8 +30,8 @@ The current official provider catalog is:
 | Provider key | Display name | Tier | Builtin | Current role |
 | --- | --- | --- | --- | --- |
 | `volcengine` | Volcengine RTC | `tier-a` | `true` | default provider and current runnable baseline on web and Flutter |
-| `aliyun` | Aliyun RTC | `tier-a` | `true` | official builtin catalog entry, metadata-only outside the TypeScript web baseline |
-| `tencent` | Tencent RTC | `tier-a` | `true` | official builtin catalog entry, metadata-only outside the TypeScript web baseline |
+| `aliyun` | Aliyun RTC | `tier-a` | `true` | official builtin catalog entry; runtime activation remains language-matrix driven |
+| `tencent` | Tencent RTC | `tier-a` | `true` | official builtin catalog entry; runtime activation remains language-matrix driven |
 | `agora` | Agora RTC | `tier-b` | `false` | official package-boundary target |
 | `zego` | ZEGO RTC | `tier-b` | `false` | official package-boundary target |
 | `livekit` | LiveKit RTC | `tier-b` | `false` | official package-boundary target |
@@ -52,15 +52,15 @@ Current language workspace status:
 
 | Language | Workspace | Public package | Maturity | Runtime bridge | Current role |
 | --- | --- | --- | --- | --- | --- |
-| TypeScript | `sdkwork-rtc-sdk-typescript` | `@sdkwork/rtc-sdk` | `reference` | yes | executable web/browser reference baseline |
-| Flutter | `sdkwork-rtc-sdk-flutter` | `rtc_sdk` | `reference` | yes | executable mobile runtime baseline |
-| Java | `sdkwork-rtc-sdk-java` | `com.sdkwork.rtc` | `reserved` | no | standard boundary scaffold |
-| Kotlin | `sdkwork-rtc-sdk-kotlin` | `com.sdkwork.rtc` | `reserved` | no | standard boundary scaffold |
-| Go | `sdkwork-rtc-sdk-go` | `rtcstandard` | `reserved` | no | standard boundary scaffold |
-| C# | `sdkwork-rtc-sdk-csharp` | `Sdkwork.Rtc` | `reserved` | no | standard boundary scaffold |
-| Swift | `sdkwork-rtc-sdk-swift` | `RtcSdk` | `reserved` | no | standard boundary scaffold |
-| Rust | `sdkwork-rtc-sdk-rust` | `sdkwork_rtc_sdk` | `reserved` | no | standard boundary scaffold |
-| Python | `sdkwork-rtc-sdk-python` | `sdkwork_rtc_sdk` | `reserved` | no | standard boundary scaffold |
+| TypeScript | `sdkwork-rtc-sdk-typescript` | `@sdkwork/rtc-sdk` | `reference` | yes | Executable reference implementation |
+| Flutter | `sdkwork-rtc-sdk-flutter` | `rtc_sdk` | `reference` | yes | Executable mobile runtime baseline |
+| Rust | `sdkwork-rtc-sdk-rust` | `rtc_sdk` | `reserved` | no | Reserved workspace skeleton |
+| Java | `sdkwork-rtc-sdk-java` | `com.sdkwork:rtc-sdk` | `reserved` | no | Reserved workspace skeleton |
+| C# | `sdkwork-rtc-sdk-csharp` | `Sdkwork.Rtc.Sdk` | `reserved` | no | Reserved workspace skeleton |
+| Swift | `sdkwork-rtc-sdk-swift` | `RtcSdk` | `reserved` | no | Reserved workspace skeleton |
+| Kotlin | `sdkwork-rtc-sdk-kotlin` | `com.sdkwork:rtc-sdk` | `reserved` | no | Reserved workspace skeleton |
+| Go | `sdkwork-rtc-sdk-go` | `github.com/sdkwork/rtc-sdk` | `reserved` | no | Reserved workspace skeleton |
+| Python | `sdkwork-rtc-sdk-python` | `sdkwork-rtc-sdk` | `reserved` | no | Reserved workspace skeleton |
 
 Current conclusion:
 
@@ -95,14 +95,20 @@ explicitly override provider selection.
 
 ### TypeScript / Web
 
+TypeScript is the executable web/browser baseline.
+
 The current web runtime path is:
 
 - standard package: `@sdkwork/rtc-sdk`
 - default provider: `volcengine`
-- default vendor runtime: official `@volcengine/rtc`
-- default signaling integration: `sdkwork-im-sdk`
+- vendor SDK package: `@volcengine/rtc`
+- vendor SDK import path: `@volcengine/rtc`
+- signaling SDK package: `@sdkwork/im-sdk`
+- signaling SDK import path: `@sdkwork/im-sdk`
 - standard call/session entrypoint: `StandardRtcCallController`
-- recommended quick-start entrypoint: `createStandardRtcCallControllerStack(...)`
+- recommended quick-start entrypoint: `createStandardRtcCallControllerStack`
+- smoke command: `node ./bin/sdk-call-smoke.mjs --json`
+- smoke mode: `runtime-backed`
 
 Use the detailed guide here:
 
@@ -110,14 +116,20 @@ Use the detailed guide here:
 
 ### Flutter / Mobile
 
+Flutter is the executable mobile baseline.
+
 The current mobile runtime path is:
 
 - standard package: `rtc_sdk`
 - default provider: `volcengine`
-- default vendor runtime: official `package:volc_engine_rtc`
-- default signaling integration: `sdkwork-im-sdk` through `package:im_sdk/im_sdk.dart`
+- vendor SDK package: `volc_engine_rtc`
+- vendor SDK import path: `package:volc_engine_rtc/volc_engine_rtc.dart`
+- signaling SDK package: `im_sdk`
+- signaling SDK import path: `package:im_sdk/im_sdk.dart`
 - standard call/session entrypoint: `StandardRtcCallController`
-- recommended quick-start entrypoint: `createStandardRtcCallControllerStack(...)`
+- recommended quick-start entrypoint: `createStandardRtcCallControllerStack`
+- smoke command: `node ./bin/sdk-call-smoke.mjs --json`
+- smoke mode: `analysis-backed`
 
 Use the detailed guide here:
 
@@ -134,16 +146,15 @@ The correct vendor integration boundary is still the same:
 
 For the current runnable baselines, this boundary is already materialized:
 
-- TypeScript binds the standard surface to the official Volcengine Web SDK
-- Flutter binds the standard surface to the official Volcengine Flutter SDK
-- both baselines compose `sdkwork-im-sdk` signaling for RTC session lifecycle and participant
-  credential issuance
+- TypeScript binds the standard surface to the official `@volcengine/rtc` runtime
+- Flutter binds the standard surface to the official `package:volc_engine_rtc/volc_engine_rtc.dart` runtime bridge
+- both baselines compose `sdkwork-im-sdk` signaling through `@sdkwork/im-sdk`, `package:im_sdk/im_sdk.dart`
 - both baselines publish call invites over conversation-scoped IM signals and reconcile remote
   accept, reject, end, SDP, and ICE events through the standard `CallController`
 
 ## 7. Non-Builtin Provider Packages
 
-For providers such as `agora`, `zego`, `livekit`, `twilio`, `jitsi`, `janus`, and `mediasoup`,
+For providers such as `agora`, `zego`, `livekit`, `twilio`, `jitsi`, `janus`, `mediasoup`,
 the standard path is package-boundary integration instead of deep root-entrypoint coupling.
 
 That contract stays:
@@ -193,17 +204,11 @@ node .\bin\smoke-sdk.mjs
 
 Verification intent:
 
-- `materialize-sdk.mjs` keeps generated catalogs, READMEs, and matrices aligned to the assembly
+- `materialize-sdk.mjs` keeps generated catalogs, READMEs, matrices, and this usage guide aligned to the assembly
 - `verify-sdk-automation.test.mjs` protects standard assets and materialization behavior
 - `verify-sdk.mjs` validates assembly contracts and generated output
-- `sdk-call-smoke.mjs --json` exercises the public TypeScript `volcengine + sdkwork-im-sdk` call
-  stack with mocked runtime dependencies so the standard entrypoint stays runnable without live
-  services
-- `sdk-call-smoke.mjs --language flutter --json` runs the executable Flutter smoke wrapper, which
-  verifies the public Flutter `volcengine` call-smoke scenario under `flutter analyze` and reports
-  the current vendor limitation: the official `volc_engine_rtc` package is not runnable through
-  Dart VM CLI compilation in the current toolchain, so Flutter CLI smoke is currently
-  analyze-backed instead of runtime-backed
+- TypeScript smoke mode is `runtime-backed`: `node ./bin/sdk-call-smoke.mjs --json` exercises the public default-provider baseline without live services
+- Flutter smoke mode is `analysis-backed`: `node ./bin/sdk-call-smoke.mjs --json` currently verifies the public baseline through the Flutter CLI wrapper and `flutter analyze` because the official vendor runtime is not yet CLI-runnable through the Dart VM toolchain
 - `smoke-sdk.mjs` runs the repository regression entrypoint, including
   `flutter analyze ./bin/sdk-call-smoke.dart` and `flutter analyze` when the Flutter toolchain is
   available

@@ -599,6 +599,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(usageGuide, /TypeScript is the executable web\/browser baseline/i);
   assert.match(usageGuide, /Flutter is the executable mobile baseline/i);
   assert.match(usageGuide, /sdkwork-im-sdk/i);
+  assert.match(usageGuide, /@volcengine\/rtc/);
+  assert.match(usageGuide, /package:volc_engine_rtc\/volc_engine_rtc\.dart/);
+  assert.match(usageGuide, /package:im_sdk\/im_sdk\.dart/);
+  assert.match(usageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+  assert.match(usageGuide, /runtime-backed/);
+  assert.match(usageGuide, /analysis-backed/);
   assert.match(usageGuide, /flutter-volcengine-im-usage\.md/);
   assert.match(typescriptCallTypes, /export const RTC_CALL_TRACK_ID_SEPARATOR = '-';/);
   assert.match(typescriptCallTypes, /export const DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS = true;/);
@@ -3667,6 +3673,11 @@ test('root materializer repairs provider package, provider catalog, and language
       'docs',
       'multilanguage-capability-matrix.md',
     );
+    const usageGuidePath = path.join(
+      fixture.workspaceCopy,
+      'docs',
+      'usage-guide.md',
+    );
     const verificationMatrixPath = path.join(
       fixture.workspaceCopy,
       'docs',
@@ -3793,6 +3804,7 @@ test('root materializer repairs provider package, provider catalog, and language
     writeFileSync(packageStandardsPath, '# drifted package standards\n');
     writeFileSync(providerAdapterStandardPath, '# drifted provider adapter standard\n');
     writeFileSync(matrixPath, '# drifted matrix\n');
+    writeFileSync(usageGuidePath, '# drifted usage guide\n');
     writeFileSync(verificationMatrixPath, '# drifted verification matrix\n');
     writeFileSync(providersReadmePath, '# drifted providers readme\n');
     writeFileSync(javaReadmePath, '# drifted\n');
@@ -3850,6 +3862,7 @@ test('root materializer repairs provider package, provider catalog, and language
       assert.ok(firstRun.changedFiles.includes(relativePath));
     }
     assert.ok(firstRun.changedFiles.includes('docs/multilanguage-capability-matrix.md'));
+    assert.ok(firstRun.changedFiles.includes('docs/usage-guide.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/provider-package-scaffold.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/pom.xml'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/README.md'));
@@ -3877,6 +3890,17 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedDocsReadme, /multilanguage-capability-matrix\.md/);
     assert.match(repairedDocsReadme, /materialized from `\.sdkwork-assembly\.json`/);
     assert.match(repairedDocsReadme, /metadata-only source stub/i);
+
+    const repairedUsageGuide = readFileSync(usageGuidePath, 'utf8');
+    assert.match(repairedUsageGuide, /# SDKWork RTC SDK Usage Guide/);
+    assert.match(repairedUsageGuide, /TypeScript is the executable web\/browser baseline/i);
+    assert.match(repairedUsageGuide, /Flutter is the executable mobile baseline/i);
+    assert.match(repairedUsageGuide, /@volcengine\/rtc/);
+    assert.match(repairedUsageGuide, /package:volc_engine_rtc\/volc_engine_rtc\.dart/);
+    assert.match(repairedUsageGuide, /package:im_sdk\/im_sdk\.dart/);
+    assert.match(repairedUsageGuide, /createStandardRtcCallControllerStack/);
+    assert.match(repairedUsageGuide, /runtime-backed/);
+    assert.match(repairedUsageGuide, /analysis-backed/);
 
     const repairedPackageStandards = readFileSync(packageStandardsPath, 'utf8');
     assert.match(repairedPackageStandards, /# RTC SDK Package Standards/);

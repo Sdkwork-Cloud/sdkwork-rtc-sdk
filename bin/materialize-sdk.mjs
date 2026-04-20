@@ -33,6 +33,10 @@ function readMaterializedTemplate(workspaceRoot, relativePath) {
   return readUtf8File(path.join(workspaceRoot, 'bin', 'templates', relativePath));
 }
 
+function lines(value) {
+  return `${value.trim()}\n`;
+}
+
 function renderStringLiteral(value) {
   return `'${String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
@@ -51,6 +55,339 @@ ${Object.entries(entries ?? {})
 
 function renderMarkdownCodeList(values) {
   return (values ?? []).map((value) => `\`${value}\``).join(', ');
+}
+
+function renderUsageGuideSelectionSourceLabel(source) {
+  switch (source) {
+    case 'provider_url':
+      return 'providerUrl';
+    case 'provider_key':
+      return 'providerKey';
+    case 'tenant_override':
+      return 'tenantOverrideProviderKey';
+    case 'deployment_profile':
+      return 'deploymentProfileProviderKey';
+    case 'default_provider':
+      return 'defaultProvider';
+    default:
+      return source;
+  }
+}
+
+function renderUsageGuideProviderRole(provider, assembly) {
+  const defaultProviderKey = assembly.defaults?.providerKey ?? DEFAULT_RTC_PROVIDER_KEY;
+
+  if (provider.providerKey === defaultProviderKey) {
+    return 'default provider and current runnable baseline on web and Flutter';
+  }
+
+  if (provider.builtin) {
+    return 'official builtin catalog entry; runtime activation remains language-matrix driven';
+  }
+
+  if (provider.tier === 'tier-b') {
+    return 'official package-boundary target';
+  }
+
+  return 'future SPI target';
+}
+
+function renderUsageGuideProviderRows(assembly) {
+  return (assembly.providers ?? [])
+    .map(
+      (provider) =>
+        `| \`${provider.providerKey}\` | ${provider.displayName} | \`${provider.tier}\` | \`${provider.builtin}\` | ${renderUsageGuideProviderRole(provider, assembly)} |`,
+    )
+    .join('\n');
+}
+
+function renderUsageGuideLanguageRows(assembly) {
+  return (assembly.languages ?? [])
+    .map(
+      (languageEntry) =>
+        `| ${languageEntry.displayName} | \`${languageEntry.workspace}\` | \`${languageEntry.publicPackage}\` | \`${languageEntry.maturityTier}\` | ${languageEntry.runtimeBridge ? 'yes' : 'no'} | ${languageEntry.currentRole} |`,
+    )
+    .join('\n');
+}
+
+function renderUsageGuideExecutableLanguageConclusion(languageEntry) {
+  switch (languageEntry.language) {
+    case 'typescript':
+      return 'TypeScript is the executable web/browser baseline.';
+    case 'flutter':
+      return 'Flutter is the executable mobile baseline.';
+    default:
+      return `${languageEntry.displayName} is the executable reference baseline for this runtime.`;
+  }
+}
+
+function renderUsageGuideDetailedGuide(languageEntry) {
+  switch (languageEntry.language) {
+    case 'typescript':
+      return {
+        title: 'TypeScript / Web',
+        path: './typescript-volcengine-im-usage.md',
+        label: 'docs/typescript-volcengine-im-usage.md',
+        runtimeLabel: 'web',
+      };
+    case 'flutter':
+      return {
+        title: 'Flutter / Mobile',
+        path: './flutter-volcengine-im-usage.md',
+        label: 'docs/flutter-volcengine-im-usage.md',
+        runtimeLabel: 'mobile',
+      };
+    default:
+      return null;
+  }
+}
+
+function renderUsageGuideExecutableBaselineSection(languageEntry, assembly) {
+  if (!languageEntry.runtimeBaseline) {
+    return '';
+  }
+
+  const guide = renderUsageGuideDetailedGuide(languageEntry);
+  if (!guide) {
+    return '';
+  }
+
+  const defaultProviderKey =
+    languageEntry.defaultProviderContract?.providerKey ??
+    assembly.defaults?.providerKey ??
+    DEFAULT_RTC_PROVIDER_KEY;
+
+  return lines(`
+### ${guide.title}
+
+${renderUsageGuideExecutableLanguageConclusion(languageEntry)}
+
+The current ${guide.runtimeLabel} runtime path is:
+
+- standard package: \`${languageEntry.publicPackage}\`
+- default provider: \`${defaultProviderKey}\`
+- vendor SDK package: \`${languageEntry.runtimeBaseline.vendorSdkPackage}\`
+- vendor SDK import path: \`${languageEntry.runtimeBaseline.vendorSdkImportPath}\`
+- signaling SDK package: \`${languageEntry.runtimeBaseline.signalingSdkPackage}\`
+- signaling SDK import path: \`${languageEntry.runtimeBaseline.signalingSdkImportPath}\`
+- standard call/session entrypoint: \`StandardRtcCallController\`
+- recommended quick-start entrypoint: \`${languageEntry.runtimeBaseline.recommendedEntrypoint}\`
+- smoke command: \`${languageEntry.runtimeBaseline.smokeCommand}\`
+- smoke mode: \`${languageEntry.runtimeBaseline.smokeMode}\`
+
+Use the detailed guide here:
+
+- [\`${guide.label}\`](${guide.path})
+`);
+}
+
+function renderUsageGuideExecutableSmokeNotes(assembly) {
+  return (assembly.languages ?? [])
+    .filter((languageEntry) => languageEntry.runtimeBaseline)
+    .map((languageEntry) => {
+      if (languageEntry.language === 'flutter') {
+        return `- ${languageEntry.displayName} smoke mode is \`${languageEntry.runtimeBaseline.smokeMode}\`: \`${languageEntry.runtimeBaseline.smokeCommand}\` currently verifies the public baseline through the Flutter CLI wrapper and \`flutter analyze\` because the official vendor runtime is not yet CLI-runnable through the Dart VM toolchain`;
+      }
+
+      return `- ${languageEntry.displayName} smoke mode is \`${languageEntry.runtimeBaseline.smokeMode}\`: \`${languageEntry.runtimeBaseline.smokeCommand}\` exercises the public default-provider baseline without live services`;
+    })
+    .join('\n');
+}
+
+function renderUsageGuide(assembly) {
+  const executableLanguageSections = (assembly.languages ?? [])
+    .filter((languageEntry) => languageEntry.runtimeBaseline)
+    .map((languageEntry) => renderUsageGuideExecutableBaselineSection(languageEntry, assembly))
+    .join('\n');
+  const providerSelectionPrecedence = (assembly.providerSelectionStandard?.precedence ?? [])
+    .map(
+      (source, index) =>
+        `${index + 1}. \`${renderUsageGuideSelectionSourceLabel(source)}\``,
+    )
+    .join('\n');
+  const defaultProviderKey = assembly.defaults?.providerKey ?? DEFAULT_RTC_PROVIDER_KEY;
+  const nonBuiltinProviderKeys = (assembly.providers ?? [])
+    .filter((provider) => !provider.builtin)
+    .map((provider) => provider.providerKey);
+  const executableSignalingImports = (assembly.languages ?? [])
+    .filter((languageEntry) => languageEntry.runtimeBaseline)
+    .map((languageEntry) => `\`${languageEntry.runtimeBaseline.signalingSdkImportPath}\``)
+    .join(', ');
+
+  return lines(`
+# SDKWork RTC SDK Usage Guide
+
+This document is the entrypoint for adopting \`sdkwork-rtc-sdk\`.
+
+It focuses on the standardized provider model, current runnable baselines, default \`${defaultProviderKey}\`
+selection contract, and the recommended runtime-specific guides.
+
+## 1. Positioning
+
+\`sdkwork-rtc-sdk\` is not a reimplementation of vendor media engines.
+
+Its responsibility is to provide one provider-neutral RTC standard:
+
+- JDBC-style \`DriverManager\` / \`DataSource\` / \`Client\` contracts
+- standardized provider selection and default-provider resolution
+- standardized capability negotiation, error semantics, and extension metadata
+- pluggable provider integration through official catalogs and package boundaries
+- one consistent runtime surface across web, mobile, and future language workspaces
+
+The standard intentionally keeps vendor SDK ownership on the application side:
+
+- official vendor SDKs remain consumer-supplied
+- \`sdkwork-rtc-sdk\` provides the standard contracts and adapter boundaries
+- runtime bridges map vendor behavior into the standard surface instead of hiding vendor engines
+
+## 2. Official Providers
+
+The current official provider catalog is:
+
+| Provider key | Display name | Tier | Builtin | Current role |
+| --- | --- | --- | --- | --- |
+${renderUsageGuideProviderRows(assembly)}
+
+Notes:
+
+- \`builtin = true\` means the provider is part of the official assembly-driven builtin catalog
+- builtin does not mean the vendor runtime is bundled into every language workspace
+- non-default providers still follow the same provider metadata, capability, and activation rules
+
+## 3. Language Status
+
+Current language workspace status:
+
+| Language | Workspace | Public package | Maturity | Runtime bridge | Current role |
+| --- | --- | --- | --- | --- | --- |
+${renderUsageGuideLanguageRows(assembly)}
+
+Current conclusion:
+
+- TypeScript is the executable web/browser baseline
+- Flutter is the executable mobile baseline
+- both runnable baselines default to \`${defaultProviderKey}\`
+- remaining languages preserve standardized metadata, provider selection, lookup helpers, and
+  package-boundary scaffolds for future runtime-bridge landings
+
+## 4. Default Provider Contract
+
+The default provider remains \`${defaultProviderKey}\`.
+
+Canonical defaults:
+
+- \`DEFAULT_RTC_PROVIDER_KEY = '${assembly.defaults?.providerKey ?? DEFAULT_RTC_PROVIDER_KEY}'\`
+- \`DEFAULT_RTC_PROVIDER_PLUGIN_ID = '${assembly.defaults?.pluginId ?? ''}'\`
+- \`DEFAULT_RTC_PROVIDER_DRIVER_ID = '${assembly.defaults?.driverId ?? ''}'\`
+
+Provider selection precedence remains:
+
+${providerSelectionPrecedence}
+
+That means both the web and Flutter baselines fall back to \`${defaultProviderKey}\` when the caller does not
+explicitly override provider selection.
+
+## 5. Runnable Baselines
+
+${executableLanguageSections}
+## 6. Standard Integration Boundary
+
+The correct vendor integration boundary is still the same:
+
+- \`sdkwork-rtc-sdk\` owns the standard contracts and provider-neutral runtime surface
+- the vendor SDK owns real media behavior
+- the application wires vendor SDK instances into the standard driver/runtime-controller boundary
+- signaling adapters map \`sdkwork-im-sdk\` transport semantics into the RTC call/session standard
+
+For the current runnable baselines, this boundary is already materialized:
+
+- TypeScript binds the standard surface to the official \`@volcengine/rtc\` runtime
+- Flutter binds the standard surface to the official \`package:volc_engine_rtc/volc_engine_rtc.dart\` runtime bridge
+- both baselines compose \`sdkwork-im-sdk\` signaling through ${executableSignalingImports}
+- both baselines publish call invites over conversation-scoped IM signals and reconcile remote
+  accept, reject, end, SDP, and ICE events through the standard \`CallController\`
+
+## 7. Non-Builtin Provider Packages
+
+For providers such as ${renderMarkdownCodeList(nonBuiltinProviderKeys)},
+the standard path is package-boundary integration instead of deep root-entrypoint coupling.
+
+That contract stays:
+
+- official provider metadata remains assembly-driven
+- package identity, manifest path, README path, and source symbol stay standardized
+- runtime code is loaded through the provider-package loader SPI
+- runtime bridge ownership stays with the integrating application or provider package
+
+## 8. Error Semantics
+
+Important standardized error codes include:
+
+- \`invalid_provider_url\`
+- \`driver_not_found\`
+- \`provider_not_supported\`
+- \`provider_package_not_found\`
+- \`provider_package_identity_mismatch\`
+- \`provider_package_load_failed\`
+- \`provider_module_export_missing\`
+- \`provider_module_contract_mismatch\`
+- \`provider_metadata_mismatch\`
+- \`native_sdk_not_available\`
+- \`signaling_not_available\`
+- \`call_state_invalid\`
+- \`vendor_error\`
+
+The two most important runtime distinctions are:
+
+- \`provider_not_supported\`: the provider exists in the official catalog but no runnable driver is
+  registered in the current runtime
+- \`native_sdk_not_available\`: the standard surface exists but the actual vendor runtime bridge is
+  missing or misconfigured
+
+## 9. Local Verification
+
+Use the following commands in the workspace root:
+
+\`\`\`powershell
+node .\\bin\\materialize-sdk.mjs
+node .\\test\\verify-sdk-automation.test.mjs
+node .\\bin\\verify-sdk.mjs
+node .\\bin\\sdk-call-smoke.mjs --json
+node .\\bin\\sdk-call-smoke.mjs --language flutter --json
+node .\\bin\\smoke-sdk.mjs
+\`\`\`
+
+Verification intent:
+
+- \`materialize-sdk.mjs\` keeps generated catalogs, READMEs, matrices, and this usage guide aligned to the assembly
+- \`verify-sdk-automation.test.mjs\` protects standard assets and materialization behavior
+- \`verify-sdk.mjs\` validates assembly contracts and generated output
+${renderUsageGuideExecutableSmokeNotes(assembly)}
+- \`smoke-sdk.mjs\` runs the repository regression entrypoint, including
+  \`flutter analyze ./bin/sdk-call-smoke.dart\` and \`flutter analyze\` when the Flutter toolchain is
+  available
+
+## 10. Practical Adoption Guidance
+
+Use this rule of thumb:
+
+- if you need the web/browser baseline, start from
+  [\`docs/typescript-volcengine-im-usage.md\`](./typescript-volcengine-im-usage.md)
+- if you need the mobile baseline, start from
+  [\`docs/flutter-volcengine-im-usage.md\`](./flutter-volcengine-im-usage.md)
+- if you need to understand the cross-language standard and provider package boundary model, read
+  [\`docs/package-standards.md\`](./package-standards.md) and
+  [\`docs/provider-adapter-standard.md\`](./provider-adapter-standard.md)
+
+Current reality is straightforward:
+
+- \`${defaultProviderKey}\` is the default provider
+- TypeScript and Flutter are both real runnable baselines now
+- \`sdkwork-im-sdk\` is the standard signaling path for invite discovery, RTC lifecycle, and WebRTC
+  signal exchange in the current end-to-end call flow
+- the remaining language workspaces stay standardized and extensible without pretending they are
+  already executable runtimes
+`);
 }
 
 function renderTypeScriptAdapterContract(contract) {
@@ -1992,6 +2329,10 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
     {
       relativePath: 'docs/multilanguage-capability-matrix.md',
       content: renderCapabilityMatrix(assembly),
+    },
+    {
+      relativePath: 'docs/usage-guide.md',
+      content: renderUsageGuide(assembly),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/package.json',
