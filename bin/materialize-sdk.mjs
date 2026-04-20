@@ -82,8 +82,41 @@ function renderMarkdownCodeNaturalList(values) {
   return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
 }
 
+function renderNaturalLanguageList(values) {
+  const items = (values ?? []).filter(Boolean);
+  if (items.length === 0) {
+    return '';
+  }
+
+  if (items.length === 1) {
+    return items[0];
+  }
+
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`;
+  }
+
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
 function getExecutableRuntimeLanguageEntries(assembly) {
   return getRtcExecutableLanguageEntries(assembly).filter((languageEntry) => languageEntry.runtimeBaseline);
+}
+
+function renderExecutableLandingSummary(assembly) {
+  const executableDisplayNames = getExecutableRuntimeLanguageEntries(assembly).map(
+    (languageEntry) => languageEntry.displayName,
+  );
+
+  if (executableDisplayNames.length === 0) {
+    return 'No executable reference baselines are declared in the current landing.';
+  }
+
+  if (executableDisplayNames.length === 1) {
+    return `${executableDisplayNames[0]} is the executable reference baseline in the current landing.`;
+  }
+
+  return `${renderNaturalLanguageList(executableDisplayNames)} are the executable reference baselines in the current landing.`;
 }
 
 function renderRootCallSmokeCommand(assembly, language) {
@@ -140,6 +173,40 @@ function renderTemplateOptionalCallSmokeSteps(assembly) {
   return optionalEntries
     .map((languageEntry) => `- \`${renderRootCallSmokeCommand(assembly, languageEntry.language)}\``)
     .join('\n');
+}
+
+function renderUsageGuideLocalVerificationCommands(assembly) {
+  const commandLines = [
+    'node .\\bin\\materialize-sdk.mjs',
+    'node .\\test\\verify-sdk-automation.test.mjs',
+    'node .\\bin\\verify-sdk.mjs',
+    ...getExecutableRuntimeLanguageEntries(assembly).map((languageEntry) =>
+      renderRootCallSmokeCommand(assembly, languageEntry.language),
+    ),
+    'node .\\bin\\smoke-sdk.mjs',
+  ];
+
+  return commandLines.join('\n');
+}
+
+function renderUsageGuideAdoptionGuidance(assembly) {
+  const guideBullets = getExecutableRuntimeLanguageEntries(assembly)
+    .map((languageEntry) => {
+      const guide = renderUsageGuideDetailedGuide(languageEntry);
+      if (!guide) {
+        return null;
+      }
+
+      return `- if you need the ${guide.runtimeLabel} baseline, start from
+  [\`${guide.label}\`](${guide.path})`;
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  return `${guideBullets}
+- if you need to understand the cross-language standard and provider package boundary model, read
+  [\`docs/package-standards.md\`](./package-standards.md) and
+  [\`docs/provider-adapter-standard.md\`](./provider-adapter-standard.md)`;
 }
 
 function renderMaterializedTemplateContent(workspaceRoot, templateRelativePath, assembly) {
@@ -233,7 +300,7 @@ function renderUsageGuideDetailedGuide(languageEntry) {
         title: 'TypeScript / Web',
         path: './typescript-volcengine-im-usage.md',
         label: 'docs/typescript-volcengine-im-usage.md',
-        runtimeLabel: 'web',
+        runtimeLabel: 'web/browser',
       };
     case 'flutter':
       return {
@@ -458,12 +525,7 @@ The two most important runtime distinctions are:
 Use the following commands in the workspace root:
 
 \`\`\`powershell
-node .\\bin\\materialize-sdk.mjs
-node .\\test\\verify-sdk-automation.test.mjs
-node .\\bin\\verify-sdk.mjs
-node .\\bin\\sdk-call-smoke.mjs --json
-node .\\bin\\sdk-call-smoke.mjs --language flutter --json
-node .\\bin\\smoke-sdk.mjs
+${renderUsageGuideLocalVerificationCommands(assembly)}
 \`\`\`
 
 Verification intent:
@@ -480,13 +542,7 @@ ${renderUsageGuideExecutableSmokeNotes(assembly)}
 
 Use this rule of thumb:
 
-- if you need the web/browser baseline, start from
-  [\`docs/typescript-volcengine-im-usage.md\`](./typescript-volcengine-im-usage.md)
-- if you need the mobile baseline, start from
-  [\`docs/flutter-volcengine-im-usage.md\`](./flutter-volcengine-im-usage.md)
-- if you need to understand the cross-language standard and provider package boundary model, read
-  [\`docs/package-standards.md\`](./package-standards.md) and
-  [\`docs/provider-adapter-standard.md\`](./provider-adapter-standard.md)
+${renderUsageGuideAdoptionGuidance(assembly)}
 
 Current reality is straightforward:
 
@@ -2371,7 +2427,7 @@ ${languageProviderActivationRows}
 
 ## Reading Rules
 
-- TypeScript and Flutter are the executable reference baselines in the current landing.
+- ${renderExecutableLandingSummary(assembly)}
 - The remaining official language workspaces are materialized reserved boundaries so the standard stays explicit.
 - A provider package boundary may stay reserved even when the root workspace already has a verified runtime bridge.
 - A workspace or provider package must not advertise runtime bridge support until it has a verified native bridge.

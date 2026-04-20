@@ -97,7 +97,7 @@ explicitly override provider selection.
 
 TypeScript is the executable web/browser baseline.
 
-The current web runtime path is:
+The current web/browser runtime path is:
 
 - standard package: `@sdkwork/rtc-sdk`
 - default provider: `volcengine`
