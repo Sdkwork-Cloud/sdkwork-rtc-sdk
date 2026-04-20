@@ -57,15 +57,15 @@ Future<void> startRtcMediaOnly() async {
   );
 
   await rtcClient.publish(
-    const RtcPublishOptions(
-      trackId: 'rtc-session-1-audio',
+    RtcPublishOptions(
+      trackId: createRtcCallTrackId('rtc-session-1', RtcTrackKind.audio),
       kind: RtcTrackKind.audio,
     ),
   );
 
   await rtcClient.publish(
-    const RtcPublishOptions(
-      trackId: 'rtc-session-1-video',
+    RtcPublishOptions(
+      trackId: createRtcCallTrackId('rtc-session-1', RtcTrackKind.video),
       kind: RtcTrackKind.video,
     ),
   );
@@ -169,6 +169,8 @@ standard call/signaling contract:
 
 - `createStandardRtcCallStack(...)` returns `driverManager`, `dataSource`, `mediaClient`,
   `signaling`, and `callSession` in one explicit standard bundle
+- `createRtcCallTrackId(rtcSessionId, kind)` is the standard cross-language track id helper and
+  yields canonical ids such as `rtc-session-1-audio`
 - `RtcDriverManager()` auto-registers the default Volcengine Flutter driver
 - `RtcDataSource()` defaults to `volcengine`
 - the call/session layer does not leak IM transport DTOs into the RTC public standard

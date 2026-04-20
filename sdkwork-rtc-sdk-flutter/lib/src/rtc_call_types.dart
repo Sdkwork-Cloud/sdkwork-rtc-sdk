@@ -1,5 +1,11 @@
 import 'rtc_types.dart';
 
+const String rtcCallTrackIdSeparator = '-';
+
+String createRtcCallTrackId(String rtcSessionId, RtcTrackKind kind) {
+  return '$rtcSessionId$rtcCallTrackIdSeparator${rtcTrackKindWireName(kind)}';
+}
+
 enum RtcCallState {
   idle,
   started,

@@ -365,6 +365,18 @@ test('root documentation and materialized readmes describe provider package entr
     path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'src', 'language-workspace-catalog.ts'),
     'utf8',
   );
+  const typescriptCallTypes = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'src', 'call-types.ts'),
+    'utf8',
+  );
+  const flutterCallTypes = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter', 'lib', 'src', 'rtc_call_types.dart'),
+    'utf8',
+  );
+  const flutterCallSession = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter', 'lib', 'src', 'rtc_call_session.dart'),
+    'utf8',
+  );
   const providersReadme = readFileSync(
     path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'providers', 'README.md'),
     'utf8',
@@ -543,6 +555,14 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(usageGuide, /Flutter is the executable mobile baseline/i);
   assert.match(usageGuide, /sdkwork-im-sdk/i);
   assert.match(usageGuide, /flutter-volcengine-im-usage\.md/);
+  assert.match(typescriptCallTypes, /export const RTC_CALL_TRACK_ID_SEPARATOR = '-';/);
+  assert.match(typescriptCallTypes, /export function createRtcCallTrackId\(/);
+  assert.match(flutterCallTypes, /const String rtcCallTrackIdSeparator = '-';/);
+  assert.match(flutterCallTypes, /String createRtcCallTrackId\(String rtcSessionId, RtcTrackKind kind\)/);
+  assert.match(flutterCallSession, /createRtcCallTrackId\(rtcSessionId, RtcTrackKind\.audio\)/);
+  assert.match(flutterCallSession, /createRtcCallTrackId\(rtcSessionId, RtcTrackKind\.video\)/);
+  assert.doesNotMatch(flutterCallSession, /_audio/);
+  assert.doesNotMatch(flutterCallSession, /_video/);
   assert.match(
     rootReadme,
     /Flutter\/mobile and the remaining reserved non-TypeScript workspaces must preserve the same\s+semantics through standalone\s+provider-selection helper modules/i,

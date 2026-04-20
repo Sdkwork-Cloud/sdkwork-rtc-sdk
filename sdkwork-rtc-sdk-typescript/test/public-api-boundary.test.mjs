@@ -197,6 +197,7 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.getRtcProviderPackage, 'function');
   assert.equal(typeof sdk.createBuiltinRtcDriverManager, 'function');
   assert.equal(typeof sdk.createStandardRtcCallStack, 'function');
+  assert.equal(typeof sdk.createRtcCallTrackId, 'function');
   assert.equal(typeof sdk.registerRtcProviderModule, 'function');
   assert.equal(typeof sdk.registerRtcProviderModules, 'function');
   assert.equal(typeof sdk.getBuiltinRtcProviderMetadata, 'function');
@@ -217,6 +218,9 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.VOLCENGINE_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.ALIYUN_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.TENCENT_RTC_PROVIDER_MODULE, 'object');
+  assert.equal(sdk.RTC_CALL_TRACK_ID_SEPARATOR, '-');
+  assert.equal(sdk.createRtcCallTrackId('rtc-session-1', 'audio'), 'rtc-session-1-audio');
+  assert.equal(sdk.createRtcCallTrackId('rtc-session-1', 'screen-share'), 'rtc-session-1-screen-share');
 });
 
 test('root public API does not export non-builtin provider driver factories', async () => {

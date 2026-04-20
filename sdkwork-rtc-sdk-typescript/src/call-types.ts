@@ -1,5 +1,14 @@
 import type { RtcTrackKind, RtcSessionConnectionState } from './types.js';
 
+export const RTC_CALL_TRACK_ID_SEPARATOR = '-';
+
+export function createRtcCallTrackId(
+  rtcSessionId: string,
+  kind: RtcTrackKind,
+): string {
+  return `${rtcSessionId}${RTC_CALL_TRACK_ID_SEPARATOR}${kind}`;
+}
+
 export type RtcCallState =
   | 'idle'
   | 'started'

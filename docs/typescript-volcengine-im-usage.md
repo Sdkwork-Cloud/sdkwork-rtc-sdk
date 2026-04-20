@@ -23,6 +23,7 @@ media runtime.
 
 ```ts
 import {
+  createRtcCallTrackId,
   RtcDataSource,
   createBuiltinRtcDriverManager,
 } from '@sdkwork/rtc-sdk';
@@ -57,12 +58,12 @@ await rtcClient.join({
 });
 
 await rtcClient.publish({
-  trackId: 'rtc-session-1-audio',
+  trackId: createRtcCallTrackId('rtc-session-1', 'audio'),
   kind: 'audio',
 });
 
 await rtcClient.publish({
-  trackId: 'rtc-session-1-video',
+  trackId: createRtcCallTrackId('rtc-session-1', 'video'),
   kind: 'video',
 });
 ```
@@ -161,6 +162,8 @@ standard call/signaling contract:
 
 - `createStandardRtcCallStack(...)` returns `driverManager`, `dataSource`, `mediaClient`,
   `signaling`, and `callSession` as one explicit standard bundle
+- `createRtcCallTrackId(rtcSessionId, kind)` is the standard cross-language track id helper and
+  yields canonical ids such as `rtc-session-1-audio`
 - `createBuiltinRtcDriverManager()` defaults to `volcengine`
 - Volcengine Web runtime loading is lazy
 - official vendor SDKs are not bundled into the RTC standard package

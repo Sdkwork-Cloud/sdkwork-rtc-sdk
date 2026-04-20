@@ -12,6 +12,7 @@ import type {
   RtcIncomingCallRejectOptions,
   RtcOutgoingCallOptions,
 } from './call-types.js';
+import { createRtcCallTrackId } from './call-types.js';
 
 export interface StandardRtcCallSessionOptions<TNativeClient = unknown> {
   mediaClient: RtcClient<TNativeClient>;
@@ -196,7 +197,7 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
   ): Promise<void> {
     if (autoPublish?.audio) {
       await this.#mediaClient.publish({
-        trackId: `${rtcSessionId}-audio`,
+        trackId: createRtcCallTrackId(rtcSessionId, 'audio'),
         kind: 'audio',
         metadata: {
           source: 'auto-publish',
@@ -206,7 +207,7 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
 
     if (autoPublish?.video) {
       await this.#mediaClient.publish({
-        trackId: `${rtcSessionId}-video`,
+        trackId: createRtcCallTrackId(rtcSessionId, 'video'),
         kind: 'video',
         metadata: {
           source: 'auto-publish',

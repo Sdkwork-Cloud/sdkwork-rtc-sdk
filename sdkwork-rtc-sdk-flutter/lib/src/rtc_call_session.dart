@@ -251,7 +251,7 @@ class StandardRtcCallSession<TNativeClient> {
     if (autoPublish.audio) {
       await _mediaClient.publish(
         RtcPublishOptions(
-          trackId: '${rtcSessionId}_audio',
+          trackId: createRtcCallTrackId(rtcSessionId, RtcTrackKind.audio),
           kind: RtcTrackKind.audio,
           metadata: const <String, Object?>{
             'source': 'auto-publish',
@@ -263,7 +263,7 @@ class StandardRtcCallSession<TNativeClient> {
     if (autoPublish.video) {
       await _mediaClient.publish(
         RtcPublishOptions(
-          trackId: '${rtcSessionId}_video',
+          trackId: createRtcCallTrackId(rtcSessionId, RtcTrackKind.video),
           kind: RtcTrackKind.video,
           metadata: const <String, Object?>{
             'source': 'auto-publish',
