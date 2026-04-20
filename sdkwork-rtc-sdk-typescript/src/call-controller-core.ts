@@ -28,7 +28,6 @@ import type {
   CreateStandardRtcCallControllerOptions,
   RtcCallControllerAcceptOptions,
   RtcCallControllerEndOptions,
-  RtcCallControllerEvent,
   RtcCallControllerEventHandler,
   RtcCallControllerOutgoingOptions,
   RtcCallControllerRejectOptions,
@@ -44,6 +43,11 @@ import {
   publishRtcConversationSignal,
   toRtcIncomingCallInvitation,
 } from './call-controller-message.js';
+import {
+  emitRtcCallControllerIncomingInvitation,
+  emitRtcCallControllerSignal,
+  emitRtcCallControllerSnapshot,
+} from './call-controller-emission.js';
 import {
   createRtcCallControllerSnapshot,
   hasRtcCallControllerActiveCall,
@@ -429,10 +433,13 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     this.#direction = 'incoming';
     this.#activeInvitation = invitation;
     this.#controllerState = 'incoming_ringing';
-    this.#emitEvent({
-      type: 'incoming_invitation',
+    emitRtcCallControllerIncomingInvitation({
       invitation,
       snapshot: this.#createSnapshot(),
+      eventHandlers: this.#eventHandlers,
+      onError: (error) => {
+        this.#lastError = error;
+      },
     });
     this.#emitSnapshot();
   }
@@ -499,33 +506,25 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   }
 
   #emitSnapshot(): RtcCallControllerSnapshot {
-    const snapshot = this.#createSnapshot();
-    for (const handler of this.#snapshotHandlers) {
-      handler(snapshot);
-    }
-    this.#emitEvent({
-      type: 'snapshot',
-      snapshot,
+    return emitRtcCallControllerSnapshot({
+      snapshot: this.#createSnapshot(),
+      snapshotHandlers: this.#snapshotHandlers,
+      eventHandlers: this.#eventHandlers,
+      onError: (error) => {
+        this.#lastError = error;
+      },
     });
-    return snapshot;
   }
 
   #emitSignal(signal: RtcCallSignal): void {
-    this.#emitEvent({
-      type: 'signal',
+    emitRtcCallControllerSignal({
       signal,
       snapshot: this.#createSnapshot(),
-    });
-  }
-
-  #emitEvent(event: RtcCallControllerEvent): void {
-    for (const handler of this.#eventHandlers) {
-      try {
-        handler(event);
-      } catch (error) {
+      eventHandlers: this.#eventHandlers,
+      onError: (error) => {
         this.#lastError = error;
-      }
-    }
+      },
+    });
   }
 }
 

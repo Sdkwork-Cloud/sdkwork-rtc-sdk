@@ -6,6 +6,7 @@ export 'rtc_call_controller_contract.dart';
 export 'rtc_call_controller_models.dart';
 
 import 'rtc_call_controller_message.dart';
+import 'rtc_call_controller_emission.dart';
 import 'rtc_call_controller_contract.dart';
 import 'rtc_call_controller_models.dart';
 import 'rtc_call_controller_state.dart';
@@ -398,12 +399,13 @@ class StandardRtcCallController<TNativeClient> {
     _direction = RtcCallControllerDirection.incoming;
     _activeInvitation = invitation;
     _controllerState = RtcCallControllerState.incomingRinging;
-    _emitEvent(
-      RtcCallControllerEvent(
-        type: RtcCallControllerEventType.incomingInvitation,
-        invitation: invitation,
-        snapshot: _createSnapshot(),
-      ),
+    emitRtcCallControllerIncomingInvitation(
+      invitation: invitation,
+      snapshot: _createSnapshot(),
+      eventHandlers: _eventHandlers.toList(growable: false),
+      onError: (error) {
+        _lastError = error;
+      },
     );
     _emitSnapshot();
   }
@@ -448,37 +450,25 @@ class StandardRtcCallController<TNativeClient> {
   }
 
   RtcCallControllerSnapshot _emitSnapshot() {
-    final snapshot = _createSnapshot();
-    for (final handler in _snapshotHandlers.toList(growable: false)) {
-      handler(snapshot);
-    }
-    _emitEvent(
-      RtcCallControllerEvent(
-        type: RtcCallControllerEventType.snapshot,
-        snapshot: snapshot,
-      ),
+    return emitRtcCallControllerSnapshot(
+      snapshot: _createSnapshot(),
+      snapshotHandlers: _snapshotHandlers.toList(growable: false),
+      eventHandlers: _eventHandlers.toList(growable: false),
+      onError: (error) {
+        _lastError = error;
+      },
     );
-    return snapshot;
   }
 
   void _emitSignal(RtcCallSignal signal) {
-    _emitEvent(
-      RtcCallControllerEvent(
-        type: RtcCallControllerEventType.signal,
-        signal: signal,
-        snapshot: _createSnapshot(),
-      ),
-    );
-  }
-
-  void _emitEvent(RtcCallControllerEvent event) {
-    for (final handler in _eventHandlers.toList(growable: false)) {
-      try {
-        handler(event);
-      } catch (error) {
+    emitRtcCallControllerSignal(
+      signal: signal,
+      snapshot: _createSnapshot(),
+      eventHandlers: _eventHandlers.toList(growable: false),
+      onError: (error) {
         _lastError = error;
-      }
-    }
+      },
+    );
   }
 
   Future<RtcCallSignal> _sendTypedSignal(
