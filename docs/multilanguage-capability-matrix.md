@@ -32,6 +32,34 @@ support boundaries, and maturity tiers stay exact and verifiable.
 - `runtimeSurfaceStandard.failureCode`: `native_sdk_not_available`
 - TypeScript root public constants: `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`
 
+## Runtime Immutability Standard
+
+- `runtimeImmutabilityStandard.frozenTerm`: `runtime-frozen`
+- `runtimeImmutabilityStandard.snapshotTerm`: `immutable-snapshots`
+- `runtimeImmutabilityStandard.controllerContextTerm`: `shallow-immutable-context`
+- `runtimeImmutabilityStandard.nativeClientTerm`: `mutable-native-client`
+- TypeScript root public constants: `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`, `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`, `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, `RTC_RUNTIME_IMMUTABILITY_STANDARD`
+
+## Root Public Surface Standard
+
+- `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`: `./errors.js`, `./runtime-surface.js`, `./runtime-immutability.js`, `./root-public-surface.js`, `./types.js`, `./capability-catalog.js`, `./capability-negotiation.js`, `./language-workspace-catalog.js`, `./provider-selection.js`, `./provider-support.js`, `./provider-extension-catalog.js`, `./provider-package-catalog.js`, `./provider-package-loader.js`, `./provider-activation-catalog.js`, `./capabilities.js`, `./client.js`, `./driver.js`, `./driver-manager.js`, `./data-source.js`, `./provider-module.js`, `./providers/index.js`
+- `rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths`: `./providers/volcengine.js`, `./providers/aliyun.js`, `./providers/tencent.js`
+- `rootPublicSurfaceStandard.typescriptInlineHelperNames`: `createBuiltinRtcDriverManager`
+- `rootPublicSurfaceStandard.reservedSurfaceFamilies`: `standard-contract`, `provider-catalog`, `provider-package-catalog`, `provider-activation-catalog`, `capability-catalog`, `provider-extension-catalog`, `language-workspace-catalog`, `provider-selection`, `provider-package-loader`, `provider-support`, `driver-manager`, `data-source`
+- `rootPublicSurfaceStandard.reservedEntryPointKinds.flutter`: `barrel`
+- `rootPublicSurfaceStandard.reservedEntryPointKinds.python`: `package-init`
+- `rootPublicSurfaceStandard.builtinProviderExposureTerm`: `root-public-builtin-only`
+- `rootPublicSurfaceStandard.nonBuiltinProviderExposureTerm`: `package-boundary-only`
+- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`
+- TypeScript root public constants: `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`, `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`, `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`, `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`, `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, `RTC_ROOT_PUBLIC_SURFACE_STANDARD`
+
+## Lookup Helper Naming Standard
+
+- `lookupHelperNamingStandard.profileTerms`: `lower-camel-rtc`, `upper-camel-rtc`, `snake-case-rtc`
+- `lookupHelperNamingStandard.familyTerms`: `provider-catalog-by-provider-key`, `provider-package-by-provider-key`, `provider-package-by-package-identity`, `provider-activation-by-provider-key`, `capability-catalog`, `capability-descriptor-by-capability-key`, `provider-extension-catalog`, `provider-extension-descriptor-by-extension-key`, `provider-extensions-for-provider`, `provider-extensions-by-extension-keys`, `provider-extension-membership`, `language-workspace-by-language`, `provider-url-parser`, `provider-selection-resolver`, `provider-support-status-resolver`, `provider-support-state-factory`, `provider-package-loader-factory`, `provider-package-load-target-resolver`, `provider-module-loader`, `single-provider-package-installer`, `batch-provider-package-installer`
+- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts`
+- TypeScript root public constants: `RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`, `RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, `RTC_LOOKUP_HELPER_NAMING_STANDARD`
+
 ## Error Code Standard
 
 - `errorCodeStandard.codeTerms`: `provider_package_not_found`, `provider_package_identity_mismatch`, `provider_package_load_failed`, `provider_module_export_missing`, `provider_module_contract_mismatch`, `driver_already_registered`, `driver_not_found`, `provider_not_official`, `provider_not_supported`, `provider_metadata_mismatch`, `provider_selection_failed`, `capability_not_supported`, `invalid_provider_url`, `native_sdk_not_available`, `vendor_error`

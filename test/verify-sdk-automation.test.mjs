@@ -135,6 +135,169 @@ const EXPECTED_RUNTIME_SURFACE_STANDARD = {
   methodTerms: ['join', 'leave', 'publish', 'unpublish', 'muteAudio', 'muteVideo'],
   failureCode: 'native_sdk_not_available',
 };
+const EXPECTED_RUNTIME_IMMUTABILITY_STANDARD = {
+  frozenTerm: 'runtime-frozen',
+  snapshotTerm: 'immutable-snapshots',
+  controllerContextTerm: 'shallow-immutable-context',
+  nativeClientTerm: 'mutable-native-client',
+};
+const EXPECTED_ROOT_PUBLIC_SURFACE_STANDARD = {
+  typescriptProviderNeutralExportPaths: [
+    './errors.js',
+    './runtime-surface.js',
+    './runtime-immutability.js',
+    './root-public-surface.js',
+    './types.js',
+    './capability-catalog.js',
+    './capability-negotiation.js',
+    './language-workspace-catalog.js',
+    './provider-selection.js',
+    './provider-support.js',
+    './provider-extension-catalog.js',
+    './provider-package-catalog.js',
+    './provider-package-loader.js',
+    './provider-activation-catalog.js',
+    './capabilities.js',
+    './client.js',
+    './driver.js',
+    './driver-manager.js',
+    './data-source.js',
+    './provider-module.js',
+    './providers/index.js',
+  ],
+  typescriptBuiltinProviderExportPaths: [
+    './providers/volcengine.js',
+    './providers/aliyun.js',
+    './providers/tencent.js',
+  ],
+  typescriptInlineHelperNames: ['createBuiltinRtcDriverManager'],
+  reservedSurfaceFamilies: [
+    'standard-contract',
+    'provider-catalog',
+    'provider-package-catalog',
+    'provider-activation-catalog',
+    'capability-catalog',
+    'provider-extension-catalog',
+    'language-workspace-catalog',
+    'provider-selection',
+    'provider-package-loader',
+    'provider-support',
+    'driver-manager',
+    'data-source',
+  ],
+  reservedEntryPointKinds: {
+    flutter: 'barrel',
+    python: 'package-init',
+  },
+  builtinProviderExposureTerm: 'root-public-builtin-only',
+  nonBuiltinProviderExposureTerm: 'package-boundary-only',
+};
+const EXPECTED_LOOKUP_HELPER_NAMING_STANDARD = {
+  profileTerms: ['lower-camel-rtc', 'upper-camel-rtc', 'snake-case-rtc'],
+  familyTerms: [
+    'provider-catalog-by-provider-key',
+    'provider-package-by-provider-key',
+    'provider-package-by-package-identity',
+    'provider-activation-by-provider-key',
+    'capability-catalog',
+    'capability-descriptor-by-capability-key',
+    'provider-extension-catalog',
+    'provider-extension-descriptor-by-extension-key',
+    'provider-extensions-for-provider',
+    'provider-extensions-by-extension-keys',
+    'provider-extension-membership',
+    'language-workspace-by-language',
+    'provider-url-parser',
+    'provider-selection-resolver',
+    'provider-support-status-resolver',
+    'provider-support-state-factory',
+    'provider-package-loader-factory',
+    'provider-package-load-target-resolver',
+    'provider-module-loader',
+    'single-provider-package-installer',
+    'batch-provider-package-installer',
+  ],
+  profiles: {
+    'lower-camel-rtc': {
+      languages: ['typescript', 'flutter', 'java', 'swift', 'kotlin'],
+      helpers: {
+        providerCatalogByProviderKey: 'getRtcProviderByProviderKey',
+        providerPackageByProviderKey: 'getRtcProviderPackageByProviderKey',
+        providerPackageByPackageIdentity: 'getRtcProviderPackageByPackageIdentity',
+        providerActivationByProviderKey: 'getRtcProviderActivationByProviderKey',
+        capabilityCatalog: 'getRtcCapabilityCatalog',
+        capabilityDescriptorByCapabilityKey: 'getRtcCapabilityDescriptor',
+        providerExtensionCatalog: 'getRtcProviderExtensionCatalog',
+        providerExtensionDescriptorByExtensionKey: 'getRtcProviderExtensionDescriptor',
+        providerExtensionsForProvider: 'getRtcProviderExtensionsForProvider',
+        providerExtensionsByExtensionKeys: 'getRtcProviderExtensions',
+        providerExtensionMembership: 'hasRtcProviderExtension',
+        languageWorkspaceByLanguage: 'getRtcLanguageWorkspaceByLanguage',
+        providerUrlParser: 'parseRtcProviderUrl',
+        providerSelectionResolver: 'resolveRtcProviderSelection',
+        providerSupportStatusResolver: 'resolveRtcProviderSupportStatus',
+        providerSupportStateFactory: 'createRtcProviderSupportState',
+        providerPackageLoaderFactory: 'createRtcProviderPackageLoader',
+        providerPackageLoadTargetResolver: 'resolveRtcProviderPackageLoadTarget',
+        providerModuleLoader: 'loadRtcProviderModule',
+        singleProviderPackageInstaller: 'installRtcProviderPackage',
+        batchProviderPackageInstaller: 'installRtcProviderPackages',
+      },
+    },
+    'upper-camel-rtc': {
+      languages: ['csharp', 'go'],
+      helpers: {
+        providerCatalogByProviderKey: 'GetRtcProviderByProviderKey',
+        providerPackageByProviderKey: 'GetRtcProviderPackageByProviderKey',
+        providerPackageByPackageIdentity: 'GetRtcProviderPackageByPackageIdentity',
+        providerActivationByProviderKey: 'GetRtcProviderActivationByProviderKey',
+        capabilityCatalog: 'GetRtcCapabilityCatalog',
+        capabilityDescriptorByCapabilityKey: 'GetRtcCapabilityDescriptor',
+        providerExtensionCatalog: 'GetRtcProviderExtensionCatalog',
+        providerExtensionDescriptorByExtensionKey: 'GetRtcProviderExtensionDescriptor',
+        providerExtensionsForProvider: 'GetRtcProviderExtensionsForProvider',
+        providerExtensionsByExtensionKeys: 'GetRtcProviderExtensions',
+        providerExtensionMembership: 'HasRtcProviderExtension',
+        languageWorkspaceByLanguage: 'GetRtcLanguageWorkspaceByLanguage',
+        providerUrlParser: 'ParseRtcProviderUrl',
+        providerSelectionResolver: 'ResolveRtcProviderSelection',
+        providerSupportStatusResolver: 'ResolveRtcProviderSupportStatus',
+        providerSupportStateFactory: 'CreateRtcProviderSupportState',
+        providerPackageLoaderFactory: 'CreateRtcProviderPackageLoader',
+        providerPackageLoadTargetResolver: 'ResolveRtcProviderPackageLoadTarget',
+        providerModuleLoader: 'LoadRtcProviderModule',
+        singleProviderPackageInstaller: 'InstallRtcProviderPackage',
+        batchProviderPackageInstaller: 'InstallRtcProviderPackages',
+      },
+    },
+    'snake-case-rtc': {
+      languages: ['rust', 'python'],
+      helpers: {
+        providerCatalogByProviderKey: 'get_rtc_provider_by_provider_key',
+        providerPackageByProviderKey: 'get_rtc_provider_package_by_provider_key',
+        providerPackageByPackageIdentity: 'get_rtc_provider_package_by_package_identity',
+        providerActivationByProviderKey: 'get_rtc_provider_activation_by_provider_key',
+        capabilityCatalog: 'get_rtc_capability_catalog',
+        capabilityDescriptorByCapabilityKey: 'get_rtc_capability_descriptor',
+        providerExtensionCatalog: 'get_rtc_provider_extension_catalog',
+        providerExtensionDescriptorByExtensionKey: 'get_rtc_provider_extension_descriptor',
+        providerExtensionsForProvider: 'get_rtc_provider_extensions_for_provider',
+        providerExtensionsByExtensionKeys: 'get_rtc_provider_extensions',
+        providerExtensionMembership: 'has_rtc_provider_extension',
+        languageWorkspaceByLanguage: 'get_rtc_language_workspace_by_language',
+        providerUrlParser: 'parse_rtc_provider_url',
+        providerSelectionResolver: 'resolve_rtc_provider_selection',
+        providerSupportStatusResolver: 'resolve_rtc_provider_support_status',
+        providerSupportStateFactory: 'create_rtc_provider_support_state',
+        providerPackageLoaderFactory: 'create_rtc_provider_package_loader',
+        providerPackageLoadTargetResolver: 'resolve_rtc_provider_package_load_target',
+        providerModuleLoader: 'load_rtc_provider_module',
+        singleProviderPackageInstaller: 'install_rtc_provider_package',
+        batchProviderPackageInstaller: 'install_rtc_provider_packages',
+      },
+    },
+  },
+};
 
 function assertLanguageWorkspaceProviderPackageBoundaryShape(languageEntry) {
   const boundary = languageEntry.providerPackageBoundary;
@@ -251,6 +414,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /capabilityStandard/);
   assert.match(rootReadme, /capabilityNegotiationStandard/);
   assert.match(rootReadme, /runtimeSurfaceStandard/);
+  assert.match(rootReadme, /runtimeImmutabilityStandard/);
+  assert.match(rootReadme, /rootPublicSurfaceStandard/);
+  assert.match(rootReadme, /lookupHelperNamingStandard/);
   assert.match(rootReadme, /errorCodeStandard/);
   assert.match(rootReadme, /providerExtensionStandard/);
   assert.match(rootReadme, /providerTierStandard/);
@@ -259,6 +425,24 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /typescriptPackageStandard/);
   assert.match(rootReadme, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(rootReadme, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
+  assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
+  assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
+  assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/);
+  assert.match(rootReadme, /root-public-surface\.ts/);
+  assert.match(rootReadme, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(rootReadme, /lookup-helper-naming\.ts/);
+  assert.match(rootReadme, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
+  assert.match(rootReadme, /lower-camel-rtc/);
+  assert.match(rootReadme, /upper-camel-rtc/);
+  assert.match(rootReadme, /snake-case-rtc/);
+  assert.match(rootReadme, /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/);
+  assert.match(rootReadme, /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS/);
+  assert.match(rootReadme, /RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES/);
+  assert.match(rootReadme, /RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS/);
+  assert.match(rootReadme, /root-public-builtin-only/);
+  assert.match(rootReadme, /package-boundary-only/);
   assert.match(rootReadme, /providerActivationStandard/);
   assert.match(rootReadme, /providerPackageBoundaryStandard/);
   assert.match(rootReadme, /providerPackageBoundary/);
@@ -296,6 +480,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /capabilityStandard/);
   assert.match(docsReadme, /capabilityNegotiationStandard/);
   assert.match(docsReadme, /runtimeSurfaceStandard/);
+  assert.match(docsReadme, /runtimeImmutabilityStandard/);
+  assert.match(docsReadme, /rootPublicSurfaceStandard/);
+  assert.match(docsReadme, /lookupHelperNamingStandard/);
   assert.match(docsReadme, /errorCodeStandard/);
   assert.match(docsReadme, /providerExtensionStandard/);
   assert.match(docsReadme, /providerTierStandard/);
@@ -304,6 +491,14 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /typescriptPackageStandard/);
   assert.match(docsReadme, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(docsReadme, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(docsReadme, /runtime-immutability\.ts/);
+  assert.match(docsReadme, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(docsReadme, /root-public-surface\.ts/);
+  assert.match(docsReadme, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(docsReadme, /lookup-helper-naming\.ts/);
+  assert.match(docsReadme, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
+  assert.match(docsReadme, /root-public-builtin-only/);
+  assert.match(docsReadme, /package-boundary-only/);
   assert.match(docsReadme, /providerActivationStandard/);
   assert.match(docsReadme, /providerPackageBoundaryStandard/);
   assert.match(docsReadme, /providerPackageBoundary/);
@@ -347,6 +542,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /capabilityStandard/);
   assert.match(packageStandards, /capabilityNegotiationStandard/);
   assert.match(packageStandards, /runtimeSurfaceStandard/);
+  assert.match(packageStandards, /runtimeImmutabilityStandard/);
+  assert.match(packageStandards, /rootPublicSurfaceStandard/);
+  assert.match(packageStandards, /lookupHelperNamingStandard/);
   assert.match(packageStandards, /errorCodeStandard/);
   assert.match(packageStandards, /providerExtensionStandard/);
   assert.match(packageStandards, /providerTierStandard/);
@@ -355,6 +553,22 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /typescriptPackageStandard/);
   assert.match(packageStandards, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(packageStandards, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
+  assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
+  assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
+  assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/);
+  assert.match(packageStandards, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(packageStandards, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
+  assert.match(packageStandards, /lower-camel-rtc/);
+  assert.match(packageStandards, /upper-camel-rtc/);
+  assert.match(packageStandards, /snake-case-rtc/);
+  assert.match(packageStandards, /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/);
+  assert.match(packageStandards, /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS/);
+  assert.match(packageStandards, /RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES/);
+  assert.match(packageStandards, /RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS/);
+  assert.match(packageStandards, /root-public-builtin-only/);
+  assert.match(packageStandards, /package-boundary-only/);
   assert.match(packageStandards, /providerActivations/);
   assert.match(packageStandards, /typescriptPackage/);
   assert.match(packageStandards, /defaultProviderContract/);
@@ -427,6 +641,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /unwrap-only/);
   assert.match(packageStandards, /extension-object/);
   assert.match(packageStandards, /runtime-frozen/i);
+  assert.match(packageStandards, /shallow-immutable-context/i);
+  assert.match(packageStandards, /mutable-native-client/i);
   assert.match(packageStandards, /\.gitignore/);
   assert.match(packageStandards, /sdkwork-rtc-sdk-typescript\/dist\//);
   assert.match(packageStandards, /sdkwork-rtc-sdk-rust\/target\//);
@@ -473,6 +689,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /capabilityStandard/);
   assert.match(providerAdapterStandard, /capabilityNegotiationStandard/);
   assert.match(providerAdapterStandard, /runtimeSurfaceStandard/);
+  assert.match(providerAdapterStandard, /runtimeImmutabilityStandard/);
+  assert.match(providerAdapterStandard, /rootPublicSurfaceStandard/);
+  assert.match(providerAdapterStandard, /lookupHelperNamingStandard/);
   assert.match(providerAdapterStandard, /errorCodeStandard/);
   assert.match(providerAdapterStandard, /providerExtensionStandard/);
   assert.match(providerAdapterStandard, /providerTierStandard/);
@@ -481,6 +700,17 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /typescriptPackageStandard/);
   assert.match(providerAdapterStandard, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(providerAdapterStandard, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(providerAdapterStandard, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(providerAdapterStandard, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
+  assert.match(providerAdapterStandard, /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/);
+  assert.match(providerAdapterStandard, /root-public-surface\.ts/);
+  assert.match(providerAdapterStandard, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(providerAdapterStandard, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
+  assert.match(providerAdapterStandard, /lower-camel-rtc/);
+  assert.match(providerAdapterStandard, /upper-camel-rtc/);
+  assert.match(providerAdapterStandard, /snake-case-rtc/);
+  assert.match(providerAdapterStandard, /root-public-builtin-only/);
+  assert.match(providerAdapterStandard, /package-boundary-only/);
   assert.match(providerAdapterStandard, /providerPackageBoundary/);
   assert.match(providerAdapterStandard, /rootPublicPolicy/);
   assert.match(providerAdapterStandard, /catalog-governed-mixed/);
@@ -550,8 +780,20 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(capabilityMatrix, /Status/i);
   assert.match(capabilityMatrix, /unwrap-only/i);
   assert.match(capabilityMatrix, /runtimeSurfaceStandard/);
+  assert.match(capabilityMatrix, /runtimeImmutabilityStandard/);
+  assert.match(capabilityMatrix, /rootPublicSurfaceStandard/);
+  assert.match(capabilityMatrix, /lookupHelperNamingStandard/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
+  assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
+  assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
+  assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/);
+  assert.match(capabilityMatrix, /root-public-surface\.ts/);
+  assert.match(capabilityMatrix, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(capabilityMatrix, /lookup-helper-naming\.ts/);
+  assert.match(capabilityMatrix, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
 
   assert.match(verificationMatrix, /DEFAULT_RTC_PROVIDER_KEY/);
   assert.match(verificationMatrix, /DEFAULT_RTC_PROVIDER_PLUGIN_ID/);
@@ -582,6 +824,9 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /capabilityStandard/);
   assert.match(verificationMatrix, /capabilityNegotiationStandard/);
   assert.match(verificationMatrix, /runtimeSurfaceStandard/);
+  assert.match(verificationMatrix, /runtimeImmutabilityStandard/);
+  assert.match(verificationMatrix, /rootPublicSurfaceStandard/);
+  assert.match(verificationMatrix, /lookupHelperNamingStandard/);
   assert.match(verificationMatrix, /errorCodeStandard/);
   assert.match(verificationMatrix, /providerExtensionStandard/);
   assert.match(verificationMatrix, /providerTierStandard/);
@@ -590,6 +835,17 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /typescriptPackageStandard/);
   assert.match(verificationMatrix, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(verificationMatrix, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
+  assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
+  assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
+  assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/);
+  assert.match(verificationMatrix, /root-public-surface\.ts/);
+  assert.match(verificationMatrix, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(verificationMatrix, /lookup-helper-naming\.ts/);
+  assert.match(verificationMatrix, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
+  assert.match(verificationMatrix, /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/);
+  assert.match(verificationMatrix, /RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS/);
   assert.match(capabilityMatrix, /capabilityNegotiationStandard/);
   assert.match(capabilityMatrix, /runtimeSurfaceStandard/);
   assert.match(capabilityMatrix, /errorCodeStandard/);
@@ -657,12 +913,22 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /RTC_SDK_ERROR_FALLBACK_CODE/);
   assert.match(verificationMatrix, /vendor_error/);
   assert.match(verificationMatrix, /runtime-frozen/i);
+  assert.match(verificationMatrix, /shallow-immutable-context/i);
+  assert.match(verificationMatrix, /mutable-native-client/i);
   assert.match(verificationMatrix, /registerRtcProviderModules/);
   assert.match(verificationMatrix, /provider_module_contract_mismatch/);
   assert.match(verificationMatrix, /atomic/i);
   assert.match(verificationMatrix, /providerExtensionCatalog/);
   assert.match(typescriptReadme, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(typescriptReadme, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
+  assert.match(typescriptReadme, /runtime-immutability\.ts/);
+  assert.match(typescriptReadme, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(typescriptReadme, /root-public-surface\.ts/);
+  assert.match(typescriptReadme, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
+  assert.match(typescriptReadme, /lookup-helper-naming\.ts/);
+  assert.match(typescriptReadme, /RTC_LOOKUP_HELPER_NAMING_STANDARD/);
+  assert.match(typescriptReadme, /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/);
+  assert.match(typescriptReadme, /RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES/);
   assert.match(verificationMatrix, /resolveRtcProviderSupportStatus/);
   assert.match(verificationMatrix, /createRtcProviderSupportState/);
   assert.match(verificationMatrix, /getBuiltinRtcProviderMetadataByKey/);
@@ -856,6 +1122,18 @@ test('rtc assembly declares official languages and default provider', () => {
     EXPECTED_CAPABILITY_NEGOTIATION_STANDARD,
   );
   assert.deepEqual(assembly.runtimeSurfaceStandard, EXPECTED_RUNTIME_SURFACE_STANDARD);
+  assert.deepEqual(
+    assembly.runtimeImmutabilityStandard,
+    EXPECTED_RUNTIME_IMMUTABILITY_STANDARD,
+  );
+  assert.deepEqual(
+    assembly.rootPublicSurfaceStandard,
+    EXPECTED_ROOT_PUBLIC_SURFACE_STANDARD,
+  );
+  assert.deepEqual(
+    assembly.lookupHelperNamingStandard,
+    EXPECTED_LOOKUP_HELPER_NAMING_STANDARD,
+  );
   assert.deepEqual(assembly.errorCodeStandard, EXPECTED_ERROR_CODE_STANDARD);
   assert.deepEqual(assembly.providerExtensionStandard, {
     accessTerms: ['unwrap-only', 'extension-object'],

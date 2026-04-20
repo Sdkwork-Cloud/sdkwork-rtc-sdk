@@ -149,6 +149,185 @@ export const RTC_RUNTIME_SURFACE_METHODS = Object.freeze([
 
 export const RTC_RUNTIME_SURFACE_FAILURE_CODE = 'native_sdk_not_available';
 
+export const RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM = 'runtime-frozen';
+
+export const RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM = 'immutable-snapshots';
+
+export const RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM = 'shallow-immutable-context';
+
+export const RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM = 'mutable-native-client';
+
+export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS = Object.freeze([
+  './errors.js',
+  './runtime-surface.js',
+  './runtime-immutability.js',
+  './root-public-surface.js',
+  './types.js',
+  './capability-catalog.js',
+  './capability-negotiation.js',
+  './language-workspace-catalog.js',
+  './provider-selection.js',
+  './provider-support.js',
+  './provider-extension-catalog.js',
+  './provider-package-catalog.js',
+  './provider-package-loader.js',
+  './provider-activation-catalog.js',
+  './capabilities.js',
+  './client.js',
+  './driver.js',
+  './driver-manager.js',
+  './data-source.js',
+  './provider-module.js',
+  './providers/index.js',
+]);
+
+export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS = Object.freeze([
+  './providers/volcengine.js',
+  './providers/aliyun.js',
+  './providers/tencent.js',
+]);
+
+export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES = Object.freeze([
+  'createBuiltinRtcDriverManager',
+]);
+
+export const RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES = Object.freeze([
+  'standard-contract',
+  'provider-catalog',
+  'provider-package-catalog',
+  'provider-activation-catalog',
+  'capability-catalog',
+  'provider-extension-catalog',
+  'language-workspace-catalog',
+  'provider-selection',
+  'provider-package-loader',
+  'provider-support',
+  'driver-manager',
+  'data-source',
+]);
+
+export const RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS = Object.freeze({
+  flutter: 'barrel',
+  python: 'package-init',
+});
+
+export const RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM =
+  'root-public-builtin-only';
+
+export const RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM =
+  'package-boundary-only';
+
+export const RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS = Object.freeze([
+  'lower-camel-rtc',
+  'upper-camel-rtc',
+  'snake-case-rtc',
+]);
+
+export const RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS = Object.freeze([
+  'provider-catalog-by-provider-key',
+  'provider-package-by-provider-key',
+  'provider-package-by-package-identity',
+  'provider-activation-by-provider-key',
+  'capability-catalog',
+  'capability-descriptor-by-capability-key',
+  'provider-extension-catalog',
+  'provider-extension-descriptor-by-extension-key',
+  'provider-extensions-for-provider',
+  'provider-extensions-by-extension-keys',
+  'provider-extension-membership',
+  'language-workspace-by-language',
+  'provider-url-parser',
+  'provider-selection-resolver',
+  'provider-support-status-resolver',
+  'provider-support-state-factory',
+  'provider-package-loader-factory',
+  'provider-package-load-target-resolver',
+  'provider-module-loader',
+  'single-provider-package-installer',
+  'batch-provider-package-installer',
+]);
+
+export const RTC_LOOKUP_HELPER_NAMING_PROFILES = Object.freeze({
+  'lower-camel-rtc': Object.freeze({
+    languages: Object.freeze(['typescript', 'flutter', 'java', 'swift', 'kotlin']),
+    helpers: Object.freeze({
+      providerCatalogByProviderKey: 'getRtcProviderByProviderKey',
+      providerPackageByProviderKey: 'getRtcProviderPackageByProviderKey',
+      providerPackageByPackageIdentity: 'getRtcProviderPackageByPackageIdentity',
+      providerActivationByProviderKey: 'getRtcProviderActivationByProviderKey',
+      capabilityCatalog: 'getRtcCapabilityCatalog',
+      capabilityDescriptorByCapabilityKey: 'getRtcCapabilityDescriptor',
+      providerExtensionCatalog: 'getRtcProviderExtensionCatalog',
+      providerExtensionDescriptorByExtensionKey: 'getRtcProviderExtensionDescriptor',
+      providerExtensionsForProvider: 'getRtcProviderExtensionsForProvider',
+      providerExtensionsByExtensionKeys: 'getRtcProviderExtensions',
+      providerExtensionMembership: 'hasRtcProviderExtension',
+      languageWorkspaceByLanguage: 'getRtcLanguageWorkspaceByLanguage',
+      providerUrlParser: 'parseRtcProviderUrl',
+      providerSelectionResolver: 'resolveRtcProviderSelection',
+      providerSupportStatusResolver: 'resolveRtcProviderSupportStatus',
+      providerSupportStateFactory: 'createRtcProviderSupportState',
+      providerPackageLoaderFactory: 'createRtcProviderPackageLoader',
+      providerPackageLoadTargetResolver: 'resolveRtcProviderPackageLoadTarget',
+      providerModuleLoader: 'loadRtcProviderModule',
+      singleProviderPackageInstaller: 'installRtcProviderPackage',
+      batchProviderPackageInstaller: 'installRtcProviderPackages',
+    }),
+  }),
+  'upper-camel-rtc': Object.freeze({
+    languages: Object.freeze(['csharp', 'go']),
+    helpers: Object.freeze({
+      providerCatalogByProviderKey: 'GetRtcProviderByProviderKey',
+      providerPackageByProviderKey: 'GetRtcProviderPackageByProviderKey',
+      providerPackageByPackageIdentity: 'GetRtcProviderPackageByPackageIdentity',
+      providerActivationByProviderKey: 'GetRtcProviderActivationByProviderKey',
+      capabilityCatalog: 'GetRtcCapabilityCatalog',
+      capabilityDescriptorByCapabilityKey: 'GetRtcCapabilityDescriptor',
+      providerExtensionCatalog: 'GetRtcProviderExtensionCatalog',
+      providerExtensionDescriptorByExtensionKey: 'GetRtcProviderExtensionDescriptor',
+      providerExtensionsForProvider: 'GetRtcProviderExtensionsForProvider',
+      providerExtensionsByExtensionKeys: 'GetRtcProviderExtensions',
+      providerExtensionMembership: 'HasRtcProviderExtension',
+      languageWorkspaceByLanguage: 'GetRtcLanguageWorkspaceByLanguage',
+      providerUrlParser: 'ParseRtcProviderUrl',
+      providerSelectionResolver: 'ResolveRtcProviderSelection',
+      providerSupportStatusResolver: 'ResolveRtcProviderSupportStatus',
+      providerSupportStateFactory: 'CreateRtcProviderSupportState',
+      providerPackageLoaderFactory: 'CreateRtcProviderPackageLoader',
+      providerPackageLoadTargetResolver: 'ResolveRtcProviderPackageLoadTarget',
+      providerModuleLoader: 'LoadRtcProviderModule',
+      singleProviderPackageInstaller: 'InstallRtcProviderPackage',
+      batchProviderPackageInstaller: 'InstallRtcProviderPackages',
+    }),
+  }),
+  'snake-case-rtc': Object.freeze({
+    languages: Object.freeze(['rust', 'python']),
+    helpers: Object.freeze({
+      providerCatalogByProviderKey: 'get_rtc_provider_by_provider_key',
+      providerPackageByProviderKey: 'get_rtc_provider_package_by_provider_key',
+      providerPackageByPackageIdentity: 'get_rtc_provider_package_by_package_identity',
+      providerActivationByProviderKey: 'get_rtc_provider_activation_by_provider_key',
+      capabilityCatalog: 'get_rtc_capability_catalog',
+      capabilityDescriptorByCapabilityKey: 'get_rtc_capability_descriptor',
+      providerExtensionCatalog: 'get_rtc_provider_extension_catalog',
+      providerExtensionDescriptorByExtensionKey: 'get_rtc_provider_extension_descriptor',
+      providerExtensionsForProvider: 'get_rtc_provider_extensions_for_provider',
+      providerExtensionsByExtensionKeys: 'get_rtc_provider_extensions',
+      providerExtensionMembership: 'has_rtc_provider_extension',
+      languageWorkspaceByLanguage: 'get_rtc_language_workspace_by_language',
+      providerUrlParser: 'parse_rtc_provider_url',
+      providerSelectionResolver: 'resolve_rtc_provider_selection',
+      providerSupportStatusResolver: 'resolve_rtc_provider_support_status',
+      providerSupportStateFactory: 'create_rtc_provider_support_state',
+      providerPackageLoaderFactory: 'create_rtc_provider_package_loader',
+      providerPackageLoadTargetResolver: 'resolve_rtc_provider_package_load_target',
+      providerModuleLoader: 'load_rtc_provider_module',
+      singleProviderPackageInstaller: 'install_rtc_provider_package',
+      batchProviderPackageInstaller: 'install_rtc_provider_packages',
+    }),
+  }),
+});
+
 export const RTC_SDK_ERROR_CODES = Object.freeze([
   'provider_package_not_found',
   'provider_package_identity_mismatch',
@@ -224,4 +403,22 @@ export const DEFAULT_TYPESCRIPT_PACKAGE_STANDARD = Object.freeze({
   metadataSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_METADATA',
   moduleSymbolPattern: '{providerUpperSnake}_RTC_PROVIDER_MODULE',
   rootPublicRule: 'builtin-aligned',
+});
+
+export const DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD = Object.freeze({
+  typescriptProviderNeutralExportPaths:
+    RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS,
+  typescriptBuiltinProviderExportPaths:
+    RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS,
+  typescriptInlineHelperNames: RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES,
+  reservedSurfaceFamilies: RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES,
+  reservedEntryPointKinds: RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS,
+  builtinProviderExposureTerm: RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM,
+  nonBuiltinProviderExposureTerm: RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM,
+});
+
+export const DEFAULT_LOOKUP_HELPER_NAMING_STANDARD = Object.freeze({
+  profileTerms: RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS,
+  familyTerms: RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS,
+  profiles: RTC_LOOKUP_HELPER_NAMING_PROFILES,
 });

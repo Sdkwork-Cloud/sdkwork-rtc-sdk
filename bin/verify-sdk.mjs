@@ -26,7 +26,20 @@ import {
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
+  DEFAULT_LOOKUP_HELPER_NAMING_STANDARD,
   RTC_CAPABILITY_SURFACES,
+  DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD,
+  RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM,
+  RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM,
+  RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM,
+  RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM,
+  RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM,
+  RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM,
+  RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS,
+  RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES,
+  RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS,
+  RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES,
+  RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS,
   RTC_RUNTIME_SURFACE_FAILURE_CODE,
   RTC_RUNTIME_SURFACE_METHODS,
   RTC_SDK_ERROR_CODES,
@@ -154,10 +167,53 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /degraded/i, label: 'capability degradation contract' },
       { pattern: /unsupported/i, label: 'capability unsupported contract' },
       { pattern: /runtimeSurfaceStandard/, label: 'assembly-driven runtimeSurfaceStandard' },
+      { pattern: /runtimeImmutabilityStandard/, label: 'assembly-driven runtimeImmutabilityStandard' },
+      { pattern: /rootPublicSurfaceStandard/, label: 'assembly-driven rootPublicSurfaceStandard' },
+      { pattern: /lookupHelperNamingStandard/, label: 'assembly-driven lookupHelperNamingStandard' },
       { pattern: /RTC_RUNTIME_SURFACE_METHODS/, label: 'rtc runtime surface method catalog contract' },
       {
         pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
         label: 'rtc runtime surface failure code contract',
+      },
+      { pattern: /RTC_RUNTIME_IMMUTABILITY_STANDARD/, label: 'rtc runtime immutability standard contract' },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/,
+        label: 'rtc runtime immutability frozen-term contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/,
+        label: 'rtc runtime immutability snapshot-term contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/,
+        label: 'rtc runtime immutability controller-context contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/,
+        label: 'rtc runtime immutability native-client contract',
+      },
+      { pattern: /root-public-surface\.ts/, label: 'rtc root public surface module contract' },
+      { pattern: /RTC_ROOT_PUBLIC_SURFACE_STANDARD/, label: 'rtc root public surface standard contract' },
+      { pattern: /lookup-helper-naming\.ts/, label: 'rtc lookup helper naming module contract' },
+      { pattern: /RTC_LOOKUP_HELPER_NAMING_STANDARD/, label: 'rtc lookup helper naming standard contract' },
+      { pattern: /lower-camel-rtc/, label: 'rtc lower-camel lookup helper naming profile contract' },
+      { pattern: /upper-camel-rtc/, label: 'rtc upper-camel lookup helper naming profile contract' },
+      { pattern: /snake-case-rtc/, label: 'rtc snake-case lookup helper naming profile contract' },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/,
+        label: 'rtc root public surface provider-neutral export path contract',
+      },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS/,
+        label: 'rtc root public surface reserved entrypoint contract',
+      },
+      {
+        pattern: /root-public-builtin-only/,
+        label: 'rtc root public builtin-only exposure term contract',
+      },
+      {
+        pattern: /package-boundary-only/,
+        label: 'rtc root public package-boundary-only exposure term contract',
       },
       { pattern: /errorCodeStandard/, label: 'assembly-driven errorCodeStandard' },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'rtc sdk error catalog contract' },
@@ -242,6 +298,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /capabilityStandard/, label: 'internal docs capabilityStandard coverage' },
       { pattern: /capabilityNegotiationStandard/, label: 'internal docs capabilityNegotiationStandard coverage' },
       { pattern: /runtimeSurfaceStandard/, label: 'internal docs runtimeSurfaceStandard coverage' },
+      { pattern: /runtimeImmutabilityStandard/, label: 'internal docs runtimeImmutabilityStandard coverage' },
+      { pattern: /rootPublicSurfaceStandard/, label: 'internal docs rootPublicSurfaceStandard coverage' },
+      { pattern: /lookupHelperNamingStandard/, label: 'internal docs lookupHelperNamingStandard coverage' },
       { pattern: /errorCodeStandard/, label: 'internal docs errorCodeStandard coverage' },
       { pattern: /providerExtensionStandard/, label: 'internal docs providerExtensionStandard coverage' },
       { pattern: /providerActivationStandard/, label: 'internal docs providerActivationStandard coverage' },
@@ -276,6 +335,14 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
         label: 'internal docs runtime surface failure code index',
       },
+      { pattern: /runtime-immutability\.ts/, label: 'internal docs runtime immutability module index' },
+      { pattern: /RTC_RUNTIME_IMMUTABILITY_STANDARD/, label: 'internal docs runtime immutability standard index' },
+      { pattern: /root-public-surface\.ts/, label: 'internal docs root public surface module index' },
+      { pattern: /RTC_ROOT_PUBLIC_SURFACE_STANDARD/, label: 'internal docs root public surface standard index' },
+      { pattern: /lookup-helper-naming\.ts/, label: 'internal docs lookup helper naming module index' },
+      { pattern: /RTC_LOOKUP_HELPER_NAMING_STANDARD/, label: 'internal docs lookup helper naming standard index' },
+      { pattern: /root-public-builtin-only/, label: 'internal docs root public builtin-only exposure term index' },
+      { pattern: /package-boundary-only/, label: 'internal docs root public package-boundary-only exposure term index' },
       { pattern: /vendor_error/, label: 'internal docs rtc sdk fallback error index' },
       { pattern: /provider-package-loader\.ts/, label: 'internal docs provider package loader index' },
       { pattern: /createRtcProviderPackageLoader/, label: 'internal docs provider package loader factory index' },
@@ -366,6 +433,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /capabilityStandard/, label: 'assembly-driven capabilityStandard contract' },
       { pattern: /capabilityNegotiationStandard/, label: 'assembly-driven capabilityNegotiationStandard contract' },
       { pattern: /runtimeSurfaceStandard/, label: 'assembly-driven runtimeSurfaceStandard contract' },
+      { pattern: /runtimeImmutabilityStandard/, label: 'assembly-driven runtimeImmutabilityStandard contract' },
+      { pattern: /rootPublicSurfaceStandard/, label: 'assembly-driven rootPublicSurfaceStandard contract' },
+      { pattern: /lookupHelperNamingStandard/, label: 'assembly-driven lookupHelperNamingStandard contract' },
       { pattern: /errorCodeStandard/, label: 'assembly-driven errorCodeStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'assembly-driven providerActivationStandard contract' },
@@ -385,6 +455,10 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /scaffold-per-provider-package/, label: 'reserved scaffold boundary mode contract' },
       { pattern: /builtin-only/, label: 'builtin-only root public policy contract' },
       { pattern: /`none`/, label: 'none root public policy contract' },
+      { pattern: /RTC_LOOKUP_HELPER_NAMING_STANDARD/, label: 'lookup helper naming standard contract' },
+      { pattern: /lower-camel-rtc/, label: 'lower-camel lookup helper naming profile contract' },
+      { pattern: /upper-camel-rtc/, label: 'upper-camel lookup helper naming profile contract' },
+      { pattern: /snake-case-rtc/, label: 'snake-case lookup helper naming profile contract' },
       { pattern: /contractScaffold/, label: 'language workspace contract scaffold contract' },
       { pattern: /packageScaffold/, label: 'language workspace package scaffold contract' },
       { pattern: /providerPackageScaffold/, label: 'language workspace provider package scaffold contract' },
@@ -465,6 +539,34 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
         label: 'rtc runtime surface failure code contract',
       },
+      { pattern: /RTC_RUNTIME_IMMUTABILITY_STANDARD/, label: 'rtc runtime immutability standard contract' },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/,
+        label: 'rtc runtime immutability frozen-term contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/,
+        label: 'rtc runtime immutability snapshot-term contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/,
+        label: 'rtc runtime immutability controller-context contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/,
+        label: 'rtc runtime immutability native-client contract',
+      },
+      { pattern: /RTC_ROOT_PUBLIC_SURFACE_STANDARD/, label: 'rtc root public surface standard contract' },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/,
+        label: 'rtc root public surface provider-neutral export path contract',
+      },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS/,
+        label: 'rtc root public surface reserved entrypoint contract',
+      },
+      { pattern: /root-public-builtin-only/, label: 'rtc root public builtin-only exposure term contract' },
+      { pattern: /package-boundary-only/, label: 'rtc root public package-boundary-only exposure term contract' },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'rtc sdk error fallback contract' },
       { pattern: /vendor_error/, label: 'rtc sdk canonical fallback error contract' },
@@ -488,8 +590,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /extension-object/, label: 'provider extension extension-object access contract' },
       { pattern: /runtime-frozen/i, label: 'runtime-frozen TypeScript metadata contract' },
       { pattern: /immutable snapshots/i, label: 'runtime immutable snapshot contract' },
+      {
+        pattern: /shallow-immutable-context/i,
+        label: 'runtime controller shallow-immutable context contract',
+      },
       { pattern: /metadata references/i, label: 'provider driver metadata snapshot contract' },
-      { pattern: /mutable native/i, label: 'runtime controller mutable native sdk contract' },
+      { pattern: /mutable-native-client/i, label: 'runtime controller mutable native client contract' },
       { pattern: /supported/, label: 'capability negotiation supported contract' },
       { pattern: /degraded/, label: 'capability negotiation degraded contract' },
       { pattern: /unsupported/, label: 'capability negotiation unsupported contract' },
@@ -526,6 +632,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /degraded/i, label: 'provider adapter degraded capability contract' },
       { pattern: /unsupported/i, label: 'provider adapter unsupported capability contract' },
       { pattern: /runtimeSurfaceStandard/, label: 'provider adapter assembly-driven runtimeSurfaceStandard contract' },
+      { pattern: /runtimeImmutabilityStandard/, label: 'provider adapter assembly-driven runtimeImmutabilityStandard contract' },
+      { pattern: /rootPublicSurfaceStandard/, label: 'provider adapter assembly-driven rootPublicSurfaceStandard contract' },
+      { pattern: /lookupHelperNamingStandard/, label: 'provider adapter assembly-driven lookupHelperNamingStandard contract' },
       {
         pattern: /RTC_RUNTIME_SURFACE_METHODS/,
         label: 'provider adapter rtc runtime surface method catalog contract',
@@ -534,12 +643,36 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
         label: 'provider adapter rtc runtime surface failure code contract',
       },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_STANDARD/,
+        label: 'provider adapter rtc runtime immutability standard contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/,
+        label: 'provider adapter rtc runtime immutability controller-context contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/,
+        label: 'provider adapter rtc runtime immutability native-client contract',
+      },
+      { pattern: /root-public-surface\.ts/, label: 'provider adapter root public surface module contract' },
+      { pattern: /RTC_ROOT_PUBLIC_SURFACE_STANDARD/, label: 'provider adapter rtc root public surface standard contract' },
+      { pattern: /RTC_LOOKUP_HELPER_NAMING_STANDARD/, label: 'provider adapter rtc lookup helper naming standard contract' },
+      { pattern: /lower-camel-rtc/, label: 'provider adapter lower-camel lookup helper naming profile contract' },
+      { pattern: /upper-camel-rtc/, label: 'provider adapter upper-camel lookup helper naming profile contract' },
+      { pattern: /snake-case-rtc/, label: 'provider adapter snake-case lookup helper naming profile contract' },
+      { pattern: /root-public-builtin-only/, label: 'provider adapter builtin-only root public exposure term contract' },
+      { pattern: /package-boundary-only/, label: 'provider adapter package-boundary-only root public exposure term contract' },
       { pattern: /errorCodeStandard/, label: 'provider adapter assembly-driven errorCodeStandard contract' },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'provider adapter rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'provider adapter rtc sdk error fallback contract' },
       { pattern: /vendor_error/, label: 'provider adapter rtc sdk canonical fallback error contract' },
       { pattern: /immutable snapshots/i, label: 'provider adapter immutable snapshot contract' },
-      { pattern: /mutable native/i, label: 'provider adapter mutable native sdk contract' },
+      {
+        pattern: /shallow-immutable-context/i,
+        label: 'provider adapter shallow-immutable context contract',
+      },
+      { pattern: /mutable-native-client/i, label: 'provider adapter mutable native client contract' },
       { pattern: /provider extension metadata/i, label: 'provider adapter extension metadata contract' },
       { pattern: /unwrap-only/i, label: 'provider adapter unwrap-only extension contract' },
       { pattern: /extension-object/i, label: 'provider adapter extension-object contract' },
@@ -675,6 +808,9 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /capabilityStandard/, label: 'verification of assembly-driven capabilityStandard contract' },
       { pattern: /capabilityNegotiationStandard/, label: 'verification of assembly-driven capabilityNegotiationStandard contract' },
       { pattern: /runtimeSurfaceStandard/, label: 'verification of assembly-driven runtimeSurfaceStandard contract' },
+      { pattern: /runtimeImmutabilityStandard/, label: 'verification of assembly-driven runtimeImmutabilityStandard contract' },
+      { pattern: /rootPublicSurfaceStandard/, label: 'verification of assembly-driven rootPublicSurfaceStandard contract' },
+      { pattern: /lookupHelperNamingStandard/, label: 'verification of assembly-driven lookupHelperNamingStandard contract' },
       { pattern: /errorCodeStandard/, label: 'verification of assembly-driven errorCodeStandard contract' },
       { pattern: /providerExtensionStandard/, label: 'verification of assembly-driven providerExtensionStandard contract' },
       { pattern: /providerActivationStandard/, label: 'verification of assembly-driven providerActivationStandard contract' },
@@ -703,6 +839,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       },
       { pattern: /builtin-only/, label: 'verification of builtin-only root public policy contract' },
       { pattern: /`none`/, label: 'verification of none root public policy contract' },
+      { pattern: /lookup-helper-naming\.ts/, label: 'verification of lookup helper naming module contract' },
+      { pattern: /RTC_LOOKUP_HELPER_NAMING_STANDARD/, label: 'verification of lookup helper naming standard contract' },
       { pattern: /contractScaffold/, label: 'verification of language workspace contract scaffold contract' },
       { pattern: /packageScaffold/, label: 'verification of language workspace package scaffold contract' },
       {
@@ -815,6 +953,39 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
         pattern: /RTC_RUNTIME_SURFACE_FAILURE_CODE/,
         label: 'verification of runtime surface failure code contract',
       },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_STANDARD/,
+        label: 'verification of runtime immutability standard contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/,
+        label: 'verification of runtime immutability frozen-term contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/,
+        label: 'verification of runtime immutability snapshot-term contract',
+      },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/,
+        label: 'verification of runtime immutability controller-context contract',
+      },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_STANDARD/,
+        label: 'verification of root public surface standard contract',
+      },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS/,
+        label: 'verification of root public surface provider-neutral export path contract',
+      },
+      {
+        pattern: /RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS/,
+        label: 'verification of root public surface reserved entrypoint contract',
+      },
+      { pattern: /root-public-surface\.ts/, label: 'verification of root public surface module contract' },
+      {
+        pattern: /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/,
+        label: 'verification of runtime immutability native-client contract',
+      },
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'verification of rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'verification of rtc sdk error fallback contract' },
       { pattern: /vendor_error/, label: 'verification of rtc sdk canonical fallback error contract' },
@@ -832,10 +1003,17 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /runtime-frozen/i, label: 'verification of runtime-frozen TypeScript metadata contract' },
       { pattern: /immutable snapshots/i, label: 'verification of runtime immutable snapshot contract' },
       {
+        pattern: /shallow-immutable-context/i,
+        label: 'verification of runtime controller shallow-immutable context contract',
+      },
+      {
         pattern: /metadata references/i,
         label: 'verification of provider driver metadata snapshot contract',
       },
-      { pattern: /mutable native/i, label: 'verification of runtime controller mutable native sdk contract' },
+      {
+        pattern: /mutable-native-client/i,
+        label: 'verification of runtime controller mutable native client contract',
+      },
       { pattern: /registerRtcProviderModules/, label: 'verification of batch provider module registration contract' },
       { pattern: /provider_module_contract_mismatch/, label: 'verification of provider module contract mismatch error' },
       { pattern: /atomic/i, label: 'verification of atomic batch provider module registration contract' },
@@ -1049,6 +1227,9 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     capabilityStandard,
     capabilityNegotiationStandard,
     runtimeSurfaceStandard,
+    runtimeImmutabilityStandard,
+    rootPublicSurfaceStandard,
+    lookupHelperNamingStandard,
     errorCodeStandard,
     providerExtensionStandard,
     providerActivationStandard,
@@ -1268,6 +1449,53 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   if (runtimeSurfaceStandard.failureCode !== RTC_RUNTIME_SURFACE_FAILURE_CODE) {
     fail(
       `runtimeSurfaceStandard.failureCode must be ${RTC_RUNTIME_SURFACE_FAILURE_CODE}`,
+    );
+  }
+
+  if (runtimeImmutabilityStandard?.frozenTerm !== RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM) {
+    fail(
+      `runtimeImmutabilityStandard.frozenTerm must be ${RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM}`,
+    );
+  }
+
+  if (runtimeImmutabilityStandard?.snapshotTerm !== RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM) {
+    fail(
+      `runtimeImmutabilityStandard.snapshotTerm must be ${RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM}`,
+    );
+  }
+
+  if (
+    runtimeImmutabilityStandard?.controllerContextTerm !==
+    RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM
+  ) {
+    fail(
+      `runtimeImmutabilityStandard.controllerContextTerm must be ${RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM}`,
+    );
+  }
+
+  if (
+    runtimeImmutabilityStandard?.nativeClientTerm !== RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM
+  ) {
+    fail(
+      `runtimeImmutabilityStandard.nativeClientTerm must be ${RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM}`,
+    );
+  }
+
+  if (
+    JSON.stringify(rootPublicSurfaceStandard ?? {}) !==
+    JSON.stringify(DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD)
+  ) {
+    fail(
+      'rootPublicSurfaceStandard must exactly match the canonical root public surface contract',
+    );
+  }
+
+  if (
+    JSON.stringify(lookupHelperNamingStandard ?? {}) !==
+    JSON.stringify(DEFAULT_LOOKUP_HELPER_NAMING_STANDARD)
+  ) {
+    fail(
+      'lookupHelperNamingStandard must exactly match the canonical lookup helper naming contract',
     );
   }
 
@@ -3630,6 +3858,92 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
   }
 
+  const runtimeImmutabilityPath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'runtime-immutability.ts',
+  );
+  const runtimeImmutabilityContent = readFileSync(runtimeImmutabilityPath, 'utf8');
+
+  for (const token of [
+    'RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM',
+    'RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM',
+    'RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM',
+    'RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM',
+    'RTC_RUNTIME_IMMUTABILITY_STANDARD',
+    'freezeRtcRuntimeValue',
+    RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM,
+    RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM,
+    RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM,
+    RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM,
+  ]) {
+    if (!new RegExp(escapeRegExp(token)).test(runtimeImmutabilityContent)) {
+      fail(`TypeScript runtime immutability token drift: ${token}`);
+    }
+  }
+
+  const rootPublicSurfacePath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'root-public-surface.ts',
+  );
+  const rootPublicSurfaceContent = readFileSync(rootPublicSurfacePath, 'utf8');
+
+  for (const token of [
+    'RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS',
+    'RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS',
+    'RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES',
+    'RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES',
+    'RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS',
+    'RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM',
+    'RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM',
+    'RTC_ROOT_PUBLIC_SURFACE_STANDARD',
+    'RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS',
+    'RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS',
+    'RTC_LOOKUP_HELPER_NAMING_STANDARD',
+    './lookup-helper-naming.js',
+    'freezeRtcRuntimeValue',
+    ...RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS,
+    ...RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS,
+    ...RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES,
+    ...RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES,
+    ...Object.keys(RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS),
+    ...Object.values(RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS),
+    RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM,
+    RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM,
+  ]) {
+    if (!new RegExp(escapeRegExp(token)).test(rootPublicSurfaceContent)) {
+      fail(`TypeScript root public surface token drift: ${token}`);
+    }
+  }
+
+  const lookupHelperNamingPath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'src',
+    'lookup-helper-naming.ts',
+  );
+  const lookupHelperNamingContent = readFileSync(lookupHelperNamingPath, 'utf8');
+
+  for (const token of [
+    'RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS',
+    'RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS',
+    'RTC_LOOKUP_HELPER_NAMING_STANDARD',
+    'freezeRtcRuntimeValue',
+    ...DEFAULT_LOOKUP_HELPER_NAMING_STANDARD.profileTerms,
+    ...DEFAULT_LOOKUP_HELPER_NAMING_STANDARD.familyTerms,
+    ...Object.values(DEFAULT_LOOKUP_HELPER_NAMING_STANDARD.profiles).flatMap((profile) => [
+      ...profile.languages,
+      ...Object.values(profile.helpers),
+    ]),
+  ]) {
+    if (!new RegExp(escapeRegExp(token)).test(lookupHelperNamingContent)) {
+      fail(`TypeScript lookup helper naming token drift: ${token}`);
+    }
+  }
+
   const typeScriptIndexPath = path.join(
     workspaceRoot,
     'sdkwork-rtc-sdk-typescript',
@@ -3641,10 +3955,32 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   for (const token of [
     './capability-negotiation.js',
     './provider-package-loader.js',
+    './runtime-immutability.js',
+    './root-public-surface.js',
     './runtime-surface.js',
   ]) {
     if (!new RegExp(escapeRegExp(token)).test(typeScriptIndexContent)) {
       fail(`TypeScript index export drift: ${token}`);
+    }
+  }
+
+  const expectedTypeScriptIndexExports = [
+    ...RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS,
+    ...RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS,
+  ];
+  const actualTypeScriptIndexExports = [
+    ...typeScriptIndexContent.matchAll(/export \* from '([^']+)';/g),
+  ].map((match) => match[1]);
+
+  if (
+    JSON.stringify(actualTypeScriptIndexExports) !== JSON.stringify(expectedTypeScriptIndexExports)
+  ) {
+    fail('TypeScript index export graph must exactly match rootPublicSurfaceStandard');
+  }
+
+  for (const helperName of RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES) {
+    if (!new RegExp(`export function ${escapeRegExp(helperName)}\\s*\\(`).test(typeScriptIndexContent)) {
+      fail(`TypeScript root inline helper drift: ${helperName}`);
     }
   }
 

@@ -2,6 +2,12 @@ import {
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
+  DEFAULT_LOOKUP_HELPER_NAMING_STANDARD,
+  DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD,
+  RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM,
+  RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM,
+  RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM,
+  RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM,
   RTC_CAPABILITY_SURFACES,
   RTC_RUNTIME_SURFACE_FAILURE_CODE,
   RTC_RUNTIME_SURFACE_METHODS,
@@ -166,6 +172,56 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   if (runtimeSurfaceStandard.failureCode !== RTC_RUNTIME_SURFACE_FAILURE_CODE) {
     throw new Error(
       `runtimeSurfaceStandard.failureCode must be ${RTC_RUNTIME_SURFACE_FAILURE_CODE}, received: ${runtimeSurfaceStandard.failureCode ?? '<missing>'}`,
+    );
+  }
+
+  const runtimeImmutabilityStandard = assembly.runtimeImmutabilityStandard ?? {};
+  if (runtimeImmutabilityStandard.frozenTerm !== RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM) {
+    throw new Error(
+      `runtimeImmutabilityStandard.frozenTerm must be ${RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM}, received: ${runtimeImmutabilityStandard.frozenTerm ?? '<missing>'}`,
+    );
+  }
+
+  if (runtimeImmutabilityStandard.snapshotTerm !== RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM) {
+    throw new Error(
+      `runtimeImmutabilityStandard.snapshotTerm must be ${RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM}, received: ${runtimeImmutabilityStandard.snapshotTerm ?? '<missing>'}`,
+    );
+  }
+
+  if (
+    runtimeImmutabilityStandard.controllerContextTerm !==
+    RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM
+  ) {
+    throw new Error(
+      `runtimeImmutabilityStandard.controllerContextTerm must be ${RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM}, received: ${runtimeImmutabilityStandard.controllerContextTerm ?? '<missing>'}`,
+    );
+  }
+
+  if (
+    runtimeImmutabilityStandard.nativeClientTerm !== RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM
+  ) {
+    throw new Error(
+      `runtimeImmutabilityStandard.nativeClientTerm must be ${RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM}, received: ${runtimeImmutabilityStandard.nativeClientTerm ?? '<missing>'}`,
+    );
+  }
+
+  const rootPublicSurfaceStandard = assembly.rootPublicSurfaceStandard ?? {};
+  if (
+    JSON.stringify(rootPublicSurfaceStandard) !==
+    JSON.stringify(DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD)
+  ) {
+    throw new Error(
+      'rootPublicSurfaceStandard must exactly match the canonical root public surface contract',
+    );
+  }
+
+  const lookupHelperNamingStandard = assembly.lookupHelperNamingStandard ?? {};
+  if (
+    JSON.stringify(lookupHelperNamingStandard) !==
+    JSON.stringify(DEFAULT_LOOKUP_HELPER_NAMING_STANDARD)
+  ) {
+    throw new Error(
+      'lookupHelperNamingStandard must exactly match the canonical lookup helper naming contract',
     );
   }
 
@@ -425,6 +481,9 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     capabilityStandard,
     capabilityNegotiationStandard,
     runtimeSurfaceStandard,
+    runtimeImmutabilityStandard,
+    rootPublicSurfaceStandard,
+    lookupHelperNamingStandard,
     errorCodeStandard,
     providerExtensionStandard,
     providerTierStandard,

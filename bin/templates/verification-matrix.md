@@ -29,8 +29,10 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `runtimeSurfaceStandard`, `errorCodeStandard`, `providerExtensionStandard`,
-  `providerTierStandard`, and `languageMaturityStandard` materialized into docs and matrix assets
+  `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
+  `lookupHelperNamingStandard`,
+  `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
+  `languageMaturityStandard` materialized into docs and matrix assets
 - the assembly-driven `capabilityCatalog` materialized into
   `docs/multilanguage-capability-matrix.md`
 - the assembly-driven `providerExtensionCatalog` materialized into
@@ -44,10 +46,32 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   `sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts`
 - the TypeScript provider catalog at `sdkwork-rtc-sdk-typescript/src/provider-catalog.ts`
 - the TypeScript runtime surface module at `sdkwork-rtc-sdk-typescript/src/runtime-surface.ts`
+- the TypeScript runtime immutability module at
+  `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`
+- the TypeScript root public surface module at
+  `sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`
+- the TypeScript lookup helper naming module at
+  `sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts`
 - the default provider constants `DEFAULT_RTC_PROVIDER_KEY`,
   `DEFAULT_RTC_PROVIDER_PLUGIN_ID`, and `DEFAULT_RTC_PROVIDER_DRIVER_ID` inside that catalog
 - the root public runtime surface constants `RTC_RUNTIME_SURFACE_METHODS` and
   `RTC_RUNTIME_SURFACE_FAILURE_CODE`
+- the root public runtime immutability constants
+  `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and
+  `RTC_RUNTIME_IMMUTABILITY_STANDARD`
+- the root public surface constants
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, and
+  `RTC_ROOT_PUBLIC_SURFACE_STANDARD`
+- the root public lookup helper naming constants
+  `RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`,
+  `RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, and `RTC_LOOKUP_HELPER_NAMING_STANDARD`
 - the TypeScript providers directory README
 - every TypeScript provider package manifest
 - every TypeScript provider package `index.js` entrypoint
@@ -125,6 +149,20 @@ The root verifier must confirm:
   `capabilityNegotiationStandard.statusRules`
 - `.sdkwork-assembly.json` declares `runtimeSurfaceStandard.methodTerms` and
   `runtimeSurfaceStandard.failureCode`
+- `.sdkwork-assembly.json` declares `runtimeImmutabilityStandard.frozenTerm`,
+  `runtimeImmutabilityStandard.snapshotTerm`,
+  `runtimeImmutabilityStandard.controllerContextTerm`, and
+  `runtimeImmutabilityStandard.nativeClientTerm`
+- `.sdkwork-assembly.json` declares
+  `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`,
+  `rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths`,
+  `rootPublicSurfaceStandard.typescriptInlineHelperNames`,
+  `rootPublicSurfaceStandard.reservedSurfaceFamilies`,
+  `rootPublicSurfaceStandard.reservedEntryPointKinds`,
+  `rootPublicSurfaceStandard.builtinProviderExposureTerm`, and
+  `rootPublicSurfaceStandard.nonBuiltinProviderExposureTerm`
+- `.sdkwork-assembly.json` declares `lookupHelperNamingStandard.profileTerms`,
+  `lookupHelperNamingStandard.familyTerms`, and `lookupHelperNamingStandard.profiles`
 - `.sdkwork-assembly.json` declares `errorCodeStandard.codeTerms` and
   `errorCodeStandard.fallbackCode`
 - `.sdkwork-assembly.json` declares `providerExtensionStandard.accessTerms` and
@@ -260,6 +298,8 @@ The root verifier must confirm:
 - every reserved language provider-selection scaffold preserves explicit helper coverage for source
   catalogs, precedence catalogs, provider-URL parsing, and selection resolution with
   language-idiomatic naming
+- every reserved language helper scaffold stays aligned with the canonical naming profiles
+  `lower-camel-rtc`, `upper-camel-rtc`, and `snake-case-rtc`
 - every reserved language provider-support scaffold preserves explicit helper coverage for
   support-status catalogs, `RtcProviderSupportStateRequest`, status resolution, and support-state
   construction with language-idiomatic naming
@@ -422,8 +462,19 @@ The TypeScript workspace must verify:
   `unpublish`, `muteAudio`, and `muteVideo`
 - runtime method delegation reaches the consumer-supplied runtime bridge without provider metadata
   drift
-- runtime-controller context wrappers remain shallow-immutable while preserving mutable native SDK
-  instances
+- `RTC_RUNTIME_IMMUTABILITY_STANDARD` remains root-public
+- `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`, and
+  `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM` remain root-public
+- `RTC_ROOT_PUBLIC_SURFACE_STANDARD` remains root-public
+- `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`, and
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS` remain root-public
+- runtime-controller context wrappers remain `shallow-immutable-context` while preserving
+  `mutable-native-client` instances
 - runtime methods fail with `native_sdk_not_available` when no runtime bridge is registered
 - every official provider source module exports the manifest-declared driver factory, metadata
   symbol, and provider module symbol

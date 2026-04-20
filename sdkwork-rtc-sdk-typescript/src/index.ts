@@ -1,5 +1,7 @@
 export * from './errors.js';
 export * from './runtime-surface.js';
+export * from './runtime-immutability.js';
+export * from './root-public-surface.js';
 export * from './types.js';
 export * from './capability-catalog.js';
 export * from './capability-negotiation.js';

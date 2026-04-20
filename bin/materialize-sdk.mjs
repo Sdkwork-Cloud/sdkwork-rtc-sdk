@@ -41,6 +41,14 @@ function renderReadonlyStringArray(values) {
   return `[${values.map((value) => renderStringLiteral(value)).join(', ')}] as const`;
 }
 
+function renderReadonlyStringRecord(entries) {
+  return `{
+${Object.entries(entries ?? {})
+    .map(([key, value]) => `  ${JSON.stringify(key)}: ${renderStringLiteral(value)},`)
+    .join('\n')}
+}`;
+}
+
 function renderMarkdownCodeList(values) {
   return (values ?? []).map((value) => `\`${value}\``).join(', ');
 }
@@ -76,6 +84,115 @@ export const RTC_RUNTIME_SURFACE_FAILURE_CODE: RtcRuntimeSurfaceFailureCode = ${
 export const RTC_RUNTIME_SURFACE_STANDARD = freezeRtcRuntimeValue({
   methodTerms: RTC_RUNTIME_SURFACE_METHODS,
   failureCode: RTC_RUNTIME_SURFACE_FAILURE_CODE,
+} as const);
+`;
+}
+
+function renderTypeScriptRuntimeImmutability(assembly) {
+  return `import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+
+export const RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM = ${renderStringLiteral(
+    assembly.runtimeImmutabilityStandard?.frozenTerm ?? '',
+  )};
+
+export const RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM = ${renderStringLiteral(
+    assembly.runtimeImmutabilityStandard?.snapshotTerm ?? '',
+  )};
+
+export const RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM = ${renderStringLiteral(
+    assembly.runtimeImmutabilityStandard?.controllerContextTerm ?? '',
+  )};
+
+export const RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM = ${renderStringLiteral(
+    assembly.runtimeImmutabilityStandard?.nativeClientTerm ?? '',
+  )};
+
+export const RTC_RUNTIME_IMMUTABILITY_STANDARD = freezeRtcRuntimeValue({
+  frozenTerm: RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM,
+  snapshotTerm: RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM,
+  controllerContextTerm: RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM,
+  nativeClientTerm: RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM,
+} as const);
+`;
+}
+
+function renderTypeScriptRootPublicSurface(assembly) {
+  return `import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+
+export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.rootPublicSurfaceStandard?.typescriptProviderNeutralExportPaths ?? [],
+  )});
+
+export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.rootPublicSurfaceStandard?.typescriptBuiltinProviderExportPaths ?? [],
+  )});
+
+export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.rootPublicSurfaceStandard?.typescriptInlineHelperNames ?? [],
+  )});
+
+export const RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.rootPublicSurfaceStandard?.reservedSurfaceFamilies ?? [],
+  )});
+
+export const RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS = freezeRtcRuntimeValue(${renderReadonlyStringRecord(
+    assembly.rootPublicSurfaceStandard?.reservedEntryPointKinds ?? {},
+  )} as const);
+
+export const RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM = ${renderStringLiteral(
+    assembly.rootPublicSurfaceStandard?.builtinProviderExposureTerm ?? '',
+  )};
+
+export const RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM = ${renderStringLiteral(
+    assembly.rootPublicSurfaceStandard?.nonBuiltinProviderExposureTerm ?? '',
+  )};
+
+export {
+  RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS,
+  RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS,
+  RTC_LOOKUP_HELPER_NAMING_STANDARD,
+} from './lookup-helper-naming.js';
+
+export const RTC_ROOT_PUBLIC_SURFACE_STANDARD = freezeRtcRuntimeValue({
+  typescriptProviderNeutralExportPaths:
+    RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS,
+  typescriptBuiltinProviderExportPaths:
+    RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS,
+  typescriptInlineHelperNames: RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES,
+  reservedSurfaceFamilies: RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES,
+  reservedEntryPointKinds: RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS,
+  builtinProviderExposureTerm: RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM,
+  nonBuiltinProviderExposureTerm: RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM,
+} as const);
+`;
+}
+
+function renderTypeScriptLookupHelperNaming(assembly) {
+  const profiles = Object.entries(assembly.lookupHelperNamingStandard?.profiles ?? {})
+    .map(
+      ([profileKey, profile]) => `  ${JSON.stringify(profileKey)}: freezeRtcRuntimeValue({
+    languages: freezeRtcRuntimeValue(${renderReadonlyStringArray(profile.languages ?? [])}),
+    helpers: freezeRtcRuntimeValue(${renderReadonlyStringRecord(profile.helpers ?? {})} as const),
+  } as const),`,
+    )
+    .join('\n');
+
+  return `import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+
+export const RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.lookupHelperNamingStandard?.profileTerms ?? [],
+  )});
+
+export const RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.lookupHelperNamingStandard?.familyTerms ?? [],
+  )});
+
+export const RTC_LOOKUP_HELPER_NAMING_STANDARD = freezeRtcRuntimeValue({
+  profileTerms: RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS,
+  familyTerms: RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS,
+  profiles: freezeRtcRuntimeValue({
+${profiles}
+  } as const),
 } as const);
 `;
 }
@@ -149,10 +266,14 @@ Metadata scaffold:
 - capability catalog: \`${languageEntry.metadataScaffold.capabilityCatalogRelativePath}\`
 - provider extension catalog: \`${languageEntry.metadataScaffold.providerExtensionCatalogRelativePath}\`
 - provider selection: \`${languageEntry.metadataScaffold.providerSelectionRelativePath}\`
+- lookup helper naming contract: \`lookupHelperNamingStandard\`
+- lookup helper naming profiles: \`lower-camel-rtc\`, \`upper-camel-rtc\`, \`snake-case-rtc\`
 - explicit lookup helpers stay mandatory for metadata catalogs:
   provider catalog by provider key, provider package by provider key,
   provider activation by provider key, capability descriptor by capability key,
-  provider extension catalog by extension key and provider key, and language workspace by language
+  provider extension catalog by extension key and provider key, provider URL parsing,
+  provider selection resolution, provider support resolution, provider package loading, and
+  language workspace by language
 - helper naming stays language-idiomatic while preserving the same semantics:
   \`getRtc...\` for Flutter/Java/Swift/Kotlin, \`GetRtc...\` for C#/Go, and \`get_rtc...\` for Rust/Python
 `;
@@ -679,6 +800,29 @@ The shared runtime-surface module at \`src/runtime-surface.ts\` materializes
 \`runtimeSurfaceStandard\` into \`RTC_RUNTIME_SURFACE_METHODS\`,
 \`RTC_RUNTIME_SURFACE_FAILURE_CODE\`, and \`RTC_RUNTIME_SURFACE_STANDARD\` so the provider-neutral
 runtime method vocabulary and missing-runtime failure semantics stay assembly-governed.
+The shared runtime-immutability module at \`src/runtime-immutability.ts\` materializes
+\`runtimeImmutabilityStandard\` into \`RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM\`,
+\`RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM\`,
+\`RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM\`,
+\`RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM\`, and
+\`RTC_RUNTIME_IMMUTABILITY_STANDARD\` so runtime-frozen metadata, immutable snapshot contracts,
+shallow-immutable runtime-controller contexts, and mutable native-client preservation stay
+assembly-governed.
+The shared root-public-surface module at \`src/root-public-surface.ts\` materializes
+\`rootPublicSurfaceStandard\` into
+\`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS\`,
+\`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS\`,
+\`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES\`,
+\`RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES\`,
+\`RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS\`, and
+\`RTC_ROOT_PUBLIC_SURFACE_STANDARD\` so the TypeScript root export graph, builtin-provider
+root exposure, and reserved single-entrypoint families stay assembly-governed.
+The shared lookup-helper-naming module at \`src/lookup-helper-naming.ts\` materializes
+\`lookupHelperNamingStandard\` into \`RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS\`,
+\`RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS\`, and \`RTC_LOOKUP_HELPER_NAMING_STANDARD\` so the
+\`lower-camel-rtc\`, \`upper-camel-rtc\`, and \`snake-case-rtc\` helper profiles stay
+assembly-governed across the web/browser baseline and the reserved mobile/server language
+workspaces.
 ${renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly)}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
 ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
@@ -864,6 +1008,43 @@ function renderCapabilityMatrix(assembly) {
     `- \`runtimeSurfaceStandard.failureCode\`: \`${assembly.runtimeSurfaceStandard?.failureCode ?? ''}\``,
     '- TypeScript root public constants: `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`',
   ].join('\n');
+  const runtimeImmutabilityStandardLines = [
+    `- \`runtimeImmutabilityStandard.frozenTerm\`: \`${assembly.runtimeImmutabilityStandard?.frozenTerm ?? ''}\``,
+    `- \`runtimeImmutabilityStandard.snapshotTerm\`: \`${assembly.runtimeImmutabilityStandard?.snapshotTerm ?? ''}\``,
+    `- \`runtimeImmutabilityStandard.controllerContextTerm\`: \`${assembly.runtimeImmutabilityStandard?.controllerContextTerm ?? ''}\``,
+    `- \`runtimeImmutabilityStandard.nativeClientTerm\`: \`${assembly.runtimeImmutabilityStandard?.nativeClientTerm ?? ''}\``,
+    '- TypeScript root public constants: `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`, `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`, `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, `RTC_RUNTIME_IMMUTABILITY_STANDARD`',
+  ].join('\n');
+  const rootPublicSurfaceStandardLines = [
+    `- \`rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths\`: ${renderMarkdownCodeList(
+      assembly.rootPublicSurfaceStandard?.typescriptProviderNeutralExportPaths ?? [],
+    )}`,
+    `- \`rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths\`: ${renderMarkdownCodeList(
+      assembly.rootPublicSurfaceStandard?.typescriptBuiltinProviderExportPaths ?? [],
+    )}`,
+    `- \`rootPublicSurfaceStandard.typescriptInlineHelperNames\`: ${renderMarkdownCodeList(
+      assembly.rootPublicSurfaceStandard?.typescriptInlineHelperNames ?? [],
+    )}`,
+    `- \`rootPublicSurfaceStandard.reservedSurfaceFamilies\`: ${renderMarkdownCodeList(
+      assembly.rootPublicSurfaceStandard?.reservedSurfaceFamilies ?? [],
+    )}`,
+    `- \`rootPublicSurfaceStandard.reservedEntryPointKinds.flutter\`: \`${assembly.rootPublicSurfaceStandard?.reservedEntryPointKinds?.flutter ?? ''}\``,
+    `- \`rootPublicSurfaceStandard.reservedEntryPointKinds.python\`: \`${assembly.rootPublicSurfaceStandard?.reservedEntryPointKinds?.python ?? ''}\``,
+    `- \`rootPublicSurfaceStandard.builtinProviderExposureTerm\`: \`${assembly.rootPublicSurfaceStandard?.builtinProviderExposureTerm ?? ''}\``,
+    `- \`rootPublicSurfaceStandard.nonBuiltinProviderExposureTerm\`: \`${assembly.rootPublicSurfaceStandard?.nonBuiltinProviderExposureTerm ?? ''}\``,
+    '- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`',
+    '- TypeScript root public constants: `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`, `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`, `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`, `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`, `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, `RTC_ROOT_PUBLIC_SURFACE_STANDARD`',
+  ].join('\n');
+  const lookupHelperNamingStandardLines = [
+    `- \`lookupHelperNamingStandard.profileTerms\`: ${renderMarkdownCodeList(
+      assembly.lookupHelperNamingStandard?.profileTerms ?? [],
+    )}`,
+    `- \`lookupHelperNamingStandard.familyTerms\`: ${renderMarkdownCodeList(
+      assembly.lookupHelperNamingStandard?.familyTerms ?? [],
+    )}`,
+    '- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts`',
+    '- TypeScript root public constants: `RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`, `RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, `RTC_LOOKUP_HELPER_NAMING_STANDARD`',
+  ].join('\n');
   const errorCodeStandardLines = [
     `- \`errorCodeStandard.codeTerms\`: ${renderMarkdownCodeList(
       assembly.errorCodeStandard?.codeTerms ?? [],
@@ -933,6 +1114,18 @@ ${capabilityNegotiationStandardLines}
 ## Runtime Surface Standard
 
 ${runtimeSurfaceStandardLines}
+
+## Runtime Immutability Standard
+
+${runtimeImmutabilityStandardLines}
+
+## Root Public Surface Standard
+
+${rootPublicSurfaceStandardLines}
+
+## Lookup Helper Naming Standard
+
+${lookupHelperNamingStandardLines}
 
 ## Error Code Standard
 
@@ -1593,6 +1786,18 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/runtime-surface.ts',
       content: renderTypeScriptRuntimeSurface(assembly),
+    },
+    {
+      relativePath: 'sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts',
+      content: renderTypeScriptRuntimeImmutability(assembly),
+    },
+    {
+      relativePath: 'sdkwork-rtc-sdk-typescript/src/root-public-surface.ts',
+      content: renderTypeScriptRootPublicSurface(assembly),
+    },
+    {
+      relativePath: 'sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts',
+      content: renderTypeScriptLookupHelperNaming(assembly),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts',

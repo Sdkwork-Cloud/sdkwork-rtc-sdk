@@ -69,10 +69,14 @@ Metadata scaffold:
 - capability catalog: `sdkwork_rtc_sdk/capability_catalog.py`
 - provider extension catalog: `sdkwork_rtc_sdk/provider_extension_catalog.py`
 - provider selection: `sdkwork_rtc_sdk/provider_selection.py`
+- lookup helper naming contract: `lookupHelperNamingStandard`
+- lookup helper naming profiles: `lower-camel-rtc`, `upper-camel-rtc`, `snake-case-rtc`
 - explicit lookup helpers stay mandatory for metadata catalogs:
   provider catalog by provider key, provider package by provider key,
   provider activation by provider key, capability descriptor by capability key,
-  provider extension catalog by extension key and provider key, and language workspace by language
+  provider extension catalog by extension key and provider key, provider URL parsing,
+  provider selection resolution, provider support resolution, provider package loading, and
+  language workspace by language
 - helper naming stays language-idiomatic while preserving the same semantics:
   `getRtc...` for Flutter/Java/Swift/Kotlin, `GetRtc...` for C#/Go, and `get_rtc...` for Rust/Python
 

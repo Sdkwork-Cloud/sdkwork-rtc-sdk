@@ -76,6 +76,8 @@ Rules:
   `getRtcProviderByProviderKey(...)` / `GetRtcProviderByProviderKey(...)` /
   `get_rtc_provider_by_provider_key(...)`, plus provider package lookup by provider key and
   package identity, and the corresponding capability and provider-extension helper families
+- `lookupHelperNamingStandard` is the canonical source for those helper families and for the
+  `lower-camel-rtc`, `upper-camel-rtc`, and `snake-case-rtc` naming profiles
 - reserved non-TypeScript language metadata scaffolds must also expose standalone provider
   selection helpers with language-idiomatic names for source catalogs, precedence catalogs,
   provider-URL parsing, and selection resolution instead of burying precedence inside
@@ -103,6 +105,35 @@ Rules:
   `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD`
 - `.sdkwork-assembly.json` must declare `runtimeSurfaceStandard.methodTerms` and
   `runtimeSurfaceStandard.failureCode`
+- the runtime immutability module must expose `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and
+  `RTC_RUNTIME_IMMUTABILITY_STANDARD`
+- `.sdkwork-assembly.json` must declare `runtimeImmutabilityStandard.frozenTerm`,
+  `runtimeImmutabilityStandard.snapshotTerm`,
+  `runtimeImmutabilityStandard.controllerContextTerm`, and
+  `runtimeImmutabilityStandard.nativeClientTerm`
+- the root-public-surface module must expose
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, and
+  `RTC_ROOT_PUBLIC_SURFACE_STANDARD`
+- the lookup-helper-naming module must expose
+  `RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`,
+  `RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, and `RTC_LOOKUP_HELPER_NAMING_STANDARD`
+- `.sdkwork-assembly.json` must declare
+  `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`,
+  `rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths`,
+  `rootPublicSurfaceStandard.typescriptInlineHelperNames`,
+  `rootPublicSurfaceStandard.reservedSurfaceFamilies`,
+  `rootPublicSurfaceStandard.reservedEntryPointKinds`,
+  `rootPublicSurfaceStandard.builtinProviderExposureTerm`, and
+  `rootPublicSurfaceStandard.nonBuiltinProviderExposureTerm`
+- `.sdkwork-assembly.json` must declare `lookupHelperNamingStandard.profileTerms`,
+  `lookupHelperNamingStandard.familyTerms`, and `lookupHelperNamingStandard.profiles`
 - the errors module must expose `RTC_SDK_ERROR_CODES`, `RTC_SDK_ERROR_FALLBACK_CODE`,
   and `RtcSdkException`
 - `.sdkwork-assembly.json` must declare `errorCodeStandard.codeTerms` and
@@ -149,6 +180,9 @@ Rules:
   and `statusRules`
 - `runtimeSurfaceStandard` is the canonical source for provider-neutral runtime method vocabulary
   and missing-runtime failure semantics
+- `runtimeImmutabilityStandard` is the canonical source for runtime-frozen metadata, immutable
+  snapshot semantics, shallow-immutable runtime-controller context semantics, and mutable
+  native-client preservation semantics
 - `errorCodeStandard` is the canonical source for the shared RTC SDK error vocabulary and fallback
   semantics
 - `providerExtensionStandard` is the canonical source for provider extension `accessTerms` and
@@ -190,10 +224,32 @@ Rules:
   `muteAudio`, and `muteVideo`
 - the TypeScript runtime surface module must keep `RTC_RUNTIME_SURFACE_METHODS` and
   `RTC_RUNTIME_SURFACE_FAILURE_CODE` aligned to `runtimeSurfaceStandard`
+- the TypeScript runtime-immutability module must keep
+  `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and
+  `RTC_RUNTIME_IMMUTABILITY_STANDARD` aligned to `runtimeImmutabilityStandard`
+- `rootPublicSurfaceStandard` is the canonical source for the TypeScript root export graph,
+  builtin-provider root exposure, reserved single-entrypoint surface families, and the
+  `root-public-builtin-only` plus `package-boundary-only` exposure terms
+- the TypeScript root-public-surface module must keep
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+  `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`,
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, and
+  `RTC_ROOT_PUBLIC_SURFACE_STANDARD` aligned to `rootPublicSurfaceStandard`
+- `lookupHelperNamingStandard` is the canonical source for reserved-language helper families and
+  the `lower-camel-rtc`, `upper-camel-rtc`, and `snake-case-rtc` naming profiles
+- the TypeScript lookup-helper-naming module must keep
+  `RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`,
+  `RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, and `RTC_LOOKUP_HELPER_NAMING_STANDARD` aligned to
+  `lookupHelperNamingStandard`
 - provider adapters must forward the consumer-supplied `runtimeController` into the shared driver
   contract instead of implementing provider-private lifecycle entrypoints
-- runtime-controller context wrappers must be shallow-immutable while preserving a mutable native
-  SDK instance reference so vendor SDK objects are not frozen by the standard layer
+- runtime-controller context wrappers must stay `shallow-immutable-context` while preserving a
+  `mutable-native-client` reference so vendor SDK objects are not frozen by the standard layer
 - the shared runtime surface must throw `native_sdk_not_available` when no runtime bridge has been
   supplied
 - downstream consumers import only from `@sdkwork/rtc-sdk`
@@ -202,10 +258,19 @@ Rules:
   builtin helper wiring, but it must not expose non-builtin provider driver factories
 - the root public entrypoint may expose builtin provider modules, but it must not expose future
   non-builtin provider modules
+- `root-public-builtin-only` is the canonical exposure term for builtin provider modules that may
+  cross the TypeScript root public boundary
+- `package-boundary-only` is the canonical exposure term for non-builtin provider factories and
+  modules that must stay outside the TypeScript root public boundary
 - the root public entrypoint may expose the provider package loader and installer SPI because it is
   provider-neutral package-boundary infrastructure, not a non-builtin driver factory
 - the root public entrypoint may expose `RTC_RUNTIME_SURFACE_METHODS` and
   `RTC_RUNTIME_SURFACE_FAILURE_CODE` because they are provider-neutral runtime surface constants
+- the root public entrypoint may expose `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+  `RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and `RTC_RUNTIME_IMMUTABILITY_STANDARD` because
+  they are provider-neutral runtime immutability constants
 - reserved root public entrypoints must stay assembly-governed where the language ecosystem expects
   a single barrel or package initializer, including `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart`
   and `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`
@@ -214,6 +279,9 @@ Rules:
   catalog, language workspace catalog, provider selection, provider package loader, provider
   support, driver manager, and data source surfaces instead of pushing consumers onto private
   submodules
+- `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES` and
+  `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS` are the canonical root-public-surface
+  constants for those reserved single-entrypoint families
 - reserved Go metadata and resolution DTOs must expose PascalCase public fields such as
   `ProviderKey`, `PluginId`, `DriverId`, `PackageIdentity`, `RuntimeBridgeStatus`, and
   `DefaultProviderKey` so the standard structs remain consumable outside the package

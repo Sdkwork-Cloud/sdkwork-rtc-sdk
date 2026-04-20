@@ -37,8 +37,10 @@ This workspace standardizes:
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
 - assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `runtimeSurfaceStandard`, `errorCodeStandard`, `providerExtensionStandard`,
-  `providerTierStandard`, and `languageMaturityStandard` vocabularies
+  `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
+  `lookupHelperNamingStandard`,
+  `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
+  `languageMaturityStandard` vocabularies
 - assembly-driven `typescriptAdapterStandard` and `typescriptPackageStandard` contracts for
   TypeScript provider adapter and package identity normalization
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
@@ -101,6 +103,19 @@ The top-level assembly also fixes the shared vocabulary standards:
 - `capabilityNegotiationStandard.statusRules`
 - `runtimeSurfaceStandard.methodTerms`
 - `runtimeSurfaceStandard.failureCode`
+- `runtimeImmutabilityStandard.frozenTerm`
+- `runtimeImmutabilityStandard.snapshotTerm`
+- `runtimeImmutabilityStandard.controllerContextTerm`
+- `runtimeImmutabilityStandard.nativeClientTerm`
+- `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`
+- `rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths`
+- `rootPublicSurfaceStandard.typescriptInlineHelperNames`
+- `rootPublicSurfaceStandard.reservedSurfaceFamilies`
+- `rootPublicSurfaceStandard.reservedEntryPointKinds`
+- `rootPublicSurfaceStandard.builtinProviderExposureTerm`
+- `rootPublicSurfaceStandard.nonBuiltinProviderExposureTerm`
+- `lookupHelperNamingStandard.profileTerms`
+- `lookupHelperNamingStandard.familyTerms`
 - `errorCodeStandard.codeTerms`
 - `errorCodeStandard.fallbackCode`
 - `providerExtensionStandard.accessTerms`
@@ -127,6 +142,34 @@ Provider adapters delegate runtime work through a consumer-supplied runtime brid
 official vendor SDK. If no runtime bridge is supplied, the stable runtime methods must fail
 explicitly with `native_sdk_not_available` instead of pretending a provider-neutral RTC engine
 exists.
+The runtime immutability contract is also standardized. `runtimeImmutabilityStandard` fixes the
+canonical `runtime-frozen`, `immutable-snapshots`, `shallow-immutable-context`, and
+`mutable-native-client` terms. The TypeScript runtime-immutability module at
+`sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts` must keep
+`RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and `RTC_RUNTIME_IMMUTABILITY_STANDARD` aligned to
+that assembly-driven contract so metadata freezing, runtime snapshot semantics, runtime-controller
+context semantics, and native-client mutability preservation do not drift between languages.
+The root public exposure contract is also standardized. `rootPublicSurfaceStandard` fixes the
+TypeScript provider-neutral export paths, builtin provider export paths, root-only helper names,
+reserved single-entrypoint surface families, and the `root-public-builtin-only` plus
+`package-boundary-only` exposure terms. The TypeScript root-public-surface module at
+`sdkwork-rtc-sdk-typescript/src/root-public-surface.ts` must keep
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, and `RTC_ROOT_PUBLIC_SURFACE_STANDARD`
+aligned to that assembly-driven contract so the root export graph cannot drift by accident.
+The lookup helper naming contract is also standardized. `lookupHelperNamingStandard` fixes the
+cross-language lookup-helper families and the canonical helper profiles `lower-camel-rtc`,
+`upper-camel-rtc`, and `snake-case-rtc`. The TypeScript lookup-helper-naming module at
+`sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts` must keep
+`RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`, `RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, and
+`RTC_LOOKUP_HELPER_NAMING_STANDARD` aligned to that assembly-driven contract so reserved-language
+helper naming cannot drift across web/browser, Flutter/mobile, and future server/tooling
+workspaces.
 
 ## Default Provider
 
@@ -340,6 +383,13 @@ package catalog, provider activation catalog, capability catalog, provider exten
 language workspace catalog, provider-selection helpers, provider-package loader helpers,
 provider-support helpers, driver manager, and data source without forcing consumers onto private
 module paths.
+That exposure rule is materialized in
+`sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`, where
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`, and
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS` keep the TypeScript root export graph and the
+reserved Flutter/Python single-entrypoint families assembly-governed.
 
 The TypeScript root public entrypoint may additionally expose the provider package loader and
 installer SPI because that surface is provider-neutral package-boundary infrastructure, not a
@@ -415,6 +465,10 @@ Use it to rematerialize:
   boundaries, import provider modules, and atomically install provider adapters
 - the materialized TypeScript provider extension catalog at
   `sdkwork-rtc-sdk-typescript/src/provider-extension-catalog.ts`
+- the materialized TypeScript runtime-immutability module at
+  `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`
+- the materialized TypeScript root-public-surface module at
+  `sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`
 - the assembly-driven default provider constants inside that provider catalog
 - the TypeScript vendor SDK contract inside the materialized provider catalog entries
 - the TypeScript runtime bridge baseline and official vendor SDK requirement inside the materialized

@@ -29,6 +29,8 @@ provider catalog under `src/provider-catalog.ts` and the TypeScript capability c
 `src/capability-catalog.ts`.
 Provider extension metadata is also assembly-driven through `providerExtensionCatalog` and
 materialized into `src/provider-extension-catalog.ts`.
+The assembly-driven `runtimeImmutabilityStandard` is canonical for `runtime-frozen`,
+`immutable-snapshots`, `shallow-immutable-context`, and `mutable-native-client`.
 Runtime-created contract objects must remain immutable snapshots so adapter consumers cannot drift
 standard metadata, selection state, or negotiated capability results after construction.
 
@@ -101,8 +103,10 @@ Provider adapters must consume those standard vocabularies and must not invent a
 package-boundary status or root-public-policy terms locally.
 
 The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-`runtimeSurfaceStandard`, `errorCodeStandard`, `providerExtensionStandard`,
-`providerTierStandard`, and `languageMaturityStandard` are also canonical.
+`runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
+`lookupHelperNamingStandard`, `errorCodeStandard`, `providerExtensionStandard`,
+`providerTierStandard`, and
+`languageMaturityStandard` are also canonical.
 Provider adapters, catalogs, and docs must consume those top-level vocabularies instead of
 redeclaring capability categories, capability surfaces, extension access/status terms, provider
 tiers, or language maturity tiers in isolated module-local constants.
@@ -140,6 +144,23 @@ missing-runtime failure code.
 The TypeScript runtime-surface module at `src/runtime-surface.ts` keeps
 `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
 `RTC_RUNTIME_SURFACE_STANDARD` aligned to that contract.
+The TypeScript runtime-immutability module at `src/runtime-immutability.ts` keeps
+`RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and `RTC_RUNTIME_IMMUTABILITY_STANDARD` aligned to
+the assembly-driven runtime immutability contract.
+The TypeScript root-public-surface module at `src/root-public-surface.ts` keeps
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, and
+`RTC_ROOT_PUBLIC_SURFACE_STANDARD` aligned to the assembly-driven root public surface contract.
+The TypeScript lookup-helper-naming module at `src/lookup-helper-naming.ts` keeps
+`RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`,
+`RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, and `RTC_LOOKUP_HELPER_NAMING_STANDARD` aligned to the
+assembly-driven lookup helper naming contract so `lower-camel-rtc`, `upper-camel-rtc`, and
+`snake-case-rtc` stay standardized across adapters and reserved-language scaffolds.
 
 Provider adapters must not:
 
@@ -152,7 +173,8 @@ explicitly with `native_sdk_not_available`.
 This keeps the standard honest: the SDK unifies adapter shape and lifecycle semantics, but it does
 not invent a fake cross-provider media engine.
 Runtime-controller context wrappers must be shallow-immutable while preserving the mutable native
-SDK instance returned by `unwrap()`.
+SDK instance returned by `unwrap()`. In canonical top-level terms, they stay
+`shallow-immutable-context` while the vendor handle remains `mutable-native-client`.
 
 ## Provider Module Rule
 
@@ -312,6 +334,7 @@ queryable by `providerKey` instead of forcing downstream code to scan arrays. Th
 semantic contract is `provider catalog by provider key`, with language-idiomatic naming:
 `getRtcProviderByProviderKey(...)`, `GetRtcProviderByProviderKey(...)`, or
 `get_rtc_provider_by_provider_key(...)`.
+That naming split is governed by `lookupHelperNamingStandard`, not by provider-local convention.
 The TypeScript executable baseline keeps that lookup explicit through
 `getRtcProviderByProviderKey(...)` alongside `getBuiltinRtcProviderMetadataByKey(...)` and
 `getOfficialRtcProviderMetadataByKey(...)`.
@@ -326,6 +349,9 @@ The TypeScript executable baseline keeps provider extension lookup explicit thro
 Reserved non-TypeScript language workspaces must preserve the same semantics with
 language-idiomatic helper naming for capability and provider-extension catalogs, not just provider
 identity catalogs.
+They must also preserve the same helper-profile split:
+`lower-camel-rtc` for Flutter/Java/Swift/Kotlin, `upper-camel-rtc` for C#/Go, and
+`snake-case-rtc` for Rust/Python.
 Each reserved non-TypeScript language workspace must also declare
 `resolutionScaffold.providerPackageLoaderRelativePath` and ship a provider-package loader scaffold.
 That scaffold fixes the future package-resolution and installation boundary before runtime code
@@ -347,6 +373,9 @@ exists. It must preserve:
 Reserved root public entrypoints such as `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart` and
 `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py` must also re-expose that provider-package
 loader surface so consumers do not need private imports for the standard boundary.
+The canonical exposure terms are `root-public-builtin-only` for builtin provider modules that may
+cross the TypeScript root public boundary and `package-boundary-only` for non-builtin provider
+factories or modules that must remain package-scoped.
 Each official language must also expose a language workspace catalog so language identity, public
 package identity, maturity tier, runtime/control support, current role, workspace summary, and
 role highlights stay machine-readable without scraping README prose. That catalog must preserve

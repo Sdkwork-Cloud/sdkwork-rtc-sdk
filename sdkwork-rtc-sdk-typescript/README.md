@@ -46,6 +46,29 @@ The shared runtime-surface module at `src/runtime-surface.ts` materializes
 `runtimeSurfaceStandard` into `RTC_RUNTIME_SURFACE_METHODS`,
 `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD` so the provider-neutral
 runtime method vocabulary and missing-runtime failure semantics stay assembly-governed.
+The shared runtime-immutability module at `src/runtime-immutability.ts` materializes
+`runtimeImmutabilityStandard` into `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
+`RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM`, and
+`RTC_RUNTIME_IMMUTABILITY_STANDARD` so runtime-frozen metadata, immutable snapshot contracts,
+shallow-immutable runtime-controller contexts, and mutable native-client preservation stay
+assembly-governed.
+The shared root-public-surface module at `src/root-public-surface.ts` materializes
+`rootPublicSurfaceStandard` into
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
+`RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_INLINE_HELPER_NAMES`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`,
+`RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS`, and
+`RTC_ROOT_PUBLIC_SURFACE_STANDARD` so the TypeScript root export graph, builtin-provider
+root exposure, and reserved single-entrypoint families stay assembly-governed.
+The shared lookup-helper-naming module at `src/lookup-helper-naming.ts` materializes
+`lookupHelperNamingStandard` into `RTC_LOOKUP_HELPER_NAMING_PROFILE_TERMS`,
+`RTC_LOOKUP_HELPER_NAMING_FAMILY_TERMS`, and `RTC_LOOKUP_HELPER_NAMING_STANDARD` so the
+`lower-camel-rtc`, `upper-camel-rtc`, and `snake-case-rtc` helper profiles stay
+assembly-governed across the web/browser baseline and the reserved mobile/server language
+workspaces.
 
 Default provider contract:
 

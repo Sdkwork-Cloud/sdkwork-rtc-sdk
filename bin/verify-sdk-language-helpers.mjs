@@ -1,3 +1,5 @@
+import { RTC_LOOKUP_HELPER_NAMING_PROFILES } from './rtc-standard-contract-constants.mjs';
+
 export function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -25,249 +27,309 @@ export function matchesReservedLanguageToken(language, content, token) {
   return false;
 }
 
+function getLookupHelperNamingProfile(language) {
+  for (const [profileKey, profile] of Object.entries(RTC_LOOKUP_HELPER_NAMING_PROFILES)) {
+    if (profile.languages.includes(language)) {
+      return profileKey;
+    }
+  }
+
+  throw new Error(`Unsupported reserved language lookup helper profile: ${language}`);
+}
+
+function getLookupHelperNames(language) {
+  return RTC_LOOKUP_HELPER_NAMING_PROFILES[getLookupHelperNamingProfile(language)].helpers;
+}
+
+function buildHelperPattern(helperName) {
+  return new RegExp(escapeRegExp(helperName));
+}
+
 export function getReservedLanguageLookupHelperPatterns(language) {
+  const helperNames = getLookupHelperNames(language);
+
   switch (language) {
     case 'flutter':
       return {
-        providerCatalog: [/getRtcProviderByProviderKey/],
-        providerPackageCatalog: [/getRtcProviderPackageByProviderKey/, /getRtcProviderPackageByPackageIdentity/],
-        providerActivationCatalog: [/getRtcProviderActivationByProviderKey/],
-        capabilityCatalog: [/getRtcCapabilityCatalog/, /getRtcCapabilityDescriptor/],
-        providerExtensionCatalog: [
-          /getRtcProviderExtensionCatalog/,
-          /getRtcProviderExtensionDescriptor/,
-          /getRtcProviderExtensionsForProvider/,
-          /getRtcProviderExtensions\(/,
-          /hasRtcProviderExtension/,
+        providerCatalog: [buildHelperPattern(helperNames.providerCatalogByProviderKey)],
+        providerPackageCatalog: [
+          buildHelperPattern(helperNames.providerPackageByProviderKey),
+          buildHelperPattern(helperNames.providerPackageByPackageIdentity),
         ],
-        languageWorkspaceCatalog: [/getRtcLanguageWorkspaceByLanguage/],
+        providerActivationCatalog: [
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+        ],
+        capabilityCatalog: [
+          buildHelperPattern(helperNames.capabilityCatalog),
+          buildHelperPattern(helperNames.capabilityDescriptorByCapabilityKey),
+        ],
+        providerExtensionCatalog: [
+          buildHelperPattern(helperNames.providerExtensionCatalog),
+          buildHelperPattern(helperNames.providerExtensionDescriptorByExtensionKey),
+          buildHelperPattern(helperNames.providerExtensionsForProvider),
+          buildHelperPattern(helperNames.providerExtensionsByExtensionKeys),
+          buildHelperPattern(helperNames.providerExtensionMembership),
+        ],
+        languageWorkspaceCatalog: [buildHelperPattern(helperNames.languageWorkspaceByLanguage)],
         providerSelection: [
           /rtcProviderSelectionSources/,
           /rtcProviderSelectionPrecedence/,
           /ParsedRtcProviderUrl/,
-          /parseRtcProviderUrl/,
-          /resolveRtcProviderSelection/,
+          buildHelperPattern(helperNames.providerUrlParser),
+          buildHelperPattern(helperNames.providerSelectionResolver),
         ],
         providerSupport: [
           /rtcProviderSupportStatuses/,
           /RtcProviderSupportStateRequest/,
-          /resolveRtcProviderSupportStatus/,
-          /createRtcProviderSupportState/,
+          buildHelperPattern(helperNames.providerSupportStatusResolver),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
         providerPackageLoader: [
           /RtcProviderPackageLoadRequest/,
           /RtcResolvedProviderPackageLoadTarget/,
           /RtcProviderPackageLoader/,
-          /createRtcProviderPackageLoader/,
-          /resolveRtcProviderPackageLoadTarget/,
-          /loadRtcProviderModule/,
-          /installRtcProviderPackage/,
-          /installRtcProviderPackages/,
+          buildHelperPattern(helperNames.providerPackageLoaderFactory),
+          buildHelperPattern(helperNames.providerPackageLoadTargetResolver),
+          buildHelperPattern(helperNames.providerModuleLoader),
+          buildHelperPattern(helperNames.singleProviderPackageInstaller),
+          buildHelperPattern(helperNames.batchProviderPackageInstaller),
           /provider_package_not_found/,
           /provider_package_identity_mismatch/,
           /provider_package_load_failed/,
           /provider_module_export_missing/,
         ],
         driverManagerDelegates: [
-          /resolveRtcProviderSelection/,
-          /getRtcProviderByProviderKey/,
-          /getRtcProviderActivationByProviderKey/,
-          /createRtcProviderSupportState/,
+          buildHelperPattern(helperNames.providerSelectionResolver),
+          buildHelperPattern(helperNames.providerCatalogByProviderKey),
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
       };
     case 'rust':
       return {
-        providerCatalog: [/get_rtc_provider_by_provider_key/],
-        providerPackageCatalog: [/get_rtc_provider_package_by_provider_key/, /get_rtc_provider_package_by_package_identity/],
-        providerActivationCatalog: [/get_rtc_provider_activation_by_provider_key/],
-        capabilityCatalog: [/get_rtc_capability_catalog/, /get_rtc_capability_descriptor/],
-        providerExtensionCatalog: [
-          /get_rtc_provider_extension_catalog/,
-          /get_rtc_provider_extension_descriptor/,
-          /get_rtc_provider_extensions_for_provider/,
-          /get_rtc_provider_extensions/,
-          /has_rtc_provider_extension/,
+        providerCatalog: [buildHelperPattern(helperNames.providerCatalogByProviderKey)],
+        providerPackageCatalog: [
+          buildHelperPattern(helperNames.providerPackageByProviderKey),
+          buildHelperPattern(helperNames.providerPackageByPackageIdentity),
         ],
-        languageWorkspaceCatalog: [/get_rtc_language_workspace_by_language/],
+        providerActivationCatalog: [
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+        ],
+        capabilityCatalog: [
+          buildHelperPattern(helperNames.capabilityCatalog),
+          buildHelperPattern(helperNames.capabilityDescriptorByCapabilityKey),
+        ],
+        providerExtensionCatalog: [
+          buildHelperPattern(helperNames.providerExtensionCatalog),
+          buildHelperPattern(helperNames.providerExtensionDescriptorByExtensionKey),
+          buildHelperPattern(helperNames.providerExtensionsForProvider),
+          buildHelperPattern(helperNames.providerExtensionsByExtensionKeys),
+          buildHelperPattern(helperNames.providerExtensionMembership),
+        ],
+        languageWorkspaceCatalog: [buildHelperPattern(helperNames.languageWorkspaceByLanguage)],
         providerSelection: [
           /RTC_PROVIDER_SELECTION_SOURCES/,
           /RTC_PROVIDER_SELECTION_PRECEDENCE/,
           /ParsedRtcProviderUrl/,
-          /parse_rtc_provider_url/,
-          /resolve_rtc_provider_selection/,
+          buildHelperPattern(helperNames.providerUrlParser),
+          buildHelperPattern(helperNames.providerSelectionResolver),
         ],
         providerSupport: [
           /RTC_PROVIDER_SUPPORT_STATUSES/,
           /RtcProviderSupportStateRequest/,
-          /resolve_rtc_provider_support_status/,
-          /create_rtc_provider_support_state/,
+          buildHelperPattern(helperNames.providerSupportStatusResolver),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
         providerPackageLoader: [
           /RtcProviderPackageLoadRequest/,
           /RtcResolvedProviderPackageLoadTarget/,
           /RtcProviderPackageLoader/,
-          /create_rtc_provider_package_loader/,
-          /resolve_rtc_provider_package_load_target/,
-          /load_rtc_provider_module/,
-          /install_rtc_provider_package/,
-          /install_rtc_provider_packages/,
+          buildHelperPattern(helperNames.providerPackageLoaderFactory),
+          buildHelperPattern(helperNames.providerPackageLoadTargetResolver),
+          buildHelperPattern(helperNames.providerModuleLoader),
+          buildHelperPattern(helperNames.singleProviderPackageInstaller),
+          buildHelperPattern(helperNames.batchProviderPackageInstaller),
           /provider_package_not_found/,
           /provider_package_identity_mismatch/,
           /provider_package_load_failed/,
           /provider_module_export_missing/,
         ],
         driverManagerDelegates: [
-          /resolve_rtc_provider_selection/,
-          /get_rtc_provider_by_provider_key/,
-          /get_rtc_provider_activation_by_provider_key/,
-          /create_rtc_provider_support_state/,
+          buildHelperPattern(helperNames.providerSelectionResolver),
+          buildHelperPattern(helperNames.providerCatalogByProviderKey),
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
       };
     case 'java':
     case 'swift':
     case 'kotlin':
       return {
-        providerCatalog: [/getRtcProviderByProviderKey/],
-        providerPackageCatalog: [/getRtcProviderPackageByProviderKey/, /getRtcProviderPackageByPackageIdentity/],
-        providerActivationCatalog: [/getRtcProviderActivationByProviderKey/],
-        capabilityCatalog: [/getRtcCapabilityCatalog/, /getRtcCapabilityDescriptor/],
-        providerExtensionCatalog: [
-          /getRtcProviderExtensionCatalog/,
-          /getRtcProviderExtensionDescriptor/,
-          /getRtcProviderExtensionsForProvider/,
-          /getRtcProviderExtensions/,
-          /hasRtcProviderExtension/,
+        providerCatalog: [buildHelperPattern(helperNames.providerCatalogByProviderKey)],
+        providerPackageCatalog: [
+          buildHelperPattern(helperNames.providerPackageByProviderKey),
+          buildHelperPattern(helperNames.providerPackageByPackageIdentity),
         ],
-        languageWorkspaceCatalog: [/getRtcLanguageWorkspaceByLanguage/],
+        providerActivationCatalog: [
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+        ],
+        capabilityCatalog: [
+          buildHelperPattern(helperNames.capabilityCatalog),
+          buildHelperPattern(helperNames.capabilityDescriptorByCapabilityKey),
+        ],
+        providerExtensionCatalog: [
+          buildHelperPattern(helperNames.providerExtensionCatalog),
+          buildHelperPattern(helperNames.providerExtensionDescriptorByExtensionKey),
+          buildHelperPattern(helperNames.providerExtensionsForProvider),
+          buildHelperPattern(helperNames.providerExtensionsByExtensionKeys),
+          buildHelperPattern(helperNames.providerExtensionMembership),
+        ],
+        languageWorkspaceCatalog: [buildHelperPattern(helperNames.languageWorkspaceByLanguage)],
         providerSelection: [
           /RTC_PROVIDER_SELECTION_SOURCES|rtcProviderSelectionSources/,
           /RTC_PROVIDER_SELECTION_PRECEDENCE|rtcProviderSelectionPrecedence/,
           /ParsedRtcProviderUrl/,
-          /parseRtcProviderUrl/,
-          /resolveRtcProviderSelection/,
+          buildHelperPattern(helperNames.providerUrlParser),
+          buildHelperPattern(helperNames.providerSelectionResolver),
         ],
         providerSupport: [
           /RTC_PROVIDER_SUPPORT_STATUSES|rtcProviderSupportStatuses/,
           /RtcProviderSupportStateRequest/,
-          /resolveRtcProviderSupportStatus/,
-          /createRtcProviderSupportState/,
+          buildHelperPattern(helperNames.providerSupportStatusResolver),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
         providerPackageLoader: [
           /RtcProviderPackageLoadRequest/,
           /RtcResolvedProviderPackageLoadTarget/,
           /RtcProviderPackageLoader/,
-          /createRtcProviderPackageLoader/,
-          /resolveRtcProviderPackageLoadTarget/,
-          /loadRtcProviderModule/,
-          /installRtcProviderPackage/,
-          /installRtcProviderPackages/,
+          buildHelperPattern(helperNames.providerPackageLoaderFactory),
+          buildHelperPattern(helperNames.providerPackageLoadTargetResolver),
+          buildHelperPattern(helperNames.providerModuleLoader),
+          buildHelperPattern(helperNames.singleProviderPackageInstaller),
+          buildHelperPattern(helperNames.batchProviderPackageInstaller),
           /provider_package_not_found/,
           /provider_package_identity_mismatch/,
           /provider_package_load_failed/,
           /provider_module_export_missing/,
         ],
         driverManagerDelegates: [
-          /resolveRtcProviderSelection/,
-          /getRtcProviderByProviderKey/,
-          /getRtcProviderActivationByProviderKey/,
-          /createRtcProviderSupportState/,
+          buildHelperPattern(helperNames.providerSelectionResolver),
+          buildHelperPattern(helperNames.providerCatalogByProviderKey),
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
       };
     case 'csharp':
     case 'go':
       return {
-        providerCatalog: [/GetRtcProviderByProviderKey/],
-        providerPackageCatalog: [/GetRtcProviderPackageByProviderKey/, /GetRtcProviderPackageByPackageIdentity/],
-        providerActivationCatalog: [/GetRtcProviderActivationByProviderKey/],
-        capabilityCatalog: [/GetRtcCapabilityCatalog/, /GetRtcCapabilityDescriptor/],
-        providerExtensionCatalog: [
-          /GetRtcProviderExtensionCatalog/,
-          /GetRtcProviderExtensionDescriptor/,
-          /GetRtcProviderExtensionsForProvider/,
-          /GetRtcProviderExtensions/,
-          /HasRtcProviderExtension/,
+        providerCatalog: [buildHelperPattern(helperNames.providerCatalogByProviderKey)],
+        providerPackageCatalog: [
+          buildHelperPattern(helperNames.providerPackageByProviderKey),
+          buildHelperPattern(helperNames.providerPackageByPackageIdentity),
         ],
-        languageWorkspaceCatalog: [/GetRtcLanguageWorkspaceByLanguage/],
+        providerActivationCatalog: [
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+        ],
+        capabilityCatalog: [
+          buildHelperPattern(helperNames.capabilityCatalog),
+          buildHelperPattern(helperNames.capabilityDescriptorByCapabilityKey),
+        ],
+        providerExtensionCatalog: [
+          buildHelperPattern(helperNames.providerExtensionCatalog),
+          buildHelperPattern(helperNames.providerExtensionDescriptorByExtensionKey),
+          buildHelperPattern(helperNames.providerExtensionsForProvider),
+          buildHelperPattern(helperNames.providerExtensionsByExtensionKeys),
+          buildHelperPattern(helperNames.providerExtensionMembership),
+        ],
+        languageWorkspaceCatalog: [buildHelperPattern(helperNames.languageWorkspaceByLanguage)],
         providerSelection: [
           /RtcProviderSelectionSources/,
           /RtcProviderSelectionPrecedence/,
           /ParsedRtcProviderUrl/,
-          /ParseRtcProviderUrl/,
-          /ResolveRtcProviderSelection/,
+          buildHelperPattern(helperNames.providerUrlParser),
+          buildHelperPattern(helperNames.providerSelectionResolver),
         ],
         providerSupport: [
           /RtcProviderSupportStatuses/,
           /RtcProviderSupportStateRequest/,
-          /ResolveRtcProviderSupportStatus/,
-          /CreateRtcProviderSupportState/,
+          buildHelperPattern(helperNames.providerSupportStatusResolver),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
         providerPackageLoader: [
           /RtcProviderPackageLoadRequest/,
           /RtcResolvedProviderPackageLoadTarget/,
           /RtcProviderPackageLoader/,
-          /CreateRtcProviderPackageLoader/,
-          /ResolveRtcProviderPackageLoadTarget/,
-          /LoadRtcProviderModule/,
-          /InstallRtcProviderPackage/,
-          /InstallRtcProviderPackages/,
+          buildHelperPattern(helperNames.providerPackageLoaderFactory),
+          buildHelperPattern(helperNames.providerPackageLoadTargetResolver),
+          buildHelperPattern(helperNames.providerModuleLoader),
+          buildHelperPattern(helperNames.singleProviderPackageInstaller),
+          buildHelperPattern(helperNames.batchProviderPackageInstaller),
           /provider_package_not_found/,
           /provider_package_identity_mismatch/,
           /provider_package_load_failed/,
           /provider_module_export_missing/,
         ],
         driverManagerDelegates: [
-          /ResolveRtcProviderSelection/,
-          /GetRtcProviderByProviderKey/,
-          /GetRtcProviderActivationByProviderKey/,
-          /CreateRtcProviderSupportState/,
+          buildHelperPattern(helperNames.providerSelectionResolver),
+          buildHelperPattern(helperNames.providerCatalogByProviderKey),
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
       };
     case 'python':
       return {
-        providerCatalog: [/get_rtc_provider_by_provider_key/],
-        providerPackageCatalog: [/get_rtc_provider_package_by_provider_key/, /get_rtc_provider_package_by_package_identity/],
-        providerActivationCatalog: [/get_rtc_provider_activation_by_provider_key/],
-        capabilityCatalog: [/get_rtc_capability_catalog/, /get_rtc_capability_descriptor/],
-        providerExtensionCatalog: [
-          /get_rtc_provider_extension_catalog/,
-          /get_rtc_provider_extension_descriptor/,
-          /get_rtc_provider_extensions_for_provider/,
-          /get_rtc_provider_extensions/,
-          /has_rtc_provider_extension/,
+        providerCatalog: [buildHelperPattern(helperNames.providerCatalogByProviderKey)],
+        providerPackageCatalog: [
+          buildHelperPattern(helperNames.providerPackageByProviderKey),
+          buildHelperPattern(helperNames.providerPackageByPackageIdentity),
         ],
-        languageWorkspaceCatalog: [/get_rtc_language_workspace_by_language/],
+        providerActivationCatalog: [
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+        ],
+        capabilityCatalog: [
+          buildHelperPattern(helperNames.capabilityCatalog),
+          buildHelperPattern(helperNames.capabilityDescriptorByCapabilityKey),
+        ],
+        providerExtensionCatalog: [
+          buildHelperPattern(helperNames.providerExtensionCatalog),
+          buildHelperPattern(helperNames.providerExtensionDescriptorByExtensionKey),
+          buildHelperPattern(helperNames.providerExtensionsForProvider),
+          buildHelperPattern(helperNames.providerExtensionsByExtensionKeys),
+          buildHelperPattern(helperNames.providerExtensionMembership),
+        ],
+        languageWorkspaceCatalog: [buildHelperPattern(helperNames.languageWorkspaceByLanguage)],
         providerSelection: [
           /RTC_PROVIDER_SELECTION_SOURCES/,
           /RTC_PROVIDER_SELECTION_PRECEDENCE/,
           /ParsedRtcProviderUrl/,
-          /parse_rtc_provider_url/,
-          /resolve_rtc_provider_selection/,
+          buildHelperPattern(helperNames.providerUrlParser),
+          buildHelperPattern(helperNames.providerSelectionResolver),
         ],
         providerSupport: [
           /RTC_PROVIDER_SUPPORT_STATUSES/,
           /RtcProviderSupportStateRequest/,
-          /resolve_rtc_provider_support_status/,
-          /create_rtc_provider_support_state/,
+          buildHelperPattern(helperNames.providerSupportStatusResolver),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
         providerPackageLoader: [
           /RtcProviderPackageLoadRequest/,
           /RtcResolvedProviderPackageLoadTarget/,
           /RtcProviderPackageLoader/,
-          /create_rtc_provider_package_loader/,
-          /resolve_rtc_provider_package_load_target/,
-          /load_rtc_provider_module/,
-          /install_rtc_provider_package/,
-          /install_rtc_provider_packages/,
+          buildHelperPattern(helperNames.providerPackageLoaderFactory),
+          buildHelperPattern(helperNames.providerPackageLoadTargetResolver),
+          buildHelperPattern(helperNames.providerModuleLoader),
+          buildHelperPattern(helperNames.singleProviderPackageInstaller),
+          buildHelperPattern(helperNames.batchProviderPackageInstaller),
           /provider_package_not_found/,
           /provider_package_identity_mismatch/,
           /provider_package_load_failed/,
           /provider_module_export_missing/,
         ],
         driverManagerDelegates: [
-          /resolve_rtc_provider_selection/,
-          /get_rtc_provider_by_provider_key/,
-          /get_rtc_provider_activation_by_provider_key/,
-          /create_rtc_provider_support_state/,
+          buildHelperPattern(helperNames.providerSelectionResolver),
+          buildHelperPattern(helperNames.providerCatalogByProviderKey),
+          buildHelperPattern(helperNames.providerActivationByProviderKey),
+          buildHelperPattern(helperNames.providerSupportStateFactory),
         ],
       };
     default:
