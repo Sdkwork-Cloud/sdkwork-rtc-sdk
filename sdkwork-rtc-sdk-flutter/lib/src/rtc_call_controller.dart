@@ -8,6 +8,7 @@ export 'rtc_call_controller_models.dart';
 import 'rtc_call_controller_message.dart';
 import 'rtc_call_controller_contract.dart';
 import 'rtc_call_controller_models.dart';
+import 'rtc_call_controller_state.dart';
 import 'rtc_call_session.dart';
 import 'rtc_call_types.dart';
 import 'rtc_errors.dart';
@@ -118,11 +119,11 @@ class StandardRtcCallController<TNativeClient> {
       _watchedConversationIds.add(conversationId);
     }
 
-    if (_watchedConversationIds.isEmpty && _activeSessionId == null) {
-      _controllerState = RtcCallControllerState.idle;
-    } else if (_activeSessionId == null) {
-      _controllerState = RtcCallControllerState.watching;
-    }
+    _controllerState = resolveRtcCallControllerWatchState(
+      watchedConversationCount: _watchedConversationIds.length,
+      activeSessionId: _activeSessionId,
+      controllerState: _controllerState,
+    );
 
     return _emitSnapshot();
   }
@@ -356,24 +357,27 @@ class StandardRtcCallController<TNativeClient> {
     if (signal.signalType == rtcCallAcceptedSignalType) {
       _controllerState = RtcCallControllerState.connected;
       _direction ??= RtcCallControllerDirection.outgoing;
-    } else if (signal.signalType == rtcCallRejectedSignalType ||
-        signal.signalType == rtcCallEndedSignalType) {
+    } else {
+      final nextState = resolveRtcCallControllerTerminalState(signal.signalType);
+      if (nextState == null) {
+        _emitSignal(signal);
+        return;
+      }
+
       await _callSession.leaveMedia();
       _callSession.reconcileSessionRecord(
         RtcCallSessionRecord(
           rtcSessionId: signal.rtcSessionId,
           conversationId: signal.conversationId,
           rtcMode: signal.rtcMode,
-          state: signal.signalType == rtcCallRejectedSignalType
+          state: nextState == RtcCallControllerState.rejected
               ? RtcCallState.rejected
               : RtcCallState.ended,
           signalingStreamId: signal.signalingStreamId,
           endedAt: signal.occurredAt,
         ),
       );
-      _controllerState = signal.signalType == rtcCallRejectedSignalType
-          ? RtcCallControllerState.rejected
-          : RtcCallControllerState.ended;
+      _controllerState = nextState;
       _activeInvitation = null;
       _clearActiveSessionSubscription();
     }
@@ -408,11 +412,10 @@ class StandardRtcCallController<TNativeClient> {
     final sessionSnapshot = _callSession.getSnapshot();
     final currentRtcSessionId =
         sessionSnapshot.rtcSessionId ?? _activeInvitation?.rtcSessionId;
-    final hasActiveCall = currentRtcSessionId != null &&
-        _controllerState != RtcCallControllerState.idle &&
-        _controllerState != RtcCallControllerState.watching &&
-        _controllerState != RtcCallControllerState.rejected &&
-        _controllerState != RtcCallControllerState.ended;
+    final hasActiveCall = hasRtcCallControllerActiveCall(
+      currentRtcSessionId: currentRtcSessionId,
+      controllerState: _controllerState,
+    );
 
     if (hasActiveCall && currentRtcSessionId != nextRtcSessionId) {
       throw RtcSdkException(
@@ -433,28 +436,11 @@ class StandardRtcCallController<TNativeClient> {
   }
 
   RtcCallControllerSnapshot _createSnapshot() {
-    final sessionSnapshot = _callSession.getSnapshot();
-    return RtcCallControllerSnapshot(
-      rtcSessionId: sessionSnapshot.rtcSessionId ?? _activeInvitation?.rtcSessionId,
-      conversationId:
-          sessionSnapshot.conversationId ?? _activeInvitation?.conversationId,
-      rtcMode: sessionSnapshot.rtcMode ?? _activeInvitation?.rtcMode,
-      roomId: sessionSnapshot.roomId ?? _activeInvitation?.roomId,
-      participantId: sessionSnapshot.participantId,
-      providerKey: sessionSnapshot.providerKey,
-      signalingStreamId:
-          sessionSnapshot.signalingStreamId ?? _activeInvitation?.signalingStreamId,
-      providerPluginId: sessionSnapshot.providerPluginId,
-      providerSessionId: sessionSnapshot.providerSessionId,
-      accessEndpoint: sessionSnapshot.accessEndpoint,
-      providerRegion: sessionSnapshot.providerRegion,
-      startedAt: sessionSnapshot.startedAt,
-      endedAt: sessionSnapshot.endedAt,
-      state: sessionSnapshot.state,
-      mediaConnectionState: sessionSnapshot.mediaConnectionState,
+    return createRtcCallControllerSnapshot(
+      sessionSnapshot: _callSession.getSnapshot(),
       controllerState: _controllerState,
-      direction: _direction,
       watchedConversationIds: _watchedConversationIds.toList(growable: false),
+      direction: _direction,
       activeInvitation: _activeInvitation,
       lastSignal: _lastSignal,
       lastError: _lastError,

@@ -44,6 +44,12 @@ import {
   publishRtcConversationSignal,
   toRtcIncomingCallInvitation,
 } from './call-controller-message.js';
+import {
+  createRtcCallControllerSnapshot,
+  hasRtcCallControllerActiveCall,
+  resolveRtcCallControllerTerminalState,
+  resolveRtcCallControllerWatchState,
+} from './call-controller-state.js';
 
 export class StandardRtcCallController<TNativeClient = unknown> {
   readonly #sdk: ImRtcCallControllerSdkLike;
@@ -100,6 +106,11 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     }
 
     await this.#reconnectInvitationWatch();
+    this.#controllerState = resolveRtcCallControllerWatchState({
+      watchedConversationCount: this.#watchedConversationIds.size,
+      activeSessionId: this.#activeSessionId,
+      controllerState: this.#controllerState,
+    });
     return this.#emitSnapshot();
   }
 
@@ -307,12 +318,14 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     if (signal.signalType === RTC_CALL_ACCEPTED_SIGNAL_TYPE) {
       this.#controllerState = 'connected';
       this.#direction ??= 'outgoing';
-    } else if (
-      signal.signalType === RTC_CALL_REJECTED_SIGNAL_TYPE
-      || signal.signalType === RTC_CALL_ENDED_SIGNAL_TYPE
-    ) {
+    } else {
+      const nextState = resolveRtcCallControllerTerminalState(signal.signalType);
+      if (!nextState) {
+        this.#emitSignal(signal);
+        return;
+      }
+
       await this.#callSession.leaveMedia();
-      const nextState = signal.signalType === RTC_CALL_REJECTED_SIGNAL_TYPE ? 'rejected' : 'ended';
       this.#callSession.reconcileSessionRecord(
         freezeRtcRuntimeValue<RtcCallSessionRecord>({
           rtcSessionId: signal.rtcSessionId,
@@ -335,7 +348,11 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     this.#disconnectInvitationWatch();
 
     if (!this.#watchedConversationIds.size) {
-      this.#controllerState = this.#activeSessionId ? this.#controllerState : 'idle';
+      this.#controllerState = resolveRtcCallControllerWatchState({
+        watchedConversationCount: this.#watchedConversationIds.size,
+        activeSessionId: this.#activeSessionId,
+        controllerState: this.#controllerState,
+      });
       return;
     }
 
@@ -381,9 +398,11 @@ export class StandardRtcCallController<TNativeClient = unknown> {
       }) ?? (() => {}),
     );
 
-    if (!this.#activeSessionId) {
-      this.#controllerState = 'watching';
-    }
+    this.#controllerState = resolveRtcCallControllerWatchState({
+      watchedConversationCount: this.#watchedConversationIds.size,
+      activeSessionId: this.#activeSessionId,
+      controllerState: this.#controllerState,
+    });
   }
 
   #disconnectInvitationWatch(): void {
@@ -444,13 +463,10 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   #ensureNoConflictingActiveCall(nextRtcSessionId: string): void {
     const currentSnapshot = this.#callSession.getSnapshot();
     const currentRtcSessionId = currentSnapshot.rtcSessionId ?? this.#activeInvitation?.rtcSessionId;
-    const controllerState = this.#controllerState;
-    const hasActiveCall =
-      currentRtcSessionId
-      && controllerState !== 'idle'
-      && controllerState !== 'watching'
-      && controllerState !== 'rejected'
-      && controllerState !== 'ended';
+    const hasActiveCall = hasRtcCallControllerActiveCall({
+      currentRtcSessionId,
+      controllerState: this.#controllerState,
+    });
 
     if (hasActiveCall && currentRtcSessionId !== nextRtcSessionId) {
       throw new RtcSdkException({
@@ -471,19 +487,11 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   }
 
   #createSnapshot(): RtcCallControllerSnapshot {
-    const sessionSnapshot = this.#callSession.getSnapshot();
-    return freezeRtcRuntimeValue({
-      ...sessionSnapshot,
-      rtcSessionId: sessionSnapshot.rtcSessionId ?? this.#activeInvitation?.rtcSessionId,
-      conversationId:
-        sessionSnapshot.conversationId ?? this.#activeInvitation?.conversationId,
-      rtcMode: sessionSnapshot.rtcMode ?? this.#activeInvitation?.rtcMode,
-      roomId: sessionSnapshot.roomId ?? this.#activeInvitation?.roomId,
-      signalingStreamId:
-        sessionSnapshot.signalingStreamId ?? this.#activeInvitation?.signalingStreamId,
+    return createRtcCallControllerSnapshot({
+      sessionSnapshot: this.#callSession.getSnapshot(),
       controllerState: this.#controllerState,
-      direction: this.#direction,
       watchedConversationIds: [...this.#watchedConversationIds],
+      direction: this.#direction,
       activeInvitation: this.#activeInvitation,
       lastSignal: this.#lastSignal,
       lastError: this.#lastError,
