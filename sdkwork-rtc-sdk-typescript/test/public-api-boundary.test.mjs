@@ -197,6 +197,8 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.getRtcProviderPackage, 'function');
   assert.equal(typeof sdk.createBuiltinRtcDriverManager, 'function');
   assert.equal(typeof sdk.createStandardRtcCallStack, 'function');
+  assert.equal(typeof sdk.createStandardRtcCallController, 'function');
+  assert.equal(typeof sdk.createStandardRtcCallControllerStack, 'function');
   assert.equal(typeof sdk.createRtcCallTrackId, 'function');
   assert.equal(typeof sdk.DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS, 'boolean');
   assert.equal(typeof sdk.registerRtcProviderModule, 'function');
@@ -216,11 +218,14 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.createTencentRtcDriver, 'function');
   assert.equal(typeof sdk.createImRtcSignalingAdapter, 'function');
   assert.equal(typeof sdk.StandardRtcCallSession, 'function');
+  assert.equal(typeof sdk.StandardRtcCallController, 'function');
   assert.equal(typeof sdk.VOLCENGINE_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.ALIYUN_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.TENCENT_RTC_PROVIDER_MODULE, 'object');
   assert.equal(sdk.RTC_CALL_TRACK_ID_SEPARATOR, '-');
   assert.equal(sdk.DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS, true);
+  assert.equal(sdk.RTC_CALL_INVITE_SIGNAL_TYPE, 'sdkwork.rtc.call.invite');
+  assert.equal(sdk.RTC_CALL_ACCEPTED_SIGNAL_TYPE, 'sdkwork.rtc.call.accepted');
   assert.equal(sdk.createRtcCallTrackId('rtc-session-1', 'audio'), 'rtc-session-1-audio');
   assert.equal(sdk.createRtcCallTrackId('rtc-session-1', 'screen-share'), 'rtc-session-1-screen-share');
 });

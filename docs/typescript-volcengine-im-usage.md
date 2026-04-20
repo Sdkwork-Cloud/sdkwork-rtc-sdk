@@ -8,7 +8,7 @@ This document describes the current executable TypeScript baseline of `sdkwork-r
 - Default web runtime path: official `@volcengine/rtc`
 - Default signaling integration path: `sdkwork-im-sdk`
 - Standard media entrypoint: `RtcDataSource`
-- Standard call/session entrypoint: `StandardRtcCallSession`
+- Standard call/session entrypoint: `StandardRtcCallController`
 
 ## Install
 
@@ -92,14 +92,17 @@ type RtcVolcengineWebNativeConfig = {
 Use this path when the app wants one standard session that combines:
 
 - IM-side RTC session creation/invite/accept/reject/end
-- realtime signal delivery through `sdkwork-im-sdk`
+- conversation-scoped incoming call discovery through `sdkwork-im-sdk`
+- realtime session signal delivery through `sdkwork-im-sdk`
 - provider participant credential issuance
 - Volcengine media join and auto publish
+- typed offer/answer/ice signaling over the RTC session stream
 
 ```ts
 import { ImSdkClient } from '@sdkwork/im-sdk';
 import {
-  createStandardRtcCallStack,
+  createStandardRtcCallControllerStack,
+  RTC_CALL_OFFER_SIGNAL_TYPE,
 } from '@sdkwork/rtc-sdk';
 
 const imSdk = new ImSdkClient({
@@ -107,11 +110,12 @@ const imSdk = new ImSdkClient({
   authToken: 'app-token',
 });
 
-const rtcStack = await createStandardRtcCallStack({
+const rtc = await createStandardRtcCallControllerStack({
   sdk: imSdk,
   connectOptions: {
     deviceId: 'device-1',
   },
+  watchConversationIds: ['conversation-1'],
   dataSourceConfig: {
     nativeConfig: {
       appId: 'volc-app-id',
@@ -119,11 +123,24 @@ const rtcStack = await createStandardRtcCallStack({
   },
 });
 
-rtcStack.callSession.onSignal((signal) => {
-  console.log(signal.signalType, signal.payload);
+rtc.callController.onEvent((event) => {
+  if (event.type === 'incoming_invitation') {
+    void rtc.callController.acceptIncoming({
+      rtcSessionId: event.invitation.rtcSessionId,
+      participantId: 'user-1',
+      autoPublish: {
+        audio: true,
+        video: true,
+      },
+    });
+  }
+
+  if (event.type === 'signal' && event.signal.signalType === RTC_CALL_OFFER_SIGNAL_TYPE) {
+    console.log('remote offer', event.signal.payload);
+  }
 });
 
-await rtcStack.callSession.startOutgoing({
+await rtc.callController.startOutgoing({
   rtcSessionId: 'rtc-session-1',
   conversationId: 'conversation-1',
   rtcMode: 'video_call',
@@ -136,11 +153,15 @@ await rtcStack.callSession.startOutgoing({
   },
 });
 
-await rtcStack.callSession.sendSignal('custom-control', {
-  action: 'pin_remote',
+await rtc.callController.sendOffer({
+  sdp: 'offer-sdp',
 });
 
-await rtcStack.callSession.end();
+await rtc.callController.sendIceCandidate({
+  candidate: 'candidate:1 1 udp 2122260223 10.0.0.2 55000 typ host',
+});
+
+await rtc.callController.end();
 ```
 
 ## Signaling Contract Mapping
@@ -156,11 +177,13 @@ standard call/signaling contract:
 - `sdk.rtc.postJsonSignal(...)` -> `sendSignal(...)`
 - `sdk.rtc.issueParticipantCredential(...)` -> `issueParticipantCredential(...)`
 - `sdk.connect(...).signals.onRtcSession(...)` -> `subscribeSessionSignals(...)`
+- `sdk.createSignalMessage(...)` + `sdk.send(...)` -> conversation-scoped invite publication
+- `sdk.connect(...).messages.onConversation(...)` -> incoming invite discovery
 
 ## Runtime Guarantees
 
-- `createStandardRtcCallStack(...)` returns `driverManager`, `dataSource`, `mediaClient`,
-  `signaling`, and `callSession` as one explicit standard bundle
+- `createStandardRtcCallControllerStack(...)` returns `driverManager`, `dataSource`,
+  `mediaClient`, `signaling`, `callSession`, and `callController` as one explicit standard bundle
 - `createRtcCallTrackId(rtcSessionId, kind)` is the standard cross-language track id helper and
   yields canonical ids such as `rtc-session-1-audio`
 - TypeScript now defaults `subscribeSignals` to `true`, aligned with Flutter/mobile
@@ -169,3 +192,5 @@ standard call/signaling contract:
 - official vendor SDKs are not bundled into the RTC standard package
 - signal payloads are exposed as parsed JSON when possible and as raw strings otherwise
 - the call/session layer does not leak IM transport DTOs into the RTC public standard
+- `StandardRtcCallController` is the default orchestration layer for invite discovery, remote
+  lifecycle reconciliation, and typed offer/answer/ice signaling

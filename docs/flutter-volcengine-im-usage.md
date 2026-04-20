@@ -8,7 +8,7 @@ This document describes the current executable Flutter/mobile baseline of `sdkwo
 - Default mobile runtime path: official `package:volc_engine_rtc`
 - Default signaling integration path: `sdkwork-im-sdk` through `package:im_sdk/im_sdk.dart`
 - Standard media entrypoint: `RtcDataSource`
-- Standard call/session entrypoint: `StandardRtcCallSession`
+- Standard call/session entrypoint: `StandardRtcCallController`
 
 ## Install
 
@@ -96,23 +96,26 @@ const RtcVolcengineFlutterNativeConfig(
 Use this path when the app wants one standard session that combines:
 
 - IM-side RTC session creation, invite, accept, reject, and end
-- realtime signal delivery through `sdkwork-im-sdk`
+- conversation-scoped incoming call discovery through `sdkwork-im-sdk`
+- realtime session signal delivery through `sdkwork-im-sdk`
 - provider participant credential issuance
 - Volcengine media join and auto publish
+- typed offer/answer/ice signaling over the RTC session stream
 
 ```dart
 import 'package:im_sdk/im_sdk.dart';
 import 'package:rtc_sdk/rtc_sdk.dart';
 
-Future<void> startOutgoingRtcCall({
+Future<void> startRtcCall({
   required ImSdkClient imSdk,
   required String currentUserId,
 }) async {
-  final rtcStack =
-      await createStandardRtcCallStack<RtcVolcengineFlutterNativeClient>(
-    CreateStandardRtcCallStackOptions(
+  final rtc = await createStandardRtcCallControllerStack<
+      RtcVolcengineFlutterNativeClient>(
+    CreateStandardRtcCallControllerStackOptions(
       sdk: imSdk,
       deviceId: 'device-1',
+      watchConversationIds: const <String>['conversation-1'],
       dataSourceOptions: const RtcDataSourceOptions(
         nativeConfig: RtcVolcengineFlutterNativeConfig(
           appId: 'volc-app-id',
@@ -121,12 +124,25 @@ Future<void> startOutgoingRtcCall({
     ),
   );
 
-  rtcStack.callSession.onSignal((signal) {
-    print('${signal.signalType}: ${signal.rawPayload}');
+  rtc.callController.onEvent((event) {
+    if (event.type == RtcCallControllerEventType.incomingInvitation) {
+      unawaited(
+        rtc.callController.acceptIncoming(
+          RtcCallControllerAcceptOptions(
+            rtcSessionId: event.invitation!.rtcSessionId,
+            participantId: currentUserId,
+            autoPublish: const RtcCallAutoPublishOptions(
+              audio: true,
+              video: true,
+            ),
+          ),
+        ),
+      );
+    }
   });
 
-  await rtcStack.callSession.startOutgoing(
-    RtcOutgoingCallOptions(
+  await rtc.callController.startOutgoing(
+    RtcCallControllerOutgoingOptions(
       rtcSessionId: 'rtc-session-1',
       conversationId: 'conversation-1',
       rtcMode: 'video_call',
@@ -140,14 +156,19 @@ Future<void> startOutgoingRtcCall({
     ),
   );
 
-  await rtcStack.callSession.sendSignal(
-    'custom-control',
-    <String, Object?>{
-      'action': 'pin_remote',
-    },
+  await rtc.callController.sendOffer(
+    const RtcCallSessionDescriptionPayload(
+      sdp: 'offer-sdp',
+    ),
   );
 
-  await rtcStack.callSession.end();
+  await rtc.callController.sendIceCandidate(
+    const RtcCallIceCandidatePayload(
+      candidate: 'candidate:1 1 udp 2122260223 10.0.0.2 55000 typ host',
+    ),
+  );
+
+  await rtc.callController.end();
 }
 ```
 
@@ -164,17 +185,21 @@ standard call/signaling contract:
 - `sdk.rtc.postJsonSignal(...)` -> `sendSignal(...)`
 - `sdk.rtc.issueParticipantCredential(...)` -> `issueParticipantCredential(...)`
 - `sdk.realtime.pullEvents(...)` -> internal shared RTC realtime dispatcher
+- `sdk.conversations.postMessage(...)` with a signal part -> conversation-scoped invite publication
 
 ## Runtime Guarantees
 
-- `createStandardRtcCallStack(...)` returns `driverManager`, `dataSource`, `mediaClient`,
-  `signaling`, and `callSession` in one explicit standard bundle
+- `createStandardRtcCallControllerStack(...)` returns `driverManager`, `dataSource`,
+  `mediaClient`, `signaling`, `callSession`, `realtimeDispatcher`, and `callController`
+  in one explicit standard bundle
 - `createRtcCallTrackId(rtcSessionId, kind)` is the standard cross-language track id helper and
   yields canonical ids such as `rtc-session-1-audio`
 - `RtcDriverManager()` auto-registers the default Volcengine Flutter driver
 - `RtcDataSource()` defaults to `volcengine`
 - the call/session layer does not leak IM transport DTOs into the RTC public standard
-- `StandardRtcCallSession` composes signaling and media into one provider-neutral call flow
+- `StandardRtcCallController` is the default orchestration layer for invite discovery, remote
+  lifecycle reconciliation, and typed offer/answer/ice signaling
+- `StandardRtcCallSession` remains the focused single-session executor under the controller
 - `RtcJoinOptions.token` is sourced from IM-issued participant credentials in the standard call
   flow instead of hardcoding vendor tokens in the caller
 - audio and video auto-publish are standardized through `RtcCallAutoPublishOptions`

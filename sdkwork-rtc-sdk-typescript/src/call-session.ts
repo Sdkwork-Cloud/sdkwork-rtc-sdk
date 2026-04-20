@@ -105,6 +105,26 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
     return this.getSnapshot();
   }
 
+  reconcileSessionRecord(record: RtcCallSessionRecord): RtcCallSessionSnapshot {
+    this.#applySessionRecord(record);
+    return this.getSnapshot();
+  }
+
+  async leaveMedia(): Promise<RtcCallSessionSnapshot> {
+    if (this.#snapshot.mediaConnectionState !== 'joined') {
+      return this.getSnapshot();
+    }
+
+    const mediaSession = await this.#mediaClient.leave();
+    this.#snapshot = {
+      ...this.#snapshot,
+      providerKey: mediaSession.providerKey,
+      mediaConnectionState: mediaSession.connectionState,
+    };
+
+    return this.getSnapshot();
+  }
+
   async sendSignal(signalType: string, payload: unknown): Promise<RtcCallSignal> {
     const rtcSessionId = this.#requireSessionId();
     return this.#signaling.sendSignal(rtcSessionId, signalType, payload, {
@@ -114,12 +134,7 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
 
   async end(): Promise<RtcCallSessionSnapshot> {
     const rtcSessionId = this.#requireSessionId();
-
-    if (this.#snapshot.mediaConnectionState === 'joined') {
-      const mediaSession = await this.#mediaClient.leave();
-      this.#snapshot.mediaConnectionState = mediaSession.connectionState;
-      this.#snapshot.providerKey = mediaSession.providerKey;
-    }
+    await this.leaveMedia();
 
     const endedSession = await this.#signaling.endSession(rtcSessionId);
     this.#applySessionRecord(endedSession);

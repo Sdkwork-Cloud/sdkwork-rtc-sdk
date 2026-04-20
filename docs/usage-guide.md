@@ -101,8 +101,8 @@ The current web runtime path is:
 - default provider: `volcengine`
 - default vendor runtime: official `@volcengine/rtc`
 - default signaling integration: `sdkwork-im-sdk`
-- standard call/session entrypoint: `StandardRtcCallSession`
-- recommended quick-start entrypoint: `createStandardRtcCallStack(...)`
+- standard call/session entrypoint: `StandardRtcCallController`
+- recommended quick-start entrypoint: `createStandardRtcCallControllerStack(...)`
 
 Use the detailed guide here:
 
@@ -116,8 +116,8 @@ The current mobile runtime path is:
 - default provider: `volcengine`
 - default vendor runtime: official `package:volc_engine_rtc`
 - default signaling integration: `sdkwork-im-sdk` through `package:im_sdk/im_sdk.dart`
-- standard call/session entrypoint: `StandardRtcCallSession`
-- recommended quick-start entrypoint: `createStandardRtcCallStack(...)`
+- standard call/session entrypoint: `StandardRtcCallController`
+- recommended quick-start entrypoint: `createStandardRtcCallControllerStack(...)`
 
 Use the detailed guide here:
 
@@ -138,6 +138,8 @@ For the current runnable baselines, this boundary is already materialized:
 - Flutter binds the standard surface to the official Volcengine Flutter SDK
 - both baselines compose `sdkwork-im-sdk` signaling for RTC session lifecycle and participant
   credential issuance
+- both baselines publish call invites over conversation-scoped IM signals and reconcile remote
+  accept, reject, end, SDP, and ICE events through the standard `CallController`
 
 ## 7. Non-Builtin Provider Packages
 
@@ -211,6 +213,7 @@ Current reality is straightforward:
 
 - `volcengine` is the default provider
 - TypeScript and Flutter are both real runnable baselines now
-- `sdkwork-im-sdk` is the standard signaling path for the current end-to-end call flow
+- `sdkwork-im-sdk` is the standard signaling path for invite discovery, RTC lifecycle, and WebRTC
+  signal exchange in the current end-to-end call flow
 - the remaining language workspaces stay standardized and extensible without pretending they are
   already executable runtimes

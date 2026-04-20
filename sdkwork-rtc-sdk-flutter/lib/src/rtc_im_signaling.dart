@@ -12,12 +12,14 @@ class CreateImRtcSignalingAdapterOptions {
     required this.deviceId,
     this.pollingInterval = const Duration(seconds: 1),
     this.pullLimit = 50,
+    this.realtimeDispatcher,
   });
 
   final ImSdkClient sdk;
   final String deviceId;
   final Duration pollingInterval;
   final int pullLimit;
+  final RtcImRealtimeDispatcher? realtimeDispatcher;
 }
 
 RtcCallSignalingAdapter createImRtcSignalingAdapter(
@@ -29,10 +31,10 @@ RtcCallSignalingAdapter createImRtcSignalingAdapter(
 final class _ImRtcSignalingAdapter implements RtcCallSignalingAdapter {
   _ImRtcSignalingAdapter(CreateImRtcSignalingAdapterOptions options)
       : _sdk = options.sdk,
-        _dispatcher = _ImRtcRealtimeDispatcher(options);
+        _dispatcher = options.realtimeDispatcher ?? RtcImRealtimeDispatcher(options);
 
   final ImSdkClient _sdk;
-  final _ImRtcRealtimeDispatcher _dispatcher;
+  final RtcImRealtimeDispatcher _dispatcher;
 
   @override
   Future<RtcCallSessionRecord> createSession({
@@ -125,12 +127,34 @@ final class _ImRtcSignalingAdapter implements RtcCallSignalingAdapter {
     String rtcSessionId,
     RtcCallSignalHandler handler,
   ) {
-    return _dispatcher.subscribe(rtcSessionId, handler);
+    return _dispatcher.subscribeRtcSessionSignals(rtcSessionId, handler);
   }
 }
 
-final class _ImRtcRealtimeDispatcher {
-  _ImRtcRealtimeDispatcher(CreateImRtcSignalingAdapterOptions options)
+class RtcImConversationSignalMessage {
+  const RtcImConversationSignalMessage({
+    required this.conversationId,
+    required this.signalType,
+    this.payload,
+    required this.rawPayload,
+    this.schemaRef,
+    this.occurredAt,
+  });
+
+  final String conversationId;
+  final String signalType;
+  final Object? payload;
+  final String rawPayload;
+  final String? schemaRef;
+  final String? occurredAt;
+}
+
+typedef RtcImConversationSignalHandler = void Function(
+  RtcImConversationSignalMessage signal,
+);
+
+class RtcImRealtimeDispatcher {
+  RtcImRealtimeDispatcher(CreateImRtcSignalingAdapterOptions options)
       : _sdk = options.sdk,
         _deviceId = options.deviceId,
         _pollingInterval = options.pollingInterval,
@@ -142,11 +166,13 @@ final class _ImRtcRealtimeDispatcher {
   final int _pullLimit;
   final Map<String, Set<RtcCallSignalHandler>> _handlersBySessionId =
       <String, Set<RtcCallSignalHandler>>{};
+  final Map<String, Set<RtcImConversationSignalHandler>>
+      _conversationHandlersById = <String, Set<RtcImConversationSignalHandler>>{};
 
   bool _running = false;
   int _afterSeq = 0;
 
-  Future<RtcCallSignalSubscription> subscribe(
+  Future<RtcCallSignalSubscription> subscribeRtcSessionSignals(
     String rtcSessionId,
     RtcCallSignalHandler handler,
   ) async {
@@ -176,6 +202,36 @@ final class _ImRtcRealtimeDispatcher {
     );
   }
 
+  Future<RtcCallSignalSubscription> subscribeConversationSignals(
+    String conversationId,
+    RtcImConversationSignalHandler handler,
+  ) async {
+    final handlers = _conversationHandlersById.putIfAbsent(
+      conversationId,
+      () => <RtcImConversationSignalHandler>{},
+    );
+    handlers.add(handler);
+
+    await _syncSubscriptions();
+    _ensureLoop();
+
+    return _ImRtcCallSignalSubscription(
+      onUnsubscribe: () {
+        final currentHandlers = _conversationHandlersById[conversationId];
+        if (currentHandlers == null) {
+          return;
+        }
+
+        currentHandlers.remove(handler);
+        if (currentHandlers.isEmpty) {
+          _conversationHandlersById.remove(conversationId);
+        }
+
+        unawaited(_syncSubscriptions());
+      },
+    );
+  }
+
   void _ensureLoop() {
     if (_running) {
       return;
@@ -186,13 +242,13 @@ final class _ImRtcRealtimeDispatcher {
   }
 
   Future<void> _pollLoop() async {
-    while (_handlersBySessionId.isNotEmpty) {
+    while (_hasSubscriptions) {
       try {
         await _pollOnce();
       } catch (_) {
       }
 
-      if (_handlersBySessionId.isEmpty) {
+      if (!_hasSubscriptions) {
         break;
       }
 
@@ -223,6 +279,20 @@ final class _ImRtcRealtimeDispatcher {
       if (event.scopeType != 'rtc_session' ||
           event.eventType != 'rtc.signal' ||
           event.scopeId == null) {
+        final conversationSignal = _toConversationSignalFromRealtimeEvent(event);
+        if (conversationSignal == null) {
+          continue;
+        }
+
+        final handlers = _conversationHandlersById[conversationSignal.conversationId];
+        if (handlers == null || handlers.isEmpty) {
+          continue;
+        }
+
+        final dispatchedHandlers = handlers.toList(growable: false);
+        for (final handler in dispatchedHandlers) {
+          handler(conversationSignal);
+        }
         continue;
       }
 
@@ -262,18 +332,28 @@ final class _ImRtcRealtimeDispatcher {
     await _sdk.realtime.replaceSubscriptions(
       SyncRealtimeSubscriptionsRequest(
         deviceId: _deviceId,
-        items: _handlersBySessionId.keys
-            .map(
-              (rtcSessionId) => RealtimeSubscriptionItemInput(
-                scopeType: 'rtc_session',
-                scopeId: rtcSessionId,
-                eventTypes: const <String>['rtc.signal'],
-              ),
-            )
-            .toList(growable: false),
+        items: <RealtimeSubscriptionItemInput>[
+          ..._conversationHandlersById.keys.map(
+            (conversationId) => RealtimeSubscriptionItemInput(
+              scopeType: 'conversation',
+              scopeId: conversationId,
+              eventTypes: const <String>['message.created'],
+            ),
+          ),
+          ..._handlersBySessionId.keys.map(
+            (rtcSessionId) => RealtimeSubscriptionItemInput(
+              scopeType: 'rtc_session',
+              scopeId: rtcSessionId,
+              eventTypes: const <String>['rtc.signal'],
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  bool get _hasSubscriptions =>
+      _handlersBySessionId.isNotEmpty || _conversationHandlersById.isNotEmpty;
 }
 
 final class _ImRtcCallSignalSubscription implements RtcCallSignalSubscription {
@@ -392,6 +472,63 @@ RtcCallSignal? _toSignalFromRealtimeEvent(RealtimeEvent event) {
   }
 }
 
+RtcImConversationSignalMessage? _toConversationSignalFromRealtimeEvent(
+  RealtimeEvent event,
+) {
+  if (event.scopeType != 'conversation' ||
+      event.scopeId == null ||
+      !(event.eventType?.startsWith('message.') ?? false)) {
+    return null;
+  }
+
+  final payload = event.payload;
+  if (payload == null || payload.isEmpty) {
+    return null;
+  }
+
+  try {
+    final decodedPayload = jsonDecode(payload);
+    if (decodedPayload is! Map<String, dynamic>) {
+      return null;
+    }
+
+    final bodyMap = _extractMessageBodyMap(decodedPayload);
+    if (bodyMap == null) {
+      return null;
+    }
+
+    final body = MessageBody.fromJson(bodyMap);
+    final signalPart = body.parts
+        ?.cast<ContentPart?>()
+        .whereType<ContentPart>()
+        .firstWhere(
+          (part) =>
+              part.kind == 'signal' &&
+              part.signalType != null &&
+              part.signalType!.isNotEmpty,
+          orElse: () => ContentPart(),
+        );
+
+    final signalType = signalPart?.signalType;
+    if (signalType == null || signalType.isEmpty) {
+      return null;
+    }
+
+    final rawPayload = signalPart?.payload ?? '';
+    return RtcImConversationSignalMessage(
+      conversationId:
+          decodedPayload['conversationId']?.toString() ?? event.scopeId!,
+      signalType: signalType,
+      payload: _decodePayload(rawPayload),
+      rawPayload: rawPayload,
+      schemaRef: signalPart?.schemaRef,
+      occurredAt: event.occurredAt,
+    );
+  } catch (_) {
+    return null;
+  }
+}
+
 RtcCallState _toCallState(
   String? value, {
   required String message,
@@ -458,4 +595,23 @@ Object? _decodePayload(String rawPayload) {
   } catch (_) {
     return rawPayload;
   }
+}
+
+Map<String, dynamic>? _extractMessageBodyMap(Map<String, dynamic> payload) {
+  final body = payload['body'];
+  if (body is Map<String, dynamic>) {
+    return body;
+  }
+
+  if (body is Map) {
+    return body.cast<String, dynamic>();
+  }
+
+  if (payload.containsKey('parts') ||
+      payload.containsKey('text') ||
+      payload.containsKey('summary')) {
+    return payload;
+  }
+
+  return null;
 }

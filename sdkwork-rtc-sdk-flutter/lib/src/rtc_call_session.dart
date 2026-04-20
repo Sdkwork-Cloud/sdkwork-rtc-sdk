@@ -103,6 +103,37 @@ class StandardRtcCallSession<TNativeClient> {
     return _snapshot;
   }
 
+  RtcCallSessionSnapshot reconcileSessionRecord(RtcCallSessionRecord record) {
+    _applySessionRecord(record);
+    return _snapshot;
+  }
+
+  Future<RtcCallSessionSnapshot> leaveMedia() async {
+    if (_snapshot.mediaConnectionState != RtcSessionConnectionState.joined) {
+      return _snapshot;
+    }
+
+    final mediaSession = await _mediaClient.leave();
+    _snapshot = RtcCallSessionSnapshot(
+      rtcSessionId: _snapshot.rtcSessionId,
+      conversationId: _snapshot.conversationId,
+      rtcMode: _snapshot.rtcMode,
+      roomId: _snapshot.roomId,
+      participantId: _snapshot.participantId,
+      providerKey: mediaSession.providerKey,
+      signalingStreamId: _snapshot.signalingStreamId,
+      providerPluginId: _snapshot.providerPluginId,
+      providerSessionId: _snapshot.providerSessionId,
+      accessEndpoint: _snapshot.accessEndpoint,
+      providerRegion: _snapshot.providerRegion,
+      startedAt: _snapshot.startedAt,
+      endedAt: _snapshot.endedAt,
+      state: _snapshot.state,
+      mediaConnectionState: mediaSession.connectionState,
+    );
+    return _snapshot;
+  }
+
   Future<RtcCallSignal> sendSignal(
     String signalType,
     Object? payload, {
@@ -121,27 +152,7 @@ class StandardRtcCallSession<TNativeClient> {
 
   Future<RtcCallSessionSnapshot> end() async {
     final rtcSessionId = _requireSessionId();
-
-    if (_snapshot.mediaConnectionState == RtcSessionConnectionState.joined) {
-      final mediaSession = await _mediaClient.leave();
-      _snapshot = RtcCallSessionSnapshot(
-        rtcSessionId: _snapshot.rtcSessionId,
-        conversationId: _snapshot.conversationId,
-        rtcMode: _snapshot.rtcMode,
-        roomId: _snapshot.roomId,
-        participantId: _snapshot.participantId,
-        providerKey: mediaSession.providerKey,
-        signalingStreamId: _snapshot.signalingStreamId,
-        providerPluginId: _snapshot.providerPluginId,
-        providerSessionId: _snapshot.providerSessionId,
-        accessEndpoint: _snapshot.accessEndpoint,
-        providerRegion: _snapshot.providerRegion,
-        startedAt: _snapshot.startedAt,
-        endedAt: _snapshot.endedAt,
-        state: _snapshot.state,
-        mediaConnectionState: mediaSession.connectionState,
-      );
-    }
+    await leaveMedia();
 
     final endedSession = await _signaling.endSession(rtcSessionId);
     _applySessionRecord(endedSession);

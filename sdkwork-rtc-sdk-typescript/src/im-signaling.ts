@@ -51,9 +51,43 @@ export interface ImRtcLiveSignalStreamLike {
   ): () => void;
 }
 
+export interface ImRtcLiveMessageContextLike {
+  conversationId?: string | number;
+  scopeId?: string | number;
+  receivedAt?: string;
+}
+
+export interface ImRtcDecodedConversationSignalMessageLike {
+  type: 'signal';
+  content: {
+    signalType?: string;
+    schemaRef?: string;
+    payload?: unknown;
+    rawPayload?: string;
+    state?: string;
+  };
+}
+
+export interface ImRtcLiveMessageStreamLike {
+  onConversation(
+    conversationId: string | number,
+    handler: (
+      message: ImRtcDecodedConversationSignalMessageLike | Record<string, unknown>,
+      context: ImRtcLiveMessageContextLike,
+    ) => void,
+  ): () => void;
+}
+
 export interface ImRtcLiveConnectionLike {
   readonly signals: ImRtcLiveSignalStreamLike;
+  readonly messages?: ImRtcLiveMessageStreamLike;
   disconnect?(): void;
+}
+
+export interface ImRtcRealtimeSubscriptionItemLike {
+  scopeType: string;
+  scopeId: string;
+  eventTypes?: readonly string[];
 }
 
 export interface ImRtcSdkLike {
@@ -105,7 +139,9 @@ export interface ImRtcSdkLike {
       protocols?: readonly string[];
       requestTimeoutMs?: number;
       subscriptions?: {
+        conversations?: readonly string[];
         rtcSessions?: readonly string[];
+        items?: readonly ImRtcRealtimeSubscriptionItemLike[];
       };
     },
   ): Promise<ImRtcLiveConnectionLike> | ImRtcLiveConnectionLike;
@@ -120,6 +156,11 @@ export interface CreateImRtcSignalingAdapterOptions {
     headers?: Record<string, string>;
     protocols?: readonly string[];
     requestTimeoutMs?: number;
+    subscriptions?: {
+      conversations?: readonly string[];
+      rtcSessions?: readonly string[];
+      items?: readonly ImRtcRealtimeSubscriptionItemLike[];
+    };
   };
 }
 
@@ -252,6 +293,16 @@ async function resolveLiveConnection(
     ...options.connectOptions,
     subscriptions: {
       rtcSessions: [rtcSessionId],
+      ...(options.connectOptions?.subscriptions?.conversations
+        ? {
+            conversations: options.connectOptions.subscriptions.conversations,
+          }
+        : {}),
+      ...(options.connectOptions?.subscriptions?.items
+        ? {
+            items: options.connectOptions.subscriptions.items,
+          }
+        : {}),
     },
   });
 }
