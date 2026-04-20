@@ -44,13 +44,13 @@ This workspace standardizes:
 - assembly-driven `typescriptAdapterStandard` and `typescriptPackageStandard` contracts for
   TypeScript provider adapter and package identity normalization
 - assembly-driven language workspace identity, role, summary, and default-provider contracts
-- assembly-driven language workspace catalog contracts across the TypeScript baseline and reserved
-  language workspaces
+- assembly-driven language workspace catalog contracts across the TypeScript baseline, the
+  Flutter/mobile baseline, and the remaining reserved language workspaces
 - assembly-driven language-provider activation matrix contracts
-- assembly-driven provider activation catalog contracts across the TypeScript baseline and reserved
-  language workspaces
-- assembly-driven provider package catalog contracts across the TypeScript baseline and reserved
-  language workspaces
+- assembly-driven provider activation catalog contracts across the TypeScript baseline, the
+  Flutter/mobile baseline, and the remaining reserved language workspaces
+- assembly-driven provider package catalog contracts across the TypeScript baseline, the
+  Flutter/mobile baseline, and the remaining reserved language workspaces
 - standard TypeScript provider package loader and installer SPI for package-boundary adapter loading
 - assembly-driven TypeScript vendor SDK package contracts
 - assembly-driven TypeScript runtime bridge baseline contracts
@@ -202,7 +202,8 @@ The TypeScript selection helper module at
 
 It must also keep `parseRtcProviderUrl(...)` and `resolveRtcProviderSelection(...)` stable so
 selection behavior stays explicit instead of being hidden inside driver-manager internals.
-Reserved non-TypeScript workspaces must preserve the same semantics through standalone
+Flutter/mobile and the remaining reserved non-TypeScript workspaces must preserve the same
+semantics through standalone
 provider-selection helper modules with language-idiomatic names, stable source and precedence
 catalogs, explicit provider-URL parsing helpers, and a driver-manager delegation rule:
 `RtcDriverManager` resolves selection by calling the provider-selection helper module instead of
@@ -220,7 +221,8 @@ provider discovery and registration introspection. The stable status set is:
 It must also keep `resolveRtcProviderSupportStatus(...)` and `createRtcProviderSupportState(...)`
 stable so provider-support classification stays explicit instead of being reimplemented ad hoc
 across runtime entrypoints.
-Reserved non-TypeScript workspaces must preserve the same semantics through standalone
+Flutter/mobile and the remaining reserved non-TypeScript workspaces must preserve the same
+semantics through standalone
 provider-support helper modules with language-idiomatic names, explicit
 `RtcProviderSupportStateRequest` contracts, stable support-status catalogs, and a driver-manager
 delegation rule: provider-support description must flow through the support helper after querying
@@ -291,8 +293,8 @@ Each `RtcLanguageWorkspaceCatalogEntry` must also keep a machine-readable
 `lifecycleStatusTerms`, and `runtimeBridgeStatusTerms` aligned to the assembly-driven
 `providerPackageBoundaryStandard`.
 
-Reserved non-TypeScript metadata scaffolds must keep the same explicit lookup semantics with
-language-idiomatic naming:
+Flutter/mobile metadata modules and the remaining reserved non-TypeScript metadata scaffolds must
+keep the same explicit lookup semantics with language-idiomatic naming:
 
 - provider catalog by provider key
 - provider package catalog by provider key
@@ -373,9 +375,9 @@ Legacy TypeScript package-boundary wording such as
 materialized language workspace READMEs, and language workspace catalogs.
 The TypeScript runtime bridge baseline for official providers is `reference-baseline`, and it always
 keeps the official vendor SDK requirement set to `required`.
-Reserved non-TypeScript provider package boundaries must also materialize one metadata-only source
-stub per official provider so future adapter work inherits a deterministic source stub and source
-symbol layout before runtime code exists.
+Flutter/mobile and the remaining reserved non-TypeScript provider package boundaries must also
+materialize one metadata-only source stub per official provider so future adapter work inherits a
+deterministic source stub and source symbol layout before runtime code exists.
 
 Language root public entrypoints must also stay standardized wherever the language ecosystem uses a
 single package barrel or package initializer:
@@ -399,9 +401,9 @@ Flutter/Python single-entrypoint families assembly-governed.
 The TypeScript root public entrypoint may additionally expose the provider package loader and
 installer SPI because that surface is provider-neutral package-boundary infrastructure, not a
 non-builtin driver factory.
-Reserved non-TypeScript language workspaces must also reserve one provider-package loader scaffold
-per language so future runtime bridge work inherits a deterministic package-resolution and
-package-installation boundary before executable adapters land.
+The remaining reserved non-TypeScript language workspaces must also reserve one provider-package
+loader scaffold per language so future runtime bridge work inherits a deterministic
+package-resolution and package-installation boundary before executable adapters land.
 
 Go reserved-language public structs must also export their shared DTO fields in PascalCase so the
 standard metadata stays usable from external packages. The required public field family includes

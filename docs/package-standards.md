@@ -71,17 +71,18 @@ Rules:
   `getRtcProviderExtensionDescriptor(...)`, `getRtcProviderExtensionsForProvider(...)`, and
   `hasRtcProviderExtension(...)` so provider extension lookup stays explicit by extension key,
   provider key, and selected extension set
-- reserved non-TypeScript language metadata scaffolds must keep the same explicit lookup semantics
+- Flutter/mobile metadata modules and the remaining reserved non-TypeScript metadata scaffolds must
+  keep the same explicit lookup semantics
   with language-idiomatic helper names:
   `getRtcProviderByProviderKey(...)` / `GetRtcProviderByProviderKey(...)` /
   `get_rtc_provider_by_provider_key(...)`, plus provider package lookup by provider key and
   package identity, and the corresponding capability and provider-extension helper families
 - `lookupHelperNamingStandard` is the canonical source for those helper families and for the
   `lower-camel-rtc`, `upper-camel-rtc`, and `snake-case-rtc` naming profiles
-- reserved non-TypeScript language metadata scaffolds must also expose standalone provider
-  selection helpers with language-idiomatic names for source catalogs, precedence catalogs,
-  provider-URL parsing, and selection resolution instead of burying precedence inside
-  `RtcDriverManager`
+- Flutter/mobile and the remaining reserved non-TypeScript language workspaces must also expose
+  standalone provider selection helpers with language-idiomatic names for source catalogs,
+  precedence catalogs, provider-URL parsing, and selection resolution instead of burying
+  precedence inside `RtcDriverManager`
 - the provider selection module must expose `RtcProviderSelectionRequest`,
   `RTC_PROVIDER_SELECTION_SOURCES`, `RTC_PROVIDER_SELECTION_PRECEDENCE`,
   `parseRtcProviderUrl(...)`, and `resolveRtcProviderSelection(...)`
@@ -89,8 +90,9 @@ Rules:
   `providerSelectionStandard.precedence`, and `providerSelectionStandard.defaultSource`
 - the provider selection precedence order is fixed as `provider_url`, `provider_key`,
   `tenant_override`, `deployment_profile`, and `default_provider`
-- reserved non-TypeScript language resolution scaffolds must delegate provider-selection resolution
-  to that standalone helper module and keep driver-manager code free of duplicated precedence rules
+- Flutter/mobile resolution modules and the remaining reserved non-TypeScript language resolution
+  scaffolds must delegate provider-selection resolution to that standalone helper module and keep
+  driver-manager code free of duplicated precedence rules
 - the provider support module must expose `RtcProviderSupportStateRequest`,
   `RTC_PROVIDER_SUPPORT_STATUSES`, `resolveRtcProviderSupportStatus(...)`, and
   `createRtcProviderSupportState(...)`
@@ -138,11 +140,13 @@ Rules:
   and `RtcSdkException`
 - `.sdkwork-assembly.json` must declare `errorCodeStandard.codeTerms` and
   `errorCodeStandard.fallbackCode`
-- reserved non-TypeScript language resolution scaffolds must delegate provider-support
-  classification to that standalone helper module after provider catalog and provider activation
-  lookup instead of re-embedding status logic inside driver managers
-- reserved non-TypeScript language resolution scaffolds must also expose a standalone provider
-  package loader module through `resolutionScaffold.providerPackageLoaderRelativePath`
+- Flutter/mobile resolution modules and the remaining reserved non-TypeScript language resolution
+  scaffolds must delegate provider-support classification to that standalone helper module after
+  provider catalog and provider activation lookup instead of re-embedding status logic inside
+  driver managers
+- the remaining reserved non-TypeScript language resolution scaffolds must also expose a
+  standalone provider package loader module through
+  `resolutionScaffold.providerPackageLoaderRelativePath`
 - that reserved provider package loader module must preserve `RtcProviderPackageLoadRequest`,
   `RtcResolvedProviderPackageLoadTarget`, `RtcProviderPackageLoader`,
   `createRtcProviderPackageLoader(...)`, `resolveRtcProviderPackageLoadTarget(...)`,
@@ -417,12 +421,13 @@ language workspace catalog and must declare:
 The current standard fixes only two legal modes:
 
 - TypeScript uses `catalog-governed-mixed`
-- reserved non-TypeScript workspaces use `scaffold-per-provider-package`
+- Flutter/mobile and the remaining reserved non-TypeScript workspaces use
+  `scaffold-per-provider-package`
 
 The current standard fixes only two legal root public policies:
 
 - TypeScript uses `builtin-only`
-- reserved non-TypeScript workspaces use `none`
+- Flutter/mobile and the remaining reserved non-TypeScript workspaces use `none`
 
 The current standard also fixes the boundary vocabularies:
 
@@ -447,9 +452,10 @@ The current standard also fixes the boundary vocabularies:
   `root_public_reference_boundary` and `package_reference_boundary`
 - TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be
   `reference-baseline`
-- reserved non-TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
-  `future-runtime-bridge-only`
-- reserved non-TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be `reserved`
+- the remaining reserved non-TypeScript language workspaces must keep
+  `providerPackageBoundary.lifecycleStatusTerms` fixed at `future-runtime-bridge-only`
+- the remaining reserved non-TypeScript language workspaces must keep
+  `providerPackageBoundary.runtimeBridgeStatusTerms` fixed at `reserved`
 
 Every official non-TypeScript reserved workspace must also declare a `providerPackageScaffold` in
 `.sdkwork-assembly.json` and ship the referenced provider package scaffold file.

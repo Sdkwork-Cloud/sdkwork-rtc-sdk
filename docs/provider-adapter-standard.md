@@ -62,10 +62,11 @@ standard precedence locally.
 The assembly-driven `providerSelectionStandard` is canonical, and every language workspace catalog
 must preserve it through `providerSelectionContract.sourceTerms`,
 `providerSelectionContract.precedence`, and `providerSelectionContract.defaultSource`.
-Reserved non-TypeScript language workspaces must preserve the same rule through standalone
-provider-selection helper modules with language-idiomatic names for source catalogs, precedence
-catalogs, provider-URL parsing, and selection resolution. Their `RtcDriverManager` scaffolds must
-delegate to that helper module instead of re-embedding precedence logic inline.
+Flutter/mobile and the remaining reserved non-TypeScript language workspaces must preserve the same
+rule through standalone provider-selection helper modules with language-idiomatic names for source
+catalogs, precedence catalogs, provider-URL parsing, and selection resolution. Their
+`RtcDriverManager` scaffolds must delegate to that helper module instead of re-embedding
+precedence logic inline.
 
 The TypeScript executable baseline also keeps provider support as a first-class standard module at
 `src/provider-support.ts`, not as provider-private adapter logic.
@@ -81,18 +82,18 @@ Provider adapters and driver wiring must consume that standard support-state cla
 not redefine those support statuses locally.
 The assembly-driven `providerSupportStandard` is canonical, and every language workspace catalog
 must preserve it through `providerSupportContract.statusTerms`.
-Reserved non-TypeScript language workspaces must preserve the same rule through standalone
-provider-support helper modules with language-idiomatic names for support-status catalogs,
-`RtcProviderSupportStateRequest` contracts, status resolution, and support-state construction.
-Their `RtcDriverManager` scaffolds must query the provider catalog and provider-activation catalog,
-then delegate support-state construction to the provider-support helper module instead of keeping
-ad hoc support-classification logic inline.
+Flutter/mobile and the remaining reserved non-TypeScript language workspaces must preserve the same
+rule through standalone provider-support helper modules with language-idiomatic names for
+support-status catalogs, `RtcProviderSupportStateRequest` contracts, status resolution, and
+support-state construction. Their `RtcDriverManager` scaffolds must query the provider catalog and
+provider-activation catalog, then delegate support-state construction to the provider-support
+helper module instead of keeping ad hoc support-classification logic inline.
 
 The assembly-driven `providerActivationStandard` is canonical, and every language workspace catalog
 must preserve it through `providerActivationContract.statusTerms`.
-Reserved non-TypeScript language workspaces must preserve the same vocabulary in their provider
-activation catalogs so activation exposure stays assembly-governed instead of becoming
-language-private wording.
+Flutter/mobile and the remaining reserved non-TypeScript language workspaces must preserve the same
+vocabulary in their provider activation catalogs so activation exposure stays assembly-governed
+instead of becoming language-private wording.
 
 The assembly-driven `providerPackageBoundaryStandard` is canonical, and every language workspace
 catalog must preserve it through `providerPackageBoundaryContract.modeTerms`,
@@ -269,12 +270,13 @@ package-topology contracts:
 The current adapter standard fixes only two legal boundary modes:
 
 - TypeScript uses `catalog-governed-mixed`
-- reserved non-TypeScript workspaces use `scaffold-per-provider-package`
+- Flutter/mobile and the remaining reserved non-TypeScript workspaces use
+  `scaffold-per-provider-package`
 
 The current adapter standard fixes only two legal root public policies:
 
 - TypeScript uses `builtin-only`
-- reserved non-TypeScript workspaces use `none`
+- Flutter/mobile and the remaining reserved non-TypeScript workspaces use `none`
 
 The current adapter standard also fixes the canonical status vocabularies:
 
@@ -289,13 +291,14 @@ The current adapter standard also fixes the canonical status vocabularies:
   `root_public_reference_boundary` and `package_reference_boundary`
 - TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be
   `reference-baseline`
-- reserved non-TypeScript `providerPackageBoundary.lifecycleStatusTerms` must be
-  `future-runtime-bridge-only`
-- reserved non-TypeScript `providerPackageBoundary.runtimeBridgeStatusTerms` must be `reserved`
+- the remaining reserved non-TypeScript language workspaces must keep
+  `providerPackageBoundary.lifecycleStatusTerms` fixed at `future-runtime-bridge-only`
+- the remaining reserved non-TypeScript language workspaces must keep
+  `providerPackageBoundary.runtimeBridgeStatusTerms` fixed at `reserved`
 
-Reserved non-TypeScript workspaces must also declare a `providerPackageScaffold` so future provider
-packages inherit a fixed directory pattern, package identity pattern, and manifest file name before
-runtime bridge work begins.
+Flutter/mobile and the remaining reserved non-TypeScript workspaces must also declare a
+`providerPackageScaffold` so future provider packages inherit a fixed directory pattern, package
+identity pattern, and manifest file name before runtime bridge work begins.
 That scaffold contract must also declare exact `templateTokens`, `sourceFilePattern`,
 `sourceSymbolPattern`, and `sourceTemplateTokens`, keep `rootPublic` fixed at `false`, keep
 `runtimeBridgeStatus` fixed at `reserved`, and keep `status` fixed at
@@ -346,13 +349,13 @@ The TypeScript executable baseline keeps provider extension lookup explicit thro
 `getRtcProviderExtensionCatalog(...)`, `getRtcProviderExtensionDescriptor(...)`,
 `getRtcProviderExtensionsForProvider(...)`, `getRtcProviderExtensions(...)`, and
 `hasRtcProviderExtension(...)`.
-Reserved non-TypeScript language workspaces must preserve the same semantics with
-language-idiomatic helper naming for capability and provider-extension catalogs, not just provider
-identity catalogs.
+Flutter/mobile language workspace catalogs and the remaining reserved non-TypeScript language
+workspace catalogs and metadata scaffolds must preserve the same semantics with language-idiomatic
+helper naming for capability and provider-extension catalogs, not just provider identity catalogs.
 They must also preserve the same helper-profile split:
 `lower-camel-rtc` for Flutter/Java/Swift/Kotlin, `upper-camel-rtc` for C#/Go, and
 `snake-case-rtc` for Rust/Python.
-Each reserved non-TypeScript language workspace must also declare
+Each remaining reserved non-TypeScript language workspace must also declare
 `resolutionScaffold.providerPackageLoaderRelativePath` and ship a provider-package loader scaffold.
 That scaffold fixes the future package-resolution and installation boundary before runtime code
 exists. It must preserve:

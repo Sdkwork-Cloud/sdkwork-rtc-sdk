@@ -126,9 +126,10 @@ catalog, capability catalog, provider selection helpers, and JDBC-style driver m
 the TypeScript baseline while binding the default mobile runtime to the official Volcengine RTC
 Flutter SDK and `sdkwork-im-sdk` signaling.
 
-Reserved non-TypeScript language workspace catalogs and metadata scaffolds must also keep explicit
-lookup helpers stable with language-idiomatic naming. `lookupHelperNamingStandard` is the
-canonical source of truth. The required helper families remain:
+Flutter/mobile language workspace catalogs and the remaining reserved non-TypeScript language
+workspace catalogs and metadata scaffolds must also keep explicit lookup helpers stable with
+language-idiomatic naming. `lookupHelperNamingStandard` is the canonical source of truth. The
+required helper families remain:
 
 - capability catalog by capability key
 - provider catalog by provider key
@@ -194,14 +195,15 @@ lookup-helper-naming module at `sdkwork-rtc-sdk-typescript/src/lookup-helper-nam
 TypeScript provider package catalog at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts`, assembly-driven language workspace
 catalog assets, reserved language package/build/contract/metadata/provider-package-catalog/provider-activation-catalog/resolution/provider-package-loader/provider-package scaffolds with exact template token and root-public policies, materialized future provider package boundary READMEs and manifests, and provider package standard assets materialized from `.sdkwork-assembly.json`.
-Reserved non-TypeScript provider package boundaries also materialize one metadata-only source stub
-per official provider so future runtime bridge work inherits a deterministic code-entry layout.
+Flutter/mobile provider package boundaries and the remaining reserved non-TypeScript provider
+package boundaries also materialize one metadata-only source stub per official provider so future
+runtime bridge work inherits a deterministic code-entry layout.
 The manual TypeScript provider package loader SPI at
 `sdkwork-rtc-sdk-typescript/src/provider-package-loader.ts` then turns those package-boundary
 contracts into a standard load-and-install path for pluggable provider adapters.
-Reserved non-TypeScript language workspaces now also materialize a future provider package loader
-scaffold per language so runtime bridge work inherits a deterministic package-resolution and
-installation boundary before executable adapters land.
+The remaining reserved non-TypeScript language workspaces now also materialize a future provider
+package loader scaffold per language so runtime bridge work inherits a deterministic
+package-resolution and installation boundary before executable adapters land.
 The root `bin/smoke-sdk.mjs` command is the full regression entrypoint. It runs materialization,
 root automation tests, root verification, TypeScript package tests, and optional language smoke
 checks such as `compileall`, `cargo check`, `dotnet build`, and `javac` when those

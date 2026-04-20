@@ -529,11 +529,31 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /provider lookup by key/i);
   assert.match(docsReadme, /typescript-volcengine-im-usage\.md/);
   assert.match(docsReadme, /flutter-volcengine-im-usage\.md/);
+  assert.match(
+    docsReadme,
+    /Flutter\/mobile language workspace catalogs and the remaining reserved non-TypeScript language\s+workspace catalogs and metadata scaffolds must also keep explicit lookup helpers stable/i,
+  );
+  assert.doesNotMatch(
+    docsReadme,
+    /Reserved non-TypeScript language workspace catalogs and metadata scaffolds must also keep explicit/i,
+  );
 
   assert.match(usageGuide, /TypeScript is the executable web\/browser baseline/i);
   assert.match(usageGuide, /Flutter is the executable mobile baseline/i);
   assert.match(usageGuide, /sdkwork-im-sdk/i);
   assert.match(usageGuide, /flutter-volcengine-im-usage\.md/);
+  assert.match(
+    rootReadme,
+    /Flutter\/mobile and the remaining reserved non-TypeScript workspaces must preserve the same\s+semantics through standalone\s+provider-selection helper modules/i,
+  );
+  assert.match(
+    rootReadme,
+    /Flutter\/mobile and the remaining reserved non-TypeScript provider package boundaries must also\s+materialize one metadata-only source stub/i,
+  );
+  assert.doesNotMatch(
+    rootReadme,
+    /Reserved non-TypeScript workspaces must preserve the same semantics through standalone\s+provider-selection helper modules/i,
+  );
 
   assert.match(packageStandards, /index\.js/);
   assert.match(packageStandards, /index\.d\.ts/);
@@ -596,6 +616,14 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /scaffold-per-provider-package/);
   assert.match(packageStandards, /builtin-only/);
   assert.match(packageStandards, /`none`/);
+  assert.match(
+    packageStandards,
+    /Flutter\/mobile and the remaining reserved non-TypeScript workspaces use\s+`scaffold-per-provider-package`/i,
+  );
+  assert.doesNotMatch(
+    packageStandards,
+    /^- reserved non-TypeScript workspaces use\s+`scaffold-per-provider-package`/im,
+  );
   assert.match(packageStandards, /@sdkwork\/rtc-sdk-provider-<providerKey>/);
   assert.match(packageStandards, /\.\.\/\.\.\/src\/providers\/<providerKey>\.ts/);
   assert.match(packageStandards, /create<ProviderPascal>RtcDriver/);
@@ -731,6 +759,18 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /scaffold-per-provider-package/);
   assert.match(providerAdapterStandard, /builtin-only/);
   assert.match(providerAdapterStandard, /`none`/);
+  assert.match(
+    providerAdapterStandard,
+    /Flutter\/mobile and the remaining reserved non-TypeScript language workspaces must preserve the\s+same\s+rule through standalone\s+provider-selection helper modules/i,
+  );
+  assert.match(
+    providerAdapterStandard,
+    /Flutter\/mobile and the remaining reserved non-TypeScript workspaces use\s+`scaffold-per-provider-package`/i,
+  );
+  assert.doesNotMatch(
+    providerAdapterStandard,
+    /^- reserved non-TypeScript workspaces use\s+`scaffold-per-provider-package`/im,
+  );
   assert.match(providerAdapterStandard, /createRtcProviderPackageLoader/);
   assert.match(providerAdapterStandard, /resolveRtcProviderPackageLoadTarget/);
   assert.match(providerAdapterStandard, /loadRtcProviderModule/);
