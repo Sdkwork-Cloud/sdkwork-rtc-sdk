@@ -5,10 +5,15 @@ This document describes the current executable Flutter/mobile baseline of `sdkwo
 ## Current Runnable Baseline
 
 - Default media provider: `volcengine`
-- Default mobile runtime path: official `package:volc_engine_rtc`
-- Default signaling integration path: `sdkwork-im-sdk` through `package:im_sdk/im_sdk.dart`
+- Default mobile runtime package: official `volc_engine_rtc`
+- Default mobile runtime import path: `package:volc_engine_rtc/volc_engine_rtc.dart`
+- Default signaling package: `im_sdk`
+- Default signaling import path: `package:im_sdk/im_sdk.dart`
 - Standard media entrypoint: `RtcDataSource`
 - Standard call/session entrypoint: `StandardRtcCallController`
+- Recommended quick-start entrypoint: `createStandardRtcCallControllerStack`
+- Smoke command: `node ./bin/sdk-call-smoke.mjs --json`
+- Smoke mode: `analysis-backed`
 
 ## Install
 
@@ -16,17 +21,19 @@ Add the standard RTC package, the official Volcengine Flutter SDK, and the IM SD
 
 ```yaml
 dependencies:
+  flutter:
+    sdk: flutter
   rtc_sdk:
     path: ../sdkwork-rtc-sdk/sdkwork-rtc-sdk-flutter
   im_sdk:
-    path: ../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed
+    path: ../../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed
   volc_engine_rtc: ^3.60.3
 ```
 
 ## Fast Smoke Verification
 
-Use the Flutter public smoke CLI when you need to verify the default
-`volcengine + sdkwork-im-sdk` path without live services:
+Run the public Flutter smoke command inside `sdkwork-rtc-sdk-flutter` when you need to verify the default
+`volcengine + im_sdk` path without live services:
 
 ```powershell
 node ./bin/sdk-call-smoke.mjs --json
@@ -40,7 +47,7 @@ The verified smoke surface is:
 
 - `createStandardRtcCallControllerStack(...)`
 - the default `volcengine` provider selection path
-- `sdkwork-im-sdk` client composition through `ImSdkClient.create(...)`
+- `im_sdk` client composition through `ImSdkClient.create(...)`
 - the official Volcengine Flutter bridge smoke scenario source in `bin/sdk-call-smoke.dart`
 - the future runtime-backed path that will be used once the vendor package is CLI-runnable in the
   active toolchain
@@ -118,8 +125,8 @@ const RtcVolcengineFlutterNativeConfig(
 Use this path when the app wants one standard session that combines:
 
 - IM-side RTC session creation, invite, accept, reject, and end
-- conversation-scoped incoming call discovery through `sdkwork-im-sdk`
-- realtime session signal delivery through `sdkwork-im-sdk`
+- conversation-scoped incoming call discovery through `im_sdk`
+- realtime session signal delivery through `im_sdk`
 - provider participant credential issuance
 - Volcengine media join and auto publish
 - typed offer/answer/ice signaling over the RTC session stream
@@ -196,7 +203,7 @@ Future<void> startRtcCall({
 
 ## Signaling Contract Mapping
 
-`createImRtcSignalingAdapter(...)` maps the `sdkwork-im-sdk` composed RTC surface to the RTC
+`createImRtcSignalingAdapter(...)` maps the `im_sdk` composed RTC surface to the RTC
 standard call/signaling contract:
 
 - `sdk.rtc.create(...)` -> `createSession(...)`

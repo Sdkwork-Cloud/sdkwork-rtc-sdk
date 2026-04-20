@@ -5,10 +5,15 @@ This document describes the current executable TypeScript baseline of `sdkwork-r
 ## Current Runnable Baseline
 
 - Default media provider: `volcengine`
-- Default web runtime path: official `@volcengine/rtc`
-- Default signaling integration path: `sdkwork-im-sdk`
+- Default web runtime package: official `@volcengine/rtc`
+- Default web runtime import path: `@volcengine/rtc`
+- Default signaling package: `@sdkwork/im-sdk`
+- Default signaling import path: `@sdkwork/im-sdk`
 - Standard media entrypoint: `RtcDataSource`
 - Standard call/session entrypoint: `StandardRtcCallController`
+- Recommended quick-start entrypoint: `createStandardRtcCallControllerStack`
+- Smoke command: `node ./bin/sdk-call-smoke.mjs --json`
+- Smoke mode: `runtime-backed`
 
 ## Install
 
@@ -18,14 +23,14 @@ npm install @sdkwork/rtc-sdk @volcengine/rtc @sdkwork/im-sdk
 
 ## Fast Smoke Verification
 
-Use the workspace smoke CLI when you want to validate the public TypeScript entrypoint without
-depending on a live IM service or a real Volcengine credential:
+Run the public TypeScript smoke command inside `sdkwork-rtc-sdk-typescript` when you want to validate the
+default provider entrypoint without depending on a live IM service or a real vendor credential:
 
 ```bash
-node ./sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.mjs --json
+node ./bin/sdk-call-smoke.mjs --json
 ```
 
-The smoke CLI runs the public `@sdkwork/rtc-sdk` surface against mocked `sdkwork-im-sdk`
+The smoke CLI runs the public `@sdkwork/rtc-sdk` surface against mocked `@sdkwork/im-sdk`
 signaling and a mocked official `@volcengine/rtc` module, then prints the resolved provider,
 runtime calls, signaling calls, and final controller states.
 
@@ -105,8 +110,8 @@ type RtcVolcengineWebNativeConfig = {
 Use this path when the app wants one standard session that combines:
 
 - IM-side RTC session creation/invite/accept/reject/end
-- conversation-scoped incoming call discovery through `sdkwork-im-sdk`
-- realtime session signal delivery through `sdkwork-im-sdk`
+- conversation-scoped incoming call discovery through `@sdkwork/im-sdk`
+- realtime session signal delivery through `@sdkwork/im-sdk`
 - provider participant credential issuance
 - Volcengine media join and auto publish
 - typed offer/answer/ice signaling over the RTC session stream
@@ -179,7 +184,7 @@ await rtc.callController.end();
 
 ## Signaling Contract Mapping
 
-`createImRtcSignalingAdapter(...)` maps the `sdkwork-im-sdk` composed RTC surface to the RTC
+`createImRtcSignalingAdapter(...)` maps the `@sdkwork/im-sdk` composed RTC surface to the RTC
 standard call/signaling contract:
 
 - `sdk.rtc.create(...)` -> `createSession(...)`

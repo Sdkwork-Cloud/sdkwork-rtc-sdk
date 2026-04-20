@@ -27,7 +27,7 @@ function renderTemplateTokenList(tokens) {
   return (tokens ?? []).map((token) => `\`${token}\``).join(', ');
 }
 
-function resolveFlutterRuntimeBaselineDependencyLines(packageName) {
+export function resolveFlutterRuntimeBaselineDependencyLines(packageName) {
   switch (packageName) {
     case 'im_sdk':
       return [

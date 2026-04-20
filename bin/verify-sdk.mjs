@@ -770,6 +770,28 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
     ],
   },
   {
+    relativePath: 'docs/typescript-volcengine-im-usage.md',
+    clauses: [
+      { pattern: /createStandardRtcCallControllerStack/, label: 'TypeScript runtime usage recommended rtc entrypoint' },
+      { pattern: /StandardRtcCallController/, label: 'TypeScript runtime usage standard call controller contract' },
+      { pattern: /@volcengine\/rtc/, label: 'TypeScript runtime usage vendor sdk package reference' },
+      { pattern: /@sdkwork\/im-sdk/, label: 'TypeScript runtime usage signaling sdk package reference' },
+      { pattern: /node \.\/bin\/sdk-call-smoke\.mjs --json/, label: 'TypeScript runtime usage smoke command reference' },
+      { pattern: /runtime-backed/, label: 'TypeScript runtime usage smoke mode reference' },
+    ],
+  },
+  {
+    relativePath: 'docs/flutter-volcengine-im-usage.md',
+    clauses: [
+      { pattern: /createStandardRtcCallControllerStack/, label: 'Flutter runtime usage recommended rtc entrypoint' },
+      { pattern: /StandardRtcCallController/, label: 'Flutter runtime usage standard call controller contract' },
+      { pattern: /package:volc_engine_rtc\/volc_engine_rtc\.dart/, label: 'Flutter runtime usage vendor sdk import reference' },
+      { pattern: /package:im_sdk\/im_sdk\.dart/, label: 'Flutter runtime usage signaling sdk import reference' },
+      { pattern: /node \.\/bin\/sdk-call-smoke\.mjs --json/, label: 'Flutter runtime usage smoke command reference' },
+      { pattern: /analysis-backed/, label: 'Flutter runtime usage smoke mode reference' },
+    ],
+  },
+  {
     relativePath: 'docs/verification-matrix.md',
     clauses: [
       { pattern: /DEFAULT_RTC_PROVIDER_KEY/, label: 'verification of default provider key constant' },
@@ -1394,6 +1416,14 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   const officialProviderKeys = providers.map((provider) => provider.providerKey);
   const providerByKey = new Map(providers.map((provider) => [provider.providerKey, provider]));
   const usageGuideContent = readFileSync(path.join(workspaceRoot, 'docs', 'usage-guide.md'), 'utf8');
+  const typescriptRuntimeUsageContent = readFileSync(
+    path.join(workspaceRoot, 'docs', 'typescript-volcengine-im-usage.md'),
+    'utf8',
+  );
+  const flutterRuntimeUsageContent = readFileSync(
+    path.join(workspaceRoot, 'docs', 'flutter-volcengine-im-usage.md'),
+    'utf8',
+  );
   const capabilityCatalog = assembly.capabilityCatalog ?? [];
   const providerExtensionCatalog = assembly.providerExtensionCatalog ?? [];
   const capabilityDescriptorByKey = new Map();
@@ -1415,6 +1445,26 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       languageEntry.runtimeBaseline,
       usageGuideContent,
       'docs/usage-guide.md',
+    );
+  }
+
+  const typescriptLanguageEntry = officialLanguages.find((entry) => entry.language === 'typescript');
+  if (typescriptLanguageEntry?.runtimeBaseline) {
+    assertLanguageWorkspaceRuntimeBaselineContent(
+      typescriptLanguageEntry.language,
+      typescriptLanguageEntry.runtimeBaseline,
+      typescriptRuntimeUsageContent,
+      'docs/typescript-volcengine-im-usage.md',
+    );
+  }
+
+  const flutterLanguageEntry = officialLanguages.find((entry) => entry.language === 'flutter');
+  if (flutterLanguageEntry?.runtimeBaseline) {
+    assertLanguageWorkspaceRuntimeBaselineContent(
+      flutterLanguageEntry.language,
+      flutterLanguageEntry.runtimeBaseline,
+      flutterRuntimeUsageContent,
+      'docs/flutter-volcengine-im-usage.md',
     );
   }
 

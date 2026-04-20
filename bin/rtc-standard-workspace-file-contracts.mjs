@@ -12,6 +12,8 @@ export const RTC_ROOT_REQUIRED_CONTRACT_FILES = Object.freeze([
   'bin/sdk-call-smoke.sh',
   'docs/multilanguage-capability-matrix.md',
   'docs/usage-guide.md',
+  'docs/typescript-volcengine-im-usage.md',
+  'docs/flutter-volcengine-im-usage.md',
   ...RTC_TEMPLATE_MATERIALIZED_FILES,
   ...RTC_TEMPLATE_SOURCE_FILES,
 ]);

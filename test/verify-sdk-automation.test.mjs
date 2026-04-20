@@ -422,6 +422,10 @@ test('root documentation and materialized readmes describe provider package entr
     path.join(workspaceRoot, 'docs', 'typescript-volcengine-im-usage.md'),
     'utf8',
   );
+  const flutterUsageGuide = readFileSync(
+    path.join(workspaceRoot, 'docs', 'flutter-volcengine-im-usage.md'),
+    'utf8',
+  );
   const providersReadme = readFileSync(
     path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'providers', 'README.md'),
     'utf8',
@@ -606,10 +610,20 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(usageGuide, /runtime-backed/);
   assert.match(usageGuide, /analysis-backed/);
   assert.match(usageGuide, /flutter-volcengine-im-usage\.md/);
+  assert.match(typescriptUsageGuide, /@volcengine\/rtc/);
+  assert.match(typescriptUsageGuide, /@sdkwork\/im-sdk/);
+  assert.match(typescriptUsageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+  assert.match(typescriptUsageGuide, /runtime-backed/);
+  assert.match(typescriptUsageGuide, /createStandardRtcCallControllerStack/);
   assert.match(typescriptCallTypes, /export const RTC_CALL_TRACK_ID_SEPARATOR = '-';/);
   assert.match(typescriptCallTypes, /export const DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS = true;/);
   assert.match(typescriptCallTypes, /export function createRtcCallTrackId\(/);
   assert.match(typescriptUsageGuide, /subscribeSignals` to `true`/i);
+  assert.match(flutterUsageGuide, /package:volc_engine_rtc\/volc_engine_rtc\.dart/);
+  assert.match(flutterUsageGuide, /package:im_sdk\/im_sdk\.dart/);
+  assert.match(flutterUsageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+  assert.match(flutterUsageGuide, /analysis-backed/);
+  assert.match(flutterUsageGuide, /createStandardRtcCallControllerStack/);
   assert.match(flutterCallTypes, /const String rtcCallTrackIdSeparator = '-';/);
   assert.match(flutterCallTypes, /String createRtcCallTrackId\(String rtcSessionId, RtcTrackKind kind\)/);
   assert.match(flutterCallSession, /createRtcCallTrackId\(rtcSessionId, RtcTrackKind\.audio\)/);
@@ -3678,6 +3692,16 @@ test('root materializer repairs provider package, provider catalog, and language
       'docs',
       'usage-guide.md',
     );
+    const typescriptUsageGuidePath = path.join(
+      fixture.workspaceCopy,
+      'docs',
+      'typescript-volcengine-im-usage.md',
+    );
+    const flutterUsageGuidePath = path.join(
+      fixture.workspaceCopy,
+      'docs',
+      'flutter-volcengine-im-usage.md',
+    );
     const verificationMatrixPath = path.join(
       fixture.workspaceCopy,
       'docs',
@@ -3805,6 +3829,8 @@ test('root materializer repairs provider package, provider catalog, and language
     writeFileSync(providerAdapterStandardPath, '# drifted provider adapter standard\n');
     writeFileSync(matrixPath, '# drifted matrix\n');
     writeFileSync(usageGuidePath, '# drifted usage guide\n');
+    writeFileSync(typescriptUsageGuidePath, '# drifted typescript runtime usage guide\n');
+    writeFileSync(flutterUsageGuidePath, '# drifted flutter runtime usage guide\n');
     writeFileSync(verificationMatrixPath, '# drifted verification matrix\n');
     writeFileSync(providersReadmePath, '# drifted providers readme\n');
     writeFileSync(javaReadmePath, '# drifted\n');
@@ -3863,6 +3889,8 @@ test('root materializer repairs provider package, provider catalog, and language
     }
     assert.ok(firstRun.changedFiles.includes('docs/multilanguage-capability-matrix.md'));
     assert.ok(firstRun.changedFiles.includes('docs/usage-guide.md'));
+    assert.ok(firstRun.changedFiles.includes('docs/typescript-volcengine-im-usage.md'));
+    assert.ok(firstRun.changedFiles.includes('docs/flutter-volcengine-im-usage.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/provider-package-scaffold.md'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/pom.xml'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-java/providers/rtc-sdk-provider-agora/README.md'));
@@ -3901,6 +3929,22 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedUsageGuide, /createStandardRtcCallControllerStack/);
     assert.match(repairedUsageGuide, /runtime-backed/);
     assert.match(repairedUsageGuide, /analysis-backed/);
+
+    const repairedTypeScriptUsageGuide = readFileSync(typescriptUsageGuidePath, 'utf8');
+    assert.match(repairedTypeScriptUsageGuide, /# SDKWork RTC SDK TypeScript Usage/);
+    assert.match(repairedTypeScriptUsageGuide, /@volcengine\/rtc/);
+    assert.match(repairedTypeScriptUsageGuide, /@sdkwork\/im-sdk/);
+    assert.match(repairedTypeScriptUsageGuide, /createStandardRtcCallControllerStack/);
+    assert.match(repairedTypeScriptUsageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+    assert.match(repairedTypeScriptUsageGuide, /runtime-backed/);
+
+    const repairedFlutterUsageGuide = readFileSync(flutterUsageGuidePath, 'utf8');
+    assert.match(repairedFlutterUsageGuide, /# SDKWork RTC SDK Flutter Usage/);
+    assert.match(repairedFlutterUsageGuide, /package:volc_engine_rtc\/volc_engine_rtc\.dart/);
+    assert.match(repairedFlutterUsageGuide, /package:im_sdk\/im_sdk\.dart/);
+    assert.match(repairedFlutterUsageGuide, /createStandardRtcCallControllerStack/);
+    assert.match(repairedFlutterUsageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+    assert.match(repairedFlutterUsageGuide, /analysis-backed/);
 
     const repairedPackageStandards = readFileSync(packageStandardsPath, 'utf8');
     assert.match(repairedPackageStandards, /# RTC SDK Package Standards/);

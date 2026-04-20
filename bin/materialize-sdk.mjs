@@ -9,7 +9,10 @@ import {
   resolveRtcSdkWorkspaceRoot,
   writeUtf8File,
 } from './rtc-standard-file-helpers.mjs';
-import { buildReservedLanguageMaterializationPlan } from './materialize-sdk-reserved-scaffolds.mjs';
+import {
+  buildReservedLanguageMaterializationPlan,
+  resolveFlutterRuntimeBaselineDependencyLines,
+} from './materialize-sdk-reserved-scaffolds.mjs';
 import { RTC_TEMPLATE_MATERIALIZATION_ASSETS } from './materialize-sdk-template-assets.mjs';
 import {
   DEFAULT_RTC_PROVIDER_KEY,
@@ -387,6 +390,493 @@ Current reality is straightforward:
   signal exchange in the current end-to-end call flow
 - the remaining language workspaces stay standardized and extensible without pretending they are
   already executable runtimes
+`);
+}
+
+function renderTypeScriptRuntimeUsageDoc(assembly) {
+  const { languageEntry, runtimeBaseline } = getExecutableLanguageRuntimeBaseline(
+    assembly,
+    'typescript',
+  );
+  const defaultProviderKey =
+    languageEntry.defaultProviderContract?.providerKey ??
+    assembly.defaults?.providerKey ??
+    DEFAULT_RTC_PROVIDER_KEY;
+
+  return lines(`
+# SDKWork RTC SDK TypeScript Usage
+
+This document describes the current executable TypeScript baseline of \`sdkwork-rtc-sdk\`.
+
+## Current Runnable Baseline
+
+- Default media provider: \`${defaultProviderKey}\`
+- Default web runtime package: official \`${runtimeBaseline.vendorSdkPackage}\`
+- Default web runtime import path: \`${runtimeBaseline.vendorSdkImportPath}\`
+- Default signaling package: \`${runtimeBaseline.signalingSdkPackage}\`
+- Default signaling import path: \`${runtimeBaseline.signalingSdkImportPath}\`
+- Standard media entrypoint: \`RtcDataSource\`
+- Standard call/session entrypoint: \`StandardRtcCallController\`
+- Recommended quick-start entrypoint: \`${runtimeBaseline.recommendedEntrypoint}\`
+- Smoke command: \`${runtimeBaseline.smokeCommand}\`
+- Smoke mode: \`${runtimeBaseline.smokeMode}\`
+
+## Install
+
+\`\`\`bash
+npm install ${languageEntry.publicPackage} ${runtimeBaseline.vendorSdkPackage} ${runtimeBaseline.signalingSdkPackage}
+\`\`\`
+
+## Fast Smoke Verification
+
+Run the public TypeScript smoke command inside \`${languageEntry.workspace}\` when you want to validate the
+default provider entrypoint without depending on a live IM service or a real vendor credential:
+
+\`\`\`bash
+${runtimeBaseline.smokeCommand}
+\`\`\`
+
+The smoke CLI runs the public \`${languageEntry.publicPackage}\` surface against mocked \`${runtimeBaseline.signalingSdkPackage}\`
+signaling and a mocked official \`${runtimeBaseline.vendorSdkPackage}\` module, then prints the resolved provider,
+runtime calls, signaling calls, and final controller states.
+
+## Media Runtime Only
+
+Use this path when the app already has its own session/token orchestration and only needs the RTC
+media runtime.
+
+\`\`\`ts
+import {
+  createRtcCallTrackId,
+  RtcDataSource,
+  createBuiltinRtcDriverManager,
+} from '${languageEntry.publicPackage}';
+
+const dataSource = new RtcDataSource({
+  driverManager: createBuiltinRtcDriverManager(),
+  nativeConfig: {
+    appId: 'volc-app-id',
+    engineConfig: {
+      env: 'production',
+    },
+    roomConfig: {
+      profile: 'communication',
+    },
+    userExtraInfo: {
+      displayName: 'Alice',
+    },
+    capture: {
+      audioDeviceId: 'default-mic',
+      videoDeviceId: 'default-camera',
+    },
+  },
+});
+
+const rtcClient = await dataSource.createClient();
+
+await rtcClient.join({
+  sessionId: 'rtc-session-1',
+  roomId: 'room-1',
+  participantId: 'user-1',
+  token: 'provider-issued-token',
+});
+
+await rtcClient.publish({
+  trackId: createRtcCallTrackId('rtc-session-1', 'audio'),
+  kind: 'audio',
+});
+
+await rtcClient.publish({
+  trackId: createRtcCallTrackId('rtc-session-1', 'video'),
+  kind: 'video',
+});
+\`\`\`
+
+### Required Native Config
+
+For the default Volcengine Web runtime, \`nativeConfig.appId\` is mandatory before \`join()\`.
+
+Supported Volcengine Web native config shape:
+
+\`\`\`ts
+type RtcVolcengineWebNativeConfig = {
+  appId?: string;
+  engineConfig?: Record<string, unknown>;
+  roomConfig?: Record<string, unknown>;
+  userExtraInfo?: Record<string, unknown>;
+  capture?: {
+    audioDeviceId?: string;
+    videoDeviceId?: string;
+  };
+};
+\`\`\`
+
+## Complete Call Flow With IM Signaling
+
+Use this path when the app wants one standard session that combines:
+
+- IM-side RTC session creation/invite/accept/reject/end
+- conversation-scoped incoming call discovery through \`${runtimeBaseline.signalingSdkPackage}\`
+- realtime session signal delivery through \`${runtimeBaseline.signalingSdkPackage}\`
+- provider participant credential issuance
+- Volcengine media join and auto publish
+- typed offer/answer/ice signaling over the RTC session stream
+
+\`\`\`ts
+import { ImSdkClient } from '${runtimeBaseline.signalingSdkImportPath}';
+import {
+  ${runtimeBaseline.recommendedEntrypoint},
+  RTC_CALL_OFFER_SIGNAL_TYPE,
+} from '${languageEntry.publicPackage}';
+
+const imSdk = new ImSdkClient({
+  baseUrl: 'https://craw-chat.example.com',
+  authToken: 'app-token',
+});
+
+const rtc = await ${runtimeBaseline.recommendedEntrypoint}({
+  sdk: imSdk,
+  connectOptions: {
+    deviceId: 'device-1',
+  },
+  watchConversationIds: ['conversation-1'],
+  dataSourceConfig: {
+    nativeConfig: {
+      appId: 'volc-app-id',
+    },
+  },
+});
+
+rtc.callController.onEvent((event) => {
+  if (event.type === 'incoming_invitation') {
+    void rtc.callController.acceptIncoming({
+      rtcSessionId: event.invitation.rtcSessionId,
+      participantId: 'user-1',
+      autoPublish: {
+        audio: true,
+        video: true,
+      },
+    });
+  }
+
+  if (event.type === 'signal' && event.signal.signalType === RTC_CALL_OFFER_SIGNAL_TYPE) {
+    console.log('remote offer', event.signal.payload);
+  }
+});
+
+await rtc.callController.startOutgoing({
+  rtcSessionId: 'rtc-session-1',
+  conversationId: 'conversation-1',
+  rtcMode: 'video_call',
+  roomId: 'room-1',
+  participantId: 'user-1',
+  signalingStreamId: 'rtc-signal-1',
+  autoPublish: {
+    audio: true,
+    video: true,
+  },
+});
+
+await rtc.callController.sendOffer({
+  sdp: 'offer-sdp',
+});
+
+await rtc.callController.sendIceCandidate({
+  candidate: 'candidate:1 1 udp 2122260223 10.0.0.2 55000 typ host',
+});
+
+await rtc.callController.end();
+\`\`\`
+
+## Signaling Contract Mapping
+
+\`createImRtcSignalingAdapter(...)\` maps the \`${runtimeBaseline.signalingSdkPackage}\` composed RTC surface to the RTC
+standard call/signaling contract:
+
+- \`sdk.rtc.create(...)\` -> \`createSession(...)\`
+- \`sdk.rtc.invite(...)\` -> \`inviteSession(...)\`
+- \`sdk.rtc.accept(...)\` -> \`acceptSession(...)\`
+- \`sdk.rtc.reject(...)\` -> \`rejectSession(...)\`
+- \`sdk.rtc.end(...)\` -> \`endSession(...)\`
+- \`sdk.rtc.postJsonSignal(...)\` -> \`sendSignal(...)\`
+- \`sdk.rtc.issueParticipantCredential(...)\` -> \`issueParticipantCredential(...)\`
+- \`sdk.connect(...).signals.onRtcSession(...)\` -> \`subscribeSessionSignals(...)\`
+- \`sdk.createSignalMessage(...)\` + \`sdk.send(...)\` -> conversation-scoped invite publication
+- \`sdk.connect(...).messages.onConversation(...)\` -> incoming invite discovery
+
+## Runtime Guarantees
+
+- \`${runtimeBaseline.recommendedEntrypoint}(...)\` returns \`driverManager\`, \`dataSource\`,
+  \`mediaClient\`, \`signaling\`, \`callSession\`, and \`callController\` as one explicit standard bundle
+- \`createRtcCallTrackId(rtcSessionId, kind)\` is the standard cross-language track id helper and
+  yields canonical ids such as \`rtc-session-1-audio\`
+- TypeScript now defaults \`subscribeSignals\` to \`true\`, aligned with Flutter/mobile
+- \`createBuiltinRtcDriverManager()\` defaults to \`${defaultProviderKey}\`
+- Volcengine Web runtime loading is lazy
+- official vendor SDKs are not bundled into the RTC standard package
+- signal payloads are exposed as parsed JSON when possible and as raw strings otherwise
+- the call/session layer does not leak IM transport DTOs into the RTC public standard
+- \`StandardRtcCallController\` is the default orchestration layer for invite discovery, remote
+  lifecycle reconciliation, and typed offer/answer/ice signaling
+`);
+}
+
+function renderFlutterRuntimeUsageInstallDependencies(languageEntry) {
+  if (!languageEntry.runtimeBaseline) {
+    throw new Error('Flutter usage guide requires runtimeBaseline metadata');
+  }
+
+  return [
+    '  flutter:',
+    '    sdk: flutter',
+    `  ${languageEntry.publicPackage}:`,
+    '    path: ../sdkwork-rtc-sdk/sdkwork-rtc-sdk-flutter',
+    ...resolveFlutterRuntimeBaselineDependencyLines(
+      languageEntry.runtimeBaseline.signalingSdkPackage,
+    ),
+    ...resolveFlutterRuntimeBaselineDependencyLines(languageEntry.runtimeBaseline.vendorSdkPackage),
+  ].join('\n');
+}
+
+function renderFlutterRuntimeUsageDoc(assembly) {
+  const { languageEntry, runtimeBaseline } = getExecutableLanguageRuntimeBaseline(
+    assembly,
+    'flutter',
+  );
+  const defaultProviderKey =
+    languageEntry.defaultProviderContract?.providerKey ??
+    assembly.defaults?.providerKey ??
+    DEFAULT_RTC_PROVIDER_KEY;
+
+  return lines(`
+# SDKWork RTC SDK Flutter Usage
+
+This document describes the current executable Flutter/mobile baseline of \`sdkwork-rtc-sdk\`.
+
+## Current Runnable Baseline
+
+- Default media provider: \`${defaultProviderKey}\`
+- Default mobile runtime package: official \`${runtimeBaseline.vendorSdkPackage}\`
+- Default mobile runtime import path: \`${runtimeBaseline.vendorSdkImportPath}\`
+- Default signaling package: \`${runtimeBaseline.signalingSdkPackage}\`
+- Default signaling import path: \`${runtimeBaseline.signalingSdkImportPath}\`
+- Standard media entrypoint: \`RtcDataSource\`
+- Standard call/session entrypoint: \`StandardRtcCallController\`
+- Recommended quick-start entrypoint: \`${runtimeBaseline.recommendedEntrypoint}\`
+- Smoke command: \`${runtimeBaseline.smokeCommand}\`
+- Smoke mode: \`${runtimeBaseline.smokeMode}\`
+
+## Install
+
+Add the standard RTC package, the official Volcengine Flutter SDK, and the IM SDK:
+
+\`\`\`yaml
+dependencies:
+${renderFlutterRuntimeUsageInstallDependencies(languageEntry)}
+\`\`\`
+
+## Fast Smoke Verification
+
+Run the public Flutter smoke command inside \`${languageEntry.workspace}\` when you need to verify the default
+\`${defaultProviderKey} + ${runtimeBaseline.signalingSdkPackage}\` path without live services:
+
+\`\`\`powershell
+${runtimeBaseline.smokeCommand}
+\`\`\`
+
+The executable wrapper is currently analyze-backed because the official
+\`${runtimeBaseline.vendorSdkPackage}\` package crashes under Dart VM CLI compilation in the current toolchain.
+It still gives one stable command for maintainers to verify the standard smoke scenario source.
+
+The verified smoke surface is:
+
+- \`${runtimeBaseline.recommendedEntrypoint}(...)\`
+- the default \`${defaultProviderKey}\` provider selection path
+- \`${runtimeBaseline.signalingSdkPackage}\` client composition through \`ImSdkClient.create(...)\`
+- the official Volcengine Flutter bridge smoke scenario source in \`bin/sdk-call-smoke.dart\`
+- the future runtime-backed path that will be used once the vendor package is CLI-runnable in the
+  active toolchain
+
+## Media Runtime Only
+
+Use this path when the application already owns its own session orchestration and only needs the
+standard media runtime.
+
+\`\`\`dart
+import 'package:rtc_sdk/rtc_sdk.dart';
+
+Future<void> startRtcMediaOnly() async {
+  final dataSource = RtcDataSource(
+    options: const RtcDataSourceOptions(
+      nativeConfig: RtcVolcengineFlutterNativeConfig(
+        appId: 'volc-app-id',
+        room: RtcVolcengineFlutterRoomConfig(
+          userId: 'user-1',
+          profile: 'communication',
+          scenario: 'general',
+        ),
+      ),
+    ),
+  );
+
+  final rtcClient = await dataSource.createClient<RtcVolcengineFlutterNativeClient>();
+
+  await rtcClient.join(
+    const RtcJoinOptions(
+      sessionId: 'rtc-session-1',
+      roomId: 'room-1',
+      participantId: 'user-1',
+      token: 'provider-issued-token',
+    ),
+  );
+
+  await rtcClient.publish(
+    RtcPublishOptions(
+      trackId: createRtcCallTrackId('rtc-session-1', RtcTrackKind.audio),
+      kind: RtcTrackKind.audio,
+    ),
+  );
+
+  await rtcClient.publish(
+    RtcPublishOptions(
+      trackId: createRtcCallTrackId('rtc-session-1', RtcTrackKind.video),
+      kind: RtcTrackKind.video,
+    ),
+  );
+}
+\`\`\`
+
+## Required Native Config
+
+For the default Volcengine Flutter runtime, \`RtcVolcengineFlutterNativeConfig.appId\` is mandatory.
+The driver fails fast before \`join()\` if it is missing.
+
+The standard native config shape is:
+
+\`\`\`dart
+const RtcVolcengineFlutterNativeConfig(
+  appId: 'volc-app-id',
+  room: RtcVolcengineFlutterRoomConfig(
+    userId: 'user-1',
+    profile: 'communication',
+    scenario: 'general',
+    token: 'optional-direct-room-token',
+  ),
+);
+\`\`\`
+
+## Complete Call Flow With IM Signaling
+
+Use this path when the app wants one standard session that combines:
+
+- IM-side RTC session creation, invite, accept, reject, and end
+- conversation-scoped incoming call discovery through \`${runtimeBaseline.signalingSdkPackage}\`
+- realtime session signal delivery through \`${runtimeBaseline.signalingSdkPackage}\`
+- provider participant credential issuance
+- Volcengine media join and auto publish
+- typed offer/answer/ice signaling over the RTC session stream
+
+\`\`\`dart
+import '${runtimeBaseline.signalingSdkImportPath}';
+import 'package:rtc_sdk/rtc_sdk.dart';
+
+Future<void> startRtcCall({
+  required ImSdkClient imSdk,
+  required String currentUserId,
+}) async {
+  final rtc = await ${runtimeBaseline.recommendedEntrypoint}<
+      RtcVolcengineFlutterNativeClient>(
+    CreateStandardRtcCallControllerStackOptions(
+      sdk: imSdk,
+      deviceId: 'device-1',
+      watchConversationIds: const <String>['conversation-1'],
+      dataSourceOptions: const RtcDataSourceOptions(
+        nativeConfig: RtcVolcengineFlutterNativeConfig(
+          appId: 'volc-app-id',
+        ),
+      ),
+    ),
+  );
+
+  rtc.callController.onEvent((event) {
+    if (event.type == RtcCallControllerEventType.incomingInvitation) {
+      unawaited(
+        rtc.callController.acceptIncoming(
+          RtcCallControllerAcceptOptions(
+            rtcSessionId: event.invitation!.rtcSessionId,
+            participantId: currentUserId,
+            autoPublish: const RtcCallAutoPublishOptions(
+              audio: true,
+              video: true,
+            ),
+          ),
+        ),
+      );
+    }
+  });
+
+  await rtc.callController.startOutgoing(
+    RtcCallControllerOutgoingOptions(
+      rtcSessionId: 'rtc-session-1',
+      conversationId: 'conversation-1',
+      rtcMode: 'video_call',
+      roomId: 'room-1',
+      participantId: currentUserId,
+      signalingStreamId: 'rtc-signal-1',
+      autoPublish: const RtcCallAutoPublishOptions(
+        audio: true,
+        video: true,
+      ),
+    ),
+  );
+
+  await rtc.callController.sendOffer(
+    const RtcCallSessionDescriptionPayload(
+      sdp: 'offer-sdp',
+    ),
+  );
+
+  await rtc.callController.sendIceCandidate(
+    const RtcCallIceCandidatePayload(
+      candidate: 'candidate:1 1 udp 2122260223 10.0.0.2 55000 typ host',
+    ),
+  );
+
+  await rtc.callController.end();
+}
+\`\`\`
+
+## Signaling Contract Mapping
+
+\`createImRtcSignalingAdapter(...)\` maps the \`${runtimeBaseline.signalingSdkPackage}\` composed RTC surface to the RTC
+standard call/signaling contract:
+
+- \`sdk.rtc.create(...)\` -> \`createSession(...)\`
+- \`sdk.rtc.invite(...)\` -> \`inviteSession(...)\`
+- \`sdk.rtc.accept(...)\` -> \`acceptSession(...)\`
+- \`sdk.rtc.reject(...)\` -> \`rejectSession(...)\`
+- \`sdk.rtc.end(...)\` -> \`endSession(...)\`
+- \`sdk.rtc.postJsonSignal(...)\` -> \`sendSignal(...)\`
+- \`sdk.rtc.issueParticipantCredential(...)\` -> \`issueParticipantCredential(...)\`
+- \`sdk.realtime.pullEvents(...)\` -> internal shared RTC realtime dispatcher
+- \`sdk.conversations.postMessage(...)\` with a signal part -> conversation-scoped invite publication
+
+## Runtime Guarantees
+
+- \`${runtimeBaseline.recommendedEntrypoint}(...)\` returns \`driverManager\`, \`dataSource\`,
+  \`mediaClient\`, \`signaling\`, \`callSession\`, \`realtimeDispatcher\`, and \`callController\`
+  in one explicit standard bundle
+- \`createRtcCallTrackId(rtcSessionId, kind)\` is the standard cross-language track id helper and
+  yields canonical ids such as \`rtc-session-1-audio\`
+- \`RtcDriverManager()\` auto-registers the default Volcengine Flutter driver
+- \`RtcDataSource()\` defaults to \`${defaultProviderKey}\`
+- the call/session layer does not leak IM transport DTOs into the RTC public standard
+- \`StandardRtcCallController\` is the default orchestration layer for invite discovery, remote
+  lifecycle reconciliation, and typed offer/answer/ice signaling
+- \`StandardRtcCallSession\` remains the focused single-session executor under the controller
+- \`RtcJoinOptions.token\` is sourced from IM-issued participant credentials in the standard call
+  flow instead of hardcoding vendor tokens in the caller
+- audio and video auto-publish are standardized through \`RtcCallAutoPublishOptions\`
 `);
 }
 
@@ -2333,6 +2823,14 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
     {
       relativePath: 'docs/usage-guide.md',
       content: renderUsageGuide(assembly),
+    },
+    {
+      relativePath: 'docs/typescript-volcengine-im-usage.md',
+      content: renderTypeScriptRuntimeUsageDoc(assembly),
+    },
+    {
+      relativePath: 'docs/flutter-volcengine-im-usage.md',
+      content: renderFlutterRuntimeUsageDoc(assembly),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/package.json',
