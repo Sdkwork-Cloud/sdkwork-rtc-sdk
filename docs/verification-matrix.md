@@ -111,7 +111,7 @@ The full regression entrypoint must also attempt the following optional language
 skip them only when the corresponding toolchain is unavailable:
 
 - `python -m compileall -q sdkwork-rtc-sdk-python/sdkwork_rtc_sdk`
-- `dart analyze lib`
+- `flutter analyze`
 - `cargo check`
 - `go build ./...`
 - `dotnet build src/SDKWork.Rtc.Sdk/SDKWork.Rtc.Sdk.csproj -nologo`
@@ -223,17 +223,17 @@ The root verifier must confirm:
   `providerPackageBoundary.lifecycleStatusTerms` as
   `root_public_reference_boundary` and `package_reference_boundary`,
   and `providerPackageBoundary.runtimeBridgeStatusTerms` as `reference-baseline`
-- every reserved non-TypeScript language declares an assembly-driven `contractScaffold`
-- every reserved non-TypeScript language workspace ships the declared code-level contract scaffold
+- every remaining reserved non-TypeScript language declares an assembly-driven `contractScaffold`
+- every remaining reserved non-TypeScript language workspace ships the declared code-level contract scaffold
   file
 - every reserved language contract scaffold preserves the standard abstraction names:
   `RtcProviderDriver`, `RtcDriverManager`, `RtcDataSource`, `RtcClient`, `RtcRuntimeController`
-- every reserved non-TypeScript language declares an assembly-driven `packageScaffold`
-- every reserved non-TypeScript language workspace ships the declared package/build manifest file
+- every remaining reserved non-TypeScript language declares an assembly-driven `packageScaffold`
+- every remaining reserved non-TypeScript language workspace ships the declared package/build manifest file
 - every reserved language package scaffold preserves the build system marker and the public package
   identity declared by the language workspace
-- every reserved non-TypeScript language declares an assembly-driven `providerPackageScaffold`
-- every reserved non-TypeScript language workspace ships the declared provider package scaffold file
+- every remaining reserved non-TypeScript language declares an assembly-driven `providerPackageScaffold`
+- every remaining reserved non-TypeScript language workspace ships the declared provider package scaffold file
 - every reserved language provider package scaffold preserves
   `providerPackageScaffold.relativePath`, `providerPackageScaffold.directoryPattern`,
   `providerPackageScaffold.packagePattern`, `providerPackageScaffold.manifestFileName`, and
@@ -266,8 +266,8 @@ The root verifier must confirm:
   official provider under the declared provider package directory pattern
 - every reserved language materializes one metadata-only source stub per official provider under the
   declared provider package source file pattern and source symbol contract
-- every reserved non-TypeScript language declares an assembly-driven `metadataScaffold`
-- every reserved non-TypeScript language workspace ships the declared provider catalog, provider package catalog, provider activation catalog, capability catalog, provider extension catalog, and provider selection scaffold files
+- every remaining reserved non-TypeScript language declares an assembly-driven `metadataScaffold`
+- every remaining reserved non-TypeScript language workspace ships the declared provider catalog, provider package catalog, provider activation catalog, capability catalog, provider extension catalog, and provider selection scaffold files
 - every reserved language metadata scaffold preserves the standard metadata tokens:
   `RtcProviderCatalog`, `DEFAULT_RTC_PROVIDER_KEY`, `providerKey`, `pluginId`, `driverId`,
   `RtcProviderPackageCatalog`, `packageIdentity`, `manifestPath`, `readmePath`, `sourcePath`,
@@ -284,8 +284,8 @@ The root verifier must confirm:
 - every reserved language resolution scaffold declares the required relative-path fields:
   `driverManagerRelativePath`, `dataSourceRelativePath`, `providerSupportRelativePath`, and
   `providerPackageLoaderRelativePath`
-- every reserved non-TypeScript language declares an assembly-driven `resolutionScaffold`
-- every reserved non-TypeScript language workspace ships the declared driver manager, data source,
+- every remaining reserved non-TypeScript language declares an assembly-driven `resolutionScaffold`
+- every remaining reserved non-TypeScript language workspace ships the declared driver manager, data source,
   provider support, and provider package loader scaffold files
 - every reserved language resolution scaffold preserves the standard resolution tokens:
   `RtcDriverManager`, `resolveSelection`, `describeProviderSupport`, `listProviderSupport`,
@@ -388,7 +388,7 @@ The root verifier must confirm:
   `getRtcProviderByProviderKey(...)`
 - the TypeScript provider catalog lookup helpers preserve standard provider-key lookup through
   `getBuiltinRtcProviderMetadataByKey(...)` and `getOfficialRtcProviderMetadataByKey(...)`
-- the reserved Flutter root barrel at `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart` remains aligned
+- the Flutter root barrel at `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart` remains aligned
   with the standard root public entrypoint contract
 - the reserved Python package root at `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`
   remains aligned with the standard root public entrypoint contract

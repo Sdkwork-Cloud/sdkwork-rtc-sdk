@@ -12,11 +12,82 @@ function fail(message) {
   throw new Error(message);
 }
 
+function resolveWindowsBatCommandPath(command) {
+  if (process.platform !== 'win32') {
+    return null;
+  }
+
+  const declaredExtension = path.extname(command).toLowerCase();
+  if (declaredExtension === '.cmd' || declaredExtension === '.bat') {
+    return command;
+  }
+
+  const resolution = spawnSync('where.exe', [command], {
+    encoding: 'utf8',
+    shell: false,
+  });
+
+  if (resolution.error || resolution.status !== 0 || typeof resolution.stdout !== 'string') {
+    return null;
+  }
+
+  const resolvedPath = resolution.stdout
+    .split(/\r?\n/u)
+    .map((entry) => entry.trim())
+    .find((entry) => {
+      if (!entry) {
+        return false;
+      }
+
+      const resolvedExtension = path.extname(entry).toLowerCase();
+      return resolvedExtension === '.cmd' || resolvedExtension === '.bat';
+    });
+
+  if (!resolvedPath) {
+    return null;
+  }
+
+  const resolvedExtension = path.extname(resolvedPath).toLowerCase();
+  if (resolvedExtension === '.cmd' || resolvedExtension === '.bat') {
+    return resolvedPath;
+  }
+
+  return null;
+}
+
+function quoteWindowsCmdArgument(argument) {
+  const value = String(argument);
+  if (!/[\s"]/u.test(value)) {
+    return value;
+  }
+
+  return `"${value.replace(/"/gu, '""')}"`;
+}
+
+function buildWindowsFlutterCommandLine(flutterBatPath, args) {
+  const flutterBinDirectory = path.dirname(flutterBatPath);
+  const bootstrapPath = [
+    'C:\\Windows\\System32',
+    'C:\\Windows',
+    'C:\\Windows\\System32\\WindowsPowerShell\\v1.0',
+    'C:\\Program Files\\Git\\cmd',
+    flutterBinDirectory,
+  ].join(';');
+
+  return `set CONDA_NO_PLUGINS=true&& set PATH=${bootstrapPath}&& ${['flutter', ...args.map(quoteWindowsCmdArgument)].join(' ')}`;
+}
+
 function runCommand(label, command, args, cwd, options = {}) {
   const optional = options.optional === true;
+  const windowsFlutterBatPath =
+    process.platform === 'win32' && command === 'flutter' ? resolveWindowsBatCommandPath(command) : null;
+  const commandToRun = windowsFlutterBatPath ? process.env.ComSpec ?? 'cmd.exe' : command;
+  const argsToRun = windowsFlutterBatPath
+    ? ['/d', '/s', '/c', buildWindowsFlutterCommandLine(windowsFlutterBatPath, args)]
+    : args;
 
   console.log(`[sdkwork-rtc-sdk] ${optional ? 'optional' : 'required'} step: ${label}`);
-  const result = spawnSync(command, args, {
+  const result = spawnSync(commandToRun, argsToRun, {
     cwd,
     stdio: 'inherit',
     shell: false,
@@ -192,9 +263,9 @@ export function runRtcSdkSmoke(workspaceRoot) {
       cwd: workspaceRoot,
     },
     {
-      label: 'flutter:dart-analyze',
-      command: 'dart',
-      args: ['analyze', 'lib'],
+      label: 'flutter:analyze',
+      command: 'flutter',
+      args: ['analyze'],
       cwd: path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter'),
     },
     {

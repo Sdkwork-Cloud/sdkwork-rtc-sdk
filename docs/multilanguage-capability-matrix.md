@@ -164,7 +164,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 | Language | Public package | Control SDK | Runtime bridge | Maturity tier | Current role |
 | --- | --- | --- | --- | --- | --- |
 | TypeScript | `@sdkwork/rtc-sdk` | Yes | Yes | `reference` | Executable reference implementation |
-| Flutter | `rtc_sdk` | Yes | No | `reserved` | Reserved workspace skeleton |
+| Flutter | `rtc_sdk` | Yes | Yes | `reference` | Executable mobile runtime baseline |
 | Rust | `rtc_sdk` | Yes | No | `reserved` | Reserved workspace skeleton |
 | Java | `com.sdkwork:rtc-sdk` | Yes | No | `reserved` | Reserved workspace skeleton |
 | C# | `Sdkwork.Rtc.Sdk` | Yes | No | `reserved` | Reserved workspace skeleton |
@@ -178,7 +178,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 | Language | Workspace catalog | Public package | Control SDK | Runtime bridge | Maturity tier |
 | --- | --- | --- | --- | --- | --- |
 | TypeScript | `src/language-workspace-catalog.ts` | `@sdkwork/rtc-sdk` | Yes | Yes | `reference` |
-| Flutter | `lib/src/rtc_language_workspace_catalog.dart` | `rtc_sdk` | Yes | No | `reserved` |
+| Flutter | `lib/src/rtc_language_workspace_catalog.dart` | `rtc_sdk` | Yes | Yes | `reference` |
 | Rust | `src/language_workspace_catalog.rs` | `rtc_sdk` | Yes | No | `reserved` |
 | Java | `src/main/java/com/sdkwork/rtc/metadata/RtcLanguageWorkspaceCatalog.java` | `com.sdkwork:rtc-sdk` | Yes | No | `reserved` |
 | C# | `src/SDKWork.Rtc.Sdk/RtcLanguageWorkspaceCatalog.cs` | `Sdkwork.Rtc.Sdk` | Yes | No | `reserved` |
@@ -267,7 +267,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 | TypeScript | `jitsi` | `package-boundary` | Yes | No | Yes |
 | TypeScript | `janus` | `package-boundary` | Yes | No | Yes |
 | TypeScript | `mediasoup` | `package-boundary` | Yes | No | Yes |
-| Flutter | `volcengine` | `control-metadata-only` | No | No | No |
+| Flutter | `volcengine` | `root-public-builtin` | Yes | Yes | Yes |
 | Flutter | `aliyun` | `control-metadata-only` | No | No | No |
 | Flutter | `tencent` | `control-metadata-only` | No | No | No |
 | Flutter | `agora` | `control-metadata-only` | No | No | No |

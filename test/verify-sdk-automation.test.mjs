@@ -806,7 +806,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /DEFAULT_RTC_PROVIDER_DRIVER_ID/);
   assert.match(verificationMatrix, /index\.js/);
   assert.match(verificationMatrix, /index\.d\.ts/);
-  assert.match(verificationMatrix, /dart analyze/i);
+  assert.match(verificationMatrix, /flutter analyze/i);
   assert.match(verificationMatrix, /consumer-supplied/);
   assert.match(verificationMatrix, /native-factory/);
   assert.match(verificationMatrix, /must-not-bundle/);
@@ -1333,7 +1333,20 @@ test('rtc assembly declares official languages and default provider', () => {
     })),
   );
 
-  for (const languageEntry of assembly.languages.filter((entry) => entry.language !== 'typescript')) {
+  const flutterLanguage = assembly.languages.find((entry) => entry.language === 'flutter');
+  assert.ok(flutterLanguage);
+  assert.deepEqual(
+    flutterLanguage.providerActivations.map((entry) => ({
+      providerKey: entry.providerKey,
+      activationStatus: entry.activationStatus,
+    })),
+    assembly.providers.map((provider) => ({
+      providerKey: provider.providerKey,
+      activationStatus: provider.providerKey === 'volcengine' ? 'root-public-builtin' : 'control-metadata-only',
+    })),
+  );
+
+  for (const languageEntry of assembly.languages.filter((entry) => !['typescript', 'flutter'].includes(entry.language))) {
     assert.deepEqual(
       languageEntry.providerActivations.map((entry) => entry.activationStatus),
       assembly.providers.map(() => 'control-metadata-only'),
@@ -1366,7 +1379,7 @@ test('root smoke regression entrypoints exist', () => {
 
   const smokeScript = readFileSync(path.join(workspaceRoot, 'bin', 'smoke-sdk.mjs'), 'utf8');
   assert.match(smokeScript, /python:compileall/);
-  assert.match(smokeScript, /flutter:dart-analyze/);
+  assert.match(smokeScript, /flutter:analyze/);
   assert.match(smokeScript, /rust:cargo-check/);
   assert.match(smokeScript, /go:go-build/);
   assert.match(smokeScript, /csharp:dotnet-build/);

@@ -8,7 +8,7 @@ It is a workspace, not a single package. The workspace owns:
 - provider-neutral RTC contracts and capability vocabulary
 - official provider adapter naming, selection, and verification rules
 - reserved provider package boundaries for one-provider-only adapter extraction
-- the executable TypeScript reference implementation
+- the executable TypeScript reference implementation and Flutter mobile runtime baseline
 - the official multi-language workspace family for `typescript`, `flutter`, `rust`, `java`,
   `csharp`, `swift`, `kotlin`, `go`, and `python`
 - code-level contract scaffold boundaries for reserved language workspaces
@@ -344,8 +344,13 @@ stays assembly-governed through `providerActivationStandard`, and
 `providerPackageBoundaryContract.runtimeBridgeStatusTerms` so the allowed package-boundary
 vocabulary stays assembly-governed through `providerPackageBoundaryStandard`.
 TypeScript is the only `catalog-governed-mixed` workspace and keeps
-`rootPublicPolicy` fixed at `builtin-only`, while reserved languages stay
-`scaffold-per-provider-package` and keep `rootPublicPolicy` fixed at `none`.
+`rootPublicPolicy` fixed at `builtin-only`.
+Flutter is an executable mobile runtime baseline that still keeps
+`providerPackageBoundary.mode` fixed at `scaffold-per-provider-package` and
+`rootPublicPolicy` fixed at `none` because only the root-public builtin `volcengine` path is
+executable in the current landing.
+The remaining reserved languages stay `scaffold-per-provider-package` and keep `rootPublicPolicy`
+fixed at `none`.
 
 TypeScript provider package boundaries under
 `sdkwork-rtc-sdk-typescript/providers/rtc-sdk-provider-<providerKey>/` must also ship executable
@@ -372,7 +377,7 @@ Reserved non-TypeScript provider package boundaries must also materialize one me
 stub per official provider so future adapter work inherits a deterministic source stub and source
 symbol layout before runtime code exists.
 
-Reserved root public entrypoints must also stay standardized wherever the language ecosystem uses a
+Language root public entrypoints must also stay standardized wherever the language ecosystem uses a
 single package barrel or package initializer:
 
 - Flutter root barrel: `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart`
@@ -389,7 +394,7 @@ That exposure rule is materialized in
 `RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_BUILTIN_PROVIDER_EXPORT_PATHS`,
 `RTC_ROOT_PUBLIC_SURFACE_RESERVED_SURFACE_FAMILIES`, and
 `RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS` keep the TypeScript root export graph and the
-reserved Flutter/Python single-entrypoint families assembly-governed.
+Flutter/Python single-entrypoint families assembly-governed.
 
 The TypeScript root public entrypoint may additionally expose the provider package loader and
 installer SPI because that surface is provider-neutral package-boundary infrastructure, not a

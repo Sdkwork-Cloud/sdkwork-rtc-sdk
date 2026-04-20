@@ -1,6 +1,6 @@
 name: rtc_sdk
 description: >
-  Reserved Flutter package scaffold for rtc_sdk.
+  Flutter RTC runtime baseline for rtc_sdk.
   build system: flutter-pub
 publish_to: none
 version: 0.1.0

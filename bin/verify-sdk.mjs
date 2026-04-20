@@ -577,7 +577,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /root-public-builtin/, label: 'language provider root-public-builtin contract' },
       { pattern: /package-boundary/, label: 'language provider package-boundary contract' },
       { pattern: /control-metadata-only/, label: 'language provider control-metadata-only contract' },
-      { pattern: /lib\/rtc_sdk\.dart/, label: 'reserved Flutter root barrel contract' },
+      { pattern: /lib\/rtc_sdk\.dart/, label: 'Flutter root barrel contract' },
       { pattern: /sdkwork_rtc_sdk\/__init__\.py/, label: 'reserved Python package root contract' },
       { pattern: /PascalCase/, label: 'Go PascalCase public field documentation contract' },
       { pattern: /ProviderKey/, label: 'Go public ProviderKey field contract' },
@@ -1024,7 +1024,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /extension-object/, label: 'verification of extension-object provider extension access contract' },
       { pattern: /smoke-sdk\.mjs/, label: 'verification of full regression smoke entrypoint' },
       { pattern: /compileall/i, label: 'verification of python smoke compile command' },
-      { pattern: /dart analyze/i, label: 'verification of flutter smoke analyze command' },
+      { pattern: /flutter analyze/i, label: 'verification of flutter smoke analyze command' },
       { pattern: /cargo check/i, label: 'verification of rust smoke compile command' },
       { pattern: /go build/i, label: 'verification of go smoke build command' },
       { pattern: /dotnet build/i, label: 'verification of csharp smoke build command' },
@@ -2116,6 +2116,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
 
     const seenProviderActivationKeys = new Set();
+    let hasExecutableProviderActivation = false;
     for (const providerActivation of languageEntry.providerActivations) {
       if (typeof providerActivation.providerKey !== 'string' || providerActivation.providerKey.length === 0) {
         fail(`Language provider activation providerKey must be declared for ${languageEntry.language}`);
@@ -2160,9 +2161,13 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         }
       }
 
-      if (providerActivation.activationStatus === 'control-metadata-only' && languageEntry.runtimeBridge) {
-        fail(`Language provider activation control-metadata-only must not be used by runtimeBridge-enabled languages for ${languageEntry.language}: ${providerActivation.providerKey}`);
+      if (providerActivation.activationStatus !== 'control-metadata-only') {
+        hasExecutableProviderActivation = true;
       }
+    }
+
+    if (languageEntry.runtimeBridge && !hasExecutableProviderActivation) {
+      fail(`Language provider activation matrix must expose at least one executable provider for runtimeBridge-enabled language ${languageEntry.language}`);
     }
   }
 

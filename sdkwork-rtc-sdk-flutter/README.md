@@ -9,20 +9,20 @@ Planned public package:
 Current boundary:
 
 - control SDK support: yes
-- runtime bridge support: reserved
-- maturity tier: reserved
+- runtime bridge support: yes
+- maturity tier: reference
 
 Current role:
 
-- Reserved workspace skeleton
-- provider metadata, capability matrix, and driver selection standards
-- reserved Flutter language boundary with no runtime bridge claim in the current landing
-- future Flutter runtime bridge work must follow the TypeScript baseline contract
-- code-level RtcStandardContract scaffold keeps provider-neutral core abstractions fixed before runtime bridge landing
-- metadata scaffold fixes provider catalog, capability catalog, provider extension catalog, and provider selection skeleton boundaries before runtime bridge landing
-- resolution scaffold fixes metadata-only driver manager, data source, provider support, and provider package loader boundaries before runtime bridge landing
+- Executable mobile runtime baseline
+- provider-neutral RTC contracts
+- JDBC-style driver manager and data source model for Flutter/mobile
+- official Volcengine Flutter runtime binding through package:volc_engine_rtc
+- sdkwork-im-sdk signaling integration through package:im_sdk/im_sdk.dart
+- assembly-driven provider catalog, capability catalog, provider extension catalog, and provider selection helpers
+- default mobile provider remains volcengine unless the caller explicitly overrides selection
 
-This workspace is materialized now so the official language matrix stays explicit and verifiable. Future Flutter runtime bridge work must follow the same provider-adapter and capability standards as the TypeScript baseline.
+This workspace is the executable Flutter/mobile runtime baseline for provider-neutral RTC contracts, Volcengine default runtime binding, IM-signaled call sessions, and JDBC-style driver selection in sdkwork-rtc-sdk.
 
 Default provider contract:
 

@@ -4994,7 +4994,7 @@ function renderFlutterReservedLanguagePlan(languageEntry, assembly) {
       content: lines(`
 name: ${languageEntry.publicPackage}
 description: >
-  Reserved Flutter package scaffold for ${languageEntry.publicPackage}.
+  ${languageEntry.runtimeBridge ? `Flutter RTC runtime baseline for ${languageEntry.publicPackage}.` : `Reserved Flutter package scaffold for ${languageEntry.publicPackage}.`}
   build system: ${languageEntry.packageScaffold.buildSystem}
 publish_to: none
 version: 0.1.0

@@ -27,7 +27,8 @@ Current docs:
 - `verification-matrix.md`
   Root verification expectations and commands.
 
-The TypeScript executable baseline fixes these standard modules as the executable source of truth:
+The TypeScript executable baseline remains the canonical assembly-materialization source for these
+standard modules:
 
 - capability catalog: `sdkwork-rtc-sdk-typescript/src/capability-catalog.ts`
   Includes `getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)` so capability
@@ -105,9 +106,19 @@ The TypeScript executable baseline fixes these standard modules as the executabl
   `providerExtensionStandard`, `providerTierStandard`, `languageMaturityStandard`,
   `typescriptAdapterStandard`, and `typescriptPackageStandard` through those machine-readable
   contracts.
-  TypeScript stays `catalog-governed-mixed` with `rootPublicPolicy` set to `builtin-only`,
-  while reserved languages stay `scaffold-per-provider-package` with `rootPublicPolicy` set to
-  `none`.
+  TypeScript stays `catalog-governed-mixed` with `rootPublicPolicy` set to `builtin-only`.
+  Flutter is an executable mobile runtime baseline with `rootPublicPolicy` set to `none` and a
+  mixed provider-activation matrix where the builtin `volcengine` path is executable while the
+  remaining providers stay metadata-only.
+  The remaining reserved languages stay `scaffold-per-provider-package` with `rootPublicPolicy`
+  set to `none`.
+
+The Flutter executable mobile baseline at `sdkwork-rtc-sdk-flutter/lib` is the verified mobile
+runtime bridge landing for the current standard.
+It keeps the same provider-neutral contracts, language workspace catalog, provider activation
+catalog, capability catalog, provider selection helpers, and JDBC-style driver manager model as
+the TypeScript baseline while binding the default mobile runtime to the official Volcengine RTC
+Flutter SDK and `sdkwork-im-sdk` signaling.
 
 Reserved non-TypeScript language workspace catalogs and metadata scaffolds must also keep explicit
 lookup helpers stable with language-idiomatic naming. `lookupHelperNamingStandard` is the
