@@ -439,8 +439,27 @@ test('standard rtc call controller dispose clears watched conversations and retu
     ['conversation-1'],
   );
 
+  await rtcStack.callController.startOutgoing({
+    rtcSessionId: 'rtc-session-dispose',
+    conversationId: 'conversation-1',
+    rtcMode: 'video_call',
+    roomId: 'room-dispose',
+    participantId: 'caller-1',
+    signalingStreamId: 'signal-dispose',
+  });
+
+  await rtcStack.callController.sendOffer({
+    sdp: 'offer-before-dispose',
+  });
+  assert.equal(
+    rtcStack.callController.getSnapshot().lastSignal?.signalType,
+    sdk.RTC_CALL_OFFER_SIGNAL_TYPE,
+  );
+
   await rtcStack.callController.dispose();
 
   assert.equal(rtcStack.callController.getSnapshot().controllerState, 'idle');
   assert.deepEqual(rtcStack.callController.getSnapshot().watchedConversationIds, []);
+  assert.equal(rtcStack.callController.getSnapshot().lastSignal, undefined);
+  assert.equal(rtcStack.callController.getSnapshot().lastError, undefined);
 });

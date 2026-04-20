@@ -310,6 +310,8 @@ class StandardRtcCallController<TNativeClient> {
     _watchedConversationIds.clear();
     _activeInvitation = null;
     _direction = null;
+    _lastSignal = null;
+    _lastError = null;
     _controllerState = RtcCallControllerState.idle;
     _emitSnapshot();
   }

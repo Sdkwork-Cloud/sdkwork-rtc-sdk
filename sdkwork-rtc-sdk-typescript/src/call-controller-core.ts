@@ -303,6 +303,8 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     this.#controllerState = 'idle';
     this.#activeInvitation = undefined;
     this.#direction = undefined;
+    this.#lastSignal = undefined;
+    this.#lastError = undefined;
     this.#emitSnapshot();
   }
 
