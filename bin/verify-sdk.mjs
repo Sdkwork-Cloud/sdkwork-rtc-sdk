@@ -1162,6 +1162,113 @@ function assertLanguageWorkspaceRuntimeBaselineContent(language, runtimeBaseline
   }
 }
 
+function extractYamlSectionTopLevelKeys(content, sectionName) {
+  const keys = new Set();
+  const lines = content.split(/\r?\n/);
+  let inSection = false;
+  let sectionIndent = 0;
+
+  for (const line of lines) {
+    const sectionMatch = line.match(new RegExp(`^(\\s*)${escapeRegExp(sectionName)}:\\s*$`));
+
+    if (sectionMatch) {
+      inSection = true;
+      sectionIndent = sectionMatch[1].length;
+      continue;
+    }
+
+    if (!inSection) {
+      continue;
+    }
+
+    if (/^\s*$/.test(line)) {
+      continue;
+    }
+
+    const indent = line.match(/^(\s*)/)?.[1].length ?? 0;
+    if (indent <= sectionIndent) {
+      break;
+    }
+
+    const keyMatch = line.match(new RegExp(`^\\s{${sectionIndent + 2}}([^\\s:#][^:]*)\\s*:`));
+    if (keyMatch) {
+      keys.add(keyMatch[1].trim());
+    }
+  }
+
+  return keys;
+}
+
+function assertTypeScriptRuntimeBaselineManifest(languageEntry, workspaceRoot) {
+  const manifestPath = path.join(workspaceRoot, languageEntry.workspace, 'package.json');
+
+  if (!existsSync(manifestPath)) {
+    fail(`Missing TypeScript workspace manifest: ${languageEntry.workspace}/package.json`);
+  }
+
+  const manifest = readJsonFile(manifestPath);
+  const peerDependencies = manifest.peerDependencies;
+  const peerDependenciesMeta = manifest.peerDependenciesMeta;
+
+  if (!peerDependencies || typeof peerDependencies !== 'object' || Array.isArray(peerDependencies)) {
+    fail('TypeScript workspace manifest must declare peerDependencies');
+  }
+
+  if (
+    !peerDependenciesMeta ||
+    typeof peerDependenciesMeta !== 'object' ||
+    Array.isArray(peerDependenciesMeta)
+  ) {
+    fail('TypeScript workspace manifest must declare peerDependenciesMeta');
+  }
+
+  for (const packageName of [
+    languageEntry.runtimeBaseline.vendorSdkPackage,
+    languageEntry.runtimeBaseline.signalingSdkPackage,
+  ]) {
+    if (typeof peerDependencies[packageName] !== 'string' || peerDependencies[packageName].length === 0) {
+      fail(`TypeScript workspace manifest must declare peer dependency for runtimeBaseline package ${packageName}`);
+    }
+
+    if (peerDependenciesMeta[packageName]?.optional !== true) {
+      fail(`TypeScript workspace manifest must mark runtimeBaseline peer dependency as optional: ${packageName}`);
+    }
+  }
+}
+
+function assertFlutterRuntimeBaselineManifest(languageEntry, workspaceRoot) {
+  const manifestPath = path.join(workspaceRoot, languageEntry.workspace, 'pubspec.yaml');
+
+  if (!existsSync(manifestPath)) {
+    fail(`Missing Flutter workspace manifest: ${languageEntry.workspace}/pubspec.yaml`);
+  }
+
+  const manifestContent = readFileSync(manifestPath, 'utf8');
+  const dependencyKeys = extractYamlSectionTopLevelKeys(manifestContent, 'dependencies');
+
+  for (const packageName of [
+    languageEntry.runtimeBaseline.vendorSdkPackage,
+    languageEntry.runtimeBaseline.signalingSdkPackage,
+  ]) {
+    if (!dependencyKeys.has(packageName)) {
+      fail(`Flutter workspace manifest must declare dependency for runtimeBaseline package ${packageName}`);
+    }
+  }
+}
+
+function assertExecutableLanguageRuntimeBaselineManifest(languageEntry, workspaceRoot) {
+  switch (languageEntry.language) {
+    case 'typescript':
+      assertTypeScriptRuntimeBaselineManifest(languageEntry, workspaceRoot);
+      return;
+    case 'flutter':
+      assertFlutterRuntimeBaselineManifest(languageEntry, workspaceRoot);
+      return;
+    default:
+      fail(`Unsupported executable runtimeBaseline manifest verifier for ${languageEntry.language}`);
+  }
+}
+
 function assertLanguageWorkspaceProviderPackageBoundaryContractContent(
   language,
   contract,
@@ -2738,6 +2845,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         workspaceCatalogContent,
         `Language workspace catalog for ${languageEntry.language}`,
       );
+      assertExecutableLanguageRuntimeBaselineManifest(languageEntry, workspaceRoot);
     }
     assertLanguageWorkspaceProviderPackageBoundaryContractContent(
       languageEntry.language,

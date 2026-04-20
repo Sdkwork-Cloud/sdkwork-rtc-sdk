@@ -218,6 +218,88 @@ function getReferenceTypeScriptAdapterContract(assembly) {
   );
 }
 
+function getExecutableLanguageRuntimeBaseline(assembly, language) {
+  const languageEntry = (assembly.languages ?? []).find((entry) => entry.language === language);
+
+  if (!languageEntry) {
+    throw new Error(`Missing executable language workspace definition for ${language}`);
+  }
+
+  if (!languageEntry.runtimeBaseline) {
+    throw new Error(`Language workspace ${language} must declare runtimeBaseline metadata`);
+  }
+
+  return {
+    languageEntry,
+    runtimeBaseline: languageEntry.runtimeBaseline,
+  };
+}
+
+function resolveTypeScriptRuntimeBaselinePeerDependencyRange(packageName) {
+  switch (packageName) {
+    case '@sdkwork/im-sdk':
+      return '^0.1.0';
+    case '@volcengine/rtc':
+      return '^4.68.3';
+    default:
+      throw new Error(
+        `Unsupported TypeScript runtime baseline peer dependency. Extend the manifest renderer for ${packageName}.`,
+      );
+  }
+}
+
+function renderTypeScriptWorkspaceManifest(assembly) {
+  const { languageEntry, runtimeBaseline } = getExecutableLanguageRuntimeBaseline(
+    assembly,
+    'typescript',
+  );
+
+  const peerDependencies = {
+    [runtimeBaseline.signalingSdkPackage]:
+      resolveTypeScriptRuntimeBaselinePeerDependencyRange(runtimeBaseline.signalingSdkPackage),
+    [runtimeBaseline.vendorSdkPackage]:
+      resolveTypeScriptRuntimeBaselinePeerDependencyRange(runtimeBaseline.vendorSdkPackage),
+  };
+
+  const peerDependenciesMeta = Object.fromEntries(
+    Object.keys(peerDependencies).map((packageName) => [packageName, { optional: true }]),
+  );
+
+  const packageJson = {
+    name: languageEntry.publicPackage,
+    version: '0.1.0',
+    description:
+      'JDBC-style RTC provider standard SDK with built-in driver management and provider adapters',
+    type: 'module',
+    main: './dist/index.js',
+    module: './dist/index.js',
+    types: './dist/index.d.ts',
+    exports: {
+      '.': {
+        types: './dist/index.d.ts',
+        import: './dist/index.js',
+        default: './dist/index.js',
+      },
+    },
+    sideEffects: false,
+    files: ['dist'],
+    peerDependencies,
+    peerDependenciesMeta,
+    scripts: {
+      clean:
+        'call "%npm_node_execpath%" ./bin/package-task.mjs clean || "$npm_node_execpath" ./bin/package-task.mjs clean || node ./bin/package-task.mjs clean',
+      build:
+        'call "%npm_node_execpath%" ./bin/package-task.mjs build || "$npm_node_execpath" ./bin/package-task.mjs build || node ./bin/package-task.mjs build',
+      test:
+        'call "%npm_node_execpath%" ./bin/package-task.mjs test || "$npm_node_execpath" ./bin/package-task.mjs test || node ./bin/package-task.mjs test',
+      smoke:
+        'call "%npm_node_execpath%" ./bin/package-task.mjs smoke || "$npm_node_execpath" ./bin/package-task.mjs smoke || node ./bin/package-task.mjs smoke',
+    },
+  };
+
+  return `${JSON.stringify(packageJson, null, 2)}\n`;
+}
+
 function writeIfChanged(workspaceRoot, filePath, nextContent, changedFiles) {
   mkdirSync(path.dirname(filePath), { recursive: true });
   const currentContent = existsSync(filePath) ? readUtf8File(filePath) : null;
@@ -1910,6 +1992,10 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
     {
       relativePath: 'docs/multilanguage-capability-matrix.md',
       content: renderCapabilityMatrix(assembly),
+    },
+    {
+      relativePath: 'sdkwork-rtc-sdk-typescript/package.json',
+      content: renderTypeScriptWorkspaceManifest(assembly),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',

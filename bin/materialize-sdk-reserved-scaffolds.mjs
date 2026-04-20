@@ -27,6 +27,37 @@ function renderTemplateTokenList(tokens) {
   return (tokens ?? []).map((token) => `\`${token}\``).join(', ');
 }
 
+function resolveFlutterRuntimeBaselineDependencyLines(packageName) {
+  switch (packageName) {
+    case 'im_sdk':
+      return [
+        '  im_sdk:',
+        '    path: ../../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed',
+      ];
+    case 'volc_engine_rtc':
+      return ['  volc_engine_rtc: ^3.60.3'];
+    default:
+      throw new Error(
+        `Unsupported Flutter runtime baseline dependency. Extend the reserved scaffold renderer for ${packageName}.`,
+      );
+  }
+}
+
+function renderFlutterRuntimeBaselineDependencies(languageEntry) {
+  if (!languageEntry.runtimeBaseline) {
+    throw new Error('Flutter language workspace must declare runtimeBaseline metadata');
+  }
+
+  return [
+    '  flutter:',
+    '    sdk: flutter',
+    ...resolveFlutterRuntimeBaselineDependencyLines(
+      languageEntry.runtimeBaseline.signalingSdkPackage,
+    ),
+    ...resolveFlutterRuntimeBaselineDependencyLines(languageEntry.runtimeBaseline.vendorSdkPackage),
+  ].join('\n');
+}
+
 function renderReservedLanguageProviderCatalogLookupHelper(language) {
   switch (language) {
     case 'flutter':
@@ -5003,11 +5034,7 @@ environment:
   sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-  im_sdk:
-    path: ../../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed
-  volc_engine_rtc: ^3.60.3
+${renderFlutterRuntimeBaselineDependencies(languageEntry)}
 
 flutter:
   uses-material-design: false

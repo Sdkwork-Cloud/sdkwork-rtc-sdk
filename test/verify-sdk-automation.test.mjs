@@ -328,6 +328,43 @@ function assertReservedLanguageToken(language, content, token, label = token) {
   );
 }
 
+function extractYamlSectionTopLevelKeys(content, sectionName) {
+  const keys = new Set();
+  const lines = content.split(/\r?\n/);
+  let inSection = false;
+  let sectionIndent = 0;
+
+  for (const line of lines) {
+    const sectionMatch = line.match(new RegExp(`^(\\s*)${sectionName}:\\s*$`));
+
+    if (sectionMatch) {
+      inSection = true;
+      sectionIndent = sectionMatch[1].length;
+      continue;
+    }
+
+    if (!inSection) {
+      continue;
+    }
+
+    if (/^\s*$/.test(line)) {
+      continue;
+    }
+
+    const indent = line.match(/^(\s*)/)?.[1].length ?? 0;
+    if (indent <= sectionIndent) {
+      break;
+    }
+
+    const keyMatch = line.match(new RegExp(`^\\s{${sectionIndent + 2}}([^\\s:#][^:]*)\\s*:`));
+    if (keyMatch) {
+      keys.add(keyMatch[1].trim());
+    }
+  }
+
+  return keys;
+}
+
 test('sdk overview lists sdkwork-rtc-sdk workspace', () => {
   const content = readFileSync(sdksReadmePath, 'utf8');
   assert.match(content, /sdkwork-rtc-sdk/);
@@ -1471,6 +1508,44 @@ test('rtc assembly declares official languages and default provider', () => {
       assembly.providers.map(() => 'control-metadata-only'),
     );
   }
+});
+
+test('executable reference manifests preserve runtime baseline dependency packages', () => {
+  const assembly = readJson(assemblyPath);
+  const typescriptLanguage = assembly.languages.find((entry) => entry.language === 'typescript');
+  const flutterLanguage = assembly.languages.find((entry) => entry.language === 'flutter');
+  const typeScriptManifest = readJson(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'package.json'),
+  );
+  const flutterManifest = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter', 'pubspec.yaml'),
+    'utf8',
+  );
+  const flutterDependencies = extractYamlSectionTopLevelKeys(flutterManifest, 'dependencies');
+
+  assert.ok(typescriptLanguage?.runtimeBaseline);
+  assert.equal(
+    typeof typeScriptManifest.peerDependencies?.[typescriptLanguage.runtimeBaseline.vendorSdkPackage],
+    'string',
+  );
+  assert.equal(
+    typeof typeScriptManifest.peerDependencies?.[typescriptLanguage.runtimeBaseline.signalingSdkPackage],
+    'string',
+  );
+  assert.equal(
+    typeScriptManifest.peerDependenciesMeta?.[typescriptLanguage.runtimeBaseline.vendorSdkPackage]
+      ?.optional,
+    true,
+  );
+  assert.equal(
+    typeScriptManifest.peerDependenciesMeta?.[typescriptLanguage.runtimeBaseline.signalingSdkPackage]
+      ?.optional,
+    true,
+  );
+
+  assert.ok(flutterLanguage?.runtimeBaseline);
+  assert.equal(flutterDependencies.has(flutterLanguage.runtimeBaseline.vendorSdkPackage), true);
+  assert.equal(flutterDependencies.has(flutterLanguage.runtimeBaseline.signalingSdkPackage), true);
 });
 
 test('root verification entrypoints exist', () => {
@@ -3671,6 +3746,11 @@ test('root materializer repairs provider package, provider catalog, and language
       'src',
       'provider-activation-catalog.ts',
     );
+    const typescriptManifestPath = path.join(
+      fixture.workspaceCopy,
+      'sdkwork-rtc-sdk-typescript',
+      'package.json',
+    );
     const flutterManifestPath = path.join(
       fixture.workspaceCopy,
       'sdkwork-rtc-sdk-flutter',
@@ -3740,6 +3820,18 @@ test('root materializer repairs provider package, provider catalog, and language
     writeFileSync(catalogPath, 'export const RTC_CAPABILITY_CATALOG = [];\n');
     writeFileSync(providerCatalogPath, 'export const OFFICIAL_RTC_PROVIDER_CATALOG = [];\n');
     writeFileSync(providerActivationCatalogPath, 'export const RTC_PROVIDER_ACTIVATION_CATALOG = [];\n');
+    writeFileSync(
+      typescriptManifestPath,
+      `${JSON.stringify(
+        {
+          name: '@sdkwork/rtc-sdk',
+          peerDependencies: {},
+          peerDependenciesMeta: {},
+        },
+        null,
+        2,
+      )}\n`,
+    );
     writeFileSync(flutterManifestPath, 'name: broken_flutter_sdk\n');
     writeFileSync(pythonProviderCatalogPath, 'BROKEN_PROVIDER_CATALOG = []\n');
     writeFileSync(pythonProviderPackageCatalogPath, 'BROKEN_PROVIDER_PACKAGE_CATALOG = []\n');
@@ -3766,6 +3858,7 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-typescript/src/provider-catalog.ts'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-typescript/src/providers/catalog.ts'));
+    assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-typescript/package.json'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-flutter/pubspec.yaml'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/provider_catalog.py'));
     assert.ok(firstRun.changedFiles.includes('sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/provider_package_catalog.py'));
@@ -3919,6 +4012,13 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedProviderActivationCatalog, /root-public-builtin/);
     assert.match(repairedProviderActivationCatalog, /package-boundary/);
 
+    const repairedTypeScriptManifest = readJson(typescriptManifestPath);
+    assert.equal(repairedTypeScriptManifest.name, '@sdkwork/rtc-sdk');
+    assert.equal(repairedTypeScriptManifest.peerDependencies['@sdkwork/im-sdk'], '^0.1.0');
+    assert.equal(repairedTypeScriptManifest.peerDependencies['@volcengine/rtc'], '^4.68.3');
+    assert.equal(repairedTypeScriptManifest.peerDependenciesMeta['@sdkwork/im-sdk']?.optional, true);
+    assert.equal(repairedTypeScriptManifest.peerDependenciesMeta['@volcengine/rtc']?.optional, true);
+
     const repairedJavaProviderPackageScaffold = readFileSync(javaProviderPackageScaffoldPath, 'utf8');
     assert.match(repairedJavaProviderPackageScaffold, /one provider per package boundary/i);
     assert.match(repairedJavaProviderPackageScaffold, /com\.sdkwork:rtc-sdk-provider-\{providerKey\}/);
@@ -3966,6 +4066,12 @@ test('root materializer repairs provider package, provider catalog, and language
     const repairedFlutterManifest = readFileSync(flutterManifestPath, 'utf8');
     assert.match(repairedFlutterManifest, /^name:\s+rtc_sdk/m);
     assert.match(repairedFlutterManifest, /build system:\s+flutter-pub/);
+    const repairedFlutterDependencies = extractYamlSectionTopLevelKeys(
+      repairedFlutterManifest,
+      'dependencies',
+    );
+    assert.equal(repairedFlutterDependencies.has('im_sdk'), true);
+    assert.equal(repairedFlutterDependencies.has('volc_engine_rtc'), true);
 
     const repairedPythonProviderCatalog = readFileSync(pythonProviderCatalogPath, 'utf8');
     assert.match(repairedPythonProviderCatalog, /DEFAULT_RTC_PROVIDER_KEY = "volcengine"/);

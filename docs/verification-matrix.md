@@ -29,6 +29,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
 - any assembly-driven `runtimeBaseline` metadata materialized into executable language workspace
   catalogs and READMEs
+- the executable language manifests preserve the assembly-driven `runtimeBaseline`
+  dependency package identities in their language-native dependency sections
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
   `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
@@ -222,6 +224,8 @@ The root verifier must confirm:
 - every executable reference language `runtimeBaseline` preserves `vendorSdkPackage`,
   `vendorSdkImportPath`, `signalingSdkPackage`, `signalingSdkImportPath`,
   `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
+- every executable reference language manifest declares the `runtimeBaseline.vendorSdkPackage`
+  and `runtimeBaseline.signalingSdkPackage` dependency identities
 - every language workspace catalog preserves `providerPackageBoundaryContract.modeTerms`,
   `providerPackageBoundaryContract.rootPublicPolicyTerms`,
   `providerPackageBoundaryContract.lifecycleStatusTerms`, and
