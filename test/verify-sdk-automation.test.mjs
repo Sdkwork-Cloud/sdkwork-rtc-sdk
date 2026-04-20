@@ -342,6 +342,7 @@ test('root documentation and materialized readmes describe provider package entr
   const assembly = readJson(assemblyPath);
   const rootReadme = readFileSync(path.join(workspaceRoot, 'README.md'), 'utf8');
   const docsReadme = readFileSync(path.join(workspaceRoot, 'docs', 'README.md'), 'utf8');
+  const usageGuide = readFileSync(path.join(workspaceRoot, 'docs', 'usage-guide.md'), 'utf8');
   const packageStandards = readFileSync(path.join(workspaceRoot, 'docs', 'package-standards.md'), 'utf8');
   const providerAdapterStandard = readFileSync(
     path.join(workspaceRoot, 'docs', 'provider-adapter-standard.md'),
@@ -526,6 +527,13 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /RTC_SDK_ERROR_FALLBACK_CODE/);
   assert.match(docsReadme, /vendor_error/);
   assert.match(docsReadme, /provider lookup by key/i);
+  assert.match(docsReadme, /typescript-volcengine-im-usage\.md/);
+  assert.match(docsReadme, /flutter-volcengine-im-usage\.md/);
+
+  assert.match(usageGuide, /TypeScript is the executable web\/browser baseline/i);
+  assert.match(usageGuide, /Flutter is the executable mobile baseline/i);
+  assert.match(usageGuide, /sdkwork-im-sdk/i);
+  assert.match(usageGuide, /flutter-volcengine-im-usage\.md/);
 
   assert.match(packageStandards, /index\.js/);
   assert.match(packageStandards, /index\.d\.ts/);

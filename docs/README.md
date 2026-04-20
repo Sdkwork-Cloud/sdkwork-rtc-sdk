@@ -5,8 +5,14 @@ Use this directory when you need the exact internal standards for `sdkwork-rtc-s
 Current docs:
 
 - `usage-guide.md`
-  Practical usage guide, default `volcengine` behavior, TypeScript quick start, and current
-  runtime-boundary expectations.
+  Practical overview, default `volcengine` behavior, executable baseline status, and the runtime
+  guide entrypoints.
+- `typescript-volcengine-im-usage.md`
+  TypeScript/web runnable baseline guide for the official Volcengine Web SDK and `sdkwork-im-sdk`
+  signaling flow.
+- `flutter-volcengine-im-usage.md`
+  Flutter/mobile runnable baseline guide for the official Volcengine Flutter SDK and
+  `sdkwork-im-sdk` signaling flow.
 - `package-standards.md`
   Naming, ownership, and public package rules.
 - `provider-adapter-standard.md`
