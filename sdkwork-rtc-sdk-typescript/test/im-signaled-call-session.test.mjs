@@ -506,3 +506,106 @@ test('standard call session accepts and rejects incoming calls through the signa
   assert.equal(rejectedSnapshot.state, 'rejected');
   assert.deepEqual(signalingCalls.slice(-1), [['rejectSession', 'rtc-session-3', {}]]);
 });
+
+test('standard call session dispose releases local media state without ending the remote session', async () => {
+  const {
+    StandardRtcCallSession,
+    createImRtcSignalingAdapter,
+  } = await loadSdk();
+
+  const { client, mediaCalls } = createMockRtcClient();
+  const signalingCalls = [];
+  let disconnected = false;
+  const imSdk = {
+    rtc: {
+      async create(body) {
+        signalingCalls.push(['create', body]);
+        return {
+          rtcSessionId: body.rtcSessionId,
+          conversationId: body.conversationId,
+          rtcMode: body.rtcMode,
+          state: 'started',
+        };
+      },
+      async invite(rtcSessionId, body) {
+        signalingCalls.push(['invite', rtcSessionId, body]);
+        return {
+          rtcSessionId: String(rtcSessionId),
+          conversationId: 'conversation-1',
+          rtcMode: 'video_call',
+          state: 'started',
+          signalingStreamId: body.signalingStreamId,
+        };
+      },
+      async accept() {
+        throw new Error('not used');
+      },
+      async reject() {
+        throw new Error('not used');
+      },
+      async end() {
+        signalingCalls.push(['end']);
+        throw new Error('not used');
+      },
+      async postJsonSignal() {
+        throw new Error('not used');
+      },
+      async issueParticipantCredential(rtcSessionId, body) {
+        signalingCalls.push(['issueParticipantCredential', rtcSessionId, body]);
+        return {
+          rtcSessionId: String(rtcSessionId),
+          participantId: body.participantId,
+          credential: 'volc-token-3',
+        };
+      },
+    },
+    async connect(options) {
+      signalingCalls.push(['connect', options]);
+      return {
+        signals: {
+          onRtcSession(rtcSessionId) {
+            signalingCalls.push(['onRtcSession', rtcSessionId]);
+            return () => {
+              signalingCalls.push(['unsubscribeRtcSession', rtcSessionId]);
+            };
+          },
+        },
+        disconnect() {
+          disconnected = true;
+        },
+      };
+    },
+  };
+  const signaling = createImRtcSignalingAdapter({
+    sdk: imSdk,
+    connectOptions: {
+      deviceId: 'device-2',
+    },
+  });
+  const callSession = new StandardRtcCallSession({
+    mediaClient: client,
+    signaling,
+  });
+
+  await callSession.startOutgoing({
+    rtcSessionId: 'rtc-session-dispose',
+    conversationId: 'conversation-1',
+    rtcMode: 'video_call',
+    roomId: 'room-dispose',
+    participantId: 'caller-1',
+    signalingStreamId: 'signal-dispose',
+  });
+
+  const disposedSnapshot = await callSession.dispose();
+
+  assert.equal(disposedSnapshot.state, 'idle');
+  assert.equal(disposedSnapshot.rtcSessionId, undefined);
+  assert.equal(disposedSnapshot.mediaConnectionState, undefined);
+  assert.equal(disconnected, true);
+  assert.deepEqual(mediaCalls.slice(-1), [['leave']]);
+  assert.equal(
+    signalingCalls.some(([type]) => type === 'end'),
+    false,
+  );
+  assert.deepEqual(signalingCalls.slice(-1), [['unsubscribeRtcSession', 'rtc-session-dispose']]);
+});

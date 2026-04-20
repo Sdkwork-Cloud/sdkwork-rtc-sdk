@@ -3,6 +3,11 @@ import 'rtc_errors.dart';
 import 'rtc_standard_contract.dart';
 import 'rtc_types.dart';
 
+const RtcCallSessionSnapshot _idleRtcCallSessionSnapshot =
+    RtcCallSessionSnapshot(
+  state: RtcCallState.idle,
+);
+
 class StandardRtcCallSession<TNativeClient> {
   StandardRtcCallSession({
     required RtcClient<TNativeClient> mediaClient,
@@ -15,9 +20,7 @@ class StandardRtcCallSession<TNativeClient> {
   final Set<RtcCallSignalHandler> _signalHandlers = <RtcCallSignalHandler>{};
 
   RtcCallSignalSubscription? _signalSubscription;
-  RtcCallSessionSnapshot _snapshot = const RtcCallSessionSnapshot(
-    state: RtcCallState.idle,
-  );
+  RtcCallSessionSnapshot _snapshot = _idleRtcCallSessionSnapshot;
 
   RtcCallSessionSnapshot getSnapshot() => _snapshot;
 
@@ -177,6 +180,20 @@ class StandardRtcCallSession<TNativeClient> {
     return _snapshot;
   }
 
+  Future<RtcCallSessionSnapshot> dispose() async {
+    try {
+      if (_snapshot.mediaConnectionState == RtcSessionConnectionState.joined) {
+        await _mediaClient.leave();
+      }
+    } finally {
+      _disposeSignalSubscription();
+      _signalHandlers.clear();
+    }
+
+    _resetSnapshot();
+    return _snapshot;
+  }
+
   String _requireSessionId() {
     final rtcSessionId = _snapshot.rtcSessionId;
     if (rtcSessionId != null && rtcSessionId.isNotEmpty) {
@@ -307,5 +324,9 @@ class StandardRtcCallSession<TNativeClient> {
   void _disposeSignalSubscription() {
     _signalSubscription?.unsubscribe();
     _signalSubscription = null;
+  }
+
+  void _resetSnapshot() {
+    _snapshot = _idleRtcCallSessionSnapshot;
   }
 }

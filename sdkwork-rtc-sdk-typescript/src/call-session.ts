@@ -22,14 +22,18 @@ export interface StandardRtcCallSessionOptions<TNativeClient = unknown> {
   signaling: RtcCallSignalingAdapter;
 }
 
+function createRtcCallSessionIdleSnapshot(): RtcCallSessionSnapshot {
+  return {
+    state: 'idle',
+  };
+}
+
 export class StandardRtcCallSession<TNativeClient = unknown> {
   readonly #mediaClient: RtcClient<TNativeClient>;
   readonly #signaling: RtcCallSignalingAdapter;
   readonly #signalHandlers = new Set<RtcCallSignalHandler>();
   #signalSubscription?: { unsubscribe(): void };
-  #snapshot: RtcCallSessionSnapshot = {
-    state: 'idle',
-  };
+  #snapshot: RtcCallSessionSnapshot = createRtcCallSessionIdleSnapshot();
 
   constructor(options: StandardRtcCallSessionOptions<TNativeClient>) {
     this.#mediaClient = options.mediaClient;
@@ -140,6 +144,20 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
     this.#applySessionRecord(endedSession);
     this.#snapshot.state = 'ended';
     this.#disposeSignalSubscription();
+    return this.getSnapshot();
+  }
+
+  async dispose(): Promise<RtcCallSessionSnapshot> {
+    try {
+      if (this.#snapshot.mediaConnectionState === 'joined') {
+        await this.#mediaClient.leave();
+      }
+    } finally {
+      this.#disposeSignalSubscription();
+      this.#signalHandlers.clear();
+    }
+
+    this.#resetSnapshot();
     return this.getSnapshot();
   }
 
@@ -258,5 +276,9 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
 
     this.#signalSubscription.unsubscribe();
     this.#signalSubscription = undefined;
+  }
+
+  #resetSnapshot(): void {
+    this.#snapshot = createRtcCallSessionIdleSnapshot();
   }
 }

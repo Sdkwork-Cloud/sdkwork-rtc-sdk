@@ -307,6 +307,7 @@ class StandardRtcCallController<TNativeClient> {
   Future<void> dispose() async {
     _sessionSubscriptionManager.clear();
     _conversationSubscriptionManager.clear();
+    await _callSession.dispose();
     _watchedConversationIds.clear();
     _activeInvitation = null;
     _direction = null;

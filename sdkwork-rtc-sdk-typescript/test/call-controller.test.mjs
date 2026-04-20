@@ -462,4 +462,12 @@ test('standard rtc call controller dispose clears watched conversations and retu
   assert.deepEqual(rtcStack.callController.getSnapshot().watchedConversationIds, []);
   assert.equal(rtcStack.callController.getSnapshot().lastSignal, undefined);
   assert.equal(rtcStack.callController.getSnapshot().lastError, undefined);
+  assert.equal(rtcStack.callSession.getSnapshot().state, 'idle');
+  assert.equal(rtcStack.callSession.getSnapshot().rtcSessionId, undefined);
+  assert.equal(rtcStack.callSession.getSnapshot().mediaConnectionState, undefined);
+  assert.deepEqual(env.mediaCalls.slice(-1), [['leave']]);
+  assert.equal(
+    env.signalingCalls.some(([type]) => type === 'end'),
+    false,
+  );
 });

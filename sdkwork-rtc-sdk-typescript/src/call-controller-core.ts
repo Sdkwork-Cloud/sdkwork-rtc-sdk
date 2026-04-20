@@ -299,6 +299,7 @@ export class StandardRtcCallController<TNativeClient = unknown> {
   async dispose(): Promise<void> {
     this.#sessionSubscriptionManager.clear();
     this.#conversationSubscriptionManager.disconnect();
+    await this.#callSession.dispose();
     this.#watchedConversationIds.clear();
     this.#controllerState = 'idle';
     this.#activeInvitation = undefined;
