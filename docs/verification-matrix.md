@@ -225,11 +225,15 @@ The root verifier must confirm:
 - every language workspace catalog preserves `providerSupportContract.statusTerms`
 - every language workspace catalog preserves `providerActivationContract.statusTerms`
 - every executable reference language declares a machine-readable `runtimeBaseline`
+- every executable reference language declares a machine-readable `runtimeDocumentation`
 - every executable reference language `runtimeBaseline` preserves `vendorSdkPackage`,
   `vendorSdkImportPath`, `signalingSdkPackage`, `signalingSdkImportPath`,
   `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
+- every executable reference language `runtimeDocumentation` preserves
+  `baselineConclusion`, `guideTitle`, `runtimeLabel`, `detailedGuidePath`,
+  `detailedGuideLabel`, and `smokeNarrative`
 - `docs/usage-guide.md` preserves the default provider constants and executable
-  `runtimeBaseline` details for the current runnable baselines
+  `runtimeBaseline` and `runtimeDocumentation` details for the current runnable baselines
 - `docs/typescript-volcengine-im-usage.md` preserves the executable TypeScript/web runtime
   baseline details for `vendorSdkPackage`, `vendorSdkImportPath`, `signalingSdkPackage`,
   `signalingSdkImportPath`, `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`

@@ -88,8 +88,7 @@ Provider selection precedence remains:
 4. `deploymentProfileProviderKey`
 5. `defaultProvider`
 
-That means both the web and Flutter baselines fall back to `volcengine` when the caller does not
-explicitly override provider selection.
+That means the web/browser and mobile baselines fall back to `volcengine` when the caller does not explicitly override provider selection.
 
 ## 5. Runnable Baselines
 
@@ -146,10 +145,10 @@ The correct vendor integration boundary is still the same:
 
 For the current runnable baselines, this boundary is already materialized:
 
-- TypeScript binds the standard surface to the official `@volcengine/rtc` runtime
+- TypeScript binds the standard surface to the official `@volcengine/rtc` runtime bridge
 - Flutter binds the standard surface to the official `package:volc_engine_rtc/volc_engine_rtc.dart` runtime bridge
-- both baselines compose `sdkwork-im-sdk` signaling through `@sdkwork/im-sdk`, `package:im_sdk/im_sdk.dart`
-- both baselines publish call invites over conversation-scoped IM signals and reconcile remote
+- executable baselines compose `sdkwork-im-sdk` signaling through `@sdkwork/im-sdk`, `package:im_sdk/im_sdk.dart`
+- executable baselines publish call invites over conversation-scoped IM signals and reconcile remote
   accept, reject, end, SDP, and ICE events through the standard `CallController`
 
 ## 7. Non-Builtin Provider Packages

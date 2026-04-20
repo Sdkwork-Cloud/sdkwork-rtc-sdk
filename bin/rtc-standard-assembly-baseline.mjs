@@ -45,6 +45,14 @@ function hasExactArray(actual, expected) {
 }
 
 export const RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES = ['runtime-backed', 'analysis-backed'];
+const RTC_LANGUAGE_RUNTIME_DOCUMENTATION_REQUIRED_FIELDS = [
+  'baselineConclusion',
+  'guideTitle',
+  'runtimeLabel',
+  'detailedGuidePath',
+  'detailedGuideLabel',
+  'smokeNarrative',
+];
 
 export function getRtcAssemblyLanguageEntries(assembly) {
   const languageEntries = assembly?.languages ?? [];
@@ -542,10 +550,23 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     const expectsRuntimeBaseline =
       languageEntry.runtimeBridge === true && languageEntry.maturityTier === 'reference';
     const runtimeBaseline = languageEntry.runtimeBaseline;
+    const runtimeDocumentation = languageEntry.runtimeDocumentation;
 
     if (expectsRuntimeBaseline && !runtimeBaseline) {
       throw new Error(
         `Reference runtime language ${languageEntry.language} must declare runtimeBaseline metadata`,
+      );
+    }
+
+    if (expectsRuntimeBaseline && !runtimeDocumentation) {
+      throw new Error(
+        `Reference runtime language ${languageEntry.language} must declare runtimeDocumentation metadata`,
+      );
+    }
+
+    if (!expectsRuntimeBaseline && runtimeDocumentation) {
+      throw new Error(
+        `Non-executable language ${languageEntry.language} must not declare runtimeDocumentation metadata`,
       );
     }
 
@@ -572,6 +593,17 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
       throw new Error(
         `language ${languageEntry.language} runtimeBaseline.smokeMode must be one of ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.join(', ')}`,
       );
+    }
+
+    for (const field of RTC_LANGUAGE_RUNTIME_DOCUMENTATION_REQUIRED_FIELDS) {
+      if (
+        typeof runtimeDocumentation?.[field] !== 'string' ||
+        runtimeDocumentation[field].length === 0
+      ) {
+        throw new Error(
+          `language ${languageEntry.language} runtimeDocumentation.${field} must be a non-empty string`,
+        );
+      }
     }
   }
 

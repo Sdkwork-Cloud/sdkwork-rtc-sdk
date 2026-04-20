@@ -103,6 +103,16 @@ function getExecutableRuntimeLanguageEntries(assembly) {
   return getRtcExecutableLanguageEntries(assembly).filter((languageEntry) => languageEntry.runtimeBaseline);
 }
 
+function getExecutableLanguageRuntimeDocumentation(languageEntry) {
+  if (!languageEntry.runtimeDocumentation) {
+    throw new Error(
+      `Executable language ${languageEntry.language} must declare runtimeDocumentation metadata`,
+    );
+  }
+
+  return languageEntry.runtimeDocumentation;
+}
+
 function renderExecutableLandingSummary(assembly) {
   const executableDisplayNames = getExecutableRuntimeLanguageEntries(assembly).map(
     (languageEntry) => languageEntry.displayName,
@@ -283,35 +293,24 @@ function renderUsageGuideLanguageRows(assembly) {
 }
 
 function renderUsageGuideExecutableLanguageConclusion(languageEntry) {
-  switch (languageEntry.language) {
-    case 'typescript':
-      return 'TypeScript is the executable web/browser baseline.';
-    case 'flutter':
-      return 'Flutter is the executable mobile baseline.';
-    default:
-      return `${languageEntry.displayName} is the executable reference baseline for this runtime.`;
-  }
+  return getExecutableLanguageRuntimeDocumentation(languageEntry).baselineConclusion;
 }
 
 function renderUsageGuideDetailedGuide(languageEntry) {
-  switch (languageEntry.language) {
-    case 'typescript':
-      return {
-        title: 'TypeScript / Web',
-        path: './typescript-volcengine-im-usage.md',
-        label: 'docs/typescript-volcengine-im-usage.md',
-        runtimeLabel: 'web/browser',
-      };
-    case 'flutter':
-      return {
-        title: 'Flutter / Mobile',
-        path: './flutter-volcengine-im-usage.md',
-        label: 'docs/flutter-volcengine-im-usage.md',
-        runtimeLabel: 'mobile',
-      };
-    default:
-      return null;
-  }
+  const runtimeDocumentation = getExecutableLanguageRuntimeDocumentation(languageEntry);
+
+  return {
+    title: runtimeDocumentation.guideTitle,
+    path: runtimeDocumentation.detailedGuidePath,
+    label: runtimeDocumentation.detailedGuideLabel,
+    runtimeLabel: runtimeDocumentation.runtimeLabel,
+  };
+}
+
+function renderUsageGuideExecutableRuntimeLabels(assembly) {
+  return getExecutableRuntimeLanguageEntries(assembly).map(
+    (languageEntry) => renderUsageGuideDetailedGuide(languageEntry).runtimeLabel,
+  );
 }
 
 function renderUsageGuideExecutableBaselineSection(languageEntry, assembly) {
@@ -320,10 +319,6 @@ function renderUsageGuideExecutableBaselineSection(languageEntry, assembly) {
   }
 
   const guide = renderUsageGuideDetailedGuide(languageEntry);
-  if (!guide) {
-    return '';
-  }
-
   const defaultProviderKey =
     languageEntry.defaultProviderContract?.providerKey ??
     assembly.defaults?.providerKey ??
@@ -353,16 +348,36 @@ Use the detailed guide here:
 `);
 }
 
-function renderUsageGuideExecutableSmokeNotes(assembly) {
-  return (assembly.languages ?? [])
-    .filter((languageEntry) => languageEntry.runtimeBaseline)
-    .map((languageEntry) => {
-      if (languageEntry.language === 'flutter') {
-        return `- ${languageEntry.displayName} smoke mode is \`${languageEntry.runtimeBaseline.smokeMode}\`: \`${languageEntry.runtimeBaseline.smokeCommand}\` currently verifies the public baseline through the Flutter CLI wrapper and \`flutter analyze\` because the official vendor runtime is not yet CLI-runnable through the Dart VM toolchain`;
-      }
+function renderUsageGuideDefaultProviderFallbackNarrative(assembly, defaultProviderKey) {
+  const runtimeLabels = renderUsageGuideExecutableRuntimeLabels(assembly);
 
-      return `- ${languageEntry.displayName} smoke mode is \`${languageEntry.runtimeBaseline.smokeMode}\`: \`${languageEntry.runtimeBaseline.smokeCommand}\` exercises the public default-provider baseline without live services`;
+  if (runtimeLabels.length === 0) {
+    return `That means the current runnable landing falls back to \`${defaultProviderKey}\` when the caller does not explicitly override provider selection.`;
+  }
+
+  if (runtimeLabels.length === 1) {
+    return `That means the ${runtimeLabels[0]} baseline falls back to \`${defaultProviderKey}\` when the caller does not explicitly override provider selection.`;
+  }
+
+  return `That means the ${renderNaturalLanguageList(runtimeLabels)} baselines fall back to \`${defaultProviderKey}\` when the caller does not explicitly override provider selection.`;
+}
+
+function renderUsageGuideExecutableSmokeNotes(assembly) {
+  return getExecutableRuntimeLanguageEntries(assembly)
+    .map((languageEntry) => {
+      const runtimeDocumentation = getExecutableLanguageRuntimeDocumentation(languageEntry);
+
+      return `- ${languageEntry.displayName} smoke mode is \`${languageEntry.runtimeBaseline.smokeMode}\`: \`${languageEntry.runtimeBaseline.smokeCommand}\` ${runtimeDocumentation.smokeNarrative}`;
     })
+    .join('\n');
+}
+
+function renderUsageGuideExecutableIntegrationBindings(assembly) {
+  return getExecutableRuntimeLanguageEntries(assembly)
+    .map(
+      (languageEntry) =>
+        `- ${languageEntry.displayName} binds the standard surface to the official \`${languageEntry.runtimeBaseline.vendorSdkImportPath}\` runtime bridge`,
+    )
     .join('\n');
 }
 
@@ -460,8 +475,7 @@ Provider selection precedence remains:
 
 ${providerSelectionPrecedence}
 
-That means both the web and Flutter baselines fall back to \`${defaultProviderKey}\` when the caller does not
-explicitly override provider selection.
+${renderUsageGuideDefaultProviderFallbackNarrative(assembly, defaultProviderKey)}
 
 ## 5. Runnable Baselines
 
@@ -477,10 +491,9 @@ The correct vendor integration boundary is still the same:
 
 For the current runnable baselines, this boundary is already materialized:
 
-- TypeScript binds the standard surface to the official \`@volcengine/rtc\` runtime
-- Flutter binds the standard surface to the official \`package:volc_engine_rtc/volc_engine_rtc.dart\` runtime bridge
-- both baselines compose \`sdkwork-im-sdk\` signaling through ${executableSignalingImports}
-- both baselines publish call invites over conversation-scoped IM signals and reconcile remote
+${renderUsageGuideExecutableIntegrationBindings(assembly)}
+- executable baselines compose \`sdkwork-im-sdk\` signaling through ${executableSignalingImports}
+- executable baselines publish call invites over conversation-scoped IM signals and reconcile remote
   accept, reject, end, SDP, and ICE events through the standard \`CallController\`
 
 ## 7. Non-Builtin Provider Packages

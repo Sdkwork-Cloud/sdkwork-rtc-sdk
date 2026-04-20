@@ -750,18 +750,12 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
   {
     relativePath: 'docs/usage-guide.md',
     clauses: [
-      { pattern: /TypeScript is the executable web\/browser baseline/i, label: 'usage guide TypeScript baseline statement' },
-      { pattern: /Flutter is the executable mobile baseline/i, label: 'usage guide Flutter baseline statement' },
       { pattern: /DEFAULT_RTC_PROVIDER_KEY/, label: 'usage guide default provider key constant' },
       { pattern: /DEFAULT_RTC_PROVIDER_PLUGIN_ID/, label: 'usage guide default provider plugin constant' },
       { pattern: /DEFAULT_RTC_PROVIDER_DRIVER_ID/, label: 'usage guide default provider driver constant' },
       { pattern: /createStandardRtcCallControllerStack/, label: 'usage guide recommended rtc entrypoint' },
       { pattern: /StandardRtcCallController/, label: 'usage guide standard call controller contract' },
       { pattern: /sdkwork-im-sdk/, label: 'usage guide signaling standard reference' },
-      { pattern: /typescript-volcengine-im-usage\.md/, label: 'usage guide TypeScript detailed guide link' },
-      { pattern: /flutter-volcengine-im-usage\.md/, label: 'usage guide Flutter detailed guide link' },
-      { pattern: /runtime-backed/, label: 'usage guide runtime-backed smoke mode reference' },
-      { pattern: /analysis-backed/, label: 'usage guide analysis-backed smoke mode reference' },
       { pattern: /providerUrl/, label: 'usage guide providerUrl precedence reference' },
       { pattern: /providerKey/, label: 'usage guide providerKey precedence reference' },
       { pattern: /tenantOverrideProviderKey/, label: 'usage guide tenant override precedence reference' },
@@ -858,6 +852,13 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /recommendedEntrypoint/, label: 'verification of runtime baseline recommendedEntrypoint contract' },
       { pattern: /smokeCommand/, label: 'verification of runtime baseline smokeCommand contract' },
       { pattern: /smokeMode/, label: 'verification of runtime baseline smokeMode contract' },
+      { pattern: /runtimeDocumentation/, label: 'verification of runtime documentation contract' },
+      { pattern: /baselineConclusion/, label: 'verification of runtime documentation baselineConclusion contract' },
+      { pattern: /guideTitle/, label: 'verification of runtime documentation guideTitle contract' },
+      { pattern: /runtimeLabel/, label: 'verification of runtime documentation runtimeLabel contract' },
+      { pattern: /detailedGuidePath/, label: 'verification of runtime documentation detailedGuidePath contract' },
+      { pattern: /detailedGuideLabel/, label: 'verification of runtime documentation detailedGuideLabel contract' },
+      { pattern: /smokeNarrative/, label: 'verification of runtime documentation smokeNarrative contract' },
       { pattern: /runtime-backed/, label: 'verification of runtime-backed smoke mode contract' },
       { pattern: /analysis-backed/, label: 'verification of analysis-backed smoke mode contract' },
       { pattern: /providerSelectionStandard/, label: 'verification of assembly-driven providerSelectionStandard contract' },
@@ -1217,6 +1218,30 @@ function assertLanguageWorkspaceRuntimeBaselineContent(language, runtimeBaseline
   }
 }
 
+function assertLanguageWorkspaceRuntimeDocumentationContent(
+  language,
+  runtimeDocumentation,
+  content,
+  label,
+) {
+  if (!runtimeDocumentation) {
+    fail(`${label} is missing runtimeDocumentation for ${language}`);
+  }
+
+  for (const value of [
+    runtimeDocumentation.baselineConclusion,
+    runtimeDocumentation.guideTitle,
+    runtimeDocumentation.runtimeLabel,
+    runtimeDocumentation.detailedGuidePath,
+    runtimeDocumentation.detailedGuideLabel,
+    runtimeDocumentation.smokeNarrative,
+  ]) {
+    if (!new RegExp(escapeRegExp(value)).test(content)) {
+      fail(`${label} is missing runtimeDocumentation value for ${language}: ${value}`);
+    }
+  }
+}
+
 function extractYamlSectionTopLevelKeys(content, sectionName) {
   const keys = new Set();
   const lines = content.split(/\r?\n/);
@@ -1454,6 +1479,12 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     assertLanguageWorkspaceRuntimeBaselineContent(
       languageEntry.language,
       languageEntry.runtimeBaseline,
+      usageGuideContent,
+      'docs/usage-guide.md',
+    );
+    assertLanguageWorkspaceRuntimeDocumentationContent(
+      languageEntry.language,
+      languageEntry.runtimeDocumentation,
       usageGuideContent,
       'docs/usage-guide.md',
     );
@@ -2801,6 +2832,16 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       fail(`Assembly language ${languageEntry.language} must declare runtimeBaseline`);
     }
 
+    if (expectsRuntimeBaseline && !languageEntry.runtimeDocumentation) {
+      fail(`Assembly language ${languageEntry.language} must declare runtimeDocumentation`);
+    }
+
+    if (!expectsRuntimeBaseline && languageEntry.runtimeDocumentation) {
+      fail(
+        `Assembly language ${languageEntry.language} must not declare runtimeDocumentation when no executable runtime baseline exists`,
+      );
+    }
+
     if (languageEntry.runtimeBaseline) {
       for (const [field, value] of Object.entries(languageEntry.runtimeBaseline)) {
         if (typeof value !== 'string' || value.length === 0) {
@@ -2812,6 +2853,16 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         fail(
           `Assembly language ${languageEntry.language} runtimeBaseline.smokeMode must be runtime-backed or analysis-backed`,
         );
+      }
+    }
+
+    if (languageEntry.runtimeDocumentation) {
+      for (const [field, value] of Object.entries(languageEntry.runtimeDocumentation)) {
+        if (typeof value !== 'string' || value.length === 0) {
+          fail(
+            `Assembly language ${languageEntry.language} runtimeDocumentation.${field} must be a non-empty string`,
+          );
+        }
       }
     }
 

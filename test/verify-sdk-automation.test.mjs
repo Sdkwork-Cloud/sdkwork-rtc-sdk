@@ -1473,8 +1473,21 @@ test('rtc assembly declares official languages and default provider', () => {
         ['runtime-backed', 'analysis-backed'].includes(languageEntry.runtimeBaseline?.smokeMode),
         true,
       );
+      assert.equal(typeof languageEntry.runtimeDocumentation?.baselineConclusion, 'string');
+      assert.equal(languageEntry.runtimeDocumentation.baselineConclusion.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeDocumentation?.guideTitle, 'string');
+      assert.equal(languageEntry.runtimeDocumentation.guideTitle.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeDocumentation?.runtimeLabel, 'string');
+      assert.equal(languageEntry.runtimeDocumentation.runtimeLabel.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeDocumentation?.detailedGuidePath, 'string');
+      assert.equal(languageEntry.runtimeDocumentation.detailedGuidePath.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeDocumentation?.detailedGuideLabel, 'string');
+      assert.equal(languageEntry.runtimeDocumentation.detailedGuideLabel.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeDocumentation?.smokeNarrative, 'string');
+      assert.equal(languageEntry.runtimeDocumentation.smokeNarrative.length > 0, true);
     } else {
       assert.equal(languageEntry.runtimeBaseline, undefined);
+      assert.equal(languageEntry.runtimeDocumentation, undefined);
     }
     assert.equal(Array.isArray(languageEntry.providerActivations), true);
     assert.equal(languageEntry.providerActivations.length, assembly.providers.length);
@@ -1503,6 +1516,14 @@ test('rtc assembly declares official languages and default provider', () => {
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'runtime-backed',
   });
+  assert.deepEqual(typescriptLanguage.runtimeDocumentation, {
+    baselineConclusion: 'TypeScript is the executable web/browser baseline.',
+    guideTitle: 'TypeScript / Web',
+    runtimeLabel: 'web/browser',
+    detailedGuidePath: './typescript-volcengine-im-usage.md',
+    detailedGuideLabel: 'docs/typescript-volcengine-im-usage.md',
+    smokeNarrative: 'exercises the public default-provider baseline without live services',
+  });
   assert.deepEqual(
     typescriptLanguage.providerActivations.map((entry) => ({
       providerKey: entry.providerKey,
@@ -1524,6 +1545,15 @@ test('rtc assembly declares official languages and default provider', () => {
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'analysis-backed',
+  });
+  assert.deepEqual(flutterLanguage.runtimeDocumentation, {
+    baselineConclusion: 'Flutter is the executable mobile baseline.',
+    guideTitle: 'Flutter / Mobile',
+    runtimeLabel: 'mobile',
+    detailedGuidePath: './flutter-volcengine-im-usage.md',
+    detailedGuideLabel: 'docs/flutter-volcengine-im-usage.md',
+    smokeNarrative:
+      'currently verifies the public baseline through the Flutter CLI wrapper and `flutter analyze` because the official vendor runtime is not yet CLI-runnable through the Dart VM toolchain',
   });
   assert.deepEqual(
     flutterLanguage.providerActivations.map((entry) => ({

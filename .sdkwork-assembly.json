@@ -1059,6 +1059,14 @@
         "smokeCommand": "node ./bin/sdk-call-smoke.mjs --json",
         "smokeMode": "runtime-backed"
       },
+      "runtimeDocumentation": {
+        "baselineConclusion": "TypeScript is the executable web/browser baseline.",
+        "guideTitle": "TypeScript / Web",
+        "runtimeLabel": "web/browser",
+        "detailedGuidePath": "./typescript-volcengine-im-usage.md",
+        "detailedGuideLabel": "docs/typescript-volcengine-im-usage.md",
+        "smokeNarrative": "exercises the public default-provider baseline without live services"
+      },
       "metadataScaffold": {
         "providerCatalogRelativePath": "src/provider-catalog.ts",
         "capabilityCatalogRelativePath": "src/capability-catalog.ts",
@@ -1155,6 +1163,14 @@
         "recommendedEntrypoint": "createStandardRtcCallControllerStack",
         "smokeCommand": "node ./bin/sdk-call-smoke.mjs --json",
         "smokeMode": "analysis-backed"
+      },
+      "runtimeDocumentation": {
+        "baselineConclusion": "Flutter is the executable mobile baseline.",
+        "guideTitle": "Flutter / Mobile",
+        "runtimeLabel": "mobile",
+        "detailedGuidePath": "./flutter-volcengine-im-usage.md",
+        "detailedGuideLabel": "docs/flutter-volcengine-im-usage.md",
+        "smokeNarrative": "currently verifies the public baseline through the Flutter CLI wrapper and `flutter analyze` because the official vendor runtime is not yet CLI-runnable through the Dart VM toolchain"
       },
       "contractScaffold": {
         "relativePath": "lib/src/rtc_standard_contract.dart",
