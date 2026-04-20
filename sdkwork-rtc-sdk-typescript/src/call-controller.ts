@@ -12,7 +12,7 @@ export {
   RTC_CALL_REJECTED_SIGNAL_TYPE,
   RTC_CALL_SESSION_DESCRIPTION_SCHEMA_REF,
   RTC_CALL_ICE_CANDIDATE_SCHEMA_REF,
-} from './call-controller-internal.js';
+} from './call-controller-core.js';
 
 export type {
   CreateStandardRtcCallControllerOptions,
@@ -31,4 +31,4 @@ export type {
   RtcCallLifecyclePayload,
   RtcCallSessionDescriptionPayload,
   RtcIncomingCallInvitation,
-} from './call-controller-internal.js';
+} from './call-controller-core.js';
