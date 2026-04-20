@@ -1,6 +1,15 @@
 library rtc_sdk;
 
 export 'src/rtc_standard_contract.dart';
+export 'src/rtc_errors.dart';
+export 'src/rtc_types.dart';
+export 'src/rtc_provider_metadata.dart';
+export 'src/rtc_client.dart';
+export 'src/rtc_driver.dart';
+export 'src/rtc_call_types.dart';
+export 'src/rtc_call_session.dart';
+export 'src/rtc_im_signaling.dart';
+export 'src/volcengine_official_flutter.dart';
 export 'src/rtc_provider_catalog.dart';
 export 'src/rtc_provider_package_catalog.dart';
 export 'src/rtc_provider_activation_catalog.dart';
@@ -12,3 +21,4 @@ export 'src/rtc_provider_package_loader.dart';
 export 'src/rtc_provider_support.dart';
 export 'src/rtc_driver_manager.dart';
 export 'src/rtc_data_source.dart';
+export 'src/providers/volcengine.dart';

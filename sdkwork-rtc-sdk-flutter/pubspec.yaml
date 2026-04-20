@@ -8,5 +8,12 @@ version: 0.1.0
 environment:
   sdk: ">=3.4.0 <4.0.0"
 
+dependencies:
+  flutter:
+    sdk: flutter
+  im_sdk:
+    path: ../../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed
+  volc_engine_rtc: ^3.60.3
+
 flutter:
   uses-material-design: false

@@ -6,6 +6,8 @@
 **/node_modules/
 **/.npm-cache/
 **/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
 
 # Local packed archives
 **/*.tgz
@@ -17,6 +19,7 @@
 /sdkwork-rtc-sdk-csharp/src/**/bin/
 /sdkwork-rtc-sdk-csharp/src/**/obj/
 /sdkwork-rtc-sdk-flutter/build/
+/sdkwork-rtc-sdk-flutter/pubspec.lock
 /sdkwork-rtc-sdk-kotlin/build/
 /sdkwork-rtc-sdk-swift/.build/
 /sdkwork-rtc-sdk-python/**/__pycache__/

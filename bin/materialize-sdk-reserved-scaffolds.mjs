@@ -3312,34 +3312,122 @@ function renderReservedLanguageDriverManagerModule(language) {
   switch (language) {
     case 'flutter':
       return lines(`
+import 'rtc_errors.dart';
 import 'rtc_provider_activation_catalog.dart';
 import 'rtc_provider_catalog.dart';
+import 'rtc_provider_metadata.dart';
 import 'rtc_provider_selection.dart';
 import 'rtc_provider_support.dart';
+import 'rtc_standard_contract.dart';
+import 'rtc_types.dart';
+import 'providers/volcengine.dart';
 
 final class RtcDriverManager {
-  const RtcDriverManager();
+  RtcDriverManager({
+    this.defaultProviderKey = RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY,
+    Iterable<RtcProviderDriver<dynamic>> drivers =
+        const <RtcProviderDriver<dynamic>>[],
+    bool registerDefaultDrivers = true,
+  }) {
+    if (registerDefaultDrivers) {
+      register(createVolcengineRtcDriver());
+    }
+
+    registerAll(drivers);
+  }
+
+  final String defaultProviderKey;
+  final Map<String, RtcProviderDriver<dynamic>> _drivers =
+      <String, RtcProviderDriver<dynamic>>{};
 
   RtcProviderSelection resolveSelection(
     RtcProviderSelectionRequest request, {
-    String defaultProviderKey = RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY,
+    String? defaultProviderKey,
   }) {
     return resolveRtcProviderSelection(
       request,
-      defaultProviderKey: defaultProviderKey,
+      defaultProviderKey: defaultProviderKey ?? this.defaultProviderKey,
+    );
+  }
+
+  RtcProviderMetadata getMetadata([
+    RtcClientConfig config = const RtcClientConfig(),
+  ]) {
+    final selection = _resolveClientSelection(config);
+    final catalogEntry = getRtcProviderByProviderKey(selection.providerKey);
+    final driver = _drivers[selection.providerKey];
+    if (driver != null) {
+      return driver.metadata;
+    }
+
+    final officialMetadata =
+        catalogEntry == null
+            ? null
+            : getOfficialRtcProviderMetadataByKey(catalogEntry.providerKey);
+    if (officialMetadata != null) {
+      return officialMetadata;
+    }
+
+    throw RtcSdkException(
+      code: 'driver_not_found',
+      message: 'No RTC driver registered for provider: \${selection.providerKey}',
+      providerKey: selection.providerKey,
+    );
+  }
+
+  RtcProviderMetadata getDefaultMetadata() {
+    return getMetadata(
+      RtcClientConfig(defaultProviderKey: defaultProviderKey),
+    );
+  }
+
+  void register<TNativeClient>(RtcProviderDriver<TNativeClient> driver) {
+    _assertCanRegister(driver);
+    _drivers[driver.metadata.providerKey] = driver;
+  }
+
+  void registerAll(Iterable<RtcProviderDriver<dynamic>> drivers) {
+    final plannedProviderKeys = <String>{};
+
+    for (final driver in drivers) {
+      _assertCanRegister(
+        driver,
+        plannedProviderKeys: plannedProviderKeys,
+      );
+      plannedProviderKeys.add(driver.metadata.providerKey);
+    }
+
+    for (final driver in drivers) {
+      _drivers[driver.metadata.providerKey] = driver;
+    }
+  }
+
+  bool hasDriver(String providerKey) => _drivers.containsKey(providerKey);
+
+  RtcProviderDriver<dynamic> resolveDriver(String providerKey) {
+    final driver = _drivers[providerKey];
+    if (driver != null) {
+      return driver;
+    }
+
+    throw RtcSdkException(
+      code: 'driver_not_found',
+      message: 'No RTC driver registered for provider: $providerKey',
+      providerKey: providerKey,
     );
   }
 
   RtcProviderSupport describeProviderSupport(String providerKey) {
-    final official = getRtcProviderByProviderKey(providerKey) != null;
-    final activation = getRtcProviderActivationByProviderKey(providerKey);
+    final catalogEntry = getRtcProviderByProviderKey(providerKey);
+    final activationEntry = getRtcProviderActivationByProviderKey(providerKey);
+    final registered = _drivers.containsKey(providerKey);
 
     return createRtcProviderSupportState(
       RtcProviderSupportStateRequest(
         providerKey: providerKey,
-        builtin: activation?.builtin ?? false,
-        official: official,
-        registered: activation?.runtimeBridge ?? false,
+        builtin: activationEntry?.builtin ?? false,
+        official: catalogEntry != null && activationEntry != null,
+        registered: registered,
       ),
     );
   }
@@ -3348,6 +3436,131 @@ final class RtcDriverManager {
     return RtcProviderCatalog.entries
         .map((entry) => describeProviderSupport(entry.providerKey))
         .toList(growable: false);
+  }
+
+  Future<RtcClient<dynamic>> connect([
+    RtcClientConfig config = const RtcClientConfig(),
+  ]) async {
+    final selection = _resolveClientSelection(config);
+    final driver = _drivers[selection.providerKey];
+
+    if (driver == null) {
+      final catalogEntry = getRtcProviderByProviderKey(selection.providerKey);
+      final activationEntry = getRtcProviderActivationByProviderKey(
+        selection.providerKey,
+      );
+
+      if (catalogEntry != null && activationEntry != null) {
+        throw RtcSdkException(
+          code: 'provider_not_supported',
+          message: 'RTC provider is officially defined but not registered in this runtime: \${selection.providerKey}',
+          providerKey: selection.providerKey,
+        );
+      }
+
+      throw RtcSdkException(
+        code: 'driver_not_found',
+        message: 'No RTC driver registered for provider: \${selection.providerKey}',
+        providerKey: selection.providerKey,
+      );
+    }
+
+    return driver.connect(
+      RtcResolvedClientConfig(
+        providerUrl: config.providerUrl,
+        providerKey: selection.providerKey,
+        tenantOverrideProviderKey: config.tenantOverrideProviderKey,
+        deploymentProfileProviderKey: config.deploymentProfileProviderKey,
+        defaultProviderKey: config.defaultProviderKey ?? defaultProviderKey,
+        nativeConfig: config.nativeConfig,
+        selectionSource: selection.source,
+      ),
+    );
+  }
+
+  RtcProviderSelection _resolveClientSelection(RtcClientConfig config) {
+    return resolveSelection(
+      RtcProviderSelectionRequest(
+        providerUrl: config.providerUrl,
+        providerKey: config.providerKey,
+        tenantOverrideProviderKey: config.tenantOverrideProviderKey,
+        deploymentProfileProviderKey: config.deploymentProfileProviderKey,
+      ),
+      defaultProviderKey: config.defaultProviderKey,
+    );
+  }
+
+  void _assertCanRegister(
+    RtcProviderDriver<dynamic> driver, {
+    Set<String> plannedProviderKeys = const <String>{},
+  }) {
+    final providerKey = driver.metadata.providerKey;
+    final catalogEntry = getRtcProviderByProviderKey(providerKey);
+    final activationEntry = getRtcProviderActivationByProviderKey(providerKey);
+    final officialMetadata = getOfficialRtcProviderMetadataByKey(providerKey);
+
+    if (
+      catalogEntry == null ||
+      activationEntry == null ||
+      officialMetadata == null
+    ) {
+      throw RtcSdkException(
+        code: 'provider_not_official',
+        message: 'RTC driver registration requires an official provider catalog entry: $providerKey',
+        providerKey: providerKey,
+        pluginId: driver.metadata.pluginId,
+      );
+    }
+
+    if (!_sameProviderMetadata(driver.metadata, officialMetadata)) {
+      throw RtcSdkException(
+        code: 'provider_metadata_mismatch',
+        message: 'RTC driver metadata must match the official provider catalog: $providerKey',
+        providerKey: providerKey,
+        pluginId: driver.metadata.pluginId,
+        details: <String, Object?>{
+          'expectedMetadata': officialMetadata.toDebugMap(),
+          'receivedMetadata': driver.metadata.toDebugMap(),
+        },
+      );
+    }
+
+    if (_drivers.containsKey(providerKey) || plannedProviderKeys.contains(providerKey)) {
+      throw RtcSdkException(
+        code: 'driver_already_registered',
+        message: 'RTC driver already registered for provider: $providerKey',
+        providerKey: providerKey,
+        pluginId: driver.metadata.pluginId,
+      );
+    }
+  }
+
+  bool _sameProviderMetadata(
+    RtcProviderMetadata actual,
+    RtcProviderMetadata expected,
+  ) {
+    return actual.providerKey == expected.providerKey &&
+        actual.pluginId == expected.pluginId &&
+        actual.driverId == expected.driverId &&
+        actual.displayName == expected.displayName &&
+        actual.defaultSelected == expected.defaultSelected &&
+        _sameStringList(actual.requiredCapabilities, expected.requiredCapabilities) &&
+        _sameStringList(actual.optionalCapabilities, expected.optionalCapabilities) &&
+        _sameStringList(actual.extensionKeys, expected.extensionKeys);
+  }
+
+  bool _sameStringList(List<String> actual, List<String> expected) {
+    if (actual.length != expected.length) {
+      return false;
+    }
+
+    for (var index = 0; index < actual.length; index += 1) {
+      if (actual[index] != expected[index]) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 `);
@@ -3647,7 +3860,109 @@ class RtcDriverManager:
 function renderReservedLanguageDataSourceModule(language) {
   switch (language) {
     case 'flutter':
-      return '';
+      return lines(`
+import 'rtc_driver_manager.dart';
+import 'rtc_provider_catalog.dart';
+import 'rtc_provider_selection.dart';
+import 'rtc_provider_support.dart';
+import 'rtc_standard_contract.dart';
+import 'rtc_types.dart';
+
+final class RtcDataSourceOptions extends RtcClientConfig {
+  const RtcDataSourceOptions({
+    super.providerUrl,
+    super.providerKey,
+    super.tenantOverrideProviderKey,
+    super.deploymentProfileProviderKey,
+    super.defaultProviderKey = RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY,
+    super.nativeConfig,
+  });
+}
+
+RtcDataSourceOptions _mergeOptions(
+  RtcDataSourceOptions base,
+  RtcDataSourceOptions? overrides,
+) {
+  if (overrides == null) {
+    return base;
+  }
+
+  return RtcDataSourceOptions(
+    providerUrl: overrides.providerUrl ?? base.providerUrl,
+    providerKey: overrides.providerKey ?? base.providerKey,
+    tenantOverrideProviderKey:
+        overrides.tenantOverrideProviderKey ?? base.tenantOverrideProviderKey,
+    deploymentProfileProviderKey:
+        overrides.deploymentProfileProviderKey ?? base.deploymentProfileProviderKey,
+    defaultProviderKey: overrides.defaultProviderKey ?? base.defaultProviderKey,
+    nativeConfig: overrides.nativeConfig ?? base.nativeConfig,
+  );
+}
+
+final class RtcDataSource {
+  RtcDataSource({
+    RtcDataSourceOptions? options,
+    RtcDriverManager? driverManager,
+  })  : options = options ?? const RtcDataSourceOptions(),
+        driverManager = driverManager ?? RtcDriverManager();
+
+  final RtcDataSourceOptions options;
+  final RtcDriverManager driverManager;
+
+  RtcProviderMetadata describe([RtcDataSourceOptions? overrides]) {
+    return driverManager.getMetadata(
+      _mergeOptions(options, overrides),
+    );
+  }
+
+  RtcProviderSelection describeSelection([RtcDataSourceOptions? overrides]) {
+    final merged = _mergeOptions(options, overrides);
+    return driverManager.resolveSelection(
+      RtcProviderSelectionRequest(
+        providerUrl: merged.providerUrl,
+        providerKey: merged.providerKey,
+        tenantOverrideProviderKey: merged.tenantOverrideProviderKey,
+        deploymentProfileProviderKey: merged.deploymentProfileProviderKey,
+      ),
+      defaultProviderKey: merged.defaultProviderKey,
+    );
+  }
+
+  RtcProviderSupport describeProviderSupport([RtcDataSourceOptions? overrides]) {
+    final selection = describeSelection(overrides);
+    return driverManager.describeProviderSupport(selection.providerKey);
+  }
+
+  List<RtcProviderSupport> listProviderSupport() {
+    return driverManager.listProviderSupport();
+  }
+
+  bool supportsCapability(
+    String capability, [
+    RtcDataSourceOptions? overrides,
+  ]) {
+    final metadata = describe(overrides);
+    return metadata.requiredCapabilities.contains(capability) ||
+        metadata.optionalCapabilities.contains(capability);
+  }
+
+  bool supportsProviderExtension(
+    String extensionKey, [
+    RtcDataSourceOptions? overrides,
+  ]) {
+    return describe(overrides).extensionKeys.contains(extensionKey);
+  }
+
+  Future<RtcClient<TNativeClient>> createClient<TNativeClient>([
+    RtcDataSourceOptions? overrides,
+  ]) async {
+    return await driverManager.connect(
+          _mergeOptions(options, overrides),
+        )
+        as RtcClient<TNativeClient>;
+  }
+}
+`);
     case 'rust':
       return '';
     case 'java':
@@ -4687,6 +5002,13 @@ version: 0.1.0
 environment:
   sdk: ">=3.4.0 <4.0.0"
 
+dependencies:
+  flutter:
+    sdk: flutter
+  im_sdk:
+    path: ../../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed
+  volc_engine_rtc: ^3.60.3
+
 flutter:
   uses-material-design: false
 `),
@@ -4694,40 +5016,71 @@ flutter:
     {
       relativePath: `${languageEntry.workspace}/${languageEntry.contractScaffold.relativePath}`,
       content: lines(`
+import 'rtc_provider_selection.dart';
+import 'rtc_types.dart';
+
 abstract interface class RtcProviderDriver<TNativeClient> {
-  String get providerKey;
-  Future<RtcClient<TNativeClient>> createClient();
-}
-
-abstract interface class RtcDriverManager<TNativeClient> {
-  RtcProviderDriver<TNativeClient> resolveDriver(String providerKey);
-}
-
-abstract interface class RtcDataSource<TNativeClient> {
-  Future<RtcClient<TNativeClient>> createClient();
+  RtcProviderMetadata get metadata;
+  Future<RtcClient<TNativeClient>> connect(RtcResolvedClientConfig config);
 }
 
 abstract interface class RtcClient<TNativeClient> {
-  Future<void> join();
-  Future<void> leave();
-  Future<void> publish(String trackId);
+  RtcProviderMetadata get metadata;
+  RtcProviderSelection get selection;
+  Future<RtcSessionDescriptor> join(RtcJoinOptions options);
+  Future<RtcSessionDescriptor> leave();
+  Future<RtcTrackPublication> publish(RtcPublishOptions options);
   Future<void> unpublish(String trackId);
-  Future<void> muteAudio(bool muted);
-  Future<void> muteVideo(bool muted);
-  TNativeClient? unwrap();
+  Future<RtcMuteState> muteAudio(bool muted);
+  Future<RtcMuteState> muteVideo(bool muted);
+  List<String> getProviderExtensions();
+  bool supportsProviderExtension(String extensionKey);
+  bool supportsCapability(String capability);
+  void requireCapability(String capability);
+  TNativeClient unwrap();
 }
 
 abstract interface class RtcRuntimeController<TNativeClient> {
-  Future<void> join();
-  Future<void> leave();
-  Future<void> publish(String trackId);
-  Future<void> unpublish(String trackId);
-  Future<void> muteAudio(bool muted);
-  Future<void> muteVideo(bool muted);
+  Future<RtcSessionDescriptor> join(
+    RtcJoinOptions options,
+    RtcRuntimeControllerContext<TNativeClient> context,
+  );
+  Future<RtcSessionDescriptor> leave(
+    RtcRuntimeControllerContext<TNativeClient> context,
+  );
+  Future<RtcTrackPublication> publish(
+    RtcPublishOptions options,
+    RtcRuntimeControllerContext<TNativeClient> context,
+  );
+  Future<void> unpublish(
+    String trackId,
+    RtcRuntimeControllerContext<TNativeClient> context,
+  );
+  Future<RtcMuteState> muteAudio(
+    bool muted,
+    RtcRuntimeControllerContext<TNativeClient> context,
+  );
+  Future<RtcMuteState> muteVideo(
+    bool muted,
+    RtcRuntimeControllerContext<TNativeClient> context,
+  );
 }
 
 final class RtcStandardContract {
   static const String symbol = 'RtcStandardContract';
+  static const List<String> jdbcStyleResolutionTypes = <String>[
+    'RtcDriverManager',
+    'RtcDataSource',
+  ];
+  static const List<String> runtimeSurfaceMethods = <String>[
+    'join',
+    'leave',
+    'publish',
+    'unpublish',
+    'muteAudio',
+    'muteVideo',
+  ];
+  static const String runtimeSurfaceFailureCode = 'native_sdk_not_available';
 
   const RtcStandardContract._();
 }
@@ -4921,94 +5274,7 @@ final class RtcProviderSelectionRequest {
     },
     {
       relativePath: `${languageEntry.workspace}/${languageEntry.resolutionScaffold.driverManagerRelativePath}`,
-      content: lines(`
-import 'rtc_provider_catalog.dart';
-import 'rtc_provider_selection.dart';
-import 'rtc_provider_support.dart';
-
-bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
-
-String _parseProviderKey(String providerUrl) {
-  final trimmed = providerUrl.trim();
-  if (!trimmed.startsWith('rtc:') || !trimmed.contains('://')) {
-    throw ArgumentError.value(providerUrl, 'providerUrl', 'Invalid RTC provider URL');
-  }
-
-  return trimmed.substring(4).split('://').first.toLowerCase();
-}
-
-final class RtcDriverManager {
-  const RtcDriverManager();
-
-  RtcProviderSelection resolveSelection(
-    RtcProviderSelectionRequest request, {
-    String defaultProviderKey = RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY,
-  }) {
-    if (_hasText(request.providerUrl)) {
-      return RtcProviderSelection(
-        providerKey: _parseProviderKey(request.providerUrl!),
-        source: RtcProviderSelectionSource.provider_url,
-      );
-    }
-
-    if (_hasText(request.providerKey)) {
-      return RtcProviderSelection(
-        providerKey: request.providerKey!.trim(),
-        source: RtcProviderSelectionSource.provider_key,
-      );
-    }
-
-    if (_hasText(request.tenantOverrideProviderKey)) {
-      return RtcProviderSelection(
-        providerKey: request.tenantOverrideProviderKey!.trim(),
-        source: RtcProviderSelectionSource.tenant_override,
-      );
-    }
-
-    if (_hasText(request.deploymentProfileProviderKey)) {
-      return RtcProviderSelection(
-        providerKey: request.deploymentProfileProviderKey!.trim(),
-        source: RtcProviderSelectionSource.deployment_profile,
-      );
-    }
-
-    return RtcProviderSelection(
-      providerKey: defaultProviderKey,
-      source: RtcProviderSelectionSource.default_provider,
-    );
-  }
-
-  RtcProviderSupport describeProviderSupport(String providerKey) {
-    final official = RtcProviderCatalog.entries.any(
-      (entry) => entry.providerKey == providerKey,
-    );
-
-    if (official) {
-      return RtcProviderSupport(
-        providerKey: providerKey,
-        status: RtcProviderSupportStatus.official_unregistered,
-        builtin: false,
-        official: true,
-        registered: false,
-      );
-    }
-
-    return RtcProviderSupport(
-      providerKey: providerKey,
-      status: RtcProviderSupportStatus.unknown,
-      builtin: false,
-      official: false,
-      registered: false,
-    );
-  }
-
-  List<RtcProviderSupport> listProviderSupport() {
-    return RtcProviderCatalog.entries
-        .map((entry) => describeProviderSupport(entry.providerKey))
-        .toList(growable: false);
-  }
-}
-`),
+      content: renderReservedLanguageDriverManagerModule(languageEntry.language),
     },
     {
       relativePath: `${languageEntry.workspace}/${languageEntry.resolutionScaffold.dataSourceRelativePath}`,
@@ -9959,6 +10225,15 @@ function renderReservedLanguageRootPublicEntrypointPlan(languageEntry) {
 library rtc_sdk;
 
 export 'src/rtc_standard_contract.dart';
+export 'src/rtc_errors.dart';
+export 'src/rtc_types.dart';
+export 'src/rtc_provider_metadata.dart';
+export 'src/rtc_client.dart';
+export 'src/rtc_driver.dart';
+export 'src/rtc_call_types.dart';
+export 'src/rtc_call_session.dart';
+export 'src/rtc_im_signaling.dart';
+export 'src/volcengine_official_flutter.dart';
 export 'src/rtc_provider_catalog.dart';
 export 'src/rtc_provider_package_catalog.dart';
 export 'src/rtc_provider_activation_catalog.dart';
@@ -9970,6 +10245,7 @@ export 'src/rtc_provider_package_loader.dart';
 export 'src/rtc_provider_support.dart';
 export 'src/rtc_driver_manager.dart';
 export 'src/rtc_data_source.dart';
+export 'src/providers/volcengine.dart';
 `),
         },
       ];

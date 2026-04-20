@@ -864,13 +864,87 @@ ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
 ${renderReservedLanguagePackageScaffold(languageEntry)}
 ${renderReservedLanguageMetadataScaffold(languageEntry)}
 ${renderReservedLanguageResolutionScaffold(languageEntry)}
-${renderReservedLanguageProviderPackageScaffold(languageEntry)}
+${renderReservedLanguageProviderPackageScaffold(languageEntry)}${languageEntry.language === 'flutter'
+  ? `\n${renderReservedLanguageRuntimeUsage(languageEntry)}`
+  : ''}
 
 Standards references:
 
 - \`../docs/provider-adapter-standard.md\`
 - \`../docs/multilanguage-capability-matrix.md\`
 `;
+}
+
+function renderReservedLanguageRuntimeUsage(languageEntry) {
+  if (languageEntry.language !== 'flutter') {
+    return '';
+  }
+
+  return `Executable baseline:
+
+- Flutter/mobile now ships a runnable default adapter for \`volcengine\`
+- media runtime delegates to the official \`volc_engine_rtc\` package
+- signaling delegates to \`sdkwork-im-sdk\` through \`package:im_sdk/im_sdk.dart\`
+- \`RtcDriverManager\` auto-registers \`createVolcengineRtcDriver()\`
+- \`RtcDataSource()\` therefore resolves to \`volcengine\` by default with no extra provider selection
+- \`StandardRtcCallSession\` composes media control and IM signaling into one video-call flow:
+  create session, invite, issue RTC credential, join media room, publish tracks, exchange RTC
+  signals, and end session
+
+Quick start:
+
+\`\`\`dart
+import 'package:im_sdk/im_sdk.dart';
+import 'package:rtc_sdk/rtc_sdk.dart';
+
+Future<void> startRtcCall({
+  required ImSdkClient imSdk,
+  required String currentUserId,
+}) async {
+  final dataSource = RtcDataSource(
+    options: const RtcDataSourceOptions(
+      nativeConfig: RtcVolcengineFlutterNativeConfig(
+        appId: 'your-volcengine-app-id',
+      ),
+    ),
+  );
+
+  final mediaClient = await dataSource.driverManager.connect();
+  final signaling = createImRtcSignalingAdapter(
+    CreateImRtcSignalingAdapterOptions(
+      sdk: imSdk,
+      deviceId: 'current-device-id',
+    ),
+  );
+
+  final callSession = StandardRtcCallSession(
+    mediaClient: mediaClient,
+    signaling: signaling,
+  );
+
+  await callSession.startOutgoing(
+    RtcOutgoingCallOptions(
+      rtcSessionId: 'rtc-session-001',
+      conversationId: 'conversation-001',
+      rtcMode: 'video_call',
+      participantId: currentUserId,
+      autoPublish: const RtcCallAutoPublishOptions(
+        audio: true,
+        video: true,
+      ),
+    ),
+  );
+}
+\`\`\`
+
+Runtime notes:
+
+- \`RtcVolcengineFlutterNativeConfig.appId\` is mandatory; join will fail fast without it
+- \`RtcJoinOptions.token\` is filled from \`sdkwork-im-sdk\` issued participant credentials, not by
+  hardcoding vendor tokens in the caller
+- \`RtcPublishOptions\` supports standard audio and video publishing through the Volcengine adapter
+- signaling subscriptions are multiplexed through one shared IM realtime dispatcher so multiple RTC
+  sessions do not overwrite each other at the subscription layer`;
 }
 
 function renderCapabilityMatrix(assembly) {
