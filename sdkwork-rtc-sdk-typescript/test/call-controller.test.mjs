@@ -438,6 +438,7 @@ test('standard rtc call controller dispose clears watched conversations and retu
     rtcStack.callController.getSnapshot().watchedConversationIds,
     ['conversation-1'],
   );
+  assert.equal(typeof rtcStack.dispose, 'function');
 
   await rtcStack.callController.startOutgoing({
     rtcSessionId: 'rtc-session-dispose',
@@ -456,7 +457,7 @@ test('standard rtc call controller dispose clears watched conversations and retu
     sdk.RTC_CALL_OFFER_SIGNAL_TYPE,
   );
 
-  await rtcStack.callController.dispose();
+  await rtcStack.dispose();
 
   assert.equal(rtcStack.callController.getSnapshot().controllerState, 'idle');
   assert.deepEqual(rtcStack.callController.getSnapshot().watchedConversationIds, []);

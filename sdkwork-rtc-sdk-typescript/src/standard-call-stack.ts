@@ -21,6 +21,7 @@ export interface StandardRtcCallStack<TNativeClient = unknown> {
   readonly mediaClient: RtcClient<TNativeClient>;
   readonly signaling: RtcCallSignalingAdapter;
   readonly callSession: StandardRtcCallSession<TNativeClient>;
+  dispose(): Promise<void>;
 }
 
 export interface StandardRtcCallControllerStack<TNativeClient = unknown>
@@ -60,6 +61,9 @@ export async function createStandardRtcCallStack<TNativeClient = unknown>(
     mediaClient,
     signaling,
     callSession,
+    async dispose() {
+      await callSession.dispose();
+    },
   });
 }
 
@@ -76,5 +80,8 @@ export async function createStandardRtcCallControllerStack<TNativeClient = unkno
   return freezeRtcRuntimeValue({
     ...rtcStack,
     callController,
+    async dispose() {
+      await callController.dispose();
+    },
   });
 }

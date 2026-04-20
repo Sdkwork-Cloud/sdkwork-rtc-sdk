@@ -24,6 +24,10 @@ final class StandardRtcCallStack<TNativeClient> {
   final RtcCallSignalingAdapter signaling;
   final StandardRtcCallSession<TNativeClient> callSession;
   final RtcImRealtimeDispatcher realtimeDispatcher;
+
+  Future<void> dispose() async {
+    await callSession.dispose();
+  }
 }
 
 final class CreateStandardRtcCallStackOptions {
@@ -62,6 +66,10 @@ final class StandardRtcCallControllerStack<TNativeClient> {
   final StandardRtcCallSession<TNativeClient> callSession;
   final RtcImRealtimeDispatcher realtimeDispatcher;
   final StandardRtcCallController<TNativeClient> callController;
+
+  Future<void> dispose() async {
+    await callController.dispose();
+  }
 }
 
 final class CreateStandardRtcCallControllerStackOptions {
