@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:im_sdk/im_sdk.dart';
 
 export 'rtc_call_controller_contract.dart';
 export 'rtc_call_controller_models.dart';
 
-import 'rtc_call_controller_codec.dart';
+import 'rtc_call_controller_message.dart';
 import 'rtc_call_controller_contract.dart';
 import 'rtc_call_controller_models.dart';
 import 'rtc_call_session.dart';
@@ -148,7 +147,8 @@ class StandardRtcCallController<TNativeClient> {
 
     await _subscribeToSessionSignals(options.rtcSessionId);
 
-    await _publishConversationSignal(
+    await publishRtcConversationSignal(
+      _sdk,
       conversationId: options.conversationId!,
       signalType: rtcCallInviteSignalType,
       schemaRef: rtcCallInviteSchemaRef,
@@ -493,30 +493,6 @@ class StandardRtcCallController<TNativeClient> {
         _lastError = error;
       }
     }
-  }
-
-  Future<void> _publishConversationSignal({
-    required String conversationId,
-    required String signalType,
-    required String schemaRef,
-    required String text,
-    required Map<String, Object?> payload,
-  }) async {
-    await _sdk.conversations.postMessage(
-      conversationId,
-      PostMessageRequest(
-        text: text,
-        parts: <ContentPart>[
-          ContentPart(
-            kind: 'signal',
-            signalType: signalType,
-            schemaRef: schemaRef,
-            encoding: 'application/json',
-            payload: jsonEncode(payload),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<RtcCallSignal> _sendTypedSignal(

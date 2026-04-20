@@ -1,6 +1,35 @@
+import 'dart:convert';
+
+import 'package:im_sdk/im_sdk.dart';
+
 import 'rtc_call_controller_contract.dart';
 import 'rtc_call_controller_models.dart';
 import 'rtc_im_signaling.dart';
+
+Future<void> publishRtcConversationSignal(
+  ImSdkClient sdk, {
+  required String conversationId,
+  required String signalType,
+  required String schemaRef,
+  required String text,
+  required Object payload,
+}) async {
+  await sdk.conversations.postMessage(
+    conversationId,
+    PostMessageRequest(
+      text: text,
+      parts: <ContentPart>[
+        ContentPart(
+          kind: 'signal',
+          signalType: signalType,
+          schemaRef: schemaRef,
+          encoding: 'application/json',
+          payload: jsonEncode(payload),
+        ),
+      ],
+    ),
+  );
+}
 
 RtcIncomingCallInvitation? toRtcIncomingCallInvitation(
   RtcImConversationSignalMessage signal,
