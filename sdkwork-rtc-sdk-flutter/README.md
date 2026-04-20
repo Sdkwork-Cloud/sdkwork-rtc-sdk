@@ -57,6 +57,7 @@ Provider package boundary:
 - root public policy: `none`
 - lifecycle status terms: `future-runtime-bridge-only`
 - runtime bridge status terms: `reserved`
+- these terms describe future extracted provider packages, not the runnable root workspace baseline
 
 
 Package scaffold:
@@ -108,6 +109,7 @@ Provider package scaffold:
 - status: `future-runtime-bridge-only`
 - runtime bridge status: `reserved`
 - root public exposure: `false`
+- this scaffold remains reserved for future extracted provider packages; the current executable runtime stays in the root workspace baseline
 
 Executable baseline:
 

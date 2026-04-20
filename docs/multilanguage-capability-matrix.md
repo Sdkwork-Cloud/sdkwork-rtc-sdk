@@ -350,6 +350,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 
 ## Reading Rules
 
-- TypeScript is the only executable reference baseline in the first landing.
-- Other official language workspaces are materialized reserved boundaries now so the standard stays explicit.
-- A workspace must not advertise runtime bridge support until it has a verified native bridge.
+- TypeScript and Flutter are the executable reference baselines in the current landing.
+- The remaining official language workspaces are materialized reserved boundaries so the standard stays explicit.
+- A provider package boundary may stay reserved even when the root workspace already has a verified runtime bridge.
+- A workspace or provider package must not advertise runtime bridge support until it has a verified native bridge.

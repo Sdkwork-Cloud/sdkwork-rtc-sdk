@@ -299,6 +299,11 @@ function renderReservedLanguageProviderPackageScaffold(languageEntry) {
     return '';
   }
 
+  const providerPackageScaffoldNote =
+    languageEntry.runtimeBridge
+      ? '- this scaffold remains reserved for future extracted provider packages; the current executable runtime stays in the root workspace baseline\n'
+      : '';
+
   return `
 Provider package scaffold:
 
@@ -314,13 +319,18 @@ Provider package scaffold:
 - status: \`${languageEntry.providerPackageScaffold.status}\`
 - runtime bridge status: \`${languageEntry.providerPackageScaffold.runtimeBridgeStatus}\`
 - root public exposure: \`${languageEntry.providerPackageScaffold.rootPublic}\`
-`;
+${providerPackageScaffoldNote}`;
 }
 
 function renderLanguageWorkspaceProviderPackageBoundary(languageEntry) {
   if (!languageEntry.providerPackageBoundary) {
     return '';
   }
+
+  const providerPackageBoundaryNote =
+    languageEntry.runtimeBridge && languageEntry.providerPackageScaffold
+      ? '- these terms describe future extracted provider packages, not the runnable root workspace baseline\n'
+      : '';
 
   return `
 Provider package boundary:
@@ -333,7 +343,7 @@ Provider package boundary:
 - runtime bridge status terms: ${renderMarkdownCodeList(
     languageEntry.providerPackageBoundary.runtimeBridgeStatusTerms,
   )}
-`;
+${providerPackageBoundaryNote}`;
 }
 
 function renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly) {
@@ -1291,9 +1301,10 @@ ${languageProviderActivationRows}
 
 ## Reading Rules
 
-- TypeScript is the only executable reference baseline in the first landing.
-- Other official language workspaces are materialized reserved boundaries now so the standard stays explicit.
-- A workspace must not advertise runtime bridge support until it has a verified native bridge.
+- TypeScript and Flutter are the executable reference baselines in the current landing.
+- The remaining official language workspaces are materialized reserved boundaries so the standard stays explicit.
+- A provider package boundary may stay reserved even when the root workspace already has a verified runtime bridge.
+- A workspace or provider package must not advertise runtime bridge support until it has a verified native bridge.
 `;
 }
 

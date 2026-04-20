@@ -2555,6 +2555,11 @@ test('language workspace readmes align with the assembly language matrix', () =>
         ),
       );
     }
+
+    if (languageEntry.language === 'flutter') {
+      assert.match(readme, /future extracted provider packages/i);
+      assert.match(readme, /runnable root workspace baseline/i);
+    }
   }
 });
 
@@ -2640,6 +2645,12 @@ test('multilanguage capability matrix aligns with the assembly language and prov
   assert.match(docsReadme, /materialized from `\.sdkwork-assembly\.json`/);
   assert.match(docsReadme, /language workspace catalog/i);
   assert.match(docsReadme, /provider activation catalog/i);
+  assert.match(matrix, /TypeScript and Flutter are the executable reference baselines in the current landing\./);
+  assert.match(
+    matrix,
+    /A provider package boundary may stay reserved even when the root workspace already has a verified runtime bridge\./,
+  );
+  assert.doesNotMatch(matrix, /TypeScript is the only executable reference baseline in the first landing\./);
 });
 
 test('typescript provider package skeletons exist for every official provider', () => {
@@ -3535,6 +3546,18 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedMatrix, /Driver manager/);
     assert.match(repairedMatrix, /Data source/);
     assert.match(repairedMatrix, /Provider support/);
+    assert.match(
+      repairedMatrix,
+      /TypeScript and Flutter are the executable reference baselines in the current landing\./,
+    );
+    assert.match(
+      repairedMatrix,
+      /A provider package boundary may stay reserved even when the root workspace already has a verified runtime bridge\./,
+    );
+    assert.doesNotMatch(
+      repairedMatrix,
+      /TypeScript is the only executable reference baseline in the first landing\./,
+    );
 
     const repairedVerificationMatrix = readFileSync(verificationMatrixPath, 'utf8');
     assert.match(repairedVerificationMatrix, /# RTC SDK Verification Matrix/);
