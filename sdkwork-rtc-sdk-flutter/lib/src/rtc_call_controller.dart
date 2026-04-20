@@ -7,6 +7,7 @@ export 'rtc_call_controller_models.dart';
 
 import 'rtc_call_controller_message.dart';
 import 'rtc_call_controller_emission.dart';
+import 'rtc_call_controller_lifecycle.dart';
 import 'rtc_call_controller_subscription.dart';
 import 'rtc_call_controller_contract.dart';
 import 'rtc_call_controller_models.dart';
@@ -149,17 +150,10 @@ class StandardRtcCallController<TNativeClient> {
       signalType: rtcCallInviteSignalType,
       schemaRef: rtcCallInviteSchemaRef,
       text: options.invitationText ?? 'RTC call invite',
-      payload: RtcCallInvitePayload(
-        rtcSessionId: options.rtcSessionId,
-        conversationId: options.conversationId!,
-        rtcMode: options.rtcMode,
-        roomId: sessionSnapshot.roomId ?? options.roomId ?? options.rtcSessionId,
-        signalingStreamId:
-            sessionSnapshot.signalingStreamId ?? options.signalingStreamId,
-        initiatorId: options.participantId,
-        initiatorDisplayName: options.initiatorDisplayName,
+      payload: createRtcCallControllerOutgoingInvitationPayload(
+        options: options,
+        sessionSnapshot: sessionSnapshot,
         sentAt: DateTime.now().toUtc().toIso8601String(),
-        metadata: options.invitationMetadata,
       ).toJson(),
     );
 
@@ -189,20 +183,18 @@ class StandardRtcCallController<TNativeClient> {
       ),
     );
 
+    final acceptedSessionSnapshot = _callSession.getSnapshot();
     await _signaling.sendSignal(
       options.rtcSessionId,
       rtcCallAcceptedSignalType,
-      RtcCallLifecyclePayload(
-        rtcSessionId: options.rtcSessionId,
-        conversationId: _callSession.getSnapshot().conversationId,
-        rtcMode: _callSession.getSnapshot().rtcMode,
-        participantId: options.participantId,
+      createRtcCallControllerAcceptedLifecyclePayload(
+        options: options,
+        sessionSnapshot: acceptedSessionSnapshot,
         occurredAt: DateTime.now().toUtc().toIso8601String(),
-        metadata: options.metadata,
       ).toJson(),
-      options: RtcCallSignalSendOptions(
-        signalingStreamId: _callSession.getSnapshot().signalingStreamId ??
-            _activeInvitation?.signalingStreamId,
+      options: createRtcCallControllerSignalSendOptions(
+        sessionSnapshot: acceptedSessionSnapshot,
+        activeInvitation: _activeInvitation,
         schemaRef: rtcCallLifecycleSchemaRef,
       ),
     );
@@ -219,16 +211,14 @@ class StandardRtcCallController<TNativeClient> {
     await _signaling.sendSignal(
       options.rtcSessionId,
       rtcCallRejectedSignalType,
-      RtcCallLifecyclePayload(
-        rtcSessionId: options.rtcSessionId,
-        conversationId: _activeInvitation?.conversationId,
-        rtcMode: _activeInvitation?.rtcMode,
-        reason: options.reason,
+      createRtcCallControllerRejectedLifecyclePayload(
+        options: options,
+        activeInvitation: _activeInvitation,
         occurredAt: DateTime.now().toUtc().toIso8601String(),
-        metadata: options.metadata,
       ).toJson(),
-      options: RtcCallSignalSendOptions(
-        signalingStreamId: _activeInvitation?.signalingStreamId,
+      options: createRtcCallControllerSignalSendOptions(
+        sessionSnapshot: _callSession.getSnapshot(),
+        activeInvitation: _activeInvitation,
         schemaRef: rtcCallLifecycleSchemaRef,
       ),
     );
@@ -256,19 +246,16 @@ class StandardRtcCallController<TNativeClient> {
     await _signaling.sendSignal(
       rtcSessionId,
       rtcCallEndedSignalType,
-      RtcCallLifecyclePayload(
+      createRtcCallControllerEndedLifecyclePayload(
         rtcSessionId: rtcSessionId,
-        conversationId:
-            sessionSnapshot.conversationId ?? _activeInvitation?.conversationId,
-        rtcMode: sessionSnapshot.rtcMode ?? _activeInvitation?.rtcMode,
-        participantId: sessionSnapshot.participantId,
-        reason: options.reason,
+        options: options,
+        sessionSnapshot: sessionSnapshot,
+        activeInvitation: _activeInvitation,
         occurredAt: DateTime.now().toUtc().toIso8601String(),
-        metadata: options.metadata,
       ).toJson(),
-      options: RtcCallSignalSendOptions(
-        signalingStreamId:
-            sessionSnapshot.signalingStreamId ?? _activeInvitation?.signalingStreamId,
+      options: createRtcCallControllerSignalSendOptions(
+        sessionSnapshot: sessionSnapshot,
+        activeInvitation: _activeInvitation,
         schemaRef: rtcCallLifecycleSchemaRef,
       ),
     );
@@ -346,15 +333,9 @@ class StandardRtcCallController<TNativeClient> {
 
       await _callSession.leaveMedia();
       _callSession.reconcileSessionRecord(
-        RtcCallSessionRecord(
-          rtcSessionId: signal.rtcSessionId,
-          conversationId: signal.conversationId,
-          rtcMode: signal.rtcMode,
-          state: nextState == RtcCallControllerState.rejected
-              ? RtcCallState.rejected
-              : RtcCallState.ended,
-          signalingStreamId: signal.signalingStreamId,
-          endedAt: signal.occurredAt,
+        createRtcCallControllerTerminalSessionRecord(
+          signal: signal,
+          nextState: nextState,
         ),
       );
       _controllerState = nextState;

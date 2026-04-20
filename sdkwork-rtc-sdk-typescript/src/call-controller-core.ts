@@ -1,7 +1,5 @@
 import { RtcSdkException } from './errors.js';
-import { freezeRtcRuntimeValue } from './runtime-freeze.js';
 import type {
-  RtcCallSessionRecord,
   RtcCallSignal,
   RtcCallSignalingAdapter,
 } from './call-types.js';
@@ -34,8 +32,6 @@ import type {
   RtcCallControllerSnapshot,
   RtcCallControllerSnapshotHandler,
   RtcCallIceCandidatePayload,
-  RtcCallInvitePayload,
-  RtcCallLifecyclePayload,
   RtcCallSessionDescriptionPayload,
 } from './call-controller-models.js';
 import {
@@ -52,6 +48,14 @@ import {
   RtcCallControllerConversationSubscriptionManager,
   RtcCallControllerSessionSubscriptionManager,
 } from './call-controller-subscription.js';
+import {
+  createRtcCallControllerAcceptedLifecyclePayload,
+  createRtcCallControllerEndedLifecyclePayload,
+  createRtcCallControllerOutgoingInvitationPayload,
+  createRtcCallControllerRejectedLifecyclePayload,
+  createRtcCallControllerSignalSendOptions,
+  createRtcCallControllerTerminalSessionRecord,
+} from './call-controller-lifecycle.js';
 import {
   createRtcCallControllerSnapshot,
   hasRtcCallControllerActiveCall,
@@ -144,16 +148,10 @@ export class StandardRtcCallController<TNativeClient = unknown> {
 
     await this.#subscribeToSessionSignals(options.rtcSessionId);
 
-    const invitation: RtcCallInvitePayload = freezeRtcRuntimeValue({
-      rtcSessionId: options.rtcSessionId,
-      conversationId: options.conversationId,
-      rtcMode: options.rtcMode,
-      roomId: sessionSnapshot.roomId ?? options.roomId ?? options.rtcSessionId,
-      signalingStreamId: sessionSnapshot.signalingStreamId ?? options.signalingStreamId,
-      initiatorId: options.participantId,
-      initiatorDisplayName: options.initiatorDisplayName,
+    const invitation = createRtcCallControllerOutgoingInvitationPayload({
+      options,
+      sessionSnapshot,
       sentAt: new Date().toISOString(),
-      metadata: options.invitationMetadata,
     });
     await publishRtcConversationSignal(this.#sdk, options.conversationId, {
       signalType: RTC_CALL_INVITE_SIGNAL_TYPE,
@@ -187,20 +185,16 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     await this.#signaling.sendSignal(
       options.rtcSessionId,
       RTC_CALL_ACCEPTED_SIGNAL_TYPE,
-      freezeRtcRuntimeValue<RtcCallLifecyclePayload>({
-        rtcSessionId: options.rtcSessionId,
-        conversationId: this.#callSession.getSnapshot().conversationId,
-        rtcMode: this.#callSession.getSnapshot().rtcMode,
-        participantId: options.participantId,
+      createRtcCallControllerAcceptedLifecyclePayload({
+        options,
+        sessionSnapshot: this.#callSession.getSnapshot(),
         occurredAt: new Date().toISOString(),
-        metadata: options.metadata,
       }),
-      {
-        signalingStreamId:
-          this.#callSession.getSnapshot().signalingStreamId
-          ?? this.#activeInvitation?.signalingStreamId,
+      createRtcCallControllerSignalSendOptions({
+        sessionSnapshot: this.#callSession.getSnapshot(),
+        activeInvitation: this.#activeInvitation,
         schemaRef: RTC_CALL_LIFECYCLE_SCHEMA_REF,
-      },
+      }),
     );
 
     this.#direction = 'incoming';
@@ -215,18 +209,16 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     await this.#signaling.sendSignal(
       options.rtcSessionId,
       RTC_CALL_REJECTED_SIGNAL_TYPE,
-      freezeRtcRuntimeValue<RtcCallLifecyclePayload>({
-        rtcSessionId: options.rtcSessionId,
-        conversationId: this.#activeInvitation?.conversationId,
-        rtcMode: this.#activeInvitation?.rtcMode,
-        reason: options.reason,
+      createRtcCallControllerRejectedLifecyclePayload({
+        options,
+        activeInvitation: this.#activeInvitation,
         occurredAt: new Date().toISOString(),
-        metadata: options.metadata,
       }),
-      {
-        signalingStreamId: this.#activeInvitation?.signalingStreamId,
+      createRtcCallControllerSignalSendOptions({
+        sessionSnapshot: this.#callSession.getSnapshot(),
+        activeInvitation: this.#activeInvitation,
         schemaRef: RTC_CALL_LIFECYCLE_SCHEMA_REF,
-      },
+      }),
     );
 
     await this.#callSession.rejectIncoming(options);
@@ -252,20 +244,18 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     await this.#signaling.sendSignal(
       rtcSessionId,
       RTC_CALL_ENDED_SIGNAL_TYPE,
-      freezeRtcRuntimeValue<RtcCallLifecyclePayload>({
+      createRtcCallControllerEndedLifecyclePayload({
         rtcSessionId,
-        conversationId: sessionSnapshot.conversationId ?? this.#activeInvitation?.conversationId,
-        rtcMode: sessionSnapshot.rtcMode ?? this.#activeInvitation?.rtcMode,
-        participantId: sessionSnapshot.participantId,
-        reason: options.reason,
+        options,
+        sessionSnapshot,
+        activeInvitation: this.#activeInvitation,
         occurredAt: new Date().toISOString(),
-        metadata: options.metadata,
       }),
-      {
-        signalingStreamId:
-          sessionSnapshot.signalingStreamId ?? this.#activeInvitation?.signalingStreamId,
+      createRtcCallControllerSignalSendOptions({
+        sessionSnapshot,
+        activeInvitation: this.#activeInvitation,
         schemaRef: RTC_CALL_LIFECYCLE_SCHEMA_REF,
-      },
+      }),
     );
 
     await this.#callSession.end();
@@ -334,13 +324,9 @@ export class StandardRtcCallController<TNativeClient = unknown> {
 
       await this.#callSession.leaveMedia();
       this.#callSession.reconcileSessionRecord(
-        freezeRtcRuntimeValue<RtcCallSessionRecord>({
-          rtcSessionId: signal.rtcSessionId,
-          conversationId: signal.conversationId,
-          rtcMode: signal.rtcMode,
-          state: nextState,
-          signalingStreamId: signal.signalingStreamId,
-          endedAt: signal.occurredAt,
+        createRtcCallControllerTerminalSessionRecord({
+          signal,
+          nextState,
         }),
       );
       this.#controllerState = nextState;
