@@ -247,7 +247,6 @@ test('IM signaling adapter plus standard call session drives outgoing call, sign
     roomId: 'room-1',
     participantId: 'caller-1',
     signalingStreamId: 'signal-1',
-    subscribeSignals: true,
     autoPublish: {
       audio: true,
       video: true,

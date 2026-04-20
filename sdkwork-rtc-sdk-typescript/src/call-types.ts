@@ -1,6 +1,7 @@
 import type { RtcTrackKind, RtcSessionConnectionState } from './types.js';
 
 export const RTC_CALL_TRACK_ID_SEPARATOR = '-';
+export const DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS = true;
 
 export function createRtcCallTrackId(
   rtcSessionId: string,

@@ -12,7 +12,10 @@ import type {
   RtcIncomingCallRejectOptions,
   RtcOutgoingCallOptions,
 } from './call-types.js';
-import { createRtcCallTrackId } from './call-types.js';
+import {
+  createRtcCallTrackId,
+  DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS,
+} from './call-types.js';
 
 export interface StandardRtcCallSessionOptions<TNativeClient = unknown> {
   mediaClient: RtcClient<TNativeClient>;
@@ -47,7 +50,7 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
   }
 
   async startOutgoing(options: RtcOutgoingCallOptions): Promise<RtcCallSessionSnapshot> {
-    if (options.subscribeSignals) {
+    if (options.subscribeSignals ?? DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS) {
       await this.#ensureSignalSubscription(options.rtcSessionId);
     }
 
@@ -76,7 +79,7 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
   async acceptIncoming(
     options: RtcIncomingCallAcceptOptions,
   ): Promise<RtcCallSessionSnapshot> {
-    if (options.subscribeSignals) {
+    if (options.subscribeSignals ?? DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS) {
       await this.#ensureSignalSubscription(options.rtcSessionId);
     }
 

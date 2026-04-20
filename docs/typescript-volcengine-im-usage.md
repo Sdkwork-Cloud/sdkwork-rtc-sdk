@@ -130,7 +130,6 @@ await rtcStack.callSession.startOutgoing({
   roomId: 'room-1',
   participantId: 'user-1',
   signalingStreamId: 'rtc-signal-1',
-  subscribeSignals: true,
   autoPublish: {
     audio: true,
     video: true,
@@ -164,6 +163,7 @@ standard call/signaling contract:
   `signaling`, and `callSession` as one explicit standard bundle
 - `createRtcCallTrackId(rtcSessionId, kind)` is the standard cross-language track id helper and
   yields canonical ids such as `rtc-session-1-audio`
+- TypeScript now defaults `subscribeSignals` to `true`, aligned with Flutter/mobile
 - `createBuiltinRtcDriverManager()` defaults to `volcengine`
 - Volcengine Web runtime loading is lazy
 - official vendor SDKs are not bundled into the RTC standard package

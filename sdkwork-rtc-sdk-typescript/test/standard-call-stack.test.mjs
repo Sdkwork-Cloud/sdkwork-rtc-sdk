@@ -165,7 +165,6 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
     roomId: 'room-1',
     participantId: 'user-1',
     signalingStreamId: 'signal-1',
-    subscribeSignals: true,
     autoPublish: {
       audio: true,
       video: false,
