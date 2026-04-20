@@ -1050,6 +1050,15 @@
         "TypeScript provider package statuses standardize built-in root-public packages as root_public_reference_boundary and executable non-builtin packages as package_reference_boundary",
         "TypeScript runtime bridge baseline reference-baseline with official vendor SDK requirement required"
       ],
+      "runtimeBaseline": {
+        "vendorSdkPackage": "@volcengine/rtc",
+        "vendorSdkImportPath": "@volcengine/rtc",
+        "signalingSdkPackage": "@sdkwork/im-sdk",
+        "signalingSdkImportPath": "@sdkwork/im-sdk",
+        "recommendedEntrypoint": "createStandardRtcCallControllerStack",
+        "smokeCommand": "node ./bin/sdk-call-smoke.mjs --json",
+        "smokeMode": "runtime-backed"
+      },
       "metadataScaffold": {
         "providerCatalogRelativePath": "src/provider-catalog.ts",
         "capabilityCatalogRelativePath": "src/capability-catalog.ts",
@@ -1138,6 +1147,15 @@
         "default mobile provider remains volcengine unless the caller explicitly overrides selection",
         "StandardRtcCallController quick-start stack for default Volcengine plus IM signaling"
       ],
+      "runtimeBaseline": {
+        "vendorSdkPackage": "volc_engine_rtc",
+        "vendorSdkImportPath": "package:volc_engine_rtc/volc_engine_rtc.dart",
+        "signalingSdkPackage": "im_sdk",
+        "signalingSdkImportPath": "package:im_sdk/im_sdk.dart",
+        "recommendedEntrypoint": "createStandardRtcCallControllerStack",
+        "smokeCommand": "node ./bin/sdk-call-smoke.mjs --json",
+        "smokeMode": "analysis-backed"
+      },
       "contractScaffold": {
         "relativePath": "lib/src/rtc_standard_contract.dart",
         "symbol": "RtcStandardContract"

@@ -13,6 +13,7 @@ import {
   normalizeStringArray,
 } from '../bin/rtc-standard-shared-helpers.mjs';
 import {
+  RTC_FLUTTER_REQUIRED_STANDARD_FILES,
   RTC_ROOT_REQUIRED_CONTRACT_FILES,
   RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
   RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
@@ -34,6 +35,7 @@ export function buildRtcVerifierFixtureFileList(assembly) {
     'bin/smoke-sdk.sh',
     'bin/verify-sdk.mjs',
     ...RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
+    ...RTC_FLUTTER_REQUIRED_STANDARD_FILES,
     RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
   ];
 

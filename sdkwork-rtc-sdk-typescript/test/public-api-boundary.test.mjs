@@ -209,6 +209,9 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.getBuiltinRtcProviderModules, 'function');
   assert.equal(typeof sdk.getOfficialRtcProviderMetadata, 'function');
   assert.equal(typeof sdk.getOfficialRtcProviderMetadataByKey, 'function');
+  assert.equal(typeof sdk.DEFAULT_RTC_PROVIDER_KEY, 'string');
+  assert.equal(typeof sdk.DEFAULT_RTC_PROVIDER_PLUGIN_ID, 'string');
+  assert.equal(typeof sdk.DEFAULT_RTC_PROVIDER_DRIVER_ID, 'string');
   assert.equal(typeof sdk.getRtcProviderByProviderKey, 'function');
   assert.equal(typeof sdk.getRtcProviderActivationCatalog, 'function');
   assert.equal(typeof sdk.getRtcProviderActivationByProviderKey, 'function');
@@ -218,6 +221,9 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.createAliyunRtcDriver, 'function');
   assert.equal(typeof sdk.createTencentRtcDriver, 'function');
   assert.equal(typeof sdk.createImRtcSignalingAdapter, 'function');
+  assert.equal(sdk.DEFAULT_RTC_PROVIDER_KEY, 'volcengine');
+  assert.equal(sdk.DEFAULT_RTC_PROVIDER_PLUGIN_ID, 'rtc-volcengine');
+  assert.equal(sdk.DEFAULT_RTC_PROVIDER_DRIVER_ID, 'sdkwork-rtc-driver-volcengine');
   assert.equal(typeof sdk.StandardRtcCallSession, 'function');
   assert.equal(typeof sdk.StandardRtcCallController, 'function');
   assert.equal(typeof sdk.StandardRtcCallSession.prototype.close, 'function');

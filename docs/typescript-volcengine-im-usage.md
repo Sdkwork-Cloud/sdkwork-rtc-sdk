@@ -16,6 +16,19 @@ This document describes the current executable TypeScript baseline of `sdkwork-r
 npm install @sdkwork/rtc-sdk @volcengine/rtc @sdkwork/im-sdk
 ```
 
+## Fast Smoke Verification
+
+Use the workspace smoke CLI when you want to validate the public TypeScript entrypoint without
+depending on a live IM service or a real Volcengine credential:
+
+```bash
+node ./sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.mjs --json
+```
+
+The smoke CLI runs the public `@sdkwork/rtc-sdk` surface against mocked `sdkwork-im-sdk`
+signaling and a mocked official `@volcengine/rtc` module, then prints the resolved provider,
+runtime calls, signaling calls, and final controller states.
+
 ## Media Runtime Only
 
 Use this path when the app already has its own session/token orchestration and only needs the RTC

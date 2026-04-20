@@ -31,6 +31,15 @@ export const TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalo
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: freezeRtcRuntimeValue({
+    vendorSdkPackage: '@volcengine/rtc',
+    vendorSdkImportPath: '@volcengine/rtc',
+    signalingSdkPackage: '@sdkwork/im-sdk',
+    signalingSdkImportPath: '@sdkwork/im-sdk',
+    recommendedEntrypoint: 'createStandardRtcCallControllerStack',
+    smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
+    smokeMode: 'runtime-backed',
+  }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider-catalog.ts',
     capabilityCatalogRelativePath: 'src/capability-catalog.ts',
@@ -87,6 +96,15 @@ export const FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEn
   }),
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
+  }),
+  runtimeBaseline: freezeRtcRuntimeValue({
+    vendorSdkPackage: 'volc_engine_rtc',
+    vendorSdkImportPath: 'package:volc_engine_rtc/volc_engine_rtc.dart',
+    signalingSdkPackage: 'im_sdk',
+    signalingSdkImportPath: 'package:im_sdk/im_sdk.dart',
+    recommendedEntrypoint: 'createStandardRtcCallControllerStack',
+    smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
+    smokeMode: 'analysis-backed',
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'lib/src/rtc_provider_catalog.dart',
@@ -158,6 +176,7 @@ export const RUST_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider_catalog.rs',
     capabilityCatalogRelativePath: 'src/capability_catalog.rs',
@@ -228,6 +247,7 @@ export const JAVA_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcProviderCatalog.java',
     capabilityCatalogRelativePath: 'src/main/java/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.java',
@@ -298,6 +318,7 @@ export const CSHARP_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/SDKWork.Rtc.Sdk/RtcProviderCatalog.cs',
     capabilityCatalogRelativePath: 'src/SDKWork.Rtc.Sdk/RtcCapabilityCatalog.cs',
@@ -368,6 +389,7 @@ export const SWIFT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntr
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'Sources/RtcSdk/RtcProviderCatalog.swift',
     capabilityCatalogRelativePath: 'Sources/RtcSdk/RtcCapabilityCatalog.swift',
@@ -438,6 +460,7 @@ export const KOTLIN_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcProviderCatalog.kt',
     capabilityCatalogRelativePath: 'src/main/kotlin/com/sdkwork/rtc/metadata/RtcCapabilityCatalog.kt',
@@ -508,6 +531,7 @@ export const GO_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEntry =
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'rtcstandard/provider_catalog.go',
     capabilityCatalogRelativePath: 'rtcstandard/capability_catalog.go',
@@ -578,6 +602,7 @@ export const PYTHON_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEnt
   providerActivationContract: freezeRtcRuntimeValue({
     statusTerms: freezeRtcRuntimeValue(['root-public-builtin', 'package-boundary', 'control-metadata-only'] as const),
   }),
+  runtimeBaseline: undefined,
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'sdkwork_rtc_sdk/provider_catalog.py',
     capabilityCatalogRelativePath: 'sdkwork_rtc_sdk/capability_catalog.py',

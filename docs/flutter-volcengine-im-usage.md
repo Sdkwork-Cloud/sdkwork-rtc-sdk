@@ -23,6 +23,28 @@ dependencies:
   volc_engine_rtc: ^3.60.3
 ```
 
+## Fast Smoke Verification
+
+Use the Flutter public smoke CLI when you need to verify the default
+`volcengine + sdkwork-im-sdk` path without live services:
+
+```powershell
+node ./bin/sdk-call-smoke.mjs --json
+```
+
+The executable wrapper is currently analyze-backed because the official
+`volc_engine_rtc` package crashes under Dart VM CLI compilation in the current toolchain.
+It still gives one stable command for maintainers to verify the standard smoke scenario source.
+
+The verified smoke surface is:
+
+- `createStandardRtcCallControllerStack(...)`
+- the default `volcengine` provider selection path
+- `sdkwork-im-sdk` client composition through `ImSdkClient.create(...)`
+- the official Volcengine Flutter bridge smoke scenario source in `bin/sdk-call-smoke.dart`
+- the future runtime-backed path that will be used once the vendor package is CLI-runnable in the
+  active toolchain
+
 ## Media Runtime Only
 
 Use this path when the application already owns its own session orchestration and only needs the

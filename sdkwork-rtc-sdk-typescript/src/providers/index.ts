@@ -13,6 +13,9 @@ import { VOLCENGINE_RTC_PROVIDER_MODULE } from './volcengine.js';
 
 export {
   BUILTIN_RTC_PROVIDER_KEYS,
+  DEFAULT_RTC_PROVIDER_DRIVER_ID,
+  DEFAULT_RTC_PROVIDER_KEY,
+  DEFAULT_RTC_PROVIDER_PLUGIN_ID,
   OFFICIAL_RTC_PROVIDER_KEYS,
   getBuiltinRtcProviderMetadataByKey,
   getOfficialRtcProviderMetadataByKey,

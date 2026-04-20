@@ -499,6 +499,17 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
     providerSelectionContract,
     providerSupportContract,
     providerActivationContract,
+    runtimeBaseline: languageEntry.runtimeBaseline
+      ? {
+          vendorSdkPackage: languageEntry.runtimeBaseline.vendorSdkPackage,
+          vendorSdkImportPath: languageEntry.runtimeBaseline.vendorSdkImportPath,
+          signalingSdkPackage: languageEntry.runtimeBaseline.signalingSdkPackage,
+          signalingSdkImportPath: languageEntry.runtimeBaseline.signalingSdkImportPath,
+          recommendedEntrypoint: languageEntry.runtimeBaseline.recommendedEntrypoint,
+          smokeCommand: languageEntry.runtimeBaseline.smokeCommand,
+          smokeMode: languageEntry.runtimeBaseline.smokeMode,
+        }
+      : undefined,
     metadataScaffold: languageEntry.metadataScaffold
       ? {
           providerCatalogRelativePath: languageEntry.metadataScaffold.providerCatalogRelativePath,
@@ -565,12 +576,32 @@ Language workspace catalog:
 - workspace catalog: \`${languageEntry.workspaceCatalogRelativePath}\`
 - workspace catalog entries also keep \`workspaceCatalogRelativePath\`,
   \`defaultProviderContract\`, \`providerSelectionContract\`, \`providerSupportContract\`,
-  \`providerActivationContract\`, \`providerPackageBoundaryContract\`, and any declared
+  \`providerActivationContract\`, any declared \`runtimeBaseline\`,
+  \`providerPackageBoundaryContract\`, and any declared
   \`metadataScaffold\`, \`resolutionScaffold\`, \`providerPackageBoundary\`, and
   \`providerPackageScaffold\` boundaries so consumers can inspect official assembly-driven module
   locations, workspace-wide default provider identity, selection precedence, support-status
-  vocabulary, activation-status vocabulary, and package-boundary vocabulary without rereading the
+  vocabulary, activation-status vocabulary, runtime-baseline integration details, and
+  package-boundary vocabulary without rereading the
   assembly.
+`;
+}
+
+function renderLanguageWorkspaceRuntimeBaselineSection(languageEntry) {
+  if (!languageEntry.runtimeBaseline) {
+    return '';
+  }
+
+  return `
+Runtime baseline contract:
+
+- vendor SDK package: \`${languageEntry.runtimeBaseline.vendorSdkPackage}\`
+- vendor SDK import path: \`${languageEntry.runtimeBaseline.vendorSdkImportPath}\`
+- signaling SDK package: \`${languageEntry.runtimeBaseline.signalingSdkPackage}\`
+- signaling SDK import path: \`${languageEntry.runtimeBaseline.signalingSdkImportPath}\`
+- recommended entrypoint: \`${languageEntry.runtimeBaseline.recommendedEntrypoint}\`
+- smoke command: \`${languageEntry.runtimeBaseline.smokeCommand}\`
+- smoke mode: \`${languageEntry.runtimeBaseline.smokeMode}\`
 `;
 }
 
@@ -686,6 +717,22 @@ function renderTypeScriptLanguageWorkspaceProviderActivationContract(
   })`;
 }
 
+function renderTypeScriptLanguageWorkspaceRuntimeBaseline(runtimeBaseline) {
+  if (!runtimeBaseline) {
+    return 'undefined';
+  }
+
+  return `freezeRtcRuntimeValue({
+    vendorSdkPackage: ${renderStringLiteral(runtimeBaseline.vendorSdkPackage)},
+    vendorSdkImportPath: ${renderStringLiteral(runtimeBaseline.vendorSdkImportPath)},
+    signalingSdkPackage: ${renderStringLiteral(runtimeBaseline.signalingSdkPackage)},
+    signalingSdkImportPath: ${renderStringLiteral(runtimeBaseline.signalingSdkImportPath)},
+    recommendedEntrypoint: ${renderStringLiteral(runtimeBaseline.recommendedEntrypoint)},
+    smokeCommand: ${renderStringLiteral(runtimeBaseline.smokeCommand)},
+    smokeMode: ${renderStringLiteral(runtimeBaseline.smokeMode)},
+  })`;
+}
+
 function renderTypeScriptLanguageWorkspaceProviderPackageBoundaryContract(
   providerPackageBoundaryContract,
 ) {
@@ -731,6 +778,7 @@ ${entries
   providerSelectionContract: ${renderTypeScriptLanguageWorkspaceProviderSelectionContract(entry.providerSelectionContract)},
   providerSupportContract: ${renderTypeScriptLanguageWorkspaceProviderSupportContract(entry.providerSupportContract)},
   providerActivationContract: ${renderTypeScriptLanguageWorkspaceProviderActivationContract(entry.providerActivationContract)},
+  runtimeBaseline: ${renderTypeScriptLanguageWorkspaceRuntimeBaseline(entry.runtimeBaseline)},
   metadataScaffold: ${renderTypeScriptLanguageWorkspaceMetadataScaffold(entry.metadataScaffold)},
   resolutionScaffold: ${renderTypeScriptLanguageWorkspaceResolutionScaffold(entry.resolutionScaffold)},
   providerPackageBoundaryContract: ${renderTypeScriptLanguageWorkspaceProviderPackageBoundaryContract(entry.providerPackageBoundaryContract)},
@@ -836,7 +884,15 @@ assembly-governed across the web/browser baseline and the reserved mobile/server
 workspaces.
 ${renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly)}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
+${renderLanguageWorkspaceRuntimeBaselineSection(languageEntry)}
 ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
+
+Local smoke CLI:
+
+- \`bin/sdk-call-smoke.mjs\` verifies the public TypeScript call stack against mocked
+  \`sdkwork-im-sdk\` signaling and a mocked official Volcengine Web SDK module
+- \`npm run smoke\`
+- \`node ./bin/sdk-call-smoke.mjs --json\`
 
 Standards references:
 
@@ -871,6 +927,7 @@ ${renderRoleHighlights([languageEntry.currentRole, ...(languageEntry.roleHighlig
 ${languageEntry.workspaceSummary}
 ${renderLanguageWorkspaceDefaultProviderContract(languageEntry, assembly)}
 ${renderLanguageWorkspaceCatalogSection(languageEntry)}
+${renderLanguageWorkspaceRuntimeBaselineSection(languageEntry)}
 ${renderLanguageWorkspaceProviderPackageBoundary(languageEntry)}
 ${renderReservedLanguagePackageScaffold(languageEntry)}
 ${renderReservedLanguageMetadataScaffold(languageEntry)}

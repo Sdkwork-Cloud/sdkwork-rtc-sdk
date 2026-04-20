@@ -27,6 +27,8 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the assembly-driven `providerSelectionContract` materialized into every language workspace catalog
 - the assembly-driven `providerSupportContract` materialized into every language workspace catalog
 - the assembly-driven `providerActivationContract` materialized into every language workspace catalog
+- any assembly-driven `runtimeBaseline` metadata materialized into executable language workspace
+  catalogs and READMEs
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
   `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
@@ -100,17 +102,26 @@ The final full regression command for maintainers is:
 node .\bin\smoke-sdk.mjs
 ```
 
+The fast public call smoke commands for maintainers are:
+
+```powershell
+node .\bin\sdk-call-smoke.mjs --json
+node .\bin\sdk-call-smoke.mjs --language flutter --json
+```
+
 The full regression entrypoint must run, in order:
 
 - `node .\bin\materialize-sdk.mjs`
 - `node .\test\verify-sdk-automation.test.mjs`
 - `node .\bin\verify-sdk.mjs`
 - `node .\sdkwork-rtc-sdk-typescript\bin\package-task.mjs test`
+- `node .\bin\sdk-call-smoke.mjs --json`
 
 The full regression entrypoint must also attempt the following optional language smoke checks and
 skip them only when the corresponding toolchain is unavailable:
 
 - `python -m compileall -q sdkwork-rtc-sdk-python/sdkwork_rtc_sdk`
+- `flutter analyze ./bin/sdk-call-smoke.dart`
 - `flutter analyze`
 - `cargo check`
 - `go build ./...`
@@ -207,6 +218,10 @@ The root verifier must confirm:
   `providerSelectionContract.precedence`, and `providerSelectionContract.defaultSource`
 - every language workspace catalog preserves `providerSupportContract.statusTerms`
 - every language workspace catalog preserves `providerActivationContract.statusTerms`
+- every executable reference language declares a machine-readable `runtimeBaseline`
+- every executable reference language `runtimeBaseline` preserves `vendorSdkPackage`,
+  `vendorSdkImportPath`, `signalingSdkPackage`, `signalingSdkImportPath`,
+  `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
 - every language workspace catalog preserves `providerPackageBoundaryContract.modeTerms`,
   `providerPackageBoundaryContract.rootPublicPolicyTerms`,
   `providerPackageBoundaryContract.lifecycleStatusTerms`, and

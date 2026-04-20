@@ -86,6 +86,7 @@ import {
   matchesReservedLanguageToken,
 } from './verify-sdk-language-helpers.mjs';
 import {
+  RTC_FLUTTER_REQUIRED_STANDARD_FILES,
   RTC_ROOT_REQUIRED_CONTRACT_FILES,
   RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
   RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
@@ -219,6 +220,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /RTC_SDK_ERROR_CODES/, label: 'rtc sdk error catalog contract' },
       { pattern: /RTC_SDK_ERROR_FALLBACK_CODE/, label: 'rtc sdk error fallback contract' },
       { pattern: /vendor_error/, label: 'rtc sdk canonical fallback error contract' },
+      { pattern: /sdk-call-smoke\.mjs/, label: 'fast public call smoke entrypoint' },
       { pattern: /smoke-sdk\.mjs/, label: 'full regression smoke entrypoint' },
       { pattern: /full regression/i, label: 'full regression contract' },
       { pattern: /\.gitignore/, label: 'workspace gitignore contract' },
@@ -1022,6 +1024,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /getRtcProviderByProviderKey/, label: 'verification of provider catalog lookup helper alias contract' },
       { pattern: /unwrap-only/, label: 'verification of unwrap-only provider extension access contract' },
       { pattern: /extension-object/, label: 'verification of extension-object provider extension access contract' },
+      { pattern: /sdk-call-smoke\.mjs/, label: 'verification of fast public call smoke entrypoint' },
       { pattern: /smoke-sdk\.mjs/, label: 'verification of full regression smoke entrypoint' },
       { pattern: /compileall/i, label: 'verification of python smoke compile command' },
       { pattern: /flutter analyze/i, label: 'verification of flutter smoke analyze command' },
@@ -1137,6 +1140,26 @@ function assertLanguageWorkspaceProviderActivationContractContent(language, cont
     contract.statusTerms,
     `${label} providerActivationContract.statusTerms`,
   );
+}
+
+function assertLanguageWorkspaceRuntimeBaselineContent(language, runtimeBaseline, content, label) {
+  if (!runtimeBaseline) {
+    fail(`${label} is missing runtimeBaseline for ${language}`);
+  }
+
+  for (const value of [
+    runtimeBaseline.vendorSdkPackage,
+    runtimeBaseline.vendorSdkImportPath,
+    runtimeBaseline.signalingSdkPackage,
+    runtimeBaseline.signalingSdkImportPath,
+    runtimeBaseline.recommendedEntrypoint,
+    runtimeBaseline.smokeCommand,
+    runtimeBaseline.smokeMode,
+  ]) {
+    if (!new RegExp(escapeRegExp(value)).test(content)) {
+      fail(`${label} is missing runtimeBaseline value for ${language}: ${value}`);
+    }
+  }
 }
 
 function assertLanguageWorkspaceProviderPackageBoundaryContractContent(
@@ -2381,6 +2404,29 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     }
   }
 
+  for (const relativePath of RTC_FLUTTER_REQUIRED_STANDARD_FILES) {
+    if (!existsSync(path.join(workspaceRoot, relativePath))) {
+      fail(`Missing required Flutter workspace file: ${relativePath}`);
+    }
+  }
+
+  const typeScriptPackageTaskPath = path.join(
+    workspaceRoot,
+    'sdkwork-rtc-sdk-typescript',
+    'bin',
+    'package-task.mjs',
+  );
+  const typeScriptPackageTaskContent = readFileSync(typeScriptPackageTaskPath, 'utf8');
+  if (!/generator-runtime\.mjs/.test(typeScriptPackageTaskContent)) {
+    fail('TypeScript package-task.mjs must import bin/generator-runtime.mjs.');
+  }
+  if (!/resolveGeneratorModulePath/.test(typeScriptPackageTaskContent)) {
+    fail('TypeScript package-task.mjs must resolve the generator-owned TypeScript compiler through resolveGeneratorModulePath.');
+  }
+  if (/sdkwork-sdk-generator/.test(typeScriptPackageTaskContent)) {
+    fail('TypeScript package-task.mjs must not hardcode sdkwork-sdk-generator path math locally.');
+  }
+
   const providerPackageRoot = path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'providers');
   if (!existsSync(path.join(workspaceRoot, RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README))) {
     fail(`Missing required TypeScript provider package README: ${RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README}`);
@@ -2538,6 +2584,27 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   }
 
   for (const languageEntry of assembly.languages ?? []) {
+    const expectsRuntimeBaseline =
+      languageEntry.runtimeBridge === true && languageEntry.maturityTier === 'reference';
+
+    if (expectsRuntimeBaseline && !languageEntry.runtimeBaseline) {
+      fail(`Assembly language ${languageEntry.language} must declare runtimeBaseline`);
+    }
+
+    if (languageEntry.runtimeBaseline) {
+      for (const [field, value] of Object.entries(languageEntry.runtimeBaseline)) {
+        if (typeof value !== 'string' || value.length === 0) {
+          fail(`Assembly language ${languageEntry.language} runtimeBaseline.${field} must be a non-empty string`);
+        }
+      }
+
+      if (!['runtime-backed', 'analysis-backed'].includes(languageEntry.runtimeBaseline.smokeMode)) {
+        fail(
+          `Assembly language ${languageEntry.language} runtimeBaseline.smokeMode must be runtime-backed or analysis-backed`,
+        );
+      }
+    }
+
     const readmePath = path.join(workspaceRoot, languageEntry.workspace, 'README.md');
     const readme = readFileSync(readmePath, 'utf8');
     const workspaceCatalogPath = path.join(
@@ -2611,6 +2678,14 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         'TypeScript workspace README',
       );
     }
+    if (languageEntry.runtimeBaseline) {
+      assertLanguageWorkspaceRuntimeBaselineContent(
+        languageEntry.language,
+        languageEntry.runtimeBaseline,
+        readme,
+        `Language workspace README for ${languageEntry.language}`,
+      );
+    }
     assertLanguageWorkspaceProviderPackageBoundaryContent(
       languageEntry,
       readme,
@@ -2656,6 +2731,14 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       workspaceCatalogContent,
       `Language workspace catalog for ${languageEntry.language}`,
     );
+    if (languageEntry.runtimeBaseline) {
+      assertLanguageWorkspaceRuntimeBaselineContent(
+        languageEntry.language,
+        languageEntry.runtimeBaseline,
+        workspaceCatalogContent,
+        `Language workspace catalog for ${languageEntry.language}`,
+      );
+    }
     assertLanguageWorkspaceProviderPackageBoundaryContractContent(
       languageEntry.language,
       providerPackageBoundaryStandard,
@@ -2682,6 +2765,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       'providerSelectionContract',
       'providerSupportContract',
       'providerActivationContract',
+      'runtimeBaseline',
       'providerPackageBoundaryContract',
       'providerPackageBoundary',
     ]) {

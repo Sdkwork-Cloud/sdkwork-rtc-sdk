@@ -6,6 +6,10 @@ import {
 export const RTC_ROOT_REQUIRED_CONTRACT_FILES = Object.freeze([
   '.gitignore',
   '.sdkwork-assembly.json',
+  'bin/generator-runtime.mjs',
+  'bin/sdk-call-smoke.mjs',
+  'bin/sdk-call-smoke.ps1',
+  'bin/sdk-call-smoke.sh',
   'docs/multilanguage-capability-matrix.md',
   ...RTC_TEMPLATE_MATERIALIZED_FILES,
   ...RTC_TEMPLATE_SOURCE_FILES,
@@ -15,6 +19,9 @@ export const RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES = Object.freeze([
   'sdkwork-rtc-sdk-typescript/package.json',
   'sdkwork-rtc-sdk-typescript/README.md',
   'sdkwork-rtc-sdk-typescript/bin/package-task.mjs',
+  'sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.mjs',
+  'sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.ps1',
+  'sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.sh',
   'sdkwork-rtc-sdk-typescript/src/capability-catalog.ts',
   'sdkwork-rtc-sdk-typescript/src/capability-negotiation.ts',
   'sdkwork-rtc-sdk-typescript/src/errors.ts',
@@ -42,6 +49,14 @@ export const RTC_TYPESCRIPT_REQUIRED_TEST_FILES = Object.freeze([
   'sdkwork-rtc-sdk-typescript/test/data-source.test.mjs',
   'sdkwork-rtc-sdk-typescript/test/built-in-providers.test.mjs',
   'sdkwork-rtc-sdk-typescript/test/provider-package-loader.test.mjs',
+  'sdkwork-rtc-sdk-typescript/test/rtc-call-smoke-cli.test.mjs',
+]);
+
+export const RTC_FLUTTER_REQUIRED_STANDARD_FILES = Object.freeze([
+  'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.mjs',
+  'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.dart',
+  'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.ps1',
+  'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.sh',
 ]);
 
 export const RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README =

@@ -216,6 +216,7 @@ test('materialized rtc language workspace catalog matches the assembly language 
       currentRole: entry.currentRole,
       workspaceSummary: entry.workspaceSummary,
       roleHighlights: entry.roleHighlights,
+      runtimeBaseline: entry.runtimeBaseline,
       metadataScaffold: entry.metadataScaffold,
       resolutionScaffold: entry.resolutionScaffold,
       providerPackageBoundary: entry.providerPackageBoundary,
@@ -233,6 +234,7 @@ test('materialized rtc language workspace catalog matches the assembly language 
       currentRole: languageEntry.currentRole,
       workspaceSummary: languageEntry.workspaceSummary,
       roleHighlights: languageEntry.roleHighlights,
+      runtimeBaseline: languageEntry.runtimeBaseline,
       metadataScaffold: languageEntry.metadataScaffold,
       resolutionScaffold: languageEntry.resolutionScaffold,
       providerPackageBoundary: languageEntry.providerPackageBoundary,
@@ -255,6 +257,24 @@ test('materialized rtc language workspace catalog matches the assembly language 
     languageWorkspaceCatalog.getRtcLanguageWorkspaceByLanguage('flutter'),
     languageWorkspaceCatalog.FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY,
   );
+  assert.deepEqual(languageWorkspaceCatalog.TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY.runtimeBaseline, {
+    vendorSdkPackage: '@volcengine/rtc',
+    vendorSdkImportPath: '@volcengine/rtc',
+    signalingSdkPackage: '@sdkwork/im-sdk',
+    signalingSdkImportPath: '@sdkwork/im-sdk',
+    recommendedEntrypoint: 'createStandardRtcCallControllerStack',
+    smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
+    smokeMode: 'runtime-backed',
+  });
+  assert.deepEqual(languageWorkspaceCatalog.FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY.runtimeBaseline, {
+    vendorSdkPackage: 'volc_engine_rtc',
+    vendorSdkImportPath: 'package:volc_engine_rtc/volc_engine_rtc.dart',
+    signalingSdkPackage: 'im_sdk',
+    signalingSdkImportPath: 'package:im_sdk/im_sdk.dart',
+    recommendedEntrypoint: 'createStandardRtcCallControllerStack',
+    smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
+    smokeMode: 'analysis-backed',
+  });
   assert.equal(languageWorkspaceCatalog.getRtcLanguageWorkspaceByLanguage('ruby'), undefined);
 });
 
@@ -285,6 +305,9 @@ test('materialized rtc provider catalog is runtime-frozen', async () => {
   assert.equal(Object.isFrozen(provider.typescriptAdapter), true);
   assert.equal(Object.isFrozen(provider.typescriptPackage), true);
   assert.equal(Object.isFrozen(languageWorkspaceEntry.roleHighlights), true);
+  if (languageWorkspaceEntry.runtimeBaseline) {
+    assert.equal(Object.isFrozen(languageWorkspaceEntry.runtimeBaseline), true);
+  }
   if (languageWorkspaceEntry.metadataScaffold) {
     assert.equal(Object.isFrozen(languageWorkspaceEntry.metadataScaffold), true);
   }

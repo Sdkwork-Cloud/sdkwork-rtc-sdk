@@ -207,6 +207,18 @@ export interface RtcLanguageWorkspaceProviderActivationContract {
   statusTerms: readonly RtcProviderActivationStatus[];
 }
 
+export type RtcLanguageWorkspaceSmokeMode = 'runtime-backed' | 'analysis-backed';
+
+export interface RtcLanguageWorkspaceRuntimeBaseline {
+  vendorSdkPackage: string;
+  vendorSdkImportPath: string;
+  signalingSdkPackage: string;
+  signalingSdkImportPath: string;
+  recommendedEntrypoint: string;
+  smokeCommand: string;
+  smokeMode: RtcLanguageWorkspaceSmokeMode;
+}
+
 export type RtcProviderPackageRuntimeBridgeStatus =
   | RtcTypeScriptAdapterContract['runtimeBridgeStatus']
   | 'reserved';
@@ -275,6 +287,7 @@ export interface RtcLanguageWorkspaceCatalogEntry {
   providerSelectionContract: RtcLanguageWorkspaceProviderSelectionContract;
   providerSupportContract: RtcLanguageWorkspaceProviderSupportContract;
   providerActivationContract: RtcLanguageWorkspaceProviderActivationContract;
+  runtimeBaseline?: RtcLanguageWorkspaceRuntimeBaseline;
   metadataScaffold?: RtcLanguageWorkspaceMetadataScaffold;
   resolutionScaffold?: RtcLanguageWorkspaceResolutionScaffold;
   providerPackageBoundaryContract: RtcLanguageWorkspaceProviderPackageBoundaryContract;

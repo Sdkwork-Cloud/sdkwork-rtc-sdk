@@ -186,6 +186,8 @@ Use the following commands in the workspace root:
 node .\bin\materialize-sdk.mjs
 node .\test\verify-sdk-automation.test.mjs
 node .\bin\verify-sdk.mjs
+node .\bin\sdk-call-smoke.mjs --json
+node .\bin\sdk-call-smoke.mjs --language flutter --json
 node .\bin\smoke-sdk.mjs
 ```
 
@@ -194,8 +196,17 @@ Verification intent:
 - `materialize-sdk.mjs` keeps generated catalogs, READMEs, and matrices aligned to the assembly
 - `verify-sdk-automation.test.mjs` protects standard assets and materialization behavior
 - `verify-sdk.mjs` validates assembly contracts and generated output
-- `smoke-sdk.mjs` runs the repository regression entrypoint, including `flutter analyze` when the
-  Flutter toolchain is available
+- `sdk-call-smoke.mjs --json` exercises the public TypeScript `volcengine + sdkwork-im-sdk` call
+  stack with mocked runtime dependencies so the standard entrypoint stays runnable without live
+  services
+- `sdk-call-smoke.mjs --language flutter --json` runs the executable Flutter smoke wrapper, which
+  verifies the public Flutter `volcengine` call-smoke scenario under `flutter analyze` and reports
+  the current vendor limitation: the official `volc_engine_rtc` package is not runnable through
+  Dart VM CLI compilation in the current toolchain, so Flutter CLI smoke is currently
+  analyze-backed instead of runtime-backed
+- `smoke-sdk.mjs` runs the repository regression entrypoint, including
+  `flutter analyze ./bin/sdk-call-smoke.dart` and `flutter analyze` when the Flutter toolchain is
+  available
 
 ## 10. Practical Adoption Guidance
 

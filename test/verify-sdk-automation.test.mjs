@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { pathToFileURL } from 'node:url';
@@ -13,6 +15,7 @@ import {
   RTC_TEMPLATE_SOURCE_FILES,
 } from '../bin/materialize-sdk-template-assets.mjs';
 import {
+  RTC_FLUTTER_REQUIRED_STANDARD_FILES,
   RTC_ROOT_REQUIRED_CONTRACT_FILES,
   RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
   RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
@@ -1380,6 +1383,28 @@ test('rtc assembly declares official languages and default provider', () => {
     assert.equal(typeof languageEntry.workspaceSummary, 'string');
     assert.equal(languageEntry.workspaceSummary.length > 0, true);
     assert.equal(Array.isArray(languageEntry.roleHighlights), true);
+    const expectsRuntimeBaseline =
+      languageEntry.runtimeBridge === true && languageEntry.maturityTier === 'reference';
+    if (expectsRuntimeBaseline) {
+      assert.equal(typeof languageEntry.runtimeBaseline?.vendorSdkPackage, 'string');
+      assert.equal(languageEntry.runtimeBaseline.vendorSdkPackage.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeBaseline?.vendorSdkImportPath, 'string');
+      assert.equal(languageEntry.runtimeBaseline.vendorSdkImportPath.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeBaseline?.signalingSdkPackage, 'string');
+      assert.equal(languageEntry.runtimeBaseline.signalingSdkPackage.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeBaseline?.signalingSdkImportPath, 'string');
+      assert.equal(languageEntry.runtimeBaseline.signalingSdkImportPath.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeBaseline?.recommendedEntrypoint, 'string');
+      assert.equal(languageEntry.runtimeBaseline.recommendedEntrypoint.length > 0, true);
+      assert.equal(typeof languageEntry.runtimeBaseline?.smokeCommand, 'string');
+      assert.equal(languageEntry.runtimeBaseline.smokeCommand.length > 0, true);
+      assert.equal(
+        ['runtime-backed', 'analysis-backed'].includes(languageEntry.runtimeBaseline?.smokeMode),
+        true,
+      );
+    } else {
+      assert.equal(languageEntry.runtimeBaseline, undefined);
+    }
     assert.equal(Array.isArray(languageEntry.providerActivations), true);
     assert.equal(languageEntry.providerActivations.length, assembly.providers.length);
     if (languageEntry.language !== 'typescript') {
@@ -1398,6 +1423,15 @@ test('rtc assembly declares official languages and default provider', () => {
 
   const typescriptLanguage = assembly.languages.find((entry) => entry.language === 'typescript');
   assert.ok(typescriptLanguage);
+  assert.deepEqual(typescriptLanguage.runtimeBaseline, {
+    vendorSdkPackage: '@volcengine/rtc',
+    vendorSdkImportPath: '@volcengine/rtc',
+    signalingSdkPackage: '@sdkwork/im-sdk',
+    signalingSdkImportPath: '@sdkwork/im-sdk',
+    recommendedEntrypoint: 'createStandardRtcCallControllerStack',
+    smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
+    smokeMode: 'runtime-backed',
+  });
   assert.deepEqual(
     typescriptLanguage.providerActivations.map((entry) => ({
       providerKey: entry.providerKey,
@@ -1411,6 +1445,15 @@ test('rtc assembly declares official languages and default provider', () => {
 
   const flutterLanguage = assembly.languages.find((entry) => entry.language === 'flutter');
   assert.ok(flutterLanguage);
+  assert.deepEqual(flutterLanguage.runtimeBaseline, {
+    vendorSdkPackage: 'volc_engine_rtc',
+    vendorSdkImportPath: 'package:volc_engine_rtc/volc_engine_rtc.dart',
+    signalingSdkPackage: 'im_sdk',
+    signalingSdkImportPath: 'package:im_sdk/im_sdk.dart',
+    recommendedEntrypoint: 'createStandardRtcCallControllerStack',
+    smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
+    smokeMode: 'analysis-backed',
+  });
   assert.deepEqual(
     flutterLanguage.providerActivations.map((entry) => ({
       providerKey: entry.providerKey,
@@ -1462,6 +1505,75 @@ test('root smoke regression entrypoints exist', () => {
   assert.match(smokeScript, /java:javac/);
   assert.match(smokeScript, /swift:swift-build/);
   assert.match(smokeScript, /kotlin:kotlinc/);
+  assert.match(smokeScript, /typescript:call-cli-smoke/);
+  assert.match(smokeScript, /flutter:call-cli-smoke/);
+  assert.match(smokeScript, /sdk-call-smoke\.mjs/);
+});
+
+test('root sdk-call-smoke dispatcher entrypoints exist', () => {
+  const requiredFiles = ['bin/sdk-call-smoke.mjs', 'bin/sdk-call-smoke.ps1', 'bin/sdk-call-smoke.sh'];
+
+  for (const relativePath of requiredFiles) {
+    assert.equal(
+      existsSync(path.join(workspaceRoot, relativePath)),
+      true,
+      `expected ${relativePath} to exist`,
+    );
+  }
+
+  const dispatcherScript = readFileSync(path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs'), 'utf8');
+  assert.match(dispatcherScript, /sdkwork-rtc-sdk-\$\{language\}/);
+  assert.match(dispatcherScript, /IMPLEMENTED_LANGUAGES = new Set\(\['typescript', 'flutter'\]\)/);
+});
+
+test('typescript call smoke cli entrypoints exist', () => {
+  const requiredFiles = [
+    'sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.mjs',
+    'sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.ps1',
+    'sdkwork-rtc-sdk-typescript/bin/sdk-call-smoke.sh',
+  ];
+
+  for (const relativePath of requiredFiles) {
+    assert.equal(
+      existsSync(path.join(workspaceRoot, relativePath)),
+      true,
+      `expected ${relativePath} to exist`,
+    );
+  }
+
+  const cliScript = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript', 'bin', 'sdk-call-smoke.mjs'),
+    'utf8',
+  );
+  assert.match(cliScript, /createStandardRtcCallControllerStack/);
+  assert.match(cliScript, /createOfficialVolcengineWebRtcDriver/);
+  assert.match(cliScript, /DEFAULT_RTC_PROVIDER_KEY/);
+});
+
+test('flutter call smoke cli entrypoints exist', () => {
+  for (const relativePath of RTC_FLUTTER_REQUIRED_STANDARD_FILES) {
+    assert.equal(
+      existsSync(path.join(workspaceRoot, relativePath)),
+      true,
+      `expected ${relativePath} to exist`,
+    );
+  }
+
+  const cliScript = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter', 'bin', 'sdk-call-smoke.dart'),
+    'utf8',
+  );
+  const wrapperScript = readFileSync(
+    path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter', 'bin', 'sdk-call-smoke.mjs'),
+    'utf8',
+  );
+  assert.match(cliScript, /createStandardRtcCallControllerStack/);
+  assert.match(cliScript, /createOfficialVolcengineFlutterRtcDriver/);
+  assert.match(cliScript, /RtcProviderCatalog\.DEFAULT_RTC_PROVIDER_KEY/);
+  assert.match(cliScript, /ImSdkClient\.create/);
+  assert.match(wrapperScript, /analysis-backed/);
+  assert.match(wrapperScript, /vendor-sdk-cli-runtime-blocked/);
+  assert.match(wrapperScript, /sdk-call-smoke\.dart/);
 });
 
 test('root materialization entrypoints exist', () => {
@@ -1485,6 +1597,7 @@ test('typescript workspace baseline files exist', () => {
     ...RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES,
     RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README,
     ...RTC_TYPESCRIPT_REQUIRED_TEST_FILES,
+    ...RTC_FLUTTER_REQUIRED_STANDARD_FILES,
   ]) {
     assert.equal(
       existsSync(path.join(workspaceRoot, relativePath)),
@@ -3341,6 +3454,120 @@ test('root verifier rejects missing reserved language resolution scaffold files'
     );
   } finally {
     rmSync(fixture.fixtureRoot, { recursive: true, force: true });
+  }
+});
+
+function resolveActualGeneratorRoot(startRoot = workspaceRoot) {
+  let current = path.resolve(startRoot);
+
+  while (true) {
+    const candidate = path.join(current, 'sdk', 'sdkwork-sdk-generator');
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+
+    const parent = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
+  }
+
+  throw new Error(`Unable to locate sdkwork-sdk-generator from ${startRoot}`);
+}
+
+test('typescript package-task resolves the generator through the shared runtime helper when the package is relocated', () => {
+  const tempRoot = mkdtempSync(path.join(os.tmpdir(), 'sdkwork-rtc-sdk-package-task-'));
+  const fixtureWorkspace = path.join(tempRoot, 'relocated-workspace');
+  const packageRoot = path.join(fixtureWorkspace, 'sdkwork-rtc-sdk-typescript');
+  const rootBinDir = path.join(fixtureWorkspace, 'bin');
+  const generatorHelperPath = path.join(rootBinDir, 'generator-runtime.mjs');
+  const generatorRoot = resolveActualGeneratorRoot(workspaceRoot);
+
+  try {
+    mkdirSync(fixtureWorkspace, { recursive: true });
+    cpSync(
+      path.join(workspaceRoot, 'sdkwork-rtc-sdk-typescript'),
+      packageRoot,
+      { recursive: true },
+    );
+    mkdirSync(rootBinDir, { recursive: true });
+    writeFileSync(
+      generatorHelperPath,
+      `import { existsSync } from 'node:fs';
+import path from 'node:path';
+
+export function resolveGeneratorRoot(workspaceRoot) {
+  const explicitRoot = process.env.SDKWORK_GENERATOR_ROOT || '';
+  if (explicitRoot) {
+    const resolvedExplicitRoot = path.resolve(explicitRoot);
+    if (existsSync(resolvedExplicitRoot)) {
+      return resolvedExplicitRoot;
+    }
+  }
+
+  let current = path.resolve(workspaceRoot);
+  while (true) {
+    const candidate = path.join(current, 'sdk', 'sdkwork-sdk-generator');
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+
+    const parent = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
+  }
+
+  throw new Error('Unable to locate sdkwork-sdk-generator');
+}
+
+export function resolveGeneratorModulePath(workspaceRoot, ...segments) {
+  const generatorRoot = resolveGeneratorRoot(workspaceRoot);
+  const candidates = [
+    path.join(generatorRoot, 'node_modules', ...segments),
+    path.join(generatorRoot, 'node_modules', '.pnpm', 'node_modules', ...segments),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error('Unable to locate generator module ' + segments.join('/'));
+}
+`,
+      'utf8',
+    );
+
+    const result = spawnSync(
+      process.execPath,
+      [path.join(packageRoot, 'bin', 'package-task.mjs'), 'build'],
+      {
+        cwd: fixtureWorkspace,
+        encoding: 'utf8',
+        shell: false,
+        env: {
+          ...process.env,
+          SDKWORK_GENERATOR_ROOT: generatorRoot,
+        },
+      },
+    );
+
+    const output = `${result.stdout || ''}${result.stderr || ''}`;
+    assert.equal(
+      result.status,
+      0,
+      `package-task build must succeed when SDKWORK_GENERATOR_ROOT is provided in a relocated workspace.\n${output}`,
+    );
+    assert.ok(
+      existsSync(path.join(packageRoot, 'dist', 'index.js')),
+      'package-task build must emit dist/index.js in the relocated workspace.',
+    );
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
   }
 });
 

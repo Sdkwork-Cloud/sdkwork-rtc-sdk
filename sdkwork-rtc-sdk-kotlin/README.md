@@ -38,12 +38,15 @@ Language workspace catalog:
 - workspace catalog: `src/main/kotlin/com/sdkwork/rtc/metadata/RtcLanguageWorkspaceCatalog.kt`
 - workspace catalog entries also keep `workspaceCatalogRelativePath`,
   `defaultProviderContract`, `providerSelectionContract`, `providerSupportContract`,
-  `providerActivationContract`, `providerPackageBoundaryContract`, and any declared
+  `providerActivationContract`, any declared `runtimeBaseline`,
+  `providerPackageBoundaryContract`, and any declared
   `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
   `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
   locations, workspace-wide default provider identity, selection precedence, support-status
-  vocabulary, activation-status vocabulary, and package-boundary vocabulary without rereading the
+  vocabulary, activation-status vocabulary, runtime-baseline integration details, and
+  package-boundary vocabulary without rereading the
   assembly.
+
 
 
 Provider package boundary:

@@ -44,6 +44,8 @@ function hasExactArray(actual, expected) {
   return JSON.stringify(actual) === JSON.stringify(expected);
 }
 
+const RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES = ['runtime-backed', 'analysis-backed'];
+
 export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   if (assembly.workspace !== 'sdkwork-rtc-sdk') {
     throw new Error(`Unexpected workspace name: ${assembly.workspace}`);
@@ -470,6 +472,43 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     throw new Error(
       `providerPackageBoundaryStandard.profiles.reserved.runtimeBridgeStatusTerms must be ${RTC_PROVIDER_PACKAGE_BOUNDARY_PROFILES.reserved.runtimeBridgeStatusTerms.join(', ')}`,
     );
+  }
+
+  for (const languageEntry of assembly.languages ?? []) {
+    const expectsRuntimeBaseline =
+      languageEntry.runtimeBridge === true && languageEntry.maturityTier === 'reference';
+    const runtimeBaseline = languageEntry.runtimeBaseline;
+
+    if (expectsRuntimeBaseline && !runtimeBaseline) {
+      throw new Error(
+        `Reference runtime language ${languageEntry.language} must declare runtimeBaseline metadata`,
+      );
+    }
+
+    if (!runtimeBaseline) {
+      continue;
+    }
+
+    for (const field of [
+      'vendorSdkPackage',
+      'vendorSdkImportPath',
+      'signalingSdkPackage',
+      'signalingSdkImportPath',
+      'recommendedEntrypoint',
+      'smokeCommand',
+    ]) {
+      if (typeof runtimeBaseline[field] !== 'string' || runtimeBaseline[field].length === 0) {
+        throw new Error(
+          `language ${languageEntry.language} runtimeBaseline.${field} must be a non-empty string`,
+        );
+      }
+    }
+
+    if (!RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.includes(runtimeBaseline.smokeMode)) {
+      throw new Error(
+        `language ${languageEntry.language} runtimeBaseline.smokeMode must be one of ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.join(', ')}`,
+      );
+    }
   }
 
   return {

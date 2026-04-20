@@ -91,12 +91,25 @@ Language workspace catalog:
 - workspace catalog: `src/language-workspace-catalog.ts`
 - workspace catalog entries also keep `workspaceCatalogRelativePath`,
   `defaultProviderContract`, `providerSelectionContract`, `providerSupportContract`,
-  `providerActivationContract`, `providerPackageBoundaryContract`, and any declared
+  `providerActivationContract`, any declared `runtimeBaseline`,
+  `providerPackageBoundaryContract`, and any declared
   `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
   `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
   locations, workspace-wide default provider identity, selection precedence, support-status
-  vocabulary, activation-status vocabulary, and package-boundary vocabulary without rereading the
+  vocabulary, activation-status vocabulary, runtime-baseline integration details, and
+  package-boundary vocabulary without rereading the
   assembly.
+
+
+Runtime baseline contract:
+
+- vendor SDK package: `@volcengine/rtc`
+- vendor SDK import path: `@volcengine/rtc`
+- signaling SDK package: `@sdkwork/im-sdk`
+- signaling SDK import path: `@sdkwork/im-sdk`
+- recommended entrypoint: `createStandardRtcCallControllerStack`
+- smoke command: `node ./bin/sdk-call-smoke.mjs --json`
+- smoke mode: `runtime-backed`
 
 
 Provider package boundary:
@@ -106,6 +119,13 @@ Provider package boundary:
 - lifecycle status terms: `root_public_reference_boundary`, `package_reference_boundary`
 - runtime bridge status terms: `reference-baseline`
 
+
+Local smoke CLI:
+
+- `bin/sdk-call-smoke.mjs` verifies the public TypeScript call stack against mocked
+  `sdkwork-im-sdk` signaling and a mocked official Volcengine Web SDK module
+- `npm run smoke`
+- `node ./bin/sdk-call-smoke.mjs --json`
 
 Standards references:
 

@@ -288,6 +288,10 @@ assembly-driven `providerSupportStandard`.
 Each `RtcLanguageWorkspaceCatalogEntry` must also keep a machine-readable
 `providerActivationContract` with `statusTerms` aligned to the assembly-driven
 `providerActivationStandard`.
+Reference language workspaces must also keep any machine-readable `runtimeBaseline`
+metadata aligned to the assembly-driven executable baseline, including the official vendor SDK
+package identity, signaling SDK package identity, recommended entrypoint, smoke command, and
+smoke mode for the current landing.
 Each `RtcLanguageWorkspaceCatalogEntry` must also keep a machine-readable
 `providerPackageBoundaryContract` with `modeTerms`, `rootPublicPolicyTerms`,
 `lifecycleStatusTerms`, and `runtimeBridgeStatusTerms` aligned to the assembly-driven
@@ -499,6 +503,13 @@ The root full regression entrypoint is:
 
 ```powershell
 node .\bin\smoke-sdk.mjs
+```
+
+The fast public call smoke entrypoints are:
+
+```powershell
+node .\bin\sdk-call-smoke.mjs --json
+node .\bin\sdk-call-smoke.mjs --language flutter --json
 ```
 
 Run the full regression command before describing the RTC SDK workspace as complete. It executes

@@ -101,9 +101,11 @@ standard modules:
   queryable by language key inside the executable baseline.
   Each `RtcLanguageWorkspaceCatalogEntry` also declares `defaultProviderContract`,
   `providerSelectionContract`, `providerSupportContract`, `providerActivationContract`,
+  any declared `runtimeBaseline`,
   `providerPackageBoundaryContract`, and `providerPackageBoundary` so default-provider identity,
-  provider-selection precedence, provider-support vocabulary, provider-activation vocabulary, and
-  package-boundary semantics stay explicit across languages instead of being inferred from
+  provider-selection precedence, provider-support vocabulary, provider-activation vocabulary,
+  runtime-baseline integration details, and package-boundary semantics stay explicit across
+  languages instead of being inferred from
   TypeScript-only package manifests or reserved-language scaffold prose.
   The same catalog also preserves the assembly-driven top-level standards
   `providerSelectionStandard`, `providerSupportStandard`, `providerActivationStandard`,
@@ -208,6 +210,10 @@ The root `bin/smoke-sdk.mjs` command is the full regression entrypoint. It runs 
 root automation tests, root verification, TypeScript package tests, and optional language smoke
 checks such as `compileall`, `cargo check`, `dotnet build`, and `javac` when those
 toolchains are available.
+The root `bin/sdk-call-smoke.mjs` command is the fast public usage smoke entrypoint. It dispatches
+to the current implemented language targets and verifies the default
+`volcengine + sdkwork-im-sdk` call stack without requiring live credentials or external services.
+Current implemented targets are `typescript` and `flutter`.
 The root `.gitignore` defines the non-source artifact boundary for verification outputs such as
 `dist/`, `target/`, `bin/`, `obj/`, and `__pycache__/`, while
 `.sdkwork-assembly.json` remains checked-in source of truth.

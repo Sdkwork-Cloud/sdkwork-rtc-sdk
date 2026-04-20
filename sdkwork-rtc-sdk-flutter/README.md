@@ -44,12 +44,25 @@ Language workspace catalog:
 - workspace catalog: `lib/src/rtc_language_workspace_catalog.dart`
 - workspace catalog entries also keep `workspaceCatalogRelativePath`,
   `defaultProviderContract`, `providerSelectionContract`, `providerSupportContract`,
-  `providerActivationContract`, `providerPackageBoundaryContract`, and any declared
+  `providerActivationContract`, any declared `runtimeBaseline`,
+  `providerPackageBoundaryContract`, and any declared
   `metadataScaffold`, `resolutionScaffold`, `providerPackageBoundary`, and
   `providerPackageScaffold` boundaries so consumers can inspect official assembly-driven module
   locations, workspace-wide default provider identity, selection precedence, support-status
-  vocabulary, activation-status vocabulary, and package-boundary vocabulary without rereading the
+  vocabulary, activation-status vocabulary, runtime-baseline integration details, and
+  package-boundary vocabulary without rereading the
   assembly.
+
+
+Runtime baseline contract:
+
+- vendor SDK package: `volc_engine_rtc`
+- vendor SDK import path: `package:volc_engine_rtc/volc_engine_rtc.dart`
+- signaling SDK package: `im_sdk`
+- signaling SDK import path: `package:im_sdk/im_sdk.dart`
+- recommended entrypoint: `createStandardRtcCallControllerStack`
+- smoke command: `node ./bin/sdk-call-smoke.mjs --json`
+- smoke mode: `analysis-backed`
 
 
 Provider package boundary:

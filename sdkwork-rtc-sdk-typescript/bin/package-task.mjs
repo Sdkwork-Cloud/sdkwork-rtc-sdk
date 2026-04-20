@@ -3,6 +3,7 @@ import { readdirSync, rmSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveGeneratorModulePath } from '../../bin/generator-runtime.mjs';
 
 function fail(message) {
   console.error(`[sdkwork-rtc-sdk-typescript] ${message}`);
@@ -29,8 +30,8 @@ function run(step, args, cwd = packageRoot) {
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(scriptDir, '..');
-const generatorRoot = path.resolve(packageRoot, '..', '..', '..', '..', '..', 'sdk', 'sdkwork-sdk-generator');
-const tscPath = path.join(generatorRoot, 'node_modules', 'typescript', 'bin', 'tsc');
+const workspaceRoot = path.resolve(packageRoot, '..');
+const tscPath = resolveGeneratorModulePath(workspaceRoot, 'typescript', 'bin', 'tsc');
 const task = (process.argv[2] || '').trim();
 
 function build() {
@@ -50,6 +51,11 @@ function test() {
   }
 }
 
+function smoke() {
+  build();
+  run('typescript:call-smoke', [path.join(scriptDir, 'sdk-call-smoke.mjs')]);
+}
+
 switch (task) {
   case 'clean':
     rmSync(path.join(packageRoot, 'dist'), { recursive: true, force: true });
@@ -60,6 +66,9 @@ switch (task) {
   case 'test':
     test();
     break;
+  case 'smoke':
+    smoke();
+    break;
   default:
-    fail('Unsupported task. Expected one of: clean, build, test.');
+    fail('Unsupported task. Expected one of: clean, build, test, smoke.');
 }

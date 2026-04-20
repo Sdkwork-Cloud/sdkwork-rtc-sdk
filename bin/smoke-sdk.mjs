@@ -254,6 +254,13 @@ export function runRtcSdkSmoke(workspaceRoot) {
       repoRoot,
     ),
   );
+  requiredResults.push(
+    runRequiredNodeStep(
+      'typescript:call-cli-smoke',
+      [path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs'), '--json'],
+      repoRoot,
+    ),
+  );
 
   const optionalSteps = [
     {
@@ -261,6 +268,12 @@ export function runRtcSdkSmoke(workspaceRoot) {
       command: 'python',
       args: ['-m', 'compileall', '-q', 'sdkwork-rtc-sdk-python/sdkwork_rtc_sdk'],
       cwd: workspaceRoot,
+    },
+    {
+      label: 'flutter:call-cli-smoke',
+      command: 'flutter',
+      args: ['analyze', './bin/sdk-call-smoke.dart'],
+      cwd: path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter'),
     },
     {
       label: 'flutter:analyze',
