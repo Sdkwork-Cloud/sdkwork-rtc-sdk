@@ -86,6 +86,7 @@ test('root public API keeps core contracts and builtin helpers only', async () =
       './root-public-surface.js',
       './types.js',
       './call-types.js',
+      './call-controller.js',
       './call-session.js',
       './im-signaling.js',
       './standard-call-stack.js',

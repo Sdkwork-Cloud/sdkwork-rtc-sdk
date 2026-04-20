@@ -10231,6 +10231,7 @@ export 'src/rtc_provider_metadata.dart';
 export 'src/rtc_client.dart';
 export 'src/rtc_driver.dart';
 export 'src/rtc_call_types.dart';
+export 'src/rtc_call_controller.dart';
 export 'src/rtc_call_session.dart';
 export 'src/rtc_im_signaling.dart';
 export 'src/rtc_standard_call_stack.dart';

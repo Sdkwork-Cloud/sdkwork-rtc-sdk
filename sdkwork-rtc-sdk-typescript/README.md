@@ -16,6 +16,7 @@ Current role:
 
 - Executable reference implementation
 - provider-neutral RTC contracts
+- first-class StandardRtcCallController public module at src/call-controller.ts for invite discovery and RTC session orchestration
 - JDBC-style driver and data-source model
 - assembly-driven provider catalog at src/provider-catalog.ts
 - assembly-driven capability catalog at src/capability-catalog.ts with required-baseline and optional-advanced surface descriptors

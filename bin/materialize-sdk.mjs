@@ -898,11 +898,11 @@ function renderReservedLanguageRuntimeUsage(languageEntry) {
 - signaling delegates to \`sdkwork-im-sdk\` through \`package:im_sdk/im_sdk.dart\`
 - \`RtcDriverManager\` auto-registers \`createVolcengineRtcDriver()\`
 - \`RtcDataSource()\` therefore resolves to \`volcengine\` by default with no extra provider selection
-- \`createStandardRtcCallStack(...)\` is the recommended quick-start entrypoint for the default
-  Volcengine plus \`sdkwork-im-sdk\` call flow
-- \`StandardRtcCallSession\` composes media control and IM signaling into one video-call flow:
-  create session, invite, issue RTC credential, join media room, publish tracks, exchange RTC
-  signals, and end session
+- \`createStandardRtcCallControllerStack(...)\` is the recommended quick-start entrypoint for the
+  default Volcengine plus \`sdkwork-im-sdk\` call flow
+- \`StandardRtcCallController\` is the default orchestration layer for invite discovery, RTC
+  lifecycle reconciliation, and typed offer/answer/ice signaling
+- \`StandardRtcCallSession\` remains the focused single-session executor under the controller
 
 Quick start:
 
@@ -914,9 +914,9 @@ Future<void> startRtcCall({
   required ImSdkClient imSdk,
   required String currentUserId,
 }) async {
-  final rtcStack =
-      await createStandardRtcCallStack<RtcVolcengineFlutterNativeClient>(
-    CreateStandardRtcCallStackOptions(
+  final rtc =
+      await createStandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient>(
+    CreateStandardRtcCallControllerStackOptions(
       sdk: imSdk,
       deviceId: 'current-device-id',
       dataSourceOptions: const RtcDataSourceOptions(
@@ -927,8 +927,8 @@ Future<void> startRtcCall({
     ),
   );
 
-  await rtcStack.callSession.startOutgoing(
-    RtcOutgoingCallOptions(
+  await rtc.callController.startOutgoing(
+    RtcCallControllerOutgoingOptions(
       rtcSessionId: 'rtc-session-001',
       conversationId: 'conversation-001',
       rtcMode: 'video_call',
@@ -944,8 +944,9 @@ Future<void> startRtcCall({
 
 Runtime notes:
 
-- \`createStandardRtcCallStack(...)\` returns \`driverManager\`, \`dataSource\`, \`mediaClient\`,
-  \`signaling\`, and \`callSession\` so callers can keep the standard pieces explicit
+- \`createStandardRtcCallControllerStack(...)\` returns \`driverManager\`, \`dataSource\`,
+  \`mediaClient\`, \`signaling\`, \`callSession\`, \`realtimeDispatcher\`, and \`callController\`
+  so callers can keep the standard pieces explicit
 - \`RtcVolcengineFlutterNativeConfig.appId\` is mandatory; join will fail fast without it
 - \`RtcJoinOptions.token\` is filled from \`sdkwork-im-sdk\` issued participant credentials, not by
   hardcoding vendor tokens in the caller

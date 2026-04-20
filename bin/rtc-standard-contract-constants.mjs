@@ -164,6 +164,7 @@ export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS = 
   './root-public-surface.js',
   './types.js',
   './call-types.js',
+  './call-controller.js',
   './call-session.js',
   './im-signaling.js',
   './standard-call-stack.js',

@@ -190,6 +190,7 @@ final class RtcLanguageWorkspaceCatalog {
       workspaceSummary: "This workspace is the executable reference implementation for provider-neutral RTC contracts, JDBC-style driver selection, standardized runtime lifecycle delegation, and provider package boundaries in sdkwork-rtc-sdk.",
       roleHighlights: <String>[
         "provider-neutral RTC contracts",
+        "first-class StandardRtcCallController public module at src/call-controller.ts for invite discovery and RTC session orchestration",
         "JDBC-style driver and data-source model",
         "assembly-driven provider catalog at src/provider-catalog.ts",
         "assembly-driven capability catalog at src/capability-catalog.ts with required-baseline and optional-advanced surface descriptors",
@@ -257,7 +258,7 @@ final class RtcLanguageWorkspaceCatalog {
       controlSdk: true,
       runtimeBridge: true,
       currentRole: "Executable mobile runtime baseline",
-      workspaceSummary: "This workspace is the executable Flutter/mobile runtime baseline for provider-neutral RTC contracts, Volcengine default runtime binding, IM-signaled call sessions, and JDBC-style driver selection in sdkwork-rtc-sdk.",
+      workspaceSummary: "This workspace is the executable Flutter/mobile runtime baseline for provider-neutral RTC contracts, Volcengine default runtime binding, IM-signaled call orchestration, and JDBC-style driver selection in sdkwork-rtc-sdk.",
       roleHighlights: <String>[
         "provider-neutral RTC contracts",
         "JDBC-style driver manager and data source model for Flutter/mobile",
@@ -265,6 +266,7 @@ final class RtcLanguageWorkspaceCatalog {
         "sdkwork-im-sdk signaling integration through package:im_sdk/im_sdk.dart",
         "assembly-driven provider catalog, capability catalog, provider extension catalog, and provider selection helpers",
         "default mobile provider remains volcengine unless the caller explicitly overrides selection",
+        "StandardRtcCallController quick-start stack for default Volcengine plus IM signaling",
       ],
       defaultProviderContract: RtcLanguageWorkspaceDefaultProviderContract(
         providerKey: "volcengine",

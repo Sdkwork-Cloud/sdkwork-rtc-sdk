@@ -152,6 +152,7 @@ const EXPECTED_ROOT_PUBLIC_SURFACE_STANDARD = {
     './root-public-surface.js',
     './types.js',
     './call-types.js',
+    './call-controller.js',
     './call-session.js',
     './im-signaling.js',
     './standard-call-stack.js',

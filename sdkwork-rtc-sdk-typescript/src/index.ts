@@ -4,6 +4,7 @@ export * from './runtime-immutability.js';
 export * from './root-public-surface.js';
 export * from './types.js';
 export * from './call-types.js';
+export * from './call-controller.js';
 export * from './call-session.js';
 export * from './im-signaling.js';
 export * from './standard-call-stack.js';

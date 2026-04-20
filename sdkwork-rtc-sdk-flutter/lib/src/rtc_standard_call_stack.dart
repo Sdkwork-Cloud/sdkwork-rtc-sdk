@@ -2,7 +2,6 @@ import 'package:im_sdk/im_sdk.dart';
 
 import 'rtc_call_session.dart';
 import 'rtc_call_types.dart';
-export 'rtc_call_controller.dart';
 import 'rtc_call_controller.dart';
 import 'rtc_data_source.dart';
 import 'rtc_driver_manager.dart';
