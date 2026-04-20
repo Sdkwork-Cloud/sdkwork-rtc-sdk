@@ -415,3 +415,32 @@ test('standard rtc call controller turns conversation invite signals into incomi
     ],
   ]);
 });
+
+test('standard rtc call controller dispose clears watched conversations and returns to idle', async () => {
+  const sdk = await loadSdk();
+  const env = createMockRtcEnvironment(sdk);
+
+  const rtcStack = await sdk.createStandardRtcCallControllerStack({
+    sdk: env.imSdk,
+    connectOptions: {
+      deviceId: 'device-1',
+    },
+    watchConversationIds: ['conversation-1'],
+    driverManager: env.driverManager,
+    dataSourceConfig: {
+      nativeConfig: {
+        appId: 'volc-app-id',
+      },
+    },
+  });
+
+  assert.deepEqual(
+    rtcStack.callController.getSnapshot().watchedConversationIds,
+    ['conversation-1'],
+  );
+
+  await rtcStack.callController.dispose();
+
+  assert.equal(rtcStack.callController.getSnapshot().controllerState, 'idle');
+  assert.deepEqual(rtcStack.callController.getSnapshot().watchedConversationIds, []);
+});
