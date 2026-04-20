@@ -534,6 +534,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /create<ProviderPascal>RtcDriver/);
   assert.match(rootReadme, /<PROVIDER_UPPER>_RTC_PROVIDER_METADATA/);
   assert.match(rootReadme, /<PROVIDER_UPPER>_RTC_PROVIDER_MODULE/);
+  assert.doesNotMatch(rootReadme, /\{\{RTC_/);
 
   assert.match(docsReadme, /provider-catalog\.ts/);
   assert.match(docsReadme, /provider-activation-catalog\.ts/);
@@ -599,6 +600,7 @@ test('root documentation and materialized readmes describe provider package entr
     docsReadme,
     /Reserved non-TypeScript language workspace catalogs and metadata scaffolds must also keep explicit/i,
   );
+  assert.doesNotMatch(docsReadme, /\{\{RTC_/);
 
   assert.match(usageGuide, /TypeScript is the executable web\/browser baseline/i);
   assert.match(usageGuide, /Flutter is the executable mobile baseline/i);
@@ -1103,6 +1105,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /sdkwork-rtc-sdk-java\/target\//);
   assert.match(verificationMatrix, /__pycache__/);
   assert.match(verificationMatrix, /\.sdkwork-assembly\.json/);
+  assert.doesNotMatch(verificationMatrix, /\{\{RTC_/);
 
   assert.match(typescriptReadme, /src\/provider-catalog\.ts/);
   assert.match(typescriptReadme, /src\/provider-package-catalog\.ts/);

@@ -508,8 +508,7 @@ node .\bin\smoke-sdk.mjs
 The fast public call smoke entrypoints are:
 
 ```powershell
-node .\bin\sdk-call-smoke.mjs --json
-node .\bin\sdk-call-smoke.mjs --language flutter --json
+{{RTC_FAST_CALL_SMOKE_COMMANDS}}
 ```
 
 Run the full regression command before describing the RTC SDK workspace as complete. It executes

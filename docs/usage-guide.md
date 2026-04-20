@@ -29,7 +29,7 @@ The current official provider catalog is:
 
 | Provider key | Display name | Tier | Builtin | Current role |
 | --- | --- | --- | --- | --- |
-| `volcengine` | Volcengine RTC | `tier-a` | `true` | default provider and current runnable baseline on web and Flutter |
+| `volcengine` | Volcengine RTC | `tier-a` | `true` | default provider and current runnable baseline across `TypeScript` and `Flutter` executable workspaces |
 | `aliyun` | Aliyun RTC | `tier-a` | `true` | official builtin catalog entry; runtime activation remains language-matrix driven |
 | `tencent` | Tencent RTC | `tier-a` | `true` | official builtin catalog entry; runtime activation remains language-matrix driven |
 | `agora` | Agora RTC | `tier-b` | `false` | official package-boundary target |
@@ -66,7 +66,7 @@ Current conclusion:
 
 - TypeScript is the executable web/browser baseline
 - Flutter is the executable mobile baseline
-- both runnable baselines default to `volcengine`
+- current runnable baselines default to `volcengine`
 - remaining languages preserve standardized metadata, provider selection, lookup helpers, and
   package-boundary scaffolds for future runtime-bridge landings
 
@@ -228,7 +228,7 @@ Use this rule of thumb:
 Current reality is straightforward:
 
 - `volcengine` is the default provider
-- TypeScript and Flutter are both real runnable baselines now
+- executable language baselines are `typescript` and `flutter`
 - `sdkwork-im-sdk` is the standard signaling path for invite discovery, RTC lifecycle, and WebRTC
   signal exchange in the current end-to-end call flow
 - the remaining language workspaces stay standardized and extensible without pretending they are

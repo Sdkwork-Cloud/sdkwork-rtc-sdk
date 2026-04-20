@@ -126,6 +126,7 @@ The full regression entrypoint must also attempt the following optional language
 skip them only when the corresponding toolchain is unavailable:
 
 - `python -m compileall -q sdkwork-rtc-sdk-python/sdkwork_rtc_sdk`
+- `node .\bin\sdk-call-smoke.mjs --language flutter --json`
 - `flutter analyze ./bin/sdk-call-smoke.dart`
 - `flutter analyze`
 - `cargo check`

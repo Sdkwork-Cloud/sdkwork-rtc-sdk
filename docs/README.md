@@ -213,7 +213,7 @@ toolchains are available.
 The root `bin/sdk-call-smoke.mjs` command is the fast public usage smoke entrypoint. It dispatches
 to the current implemented language targets and verifies the default
 `volcengine + sdkwork-im-sdk` call stack without requiring live credentials or external services.
-Current implemented targets are `typescript` and `flutter`.
+Current implemented targets are `typescript` and `flutter`. The default root smoke dispatch resolves to `typescript`, and every additional executable language is selected through `--language <language>`.
 The root `.gitignore` defines the non-source artifact boundary for verification outputs such as
 `dist/`, `target/`, `bin/`, `obj/`, and `__pycache__/`, while
 `.sdkwork-assembly.json` remains checked-in source of truth.

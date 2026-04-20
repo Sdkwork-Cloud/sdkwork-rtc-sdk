@@ -2,7 +2,12 @@
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { assertRtcAssemblyWorkspaceBaseline } from './rtc-standard-assembly-baseline.mjs';
+import {
+  assertRtcAssemblyWorkspaceBaseline,
+  getRtcDefaultCallSmokeLanguage,
+  getRtcExecutableLanguageEntries,
+  getRtcExecutableLanguageEntriesBySmokeMode,
+} from './rtc-standard-assembly-baseline.mjs';
 import {
   readJsonFile,
   readUtf8File,
@@ -60,6 +65,100 @@ function renderMarkdownCodeList(values) {
   return (values ?? []).map((value) => `\`${value}\``).join(', ');
 }
 
+function renderMarkdownCodeNaturalList(values) {
+  const items = (values ?? []).filter(Boolean).map((value) => `\`${value}\``);
+  if (items.length === 0) {
+    return '';
+  }
+
+  if (items.length === 1) {
+    return items[0];
+  }
+
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`;
+  }
+
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
+function getExecutableRuntimeLanguageEntries(assembly) {
+  return getRtcExecutableLanguageEntries(assembly).filter((languageEntry) => languageEntry.runtimeBaseline);
+}
+
+function renderRootCallSmokeCommand(assembly, language) {
+  const defaultLanguage = getRtcDefaultCallSmokeLanguage(assembly);
+  const baseCommand = 'node .\\bin\\sdk-call-smoke.mjs';
+  if (language === defaultLanguage) {
+    return `${baseCommand} --json`;
+  }
+
+  return `${baseCommand} --language ${language} --json`;
+}
+
+function renderTemplateExecutableTargetsSummary(assembly) {
+  const executableLanguages = getExecutableRuntimeLanguageEntries(assembly).map(
+    (languageEntry) => languageEntry.language,
+  );
+
+  if (executableLanguages.length === 0) {
+    return 'Current implemented targets are assembly-governed and no executable language baseline is declared yet.';
+  }
+
+  const defaultLanguage = getRtcDefaultCallSmokeLanguage(assembly);
+  const languageSummary = renderMarkdownCodeNaturalList(executableLanguages);
+  if (executableLanguages.length === 1) {
+    return `Current implemented target is ${languageSummary}. The default root smoke dispatch resolves to \`${defaultLanguage}\`.`;
+  }
+
+  return `Current implemented targets are ${languageSummary}. The default root smoke dispatch resolves to \`${defaultLanguage}\`, and every additional executable language is selected through \`--language <language>\`.`;
+}
+
+function renderTemplateFastCallSmokeCommands(assembly) {
+  return getExecutableRuntimeLanguageEntries(assembly)
+    .map((languageEntry) => renderRootCallSmokeCommand(assembly, languageEntry.language))
+    .join('\n');
+}
+
+function renderTemplateRequiredCallSmokeSteps(assembly) {
+  const requiredEntries = getRtcExecutableLanguageEntriesBySmokeMode(assembly, 'runtime-backed');
+  if (requiredEntries.length === 0) {
+    return '- none currently declared in assembly';
+  }
+
+  return requiredEntries
+    .map((languageEntry) => `- \`${renderRootCallSmokeCommand(assembly, languageEntry.language)}\``)
+    .join('\n');
+}
+
+function renderTemplateOptionalCallSmokeSteps(assembly) {
+  const optionalEntries = getRtcExecutableLanguageEntriesBySmokeMode(assembly, 'analysis-backed');
+  if (optionalEntries.length === 0) {
+    return '- none currently declared in assembly';
+  }
+
+  return optionalEntries
+    .map((languageEntry) => `- \`${renderRootCallSmokeCommand(assembly, languageEntry.language)}\``)
+    .join('\n');
+}
+
+function renderMaterializedTemplateContent(workspaceRoot, templateRelativePath, assembly) {
+  const templateContent = readMaterializedTemplate(workspaceRoot, templateRelativePath);
+  const replacements = new Map([
+    ['{{RTC_EXECUTABLE_TARGETS_SUMMARY}}', renderTemplateExecutableTargetsSummary(assembly)],
+    ['{{RTC_FAST_CALL_SMOKE_COMMANDS}}', renderTemplateFastCallSmokeCommands(assembly)],
+    ['{{RTC_REQUIRED_CALL_SMOKE_STEPS}}', renderTemplateRequiredCallSmokeSteps(assembly)],
+    ['{{RTC_OPTIONAL_CALL_SMOKE_STEPS}}', renderTemplateOptionalCallSmokeSteps(assembly)],
+  ]);
+
+  let materializedContent = templateContent;
+  for (const [token, value] of replacements.entries()) {
+    materializedContent = materializedContent.split(token).join(value);
+  }
+
+  return materializedContent;
+}
+
 function renderUsageGuideSelectionSourceLabel(source) {
   switch (source) {
     case 'provider_url':
@@ -79,9 +178,12 @@ function renderUsageGuideSelectionSourceLabel(source) {
 
 function renderUsageGuideProviderRole(provider, assembly) {
   const defaultProviderKey = assembly.defaults?.providerKey ?? DEFAULT_RTC_PROVIDER_KEY;
+  const executableLanguageDisplays = getExecutableRuntimeLanguageEntries(assembly).map(
+    (languageEntry) => languageEntry.displayName,
+  );
 
   if (provider.providerKey === defaultProviderKey) {
-    return 'default provider and current runnable baseline on web and Flutter';
+    return `default provider and current runnable baseline across ${renderMarkdownCodeNaturalList(executableLanguageDisplays)} executable workspaces`;
   }
 
   if (provider.builtin) {
@@ -198,9 +300,12 @@ function renderUsageGuideExecutableSmokeNotes(assembly) {
 }
 
 function renderUsageGuide(assembly) {
-  const executableLanguageSections = (assembly.languages ?? [])
-    .filter((languageEntry) => languageEntry.runtimeBaseline)
+  const executableLanguageEntries = getExecutableRuntimeLanguageEntries(assembly);
+  const executableLanguageSections = executableLanguageEntries
     .map((languageEntry) => renderUsageGuideExecutableBaselineSection(languageEntry, assembly))
+    .join('\n');
+  const executableLanguageConclusions = executableLanguageEntries
+    .map((languageEntry) => `- ${renderUsageGuideExecutableLanguageConclusion(languageEntry).replace(/\.$/u, '')}`)
     .join('\n');
   const providerSelectionPrecedence = (assembly.providerSelectionStandard?.precedence ?? [])
     .map(
@@ -212,10 +317,12 @@ function renderUsageGuide(assembly) {
   const nonBuiltinProviderKeys = (assembly.providers ?? [])
     .filter((provider) => !provider.builtin)
     .map((provider) => provider.providerKey);
-  const executableSignalingImports = (assembly.languages ?? [])
-    .filter((languageEntry) => languageEntry.runtimeBaseline)
+  const executableSignalingImports = executableLanguageEntries
     .map((languageEntry) => `\`${languageEntry.runtimeBaseline.signalingSdkImportPath}\``)
     .join(', ');
+  const executableLanguageLabels = renderMarkdownCodeNaturalList(
+    executableLanguageEntries.map((languageEntry) => languageEntry.language),
+  );
 
   return lines(`
 # SDKWork RTC SDK Usage Guide
@@ -267,9 +374,8 @@ ${renderUsageGuideLanguageRows(assembly)}
 
 Current conclusion:
 
-- TypeScript is the executable web/browser baseline
-- Flutter is the executable mobile baseline
-- both runnable baselines default to \`${defaultProviderKey}\`
+${executableLanguageConclusions}
+- current runnable baselines default to \`${defaultProviderKey}\`
 - remaining languages preserve standardized metadata, provider selection, lookup helpers, and
   package-boundary scaffolds for future runtime-bridge landings
 
@@ -385,7 +491,7 @@ Use this rule of thumb:
 Current reality is straightforward:
 
 - \`${defaultProviderKey}\` is the default provider
-- TypeScript and Flutter are both real runnable baselines now
+- executable language baselines are ${executableLanguageLabels}
 - \`sdkwork-im-sdk\` is the standard signaling path for invite discovery, RTC lifecycle, and WebRTC
   signal exchange in the current end-to-end call flow
 - the remaining language workspaces stay standardized and extensible without pretending they are
@@ -2814,7 +2920,7 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
   const entries = [
     ...RTC_TEMPLATE_MATERIALIZATION_ASSETS.map((asset) => ({
       relativePath: asset.materializedRelativePath,
-      content: readMaterializedTemplate(workspaceRoot, asset.templateRelativePath),
+      content: renderMaterializedTemplateContent(workspaceRoot, asset.templateRelativePath, assembly),
     })),
     {
       relativePath: 'docs/multilanguage-capability-matrix.md',

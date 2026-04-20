@@ -110,8 +110,7 @@ node .\bin\smoke-sdk.mjs
 The fast public call smoke commands for maintainers are:
 
 ```powershell
-node .\bin\sdk-call-smoke.mjs --json
-node .\bin\sdk-call-smoke.mjs --language flutter --json
+{{RTC_FAST_CALL_SMOKE_COMMANDS}}
 ```
 
 The full regression entrypoint must run, in order:
@@ -120,12 +119,13 @@ The full regression entrypoint must run, in order:
 - `node .\test\verify-sdk-automation.test.mjs`
 - `node .\bin\verify-sdk.mjs`
 - `node .\sdkwork-rtc-sdk-typescript\bin\package-task.mjs test`
-- `node .\bin\sdk-call-smoke.mjs --json`
+{{RTC_REQUIRED_CALL_SMOKE_STEPS}}
 
 The full regression entrypoint must also attempt the following optional language smoke checks and
 skip them only when the corresponding toolchain is unavailable:
 
 - `python -m compileall -q sdkwork-rtc-sdk-python/sdkwork_rtc_sdk`
+{{RTC_OPTIONAL_CALL_SMOKE_STEPS}}
 - `flutter analyze ./bin/sdk-call-smoke.dart`
 - `flutter analyze`
 - `cargo check`
