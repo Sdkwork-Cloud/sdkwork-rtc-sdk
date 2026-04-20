@@ -163,6 +163,9 @@ export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS = 
   './runtime-immutability.js',
   './root-public-surface.js',
   './types.js',
+  './call-types.js',
+  './call-session.js',
+  './im-signaling.js',
   './capability-catalog.js',
   './capability-negotiation.js',
   './language-workspace-catalog.js',
@@ -342,7 +345,10 @@ export const RTC_SDK_ERROR_CODES = Object.freeze([
   'provider_selection_failed',
   'capability_not_supported',
   'invalid_provider_url',
+  'invalid_native_config',
   'native_sdk_not_available',
+  'signaling_not_available',
+  'call_state_invalid',
   'vendor_error',
 ]);
 

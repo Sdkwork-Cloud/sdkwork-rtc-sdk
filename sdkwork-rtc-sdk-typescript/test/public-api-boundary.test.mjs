@@ -58,7 +58,10 @@ test('root public API keeps core contracts and builtin helpers only', async () =
     'provider_selection_failed',
     'capability_not_supported',
     'invalid_provider_url',
+    'invalid_native_config',
     'native_sdk_not_available',
+    'signaling_not_available',
+    'call_state_invalid',
     'vendor_error',
   ]);
   assert.deepEqual(sdk.RTC_RUNTIME_SURFACE_METHODS, [
@@ -82,6 +85,9 @@ test('root public API keeps core contracts and builtin helpers only', async () =
       './runtime-immutability.js',
       './root-public-surface.js',
       './types.js',
+      './call-types.js',
+      './call-session.js',
+      './im-signaling.js',
       './capability-catalog.js',
       './capability-negotiation.js',
       './language-workspace-catalog.js',
@@ -201,8 +207,11 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.getRtcProviderActivationByProviderKey, 'function');
   assert.equal(typeof sdk.getRtcProviderActivation, 'function');
   assert.equal(typeof sdk.createVolcengineRtcDriver, 'function');
+  assert.equal(typeof sdk.createOfficialVolcengineWebRtcDriver, 'function');
   assert.equal(typeof sdk.createAliyunRtcDriver, 'function');
   assert.equal(typeof sdk.createTencentRtcDriver, 'function');
+  assert.equal(typeof sdk.createImRtcSignalingAdapter, 'function');
+  assert.equal(typeof sdk.StandardRtcCallSession, 'function');
   assert.equal(typeof sdk.VOLCENGINE_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.ALIYUN_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.TENCENT_RTC_PROVIDER_MODULE, 'object');

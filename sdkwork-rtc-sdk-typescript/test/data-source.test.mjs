@@ -312,7 +312,7 @@ test('client delegates runtime bridge operations through the provider-neutral ru
   ]);
 });
 
-test('client runtime methods fail explicitly when no native runtime bridge is supplied', async () => {
+test('default Volcengine runtime requires explicit native appId configuration before join', async () => {
   const {
     RtcDataSource,
     RtcSdkException,
@@ -333,8 +333,9 @@ test('client runtime methods fail explicitly when no native runtime bridge is su
       }),
     (error) => {
       assert.ok(error instanceof RtcSdkException);
-      assert.equal(error.code, 'native_sdk_not_available');
+      assert.equal(error.code, 'invalid_native_config');
       assert.equal(error.providerKey, 'volcengine');
+      assert.deepEqual(error.details?.missingConfigKeys, ['appId']);
       return true;
     },
   );

@@ -42,7 +42,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 
 ## Root Public Surface Standard
 
-- `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`: `./errors.js`, `./runtime-surface.js`, `./runtime-immutability.js`, `./root-public-surface.js`, `./types.js`, `./capability-catalog.js`, `./capability-negotiation.js`, `./language-workspace-catalog.js`, `./provider-selection.js`, `./provider-support.js`, `./provider-extension-catalog.js`, `./provider-package-catalog.js`, `./provider-package-loader.js`, `./provider-activation-catalog.js`, `./capabilities.js`, `./client.js`, `./driver.js`, `./driver-manager.js`, `./data-source.js`, `./provider-module.js`, `./providers/index.js`
+- `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`: `./errors.js`, `./runtime-surface.js`, `./runtime-immutability.js`, `./root-public-surface.js`, `./types.js`, `./call-types.js`, `./call-session.js`, `./im-signaling.js`, `./capability-catalog.js`, `./capability-negotiation.js`, `./language-workspace-catalog.js`, `./provider-selection.js`, `./provider-support.js`, `./provider-extension-catalog.js`, `./provider-package-catalog.js`, `./provider-package-loader.js`, `./provider-activation-catalog.js`, `./capabilities.js`, `./client.js`, `./driver.js`, `./driver-manager.js`, `./data-source.js`, `./provider-module.js`, `./providers/index.js`
 - `rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths`: `./providers/volcengine.js`, `./providers/aliyun.js`, `./providers/tencent.js`
 - `rootPublicSurfaceStandard.typescriptInlineHelperNames`: `createBuiltinRtcDriverManager`
 - `rootPublicSurfaceStandard.reservedSurfaceFamilies`: `standard-contract`, `provider-catalog`, `provider-package-catalog`, `provider-activation-catalog`, `capability-catalog`, `provider-extension-catalog`, `language-workspace-catalog`, `provider-selection`, `provider-package-loader`, `provider-support`, `driver-manager`, `data-source`
@@ -62,7 +62,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 
 ## Error Code Standard
 
-- `errorCodeStandard.codeTerms`: `provider_package_not_found`, `provider_package_identity_mismatch`, `provider_package_load_failed`, `provider_module_export_missing`, `provider_module_contract_mismatch`, `driver_already_registered`, `driver_not_found`, `provider_not_official`, `provider_not_supported`, `provider_metadata_mismatch`, `provider_selection_failed`, `capability_not_supported`, `invalid_provider_url`, `native_sdk_not_available`, `vendor_error`
+- `errorCodeStandard.codeTerms`: `provider_package_not_found`, `provider_package_identity_mismatch`, `provider_package_load_failed`, `provider_module_export_missing`, `provider_module_contract_mismatch`, `driver_already_registered`, `driver_not_found`, `provider_not_official`, `provider_not_supported`, `provider_metadata_mismatch`, `provider_selection_failed`, `capability_not_supported`, `invalid_provider_url`, `invalid_native_config`, `native_sdk_not_available`, `signaling_not_available`, `call_state_invalid`, `vendor_error`
 - `errorCodeStandard.fallbackCode`: `vendor_error`
 
 ## Provider Extension Standard
