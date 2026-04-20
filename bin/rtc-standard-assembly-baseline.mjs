@@ -44,7 +44,71 @@ function hasExactArray(actual, expected) {
   return JSON.stringify(actual) === JSON.stringify(expected);
 }
 
-const RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES = ['runtime-backed', 'analysis-backed'];
+export const RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES = ['runtime-backed', 'analysis-backed'];
+
+export function getRtcAssemblyLanguageEntries(assembly) {
+  const languageEntries = assembly?.languages ?? [];
+  if (!Array.isArray(languageEntries)) {
+    throw new Error('assembly.languages must be an array');
+  }
+
+  return languageEntries;
+}
+
+export function getRtcLanguageEntryByLanguage(assembly, language) {
+  return getRtcAssemblyLanguageEntries(assembly).find(
+    (languageEntry) => languageEntry.language === language,
+  );
+}
+
+export function isRtcExecutableLanguageEntry(languageEntry) {
+  return (
+    languageEntry?.runtimeBridge === true &&
+    languageEntry?.maturityTier === 'reference' &&
+    typeof languageEntry?.workspace === 'string' &&
+    languageEntry.workspace.length > 0 &&
+    languageEntry?.runtimeBaseline != null
+  );
+}
+
+export function getRtcExecutableLanguageEntries(assembly) {
+  return getRtcAssemblyLanguageEntries(assembly).filter(isRtcExecutableLanguageEntry);
+}
+
+export function getRtcExecutableLanguageEntryByLanguage(assembly, language) {
+  return getRtcExecutableLanguageEntries(assembly).find(
+    (languageEntry) => languageEntry.language === language,
+  );
+}
+
+export function getRtcExecutableLanguageEntriesBySmokeMode(assembly, smokeMode) {
+  if (!RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.includes(smokeMode)) {
+    throw new Error(
+      `Unknown RTC runtime baseline smoke mode: ${smokeMode}. Expected one of ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.join(', ')}`,
+    );
+  }
+
+  return getRtcExecutableLanguageEntries(assembly).filter(
+    (languageEntry) => languageEntry.runtimeBaseline?.smokeMode === smokeMode,
+  );
+}
+
+export function getRtcDefaultCallSmokeLanguage(assembly) {
+  const runtimeBackedEntries = getRtcExecutableLanguageEntriesBySmokeMode(
+    assembly,
+    'runtime-backed',
+  );
+  if (runtimeBackedEntries.length > 0) {
+    return runtimeBackedEntries[0].language;
+  }
+
+  const executableEntries = getRtcExecutableLanguageEntries(assembly);
+  if (executableEntries.length === 0) {
+    throw new Error('Assembly does not declare any executable RTC language entries');
+  }
+
+  return executableEntries[0].language;
+}
 
 export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   if (assembly.workspace !== 'sdkwork-rtc-sdk') {

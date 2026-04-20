@@ -1611,8 +1611,10 @@ test('root smoke regression entrypoints exist', () => {
   assert.match(smokeScript, /java:javac/);
   assert.match(smokeScript, /swift:swift-build/);
   assert.match(smokeScript, /kotlin:kotlinc/);
-  assert.match(smokeScript, /typescript:call-cli-smoke/);
-  assert.match(smokeScript, /flutter:call-cli-smoke/);
+  assert.match(smokeScript, /getRtcExecutableLanguageEntriesBySmokeMode/);
+  assert.match(smokeScript, /runtime-backed/);
+  assert.match(smokeScript, /analysis-backed/);
+  assert.match(smokeScript, /call-cli-smoke/);
   assert.match(smokeScript, /sdk-call-smoke\.mjs/);
 });
 
@@ -1628,8 +1630,61 @@ test('root sdk-call-smoke dispatcher entrypoints exist', () => {
   }
 
   const dispatcherScript = readFileSync(path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs'), 'utf8');
-  assert.match(dispatcherScript, /sdkwork-rtc-sdk-\$\{language\}/);
-  assert.match(dispatcherScript, /IMPLEMENTED_LANGUAGES = new Set\(\['typescript', 'flutter'\]\)/);
+  assert.match(dispatcherScript, /\.sdkwork-assembly\.json/);
+  assert.match(dispatcherScript, /getRtcExecutableLanguageEntries/);
+  assert.match(dispatcherScript, /getRtcDefaultCallSmokeLanguage/);
+  assert.match(dispatcherScript, /languageEntry\.workspace/);
+});
+
+test('root sdk-call-smoke dispatcher resolves assembly-driven executable languages', async () => {
+  const dispatcherModule = await import(
+    pathToFileURL(path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs')).href
+  );
+
+  const runtimeContract = dispatcherModule.resolveRtcCallSmokeRuntimeContract(workspaceRoot);
+  assert.equal(runtimeContract.defaultLanguage, 'typescript');
+  assert.deepEqual(runtimeContract.executableLanguages, ['typescript', 'flutter']);
+  assert.deepEqual(
+    runtimeContract.executableLanguageEntries.map((languageEntry) => ({
+      language: languageEntry.language,
+      smokeMode: languageEntry.runtimeBaseline?.smokeMode,
+    })),
+    [
+      { language: 'typescript', smokeMode: 'runtime-backed' },
+      { language: 'flutter', smokeMode: 'analysis-backed' },
+    ],
+  );
+
+  const defaultTarget = dispatcherModule.resolveSdkCallSmokeTarget({
+    workspaceRoot,
+    runtimeContract,
+  });
+  assert.equal(defaultTarget.language, 'typescript');
+  assert.match(
+    defaultTarget.args[0].replace(/\\/gu, '/'),
+    /sdkwork-rtc-sdk-typescript\/bin\/sdk-call-smoke\.mjs$/,
+  );
+
+  const flutterTarget = dispatcherModule.resolveSdkCallSmokeTarget({
+    workspaceRoot,
+    language: 'flutter',
+    runtimeContract,
+  });
+  assert.equal(flutterTarget.language, 'flutter');
+  assert.match(
+    flutterTarget.args[0].replace(/\\/gu, '/'),
+    /sdkwork-rtc-sdk-flutter\/bin\/sdk-call-smoke\.mjs$/,
+  );
+
+  assert.throws(
+    () =>
+      dispatcherModule.resolveSdkCallSmokeTarget({
+        workspaceRoot,
+        language: 'python',
+        runtimeContract,
+      }),
+    /not implemented yet/,
+  );
 });
 
 test('typescript call smoke cli entrypoints exist', () => {

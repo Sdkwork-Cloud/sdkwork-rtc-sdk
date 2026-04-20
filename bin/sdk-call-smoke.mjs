@@ -1,22 +1,15 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-
-const IMPLEMENTED_LANGUAGES = new Set(['typescript', 'flutter']);
-const OFFICIAL_LANGUAGES = [
-  'typescript',
-  'flutter',
-  'rust',
-  'java',
-  'csharp',
-  'swift',
-  'kotlin',
-  'go',
-  'python',
-];
+import {
+  assertRtcAssemblyWorkspaceBaseline,
+  getRtcDefaultCallSmokeLanguage,
+  getRtcExecutableLanguageEntries,
+} from './rtc-standard-assembly-baseline.mjs';
+import { readJsonFile } from './rtc-standard-file-helpers.mjs';
 
 function fail(message) {
   const error = new Error(message);
@@ -28,58 +21,9 @@ function writeLine(writer, line = '') {
   writer.write(`${line}\n`);
 }
 
-function resolveFlutterBinDirectory(workspacePath) {
-  const packageConfigPath = path.join(workspacePath, '.dart_tool', 'package_config.json');
-  if (!existsSync(packageConfigPath)) {
-    return null;
-  }
-
-  try {
-    const packageConfig = JSON.parse(readFileSync(packageConfigPath, 'utf8'));
-    const flutterRoot = packageConfig?.flutterRoot;
-    if (typeof flutterRoot !== 'string' || !flutterRoot) {
-      return null;
-    }
-    const flutterRootUrl = new URL(flutterRoot);
-    if (flutterRootUrl.protocol !== 'file:') {
-      return null;
-    }
-    return path.join(fileURLToPath(flutterRootUrl), 'bin');
-  } catch {
-    return null;
-  }
-}
-
-function quoteWindowsCmdArgument(argument) {
-  const value = String(argument);
-  if (!/[\s"]/u.test(value)) {
-    return value;
-  }
-  return `"${value.replace(/"/gu, '""')}"`;
-}
-
-function buildWindowsCommandLine(command, args) {
-  return [command, ...args.map(quoteWindowsCmdArgument)].join(' ');
-}
-
-function buildWindowsFlutterCommandLine(flutterBinDirectory, args) {
-  const bootstrapPath = [
-    'C:\\Windows\\System32',
-    'C:\\Windows',
-    'C:\\Windows\\System32\\WindowsPowerShell\\v1.0',
-    'C:\\Program Files\\Git\\cmd',
-    flutterBinDirectory,
-  ].join(';');
-
-  return `set CONDA_NO_PLUGINS=true&& set PATH=${bootstrapPath}&& ${buildWindowsCommandLine(
-    'flutter',
-    args,
-  )}`;
-}
-
 export function parseSdkCallSmokeArgs(argv) {
   const parsed = {
-    language: 'typescript',
+    language: null,
     help: false,
     forwardArgs: [],
   };
@@ -105,46 +49,76 @@ export function parseSdkCallSmokeArgs(argv) {
   return parsed;
 }
 
-export function resolveSdkCallSmokeTarget({ workspaceRoot, language }) {
-  if (!OFFICIAL_LANGUAGES.includes(language)) {
-    fail(`Unsupported language: ${language}.`);
-  }
-  if (!IMPLEMENTED_LANGUAGES.has(language)) {
-    fail(`sdk-call-smoke for language "${language}" is not implemented yet.`);
+export function resolveRtcCallSmokeRuntimeContract(workspaceRoot) {
+  const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
+  if (!existsSync(assemblyPath)) {
+    fail(`Missing RTC assembly descriptor: ${assemblyPath}`);
   }
 
-  const relativeWorkspace = `sdkwork-rtc-sdk-${language}`;
-  const workspacePath = path.join(workspaceRoot, relativeWorkspace);
-  if (language === 'typescript') {
-    const scriptPath = path.join(workspacePath, 'bin', 'sdk-call-smoke.mjs');
-    if (!existsSync(scriptPath)) {
-      fail(`Missing sdk-call-smoke entrypoint for ${language}: ${scriptPath}`);
-    }
-    return {
-      language,
-      workspacePath,
-      command: process.execPath,
-      args: [scriptPath],
-    };
+  const assembly = readJsonFile(assemblyPath);
+  assertRtcAssemblyWorkspaceBaseline(assembly);
+
+  const officialLanguages = Array.isArray(assembly.officialLanguages) ? assembly.officialLanguages : [];
+  const executableLanguageEntries = getRtcExecutableLanguageEntries(assembly);
+  if (executableLanguageEntries.length === 0) {
+    fail('Assembly does not declare any executable RTC language workspaces.');
   }
 
-  if (language === 'flutter') {
-    const scriptPath = path.join(workspacePath, 'bin', 'sdk-call-smoke.mjs');
-    if (!existsSync(scriptPath)) {
-      fail(`Missing sdk-call-smoke entrypoint for ${language}: ${scriptPath}`);
-    }
-    return {
-      language,
-      workspacePath,
-      command: process.execPath,
-      args: [scriptPath],
-    };
-  }
-
-  fail(`sdk-call-smoke target resolution is missing for language "${language}".`);
+  return {
+    assemblyPath,
+    officialLanguages,
+    executableLanguageEntries,
+    executableLanguages: executableLanguageEntries.map((languageEntry) => languageEntry.language),
+    defaultLanguage: getRtcDefaultCallSmokeLanguage(assembly),
+  };
 }
 
-export function getSdkCallSmokeHelpText() {
+export function resolveSdkCallSmokeTarget({ workspaceRoot, language, runtimeContract }) {
+  const contract = runtimeContract ?? resolveRtcCallSmokeRuntimeContract(workspaceRoot);
+  const resolvedLanguage = String(language ?? contract.defaultLanguage ?? '')
+    .trim()
+    .toLowerCase();
+
+  if (!resolvedLanguage) {
+    fail('No sdk-call-smoke language could be resolved from CLI arguments or assembly metadata.');
+  }
+
+  if (!contract.officialLanguages.includes(resolvedLanguage)) {
+    fail(
+      `Unsupported language: ${resolvedLanguage}. Official languages: ${contract.officialLanguages.join(', ')}`,
+    );
+  }
+
+  const languageEntry = contract.executableLanguageEntries.find(
+    (entry) => entry.language === resolvedLanguage,
+  );
+  if (!languageEntry) {
+    fail(
+      `sdk-call-smoke for language "${resolvedLanguage}" is not implemented yet. Current executable languages: ${contract.executableLanguages.join(', ')}`,
+    );
+  }
+
+  const relativeWorkspace = String(languageEntry.workspace ?? '').trim();
+  if (!relativeWorkspace) {
+    fail(`Executable language ${resolvedLanguage} is missing workspace metadata in assembly.`);
+  }
+
+  const workspacePath = path.join(workspaceRoot, relativeWorkspace);
+  const scriptPath = path.join(workspacePath, 'bin', 'sdk-call-smoke.mjs');
+  if (!existsSync(scriptPath)) {
+    fail(`Missing sdk-call-smoke entrypoint for ${resolvedLanguage}: ${scriptPath}`);
+  }
+
+  return {
+    language: resolvedLanguage,
+    workspacePath,
+    command: process.execPath,
+    args: [scriptPath],
+    runtimeBaseline: languageEntry.runtimeBaseline,
+  };
+}
+
+export function getSdkCallSmokeHelpText(runtimeContract) {
   return [
     'SDKWork RTC SDK call smoke dispatcher',
     '',
@@ -152,26 +126,18 @@ export function getSdkCallSmokeHelpText() {
     '  node ./bin/sdk-call-smoke.mjs [--language <language>] <language-cli-args>',
     '',
     'Behavior:',
-    '  --language defaults to typescript',
+    `  --language defaults to assembly default executable language: ${runtimeContract.defaultLanguage}`,
+    '  assembly chooses the first runtime-backed executable language, falling back to the first executable language',
     '  remaining arguments are forwarded to the target language call-smoke CLI unchanged',
     '',
-    `Official languages: ${OFFICIAL_LANGUAGES.join(', ')}`,
-    `Implemented today: ${Array.from(IMPLEMENTED_LANGUAGES).join(', ')}`,
+    `Official languages: ${runtimeContract.officialLanguages.join(', ')}`,
+    `Executable today: ${runtimeContract.executableLanguages.join(', ')}`,
   ].join('\n');
 }
 
 async function defaultRun(command, args, options) {
-  const flutterBinDirectory =
-    process.platform === 'win32' && command === 'flutter'
-      ? resolveFlutterBinDirectory(options.cwd)
-      : null;
-  const commandToRun = flutterBinDirectory ? process.env.ComSpec ?? 'cmd.exe' : command;
-  const argsToRun = flutterBinDirectory
-    ? ['/d', '/s', '/c', buildWindowsFlutterCommandLine(flutterBinDirectory, args)]
-    : args;
-
   const exitCode = await new Promise((resolve, reject) => {
-    const child = spawn(commandToRun, argsToRun, {
+    const child = spawn(command, args, {
       cwd: options.cwd,
       stdio: options.stdio ?? 'inherit',
       shell: false,
@@ -204,9 +170,10 @@ export async function runSdkCallSmokeDispatcher(
   const workspaceRoot =
     deps.workspaceRoot ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const parsed = Array.isArray(argv) ? parseSdkCallSmokeArgs(argv) : argv;
+  const runtimeContract = deps.runtimeContract ?? resolveRtcCallSmokeRuntimeContract(workspaceRoot);
 
   if (parsed.help) {
-    writeLine(stdout, getSdkCallSmokeHelpText());
+    writeLine(stdout, getSdkCallSmokeHelpText(runtimeContract));
     return {
       help: true,
       exitCode: 0,
@@ -216,6 +183,7 @@ export async function runSdkCallSmokeDispatcher(
   const target = resolveSdkCallSmokeTarget({
     workspaceRoot,
     language: parsed.language,
+    runtimeContract,
   });
   const run = deps.run ?? defaultRun;
 

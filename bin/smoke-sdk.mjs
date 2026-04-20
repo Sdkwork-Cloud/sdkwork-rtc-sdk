@@ -4,6 +4,11 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
+  assertRtcAssemblyWorkspaceBaseline,
+  getRtcExecutableLanguageEntriesBySmokeMode,
+} from './rtc-standard-assembly-baseline.mjs';
+import {
+  readJsonFile,
   resolveRtcSdkAppRootFromWorkspaceRoot,
   resolveRtcSdkWorkspaceRoot,
 } from './rtc-standard-file-helpers.mjs';
@@ -126,6 +131,10 @@ function runRequiredNodeStep(label, args, cwd) {
   return runCommand(label, process.execPath, args, cwd);
 }
 
+function runOptionalNodeStep(label, args, cwd) {
+  return runCommand(label, process.execPath, args, cwd, { optional: true });
+}
+
 function runOptionalCommand(label, command, args, cwd) {
   return runCommand(label, command, args, cwd, { optional: true });
 }
@@ -220,11 +229,45 @@ function printSummary(requiredResults, optionalPassed, optionalSkipped) {
   }
 }
 
+function resolveRtcExecutableCallSmokePlan(workspaceRoot) {
+  const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
+  if (!existsSync(assemblyPath)) {
+    fail(`RTC assembly descriptor is missing: ${assemblyPath}`);
+  }
+
+  const assembly = readJsonFile(assemblyPath);
+  assertRtcAssemblyWorkspaceBaseline(assembly);
+
+  return {
+    requiredCallSmokeEntries: getRtcExecutableLanguageEntriesBySmokeMode(
+      assembly,
+      'runtime-backed',
+    ),
+    optionalCallSmokeEntries: getRtcExecutableLanguageEntriesBySmokeMode(
+      assembly,
+      'analysis-backed',
+    ),
+  };
+}
+
+function buildRootCallSmokeStep(workspaceRoot, language) {
+  return {
+    label: `${language}:call-cli-smoke`,
+    args: [
+      path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs'),
+      '--language',
+      language,
+      '--json',
+    ],
+  };
+}
+
 export function runRtcSdkSmoke(workspaceRoot) {
   const requiredResults = [];
   const optionalPassed = [];
   const optionalSkipped = [];
   const repoRoot = resolveRtcSdkAppRootFromWorkspaceRoot(workspaceRoot);
+  const callSmokePlan = resolveRtcExecutableCallSmokePlan(workspaceRoot);
 
   requiredResults.push(
     runRequiredNodeStep(
@@ -254,13 +297,22 @@ export function runRtcSdkSmoke(workspaceRoot) {
       repoRoot,
     ),
   );
-  requiredResults.push(
-    runRequiredNodeStep(
-      'typescript:call-cli-smoke',
-      [path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs'), '--json'],
-      repoRoot,
-    ),
-  );
+
+  for (const languageEntry of callSmokePlan.requiredCallSmokeEntries) {
+    const step = buildRootCallSmokeStep(workspaceRoot, languageEntry.language);
+    requiredResults.push(runRequiredNodeStep(step.label, step.args, repoRoot));
+  }
+
+  for (const languageEntry of callSmokePlan.optionalCallSmokeEntries) {
+    const step = buildRootCallSmokeStep(workspaceRoot, languageEntry.language);
+    const result = runOptionalNodeStep(step.label, step.args, repoRoot);
+    if (result.status === 'passed') {
+      optionalPassed.push(result);
+      continue;
+    }
+
+    optionalSkipped.push(result);
+  }
 
   const optionalSteps = [
     {
@@ -268,12 +320,6 @@ export function runRtcSdkSmoke(workspaceRoot) {
       command: 'python',
       args: ['-m', 'compileall', '-q', 'sdkwork-rtc-sdk-python/sdkwork_rtc_sdk'],
       cwd: workspaceRoot,
-    },
-    {
-      label: 'flutter:call-cli-smoke',
-      command: 'flutter',
-      args: ['analyze', './bin/sdk-call-smoke.dart'],
-      cwd: path.join(workspaceRoot, 'sdkwork-rtc-sdk-flutter'),
     },
     {
       label: 'flutter:analyze',
