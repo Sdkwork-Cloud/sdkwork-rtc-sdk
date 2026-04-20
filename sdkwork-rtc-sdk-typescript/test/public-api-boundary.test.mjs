@@ -220,6 +220,10 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.createImRtcSignalingAdapter, 'function');
   assert.equal(typeof sdk.StandardRtcCallSession, 'function');
   assert.equal(typeof sdk.StandardRtcCallController, 'function');
+  assert.equal(typeof sdk.StandardRtcCallSession.prototype.close, 'function');
+  assert.equal(typeof sdk.StandardRtcCallController.prototype.close, 'function');
+  assert.equal('dispose' in sdk.StandardRtcCallSession.prototype, false);
+  assert.equal('dispose' in sdk.StandardRtcCallController.prototype, false);
   assert.equal(typeof sdk.VOLCENGINE_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.ALIYUN_RTC_PROVIDER_MODULE, 'object');
   assert.equal(typeof sdk.TENCENT_RTC_PROVIDER_MODULE, 'object');

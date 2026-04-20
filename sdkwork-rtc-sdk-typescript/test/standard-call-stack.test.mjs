@@ -157,7 +157,7 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
   assert.equal(rtcStack.driverManager, driverManager);
   assert.equal(rtcStack.dataSource.describeSelection().providerKey, 'volcengine');
   assert.equal(rtcStack.mediaClient.metadata.providerKey, 'volcengine');
-  assert.equal(typeof rtcStack.dispose, 'function');
+  assert.equal(typeof rtcStack.close, 'function');
 
   const snapshot = await rtcStack.callSession.startOutgoing({
     rtcSessionId: 'rtc-session-1',
@@ -213,7 +213,7 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
     ['issueParticipantCredential', 'rtc-session-1', { participantId: 'user-1' }],
   ]);
 
-  await rtcStack.dispose();
+  await rtcStack.close();
 
   assert.equal(rtcStack.callSession.getSnapshot().state, 'idle');
   assert.equal(rtcStack.callSession.getSnapshot().rtcSessionId, undefined);

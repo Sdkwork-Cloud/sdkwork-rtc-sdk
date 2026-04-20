@@ -42,6 +42,10 @@ export interface RtcCapabilitySet {
   optional: readonly RtcOptionalCapability[];
 }
 
+export interface RtcCloseable {
+  close(): Promise<void> | void;
+}
+
 export type RtcTrackKind = 'audio' | 'video' | 'screen-share' | 'data';
 export type RtcSessionConnectionState = 'joined' | 'left';
 

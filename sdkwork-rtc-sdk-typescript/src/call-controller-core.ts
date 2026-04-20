@@ -1,4 +1,5 @@
 import { RtcSdkException } from './errors.js';
+import type { RtcCloseable } from './types.js';
 import type {
   RtcCallSignal,
   RtcCallSignalingAdapter,
@@ -63,7 +64,7 @@ import {
   resolveRtcCallControllerWatchState,
 } from './call-controller-state.js';
 
-export class StandardRtcCallController<TNativeClient = unknown> {
+export class StandardRtcCallController<TNativeClient = unknown> implements RtcCloseable {
   readonly #sdk: ImRtcCallControllerSdkLike;
   readonly #callSession: StandardRtcCallSession<TNativeClient>;
   readonly #signaling: RtcCallSignalingAdapter;
@@ -296,10 +297,10 @@ export class StandardRtcCallController<TNativeClient = unknown> {
     );
   }
 
-  async dispose(): Promise<void> {
+  async close(): Promise<void> {
     this.#sessionSubscriptionManager.clear();
     this.#conversationSubscriptionManager.disconnect();
-    await this.#callSession.dispose();
+    await this.#callSession.close();
     this.#watchedConversationIds.clear();
     this.#controllerState = 'idle';
     this.#activeInvitation = undefined;

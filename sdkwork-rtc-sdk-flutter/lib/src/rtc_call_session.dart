@@ -1,3 +1,6 @@
+export 'rtc_closeable.dart';
+
+import 'rtc_closeable.dart';
 import 'rtc_call_types.dart';
 import 'rtc_errors.dart';
 import 'rtc_standard_contract.dart';
@@ -8,7 +11,7 @@ const RtcCallSessionSnapshot _idleRtcCallSessionSnapshot =
   state: RtcCallState.idle,
 );
 
-class StandardRtcCallSession<TNativeClient> {
+class StandardRtcCallSession<TNativeClient> implements RtcCloseable {
   StandardRtcCallSession({
     required RtcClient<TNativeClient> mediaClient,
     required RtcCallSignalingAdapter signaling,
@@ -180,7 +183,8 @@ class StandardRtcCallSession<TNativeClient> {
     return _snapshot;
   }
 
-  Future<RtcCallSessionSnapshot> dispose() async {
+  @override
+  Future<void> close() async {
     try {
       if (_snapshot.mediaConnectionState == RtcSessionConnectionState.joined) {
         await _mediaClient.leave();
@@ -191,7 +195,6 @@ class StandardRtcCallSession<TNativeClient> {
     }
 
     _resetSnapshot();
-    return _snapshot;
   }
 
   String _requireSessionId() {

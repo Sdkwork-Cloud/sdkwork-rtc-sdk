@@ -416,7 +416,7 @@ test('standard rtc call controller turns conversation invite signals into incomi
   ]);
 });
 
-test('standard rtc call controller dispose clears watched conversations and returns to idle', async () => {
+test('standard rtc call controller close clears watched conversations and returns to idle', async () => {
   const sdk = await loadSdk();
   const env = createMockRtcEnvironment(sdk);
 
@@ -438,7 +438,7 @@ test('standard rtc call controller dispose clears watched conversations and retu
     rtcStack.callController.getSnapshot().watchedConversationIds,
     ['conversation-1'],
   );
-  assert.equal(typeof rtcStack.dispose, 'function');
+  assert.equal(typeof rtcStack.close, 'function');
 
   await rtcStack.callController.startOutgoing({
     rtcSessionId: 'rtc-session-dispose',
@@ -457,7 +457,7 @@ test('standard rtc call controller dispose clears watched conversations and retu
     sdk.RTC_CALL_OFFER_SIGNAL_TYPE,
   );
 
-  await rtcStack.dispose();
+  await rtcStack.close();
 
   assert.equal(rtcStack.callController.getSnapshot().controllerState, 'idle');
   assert.deepEqual(rtcStack.callController.getSnapshot().watchedConversationIds, []);

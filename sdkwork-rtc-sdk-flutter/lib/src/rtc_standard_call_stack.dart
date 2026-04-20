@@ -8,7 +8,7 @@ import 'rtc_driver_manager.dart';
 import 'rtc_im_signaling.dart';
 import 'rtc_standard_contract.dart';
 
-final class StandardRtcCallStack<TNativeClient> {
+final class StandardRtcCallStack<TNativeClient> implements RtcCloseable {
   const StandardRtcCallStack({
     required this.driverManager,
     required this.dataSource,
@@ -25,8 +25,9 @@ final class StandardRtcCallStack<TNativeClient> {
   final StandardRtcCallSession<TNativeClient> callSession;
   final RtcImRealtimeDispatcher realtimeDispatcher;
 
-  Future<void> dispose() async {
-    await callSession.dispose();
+  @override
+  Future<void> close() async {
+    await callSession.close();
   }
 }
 
@@ -48,7 +49,8 @@ final class CreateStandardRtcCallStackOptions {
   final RtcDriverManager? driverManager;
 }
 
-final class StandardRtcCallControllerStack<TNativeClient> {
+final class StandardRtcCallControllerStack<TNativeClient>
+    implements RtcCloseable {
   const StandardRtcCallControllerStack({
     required this.driverManager,
     required this.dataSource,
@@ -67,8 +69,9 @@ final class StandardRtcCallControllerStack<TNativeClient> {
   final RtcImRealtimeDispatcher realtimeDispatcher;
   final StandardRtcCallController<TNativeClient> callController;
 
-  Future<void> dispose() async {
-    await callController.dispose();
+  @override
+  Future<void> close() async {
+    await callController.close();
   }
 }
 

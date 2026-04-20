@@ -507,7 +507,7 @@ test('standard call session accepts and rejects incoming calls through the signa
   assert.deepEqual(signalingCalls.slice(-1), [['rejectSession', 'rtc-session-3', {}]]);
 });
 
-test('standard call session dispose releases local media state without ending the remote session', async () => {
+test('standard call session close releases local media state without ending the remote session', async () => {
   const {
     StandardRtcCallSession,
     createImRtcSignalingAdapter,
@@ -596,11 +596,11 @@ test('standard call session dispose releases local media state without ending th
     signalingStreamId: 'signal-dispose',
   });
 
-  const disposedSnapshot = await callSession.dispose();
+  await callSession.close();
 
-  assert.equal(disposedSnapshot.state, 'idle');
-  assert.equal(disposedSnapshot.rtcSessionId, undefined);
-  assert.equal(disposedSnapshot.mediaConnectionState, undefined);
+  assert.equal(callSession.getSnapshot().state, 'idle');
+  assert.equal(callSession.getSnapshot().rtcSessionId, undefined);
+  assert.equal(callSession.getSnapshot().mediaConnectionState, undefined);
   assert.equal(disconnected, true);
   assert.deepEqual(mediaCalls.slice(-1), [['leave']]);
   assert.equal(

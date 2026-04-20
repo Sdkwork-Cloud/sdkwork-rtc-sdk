@@ -1,6 +1,7 @@
 import { RtcSdkException } from './errors.js';
 import { freezeRtcRuntimeValue } from './runtime-freeze.js';
 import type { RtcClient } from './client.js';
+import type { RtcCloseable } from './types.js';
 import type {
   RtcCallAutoPublishOptions,
   RtcCallSessionRecord,
@@ -28,7 +29,7 @@ function createRtcCallSessionIdleSnapshot(): RtcCallSessionSnapshot {
   };
 }
 
-export class StandardRtcCallSession<TNativeClient = unknown> {
+export class StandardRtcCallSession<TNativeClient = unknown> implements RtcCloseable {
   readonly #mediaClient: RtcClient<TNativeClient>;
   readonly #signaling: RtcCallSignalingAdapter;
   readonly #signalHandlers = new Set<RtcCallSignalHandler>();
@@ -147,7 +148,7 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
     return this.getSnapshot();
   }
 
-  async dispose(): Promise<RtcCallSessionSnapshot> {
+  async close(): Promise<void> {
     try {
       if (this.#snapshot.mediaConnectionState === 'joined') {
         await this.#mediaClient.leave();
@@ -158,7 +159,6 @@ export class StandardRtcCallSession<TNativeClient = unknown> {
     }
 
     this.#resetSnapshot();
-    return this.getSnapshot();
   }
 
   #requireSessionId(): string {

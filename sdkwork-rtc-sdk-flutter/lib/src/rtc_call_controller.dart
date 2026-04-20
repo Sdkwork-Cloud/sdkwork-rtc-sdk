@@ -17,7 +17,7 @@ import 'rtc_call_types.dart';
 import 'rtc_errors.dart';
 import 'rtc_im_signaling.dart';
 
-class StandardRtcCallController<TNativeClient> {
+class StandardRtcCallController<TNativeClient> implements RtcCloseable {
   factory StandardRtcCallController(
     CreateStandardRtcCallControllerOptions<TNativeClient> options,
   ) {
@@ -304,10 +304,11 @@ class StandardRtcCallController<TNativeClient> {
     );
   }
 
-  Future<void> dispose() async {
+  @override
+  Future<void> close() async {
     _sessionSubscriptionManager.clear();
     _conversationSubscriptionManager.clear();
-    await _callSession.dispose();
+    await _callSession.close();
     _watchedConversationIds.clear();
     _activeInvitation = null;
     _direction = null;

@@ -14,14 +14,14 @@ import {
 } from './im-signaling.js';
 import { freezeRtcRuntimeValue } from './runtime-freeze.js';
 import type { RtcClient } from './client.js';
+import type { RtcCloseable } from './types.js';
 
-export interface StandardRtcCallStack<TNativeClient = unknown> {
+export interface StandardRtcCallStack<TNativeClient = unknown> extends RtcCloseable {
   readonly driverManager: RtcDriverManager;
   readonly dataSource: RtcDataSource;
   readonly mediaClient: RtcClient<TNativeClient>;
   readonly signaling: RtcCallSignalingAdapter;
   readonly callSession: StandardRtcCallSession<TNativeClient>;
-  dispose(): Promise<void>;
 }
 
 export interface StandardRtcCallControllerStack<TNativeClient = unknown>
@@ -61,8 +61,8 @@ export async function createStandardRtcCallStack<TNativeClient = unknown>(
     mediaClient,
     signaling,
     callSession,
-    async dispose() {
-      await callSession.dispose();
+    async close() {
+      await callSession.close();
     },
   });
 }
@@ -80,8 +80,8 @@ export async function createStandardRtcCallControllerStack<TNativeClient = unkno
   return freezeRtcRuntimeValue({
     ...rtcStack,
     callController,
-    async dispose() {
-      await callController.dispose();
+    async close() {
+      await callController.close();
     },
   });
 }
