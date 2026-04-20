@@ -196,7 +196,7 @@ export class RtcDriverManager {
     return driver;
   }
 
-  async connect(config: RtcClientConfig = {}): Promise<RtcClient> {
+  async connect<TNativeClient = unknown>(config: RtcClientConfig = {}): Promise<RtcClient<TNativeClient>> {
     const selection = this.resolveSelection(config);
     const driver = this.#drivers.get(selection.providerKey);
     if (!driver) {
@@ -220,6 +220,6 @@ export class RtcDriverManager {
       providerKey: selection.providerKey,
       selectionSource: selection.source,
     };
-    return driver.connect(resolvedConfig);
+    return driver.connect(resolvedConfig) as Promise<RtcClient<TNativeClient>>;
   }
 }

@@ -98,10 +98,7 @@ Use this path when the app wants one standard session that combines:
 ```ts
 import { ImSdkClient } from '@sdkwork/im-sdk';
 import {
-  RtcDataSource,
-  StandardRtcCallSession,
-  createBuiltinRtcDriverManager,
-  createImRtcSignalingAdapter,
+  createStandardRtcCallStack,
 } from '@sdkwork/rtc-sdk';
 
 const imSdk = new ImSdkClient({
@@ -109,31 +106,23 @@ const imSdk = new ImSdkClient({
   authToken: 'app-token',
 });
 
-const signaling = createImRtcSignalingAdapter({
+const rtcStack = await createStandardRtcCallStack({
   sdk: imSdk,
   connectOptions: {
     deviceId: 'device-1',
   },
-});
-
-const mediaDataSource = new RtcDataSource({
-  driverManager: createBuiltinRtcDriverManager(),
-  nativeConfig: {
-    appId: 'volc-app-id',
+  dataSourceConfig: {
+    nativeConfig: {
+      appId: 'volc-app-id',
+    },
   },
 });
 
-const mediaClient = await mediaDataSource.createClient();
-const callSession = new StandardRtcCallSession({
-  mediaClient,
-  signaling,
-});
-
-callSession.onSignal((signal) => {
+rtcStack.callSession.onSignal((signal) => {
   console.log(signal.signalType, signal.payload);
 });
 
-await callSession.startOutgoing({
+await rtcStack.callSession.startOutgoing({
   rtcSessionId: 'rtc-session-1',
   conversationId: 'conversation-1',
   rtcMode: 'video_call',
@@ -147,11 +136,11 @@ await callSession.startOutgoing({
   },
 });
 
-await callSession.sendSignal('custom-control', {
+await rtcStack.callSession.sendSignal('custom-control', {
   action: 'pin_remote',
 });
 
-await callSession.end();
+await rtcStack.callSession.end();
 ```
 
 ## Signaling Contract Mapping
@@ -170,6 +159,8 @@ standard call/signaling contract:
 
 ## Runtime Guarantees
 
+- `createStandardRtcCallStack(...)` returns `driverManager`, `dataSource`, `mediaClient`,
+  `signaling`, and `callSession` as one explicit standard bundle
 - `createBuiltinRtcDriverManager()` defaults to `volcengine`
 - Volcengine Web runtime loading is lazy
 - official vendor SDKs are not bundled into the RTC standard package

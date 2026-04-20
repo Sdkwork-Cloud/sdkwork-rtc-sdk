@@ -154,6 +154,7 @@ const EXPECTED_ROOT_PUBLIC_SURFACE_STANDARD = {
     './call-types.js',
     './call-session.js',
     './im-signaling.js',
+    './standard-call-stack.js',
     './capability-catalog.js',
     './capability-negotiation.js',
     './language-workspace-catalog.js',

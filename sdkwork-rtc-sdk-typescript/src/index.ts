@@ -6,6 +6,7 @@ export * from './types.js';
 export * from './call-types.js';
 export * from './call-session.js';
 export * from './im-signaling.js';
+export * from './standard-call-stack.js';
 export * from './capability-catalog.js';
 export * from './capability-negotiation.js';
 export * from './language-workspace-catalog.js';
@@ -27,17 +28,8 @@ export * from './providers/aliyun.js';
 export * from './providers/tencent.js';
 
 import { RtcDriverManager } from './driver-manager.js';
-import { DEFAULT_RTC_PROVIDER_KEY } from './provider-catalog.js';
-import { registerRtcProviderModules } from './provider-module.js';
-import { getBuiltinRtcProviderModules } from './providers/index.js';
+import { createBuiltinRtcDriverManagerInternal } from './builtin-driver-manager.js';
 
 export function createBuiltinRtcDriverManager(): RtcDriverManager {
-  return registerRtcProviderModules(
-    new RtcDriverManager({
-      defaultProviderKey: DEFAULT_RTC_PROVIDER_KEY,
-    }),
-    getBuiltinRtcProviderModules().map((providerModule) => ({
-      providerModule,
-    })),
-  );
+  return createBuiltinRtcDriverManagerInternal();
 }

@@ -88,6 +88,7 @@ test('root public API keeps core contracts and builtin helpers only', async () =
       './call-types.js',
       './call-session.js',
       './im-signaling.js',
+      './standard-call-stack.js',
       './capability-catalog.js',
       './capability-negotiation.js',
       './language-workspace-catalog.js',
@@ -195,6 +196,7 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.getRtcProviderPackageByProviderKey, 'function');
   assert.equal(typeof sdk.getRtcProviderPackage, 'function');
   assert.equal(typeof sdk.createBuiltinRtcDriverManager, 'function');
+  assert.equal(typeof sdk.createStandardRtcCallStack, 'function');
   assert.equal(typeof sdk.registerRtcProviderModule, 'function');
   assert.equal(typeof sdk.registerRtcProviderModules, 'function');
   assert.equal(typeof sdk.getBuiltinRtcProviderMetadata, 'function');

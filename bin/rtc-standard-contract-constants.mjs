@@ -166,6 +166,7 @@ export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS = 
   './call-types.js',
   './call-session.js',
   './im-signaling.js',
+  './standard-call-stack.js',
   './capability-catalog.js',
   './capability-negotiation.js',
   './language-workspace-catalog.js',

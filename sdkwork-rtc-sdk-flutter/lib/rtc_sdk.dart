@@ -9,6 +9,7 @@ export 'src/rtc_driver.dart';
 export 'src/rtc_call_types.dart';
 export 'src/rtc_call_session.dart';
 export 'src/rtc_im_signaling.dart';
+export 'src/rtc_standard_call_stack.dart';
 export 'src/volcengine_official_flutter.dart';
 export 'src/rtc_provider_catalog.dart';
 export 'src/rtc_provider_package_catalog.dart';

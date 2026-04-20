@@ -101,6 +101,8 @@ The current web runtime path is:
 - default provider: `volcengine`
 - default vendor runtime: official `@volcengine/rtc`
 - default signaling integration: `sdkwork-im-sdk`
+- standard call/session entrypoint: `StandardRtcCallSession`
+- recommended quick-start entrypoint: `createStandardRtcCallStack(...)`
 
 Use the detailed guide here:
 
@@ -115,6 +117,7 @@ The current mobile runtime path is:
 - default vendor runtime: official `package:volc_engine_rtc`
 - default signaling integration: `sdkwork-im-sdk` through `package:im_sdk/im_sdk.dart`
 - standard call/session entrypoint: `StandardRtcCallSession`
+- recommended quick-start entrypoint: `createStandardRtcCallStack(...)`
 
 Use the detailed guide here:
 

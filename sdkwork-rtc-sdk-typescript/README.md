@@ -32,6 +32,7 @@ Current role:
 - standard provider selection helpers at src/provider-selection.ts
 - standard capability negotiation helpers at src/capability-negotiation.ts
 - standard provider support helpers at src/provider-support.ts
+- standard call-stack composition helper at src/standard-call-stack.ts for default Volcengine plus sdkwork-im-sdk signaling
 - assembly-driven provider package catalog at src/provider-package-catalog.ts
 - standard provider package loader and installer SPI at src/provider-package-loader.ts
 - assembly-driven provider activation catalog at src/provider-activation-catalog.ts

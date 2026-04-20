@@ -94,7 +94,9 @@ export class RtcDataSource {
     return hasRtcProviderExtension(metadata.extensionKeys, extensionKey);
   }
 
-  async createClient(overrides: RtcClientConfig = {}): Promise<RtcClient> {
+  async createClient<TNativeClient = unknown>(
+    overrides: RtcClientConfig = {},
+  ): Promise<RtcClient<TNativeClient>> {
     return this.#driverManager.connect({
       ...this.#config,
       ...overrides,

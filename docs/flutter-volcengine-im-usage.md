@@ -108,34 +108,24 @@ Future<void> startOutgoingRtcCall({
   required ImSdkClient imSdk,
   required String currentUserId,
 }) async {
-  final mediaDataSource = RtcDataSource(
-    options: const RtcDataSourceOptions(
-      nativeConfig: RtcVolcengineFlutterNativeConfig(
-        appId: 'volc-app-id',
+  final rtcStack =
+      await createStandardRtcCallStack<RtcVolcengineFlutterNativeClient>(
+    CreateStandardRtcCallStackOptions(
+      sdk: imSdk,
+      deviceId: 'device-1',
+      dataSourceOptions: const RtcDataSourceOptions(
+        nativeConfig: RtcVolcengineFlutterNativeConfig(
+          appId: 'volc-app-id',
+        ),
       ),
     ),
   );
 
-  final mediaClient =
-      await mediaDataSource.createClient<RtcVolcengineFlutterNativeClient>();
-
-  final signaling = createImRtcSignalingAdapter(
-    CreateImRtcSignalingAdapterOptions(
-      sdk: imSdk,
-      deviceId: 'device-1',
-    ),
-  );
-
-  final callSession = StandardRtcCallSession(
-    mediaClient: mediaClient,
-    signaling: signaling,
-  );
-
-  callSession.onSignal((signal) {
+  rtcStack.callSession.onSignal((signal) {
     print('${signal.signalType}: ${signal.rawPayload}');
   });
 
-  await callSession.startOutgoing(
+  await rtcStack.callSession.startOutgoing(
     RtcOutgoingCallOptions(
       rtcSessionId: 'rtc-session-1',
       conversationId: 'conversation-1',
@@ -150,14 +140,14 @@ Future<void> startOutgoingRtcCall({
     ),
   );
 
-  await callSession.sendSignal(
+  await rtcStack.callSession.sendSignal(
     'custom-control',
     <String, Object?>{
       'action': 'pin_remote',
     },
   );
 
-  await callSession.end();
+  await rtcStack.callSession.end();
 }
 ```
 
@@ -177,6 +167,8 @@ standard call/signaling contract:
 
 ## Runtime Guarantees
 
+- `createStandardRtcCallStack(...)` returns `driverManager`, `dataSource`, `mediaClient`,
+  `signaling`, and `callSession` in one explicit standard bundle
 - `RtcDriverManager()` auto-registers the default Volcengine Flutter driver
 - `RtcDataSource()` defaults to `volcengine`
 - the call/session layer does not leak IM transport DTOs into the RTC public standard
