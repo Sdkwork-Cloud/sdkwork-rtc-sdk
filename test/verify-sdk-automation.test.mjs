@@ -959,6 +959,17 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /providerSupportContract/);
   assert.match(verificationMatrix, /providerActivationContract/);
   assert.match(verificationMatrix, /providerPackageBoundaryContract/);
+  assert.match(verificationMatrix, /typescript-volcengine-im-usage\.md/);
+  assert.match(verificationMatrix, /flutter-volcengine-im-usage\.md/);
+  assert.match(verificationMatrix, /vendorSdkPackage/);
+  assert.match(verificationMatrix, /vendorSdkImportPath/);
+  assert.match(verificationMatrix, /signalingSdkPackage/);
+  assert.match(verificationMatrix, /signalingSdkImportPath/);
+  assert.match(verificationMatrix, /recommendedEntrypoint/);
+  assert.match(verificationMatrix, /smokeCommand/);
+  assert.match(verificationMatrix, /smokeMode/);
+  assert.match(verificationMatrix, /runtime-backed/);
+  assert.match(verificationMatrix, /analysis-backed/);
   assert.match(verificationMatrix, /providerSelectionStandard/);
   assert.match(verificationMatrix, /providerSupportStandard/);
   assert.match(verificationMatrix, /providerActivationStandard/);
@@ -4022,6 +4033,17 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedVerificationMatrix, /providerActivationContract/);
     assert.match(repairedVerificationMatrix, /providerPackageBoundaryContract/);
     assert.match(repairedVerificationMatrix, /providerPackageBoundary/);
+    assert.match(repairedVerificationMatrix, /typescript-volcengine-im-usage\.md/);
+    assert.match(repairedVerificationMatrix, /flutter-volcengine-im-usage\.md/);
+    assert.match(repairedVerificationMatrix, /vendorSdkPackage/);
+    assert.match(repairedVerificationMatrix, /vendorSdkImportPath/);
+    assert.match(repairedVerificationMatrix, /signalingSdkPackage/);
+    assert.match(repairedVerificationMatrix, /signalingSdkImportPath/);
+    assert.match(repairedVerificationMatrix, /recommendedEntrypoint/);
+    assert.match(repairedVerificationMatrix, /smokeCommand/);
+    assert.match(repairedVerificationMatrix, /smokeMode/);
+    assert.match(repairedVerificationMatrix, /runtime-backed/);
+    assert.match(repairedVerificationMatrix, /analysis-backed/);
 
     const repairedJavaReadme = readFileSync(javaReadmePath, 'utf8');
     assert.match(repairedJavaReadme, /# SDKWork RTC SDK Java Workspace/);
