@@ -7,6 +7,7 @@ export 'rtc_im_signaling_message.dart';
 import 'rtc_call_types.dart';
 import 'rtc_im_signaling_codec.dart';
 import 'rtc_im_signaling_message.dart';
+import 'rtc_signaling_transport.dart';
 
 const List<String> _defaultRtcConversationEventTypes = <String>[
   'message.created',
@@ -174,20 +175,14 @@ final class _ImRtcSignalingAdapter implements RtcCallSignalingAdapter {
 class RtcImRealtimeDispatcher {
   RtcImRealtimeDispatcher(CreateImRtcSignalingAdapterOptions options)
       : _sdk = options.sdk,
-        _deviceId = options.deviceId,
+        _deviceId = describeRtcSignalingTransport(
+          deviceId: options.deviceId,
+          connectOptions: options.connectOptions,
+          liveConnection: options.liveConnection,
+        ).deviceId,
         _reconnectInterval = options.reconnectInterval,
         _providedLiveConnection = options.liveConnection,
-        _connectOptions = options.connectOptions {
-    final connectOptionsDeviceId = options.connectOptions?.deviceId;
-    if (connectOptionsDeviceId != null &&
-        connectOptionsDeviceId != options.deviceId) {
-      throw ArgumentError.value(
-        connectOptionsDeviceId,
-        'connectOptions.deviceId',
-        'RTC signaling deviceId must match CreateImRtcSignalingAdapterOptions.deviceId.',
-      );
-    }
-  }
+        _connectOptions = options.connectOptions;
 
   final ImSdkClient _sdk;
   final String _deviceId;

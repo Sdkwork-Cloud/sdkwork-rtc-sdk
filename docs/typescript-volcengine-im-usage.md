@@ -56,10 +56,16 @@ Prefer the official IM auth helpers instead of hand-writing raw mode objects.
   match when supplied
 - when the application already owns a shared IM socket, pass `liveConnection` so RTC syncs
   subscriptions on that same WebSocket instead of opening another one
+- call `describeRtcSignalingTransport(...)` when the host needs one immutable runtime snapshot of
+  the resolved auth mode, authoritative `deviceId`, shared-`liveConnection` reuse flag, and
+  fail-fast/no-polling guarantees before opening the RTC signaling path
 
 ```ts
 import { ImSdkClient, ImWebSocketAuthOptions } from '@sdkwork/im-sdk';
-import { createStandardRtcCallControllerStack } from '@sdkwork/rtc-sdk';
+import {
+  describeRtcSignalingTransport,
+  createStandardRtcCallControllerStack,
+} from '@sdkwork/rtc-sdk';
 
 const imSdk = new ImSdkClient({
   baseUrl: 'https://craw-chat.example.com',
@@ -78,6 +84,16 @@ const rtc = await createStandardRtcCallControllerStack({
     },
   },
 });
+
+const signalingTransport = describeRtcSignalingTransport({
+  deviceId: 'device-1',
+  connectOptions: {
+    webSocketAuth: ImWebSocketAuthOptions.automatic(),
+  },
+});
+
+console.log(signalingTransport.authMode);
+console.log(signalingTransport.usesSharedLiveConnection);
 ```
 
 ## Media Runtime Only

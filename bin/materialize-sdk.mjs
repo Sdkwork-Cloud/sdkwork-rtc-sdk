@@ -685,10 +685,16 @@ Prefer the official IM auth helpers instead of hand-writing raw mode objects.
   match when supplied
 - when the application already owns a shared IM socket, pass \`liveConnection\` so RTC syncs
   subscriptions on that same WebSocket instead of opening another one
+- call \`describeRtcSignalingTransport(...)\` when the host needs one immutable runtime snapshot of
+  the resolved auth mode, authoritative \`deviceId\`, shared-\`liveConnection\` reuse flag, and
+  fail-fast/no-polling guarantees before opening the RTC signaling path
 
 \`\`\`ts
 import { ImSdkClient, ImWebSocketAuthOptions } from '${runtimeBaseline.signalingSdkImportPath}';
-import { ${runtimeBaseline.recommendedEntrypoint} } from '${languageEntry.publicPackage}';
+import {
+  describeRtcSignalingTransport,
+  ${runtimeBaseline.recommendedEntrypoint},
+} from '${languageEntry.publicPackage}';
 
 const imSdk = new ImSdkClient({
   baseUrl: 'https://craw-chat.example.com',
@@ -707,6 +713,16 @@ const rtc = await ${runtimeBaseline.recommendedEntrypoint}({
     },
   },
 });
+
+const signalingTransport = describeRtcSignalingTransport({
+  deviceId: 'device-1',
+  connectOptions: {
+    webSocketAuth: ImWebSocketAuthOptions.automatic(),
+  },
+});
+
+console.log(signalingTransport.authMode);
+console.log(signalingTransport.usesSharedLiveConnection);
 \`\`\`
 
 ## Media Runtime Only
@@ -1015,6 +1031,9 @@ WebSocket-first.
 - if the application already owns one shared IM live connection, pass \`liveConnection\`; RTC
   keeps subscription sync on that same socket and does not open another one
 - WebSocket auth failure should fail fast; the Flutter RTC standard does not downgrade to polling
+- call \`describeRtcSignalingTransport(...)\` when the host needs one immutable runtime snapshot of
+  the resolved auth mode, authoritative \`deviceId\`, shared-\`liveConnection\` reuse flag, and
+  fail-fast/no-polling guarantees before opening the RTC signaling path
 
 \`\`\`dart
 import '${runtimeBaseline.signalingSdkImportPath}';
@@ -1036,6 +1055,16 @@ Future<void> connectRtcLive(ImSdkClient imSdk) async {
       ),
     ),
   );
+
+  final signalingTransport = describeRtcSignalingTransport(
+    deviceId: 'device-1',
+    connectOptions: const ImConnectOptions(
+      webSocketAuth: ImWebSocketAuthOptions.automatic(),
+    ),
+  );
+
+  print(signalingTransport.authMode);
+  print(signalingTransport.usesSharedLiveConnection);
 
   await rtc.close();
 }
@@ -1391,6 +1420,99 @@ export const RTC_SIGNALING_TRANSPORT_STANDARD = freezeRtcRuntimeValue({
   pollingFallbackTerm: RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM,
   authFailureTerm: RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM,
 } as const);
+
+export interface RtcSignalingTransportAuthOptionsLike {
+  readonly mode?: RtcSignalingTransportAuthMode;
+}
+
+export interface RtcSignalingTransportConnectOptionsLike {
+  readonly deviceId?: string | number;
+  readonly webSocketAuth?: RtcSignalingTransportAuthOptionsLike;
+}
+
+export interface DescribeRtcSignalingTransportOptions {
+  readonly deviceId: string | number;
+  readonly connectOptions?: RtcSignalingTransportConnectOptionsLike;
+  readonly liveConnection?: unknown;
+}
+
+export interface RtcSignalingTransportDescriptor {
+  readonly deviceId: string;
+  readonly connectOptionsDeviceId?: string;
+  readonly authMode: RtcSignalingTransportAuthMode;
+  readonly usesSharedLiveConnection: boolean;
+  readonly transportTerm: typeof RTC_SIGNALING_TRANSPORT_TERM;
+  readonly authConfigPath: typeof RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH;
+  readonly authPassThroughTerm: typeof RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM;
+  readonly recommendedAuthMode: RtcSignalingTransportAuthMode;
+  readonly deviceIdAuthorityTerm: typeof RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM;
+  readonly connectOptionsDeviceIdRuleTerm:
+    typeof RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM;
+  readonly liveConnectionTerm: typeof RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM;
+  readonly pollingFallbackTerm: typeof RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM;
+  readonly authFailureTerm: typeof RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM;
+}
+
+function normalizeRtcSignalingTransportDeviceId(deviceId: string | number): string {
+  const normalized = String(deviceId).trim();
+  if (!normalized) {
+    throw new TypeError('RTC signaling deviceId must not be empty.');
+  }
+  return normalized;
+}
+
+function isRtcSignalingTransportAuthMode(
+  value: string,
+): value is RtcSignalingTransportAuthMode {
+  return (RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS as readonly string[]).includes(value);
+}
+
+function resolveRtcSignalingTransportAuthMode(
+  connectOptions?: RtcSignalingTransportConnectOptionsLike,
+): RtcSignalingTransportAuthMode {
+  const mode = connectOptions?.webSocketAuth?.mode;
+  if (mode === undefined) {
+    return RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE;
+  }
+
+  if (!isRtcSignalingTransportAuthMode(mode)) {
+    throw new TypeError(\`Unsupported RTC signaling auth mode: \${mode}\`);
+  }
+
+  return mode;
+}
+
+export function describeRtcSignalingTransport(
+  options: DescribeRtcSignalingTransportOptions,
+): RtcSignalingTransportDescriptor {
+  const deviceId = normalizeRtcSignalingTransportDeviceId(options.deviceId);
+  const connectOptionsDeviceId = options.connectOptions?.deviceId === undefined
+    ? undefined
+    : normalizeRtcSignalingTransportDeviceId(options.connectOptions.deviceId);
+
+  if (connectOptionsDeviceId !== undefined && connectOptionsDeviceId !== deviceId) {
+    throw new TypeError(
+      'RTC signaling deviceId must match connectOptions.deviceId when both are provided.',
+    );
+  }
+
+  return freezeRtcRuntimeValue({
+    deviceId,
+    connectOptionsDeviceId,
+    authMode: resolveRtcSignalingTransportAuthMode(options.connectOptions),
+    usesSharedLiveConnection: options.liveConnection !== undefined,
+    transportTerm: RTC_SIGNALING_TRANSPORT_TERM,
+    authConfigPath: RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH,
+    authPassThroughTerm: RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM,
+    recommendedAuthMode: RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE,
+    deviceIdAuthorityTerm: RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM,
+    connectOptionsDeviceIdRuleTerm:
+      RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM,
+    liveConnectionTerm: RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM,
+    pollingFallbackTerm: RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM,
+    authFailureTerm: RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM,
+  });
+}
 `;
 }
 

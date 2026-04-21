@@ -641,6 +641,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(typescriptUsageGuide, /--reuse-live-connection/);
   assert.match(typescriptUsageGuide, /runtime-backed/);
   assert.match(typescriptUsageGuide, /createStandardRtcCallControllerStack/);
+  assert.match(typescriptUsageGuide, /describeRtcSignalingTransport/);
   assert.match(typescriptCallTypes, /export const RTC_CALL_TRACK_ID_SEPARATOR = '-';/);
   assert.match(typescriptCallTypes, /export const DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS = true;/);
   assert.match(typescriptCallTypes, /export function createRtcCallTrackId\(/);
@@ -651,6 +652,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(flutterUsageGuide, /--reuse-live-connection/);
   assert.match(flutterUsageGuide, /analysis-backed/);
   assert.match(flutterUsageGuide, /createStandardRtcCallControllerStack/);
+  assert.match(flutterUsageGuide, /describeRtcSignalingTransport/);
   assert.match(flutterCallTypes, /const String rtcCallTrackIdSeparator = '-';/);
   assert.match(flutterCallTypes, /String createRtcCallTrackId\(String rtcSessionId, RtcTrackKind kind\)/);
   assert.match(flutterCallSession, /createRtcCallTrackId\(rtcSessionId, RtcTrackKind\.audio\)/);

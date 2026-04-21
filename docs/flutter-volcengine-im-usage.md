@@ -61,6 +61,9 @@ WebSocket-first.
 - if the application already owns one shared IM live connection, pass `liveConnection`; RTC
   keeps subscription sync on that same socket and does not open another one
 - WebSocket auth failure should fail fast; the Flutter RTC standard does not downgrade to polling
+- call `describeRtcSignalingTransport(...)` when the host needs one immutable runtime snapshot of
+  the resolved auth mode, authoritative `deviceId`, shared-`liveConnection` reuse flag, and
+  fail-fast/no-polling guarantees before opening the RTC signaling path
 
 ```dart
 import 'package:im_sdk/im_sdk.dart';
@@ -82,6 +85,16 @@ Future<void> connectRtcLive(ImSdkClient imSdk) async {
       ),
     ),
   );
+
+  final signalingTransport = describeRtcSignalingTransport(
+    deviceId: 'device-1',
+    connectOptions: const ImConnectOptions(
+      webSocketAuth: ImWebSocketAuthOptions.automatic(),
+    ),
+  );
+
+  print(signalingTransport.authMode);
+  print(signalingTransport.usesSharedLiveConnection);
 
   await rtc.close();
 }

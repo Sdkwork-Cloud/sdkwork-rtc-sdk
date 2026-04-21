@@ -1,5 +1,6 @@
 import { RtcSdkException } from './errors.js';
 import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+import { describeRtcSignalingTransport } from './signaling-transport.js';
 import type {
   RtcCallParticipantCredential,
   RtcCallSessionRecord,
@@ -378,14 +379,6 @@ function swallowAsyncError(task: Promise<unknown>): void {
   void task.catch(() => {});
 }
 
-function normalizeRtcDeviceId(deviceId: string): string {
-  const normalized = String(deviceId).trim();
-  if (!normalized) {
-    throw new TypeError('RTC signaling deviceId must not be empty.');
-  }
-  return normalized;
-}
-
 export class RtcImRealtimeDispatcher {
   readonly #sdk: ImRtcSdkLike;
   readonly #deviceId: string;
@@ -412,20 +405,15 @@ export class RtcImRealtimeDispatcher {
     'sdk' | 'deviceId' | 'liveConnection' | 'connectOptions' | 'reconnectIntervalMs'
   >) {
     this.#sdk = options.sdk;
-    this.#deviceId = normalizeRtcDeviceId(options.deviceId);
+    this.#deviceId = describeRtcSignalingTransport({
+      deviceId: options.deviceId,
+      connectOptions: options.connectOptions,
+      liveConnection: options.liveConnection,
+    }).deviceId;
     this.#connectOptions = options.connectOptions;
     this.#providedLiveConnection = options.liveConnection;
     this.#reconnectIntervalMs =
       options.reconnectIntervalMs ?? DEFAULT_RTC_IM_REALTIME_RECONNECT_INTERVAL_MS;
-    const connectOptionsDeviceId = options.connectOptions?.deviceId;
-    if (
-      connectOptionsDeviceId !== undefined
-      && String(connectOptionsDeviceId).trim() !== this.#deviceId
-    ) {
-      throw new TypeError(
-        'RTC signaling deviceId must match connectOptions.deviceId when both are provided.',
-      );
-    }
   }
 
   async subscribeSessionSignals(
