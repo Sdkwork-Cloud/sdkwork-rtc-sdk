@@ -1713,6 +1713,74 @@ test('root smoke regression entrypoints exist', () => {
   assert.match(smokeHelperScript, /call-cli-smoke/);
   assert.match(smokeHelperScript, /reuse-live-connection/);
   assert.match(smokeHelperScript, /sdk-call-smoke\.mjs/);
+  assert.match(smokeHelperScript, /buildRtcCallSmokeSignalingTransportSummary/);
+  assert.match(smokeHelperScript, /buildRtcCallSmokeConnectOptions/);
+});
+
+test('root rtc smoke helper derives signaling transport defaults from the canonical assembly contract', async () => {
+  const helperModule = await import(
+    pathToFileURL(path.join(workspaceRoot, 'bin', 'rtc-call-smoke-standard.mjs')).href
+  );
+
+  assert.equal(helperModule.RTC_CALL_SMOKE_DEFAULT_DEVICE_ID, 'device-smoke');
+
+  const connectOptions = helperModule.buildRtcCallSmokeConnectOptions({
+    deviceId: 'device-smoke',
+    conversationId: 'conversation-smoke',
+    includeConversationSubscriptions: true,
+  });
+  assert.deepEqual(connectOptions, {
+    deviceId: 'device-smoke',
+    webSocketAuth: {
+      mode: 'automatic',
+    },
+    subscriptions: {
+      conversations: ['conversation-smoke'],
+    },
+  });
+
+  assert.deepEqual(
+    helperModule.buildRtcCallSmokeSignalingTransportSummary({
+      deviceId: 'device-smoke',
+    }),
+    {
+      deviceId: 'device-smoke',
+      connectOptionsDeviceId: 'device-smoke',
+      authMode: 'automatic',
+      usesSharedLiveConnection: false,
+      transportTerm: 'websocket-only',
+      authConfigPath: 'connectOptions.webSocketAuth',
+      authPassThroughTerm: 'signaling-sdk-pass-through',
+      recommendedAuthMode: 'automatic',
+      deviceIdAuthorityTerm: 'top-level-device-id',
+      connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
+      liveConnectionTerm: 'shared-im-live-connection',
+      pollingFallbackTerm: 'not-supported',
+      authFailureTerm: 'fail-fast',
+    },
+  );
+
+  assert.deepEqual(
+    helperModule.buildRtcCallSmokeSignalingTransportSummary({
+      deviceId: 'device-smoke',
+      reuseLiveConnection: true,
+    }),
+    {
+      deviceId: 'device-smoke',
+      connectOptionsDeviceId: 'device-smoke',
+      authMode: 'automatic',
+      usesSharedLiveConnection: true,
+      transportTerm: 'websocket-only',
+      authConfigPath: 'connectOptions.webSocketAuth',
+      authPassThroughTerm: 'signaling-sdk-pass-through',
+      recommendedAuthMode: 'automatic',
+      deviceIdAuthorityTerm: 'top-level-device-id',
+      connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
+      liveConnectionTerm: 'shared-im-live-connection',
+      pollingFallbackTerm: 'not-supported',
+      authFailureTerm: 'fail-fast',
+    },
+  );
 });
 
 test('root sdk-call-smoke dispatcher entrypoints exist', () => {

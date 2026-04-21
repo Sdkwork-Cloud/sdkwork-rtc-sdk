@@ -4,6 +4,26 @@ import {
   getRtcDefaultCallSmokeLanguage,
   getRtcExecutableLanguageEntryByLanguage,
 } from './rtc-standard-assembly-baseline.mjs';
+import {
+  readJsonFile,
+  resolveRtcSdkWorkspaceRoot,
+} from './rtc-standard-file-helpers.mjs';
+
+const workspaceRoot = resolveRtcSdkWorkspaceRoot(import.meta.url);
+const assemblyPath = path.join(workspaceRoot, '.sdkwork-assembly.json');
+const assembly = readJsonFile(assemblyPath);
+
+export const RTC_CALL_SMOKE_DEFAULT_DEVICE_ID = 'device-smoke';
+
+export const RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD = Object.freeze({
+  ...assembly.signalingTransportStandard,
+  authModeTerms: Object.freeze([
+    ...(assembly.signalingTransportStandard?.authModeTerms ?? []),
+  ]),
+});
+
+export const RTC_CALL_SMOKE_RECOMMENDED_AUTH_MODE =
+  RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode;
 
 export const RTC_CALL_SMOKE_DEFAULT_VARIANT = Object.freeze({
   id: 'default',
@@ -16,6 +36,105 @@ export const RTC_CALL_SMOKE_REUSE_LIVE_CONNECTION_VARIANT = Object.freeze({
   labelSuffix: ':reuse-live-connection',
   forwardArgs: Object.freeze(['--reuse-live-connection']),
 });
+
+function normalizeDeviceId(deviceId) {
+  const normalized = String(deviceId ?? '').trim();
+  if (!normalized) {
+    throw new Error('RTC call smoke deviceId must not be empty.');
+  }
+
+  return normalized;
+}
+
+function normalizeAuthMode(authMode) {
+  const normalized = String(
+    authMode ?? RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode,
+  ).trim();
+  if (!normalized) {
+    throw new Error('RTC call smoke signaling auth mode must not be empty.');
+  }
+
+  if (!RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.authModeTerms.includes(normalized)) {
+    throw new Error(`Unsupported RTC call smoke signaling auth mode: ${normalized}`);
+  }
+
+  return normalized;
+}
+
+export function buildRtcCallSmokeConnectOptions({
+  deviceId = RTC_CALL_SMOKE_DEFAULT_DEVICE_ID,
+  conversationId,
+  includeConversationSubscriptions = false,
+  authMode = RTC_CALL_SMOKE_RECOMMENDED_AUTH_MODE,
+} = {}) {
+  const normalizedDeviceId = normalizeDeviceId(deviceId);
+  const normalizedAuthMode = normalizeAuthMode(authMode);
+
+  if (includeConversationSubscriptions && !String(conversationId ?? '').trim()) {
+    throw new Error(
+      'RTC call smoke conversationId is required when includeConversationSubscriptions is true.',
+    );
+  }
+
+  return {
+    deviceId: normalizedDeviceId,
+    webSocketAuth: {
+      mode: normalizedAuthMode,
+    },
+    ...(includeConversationSubscriptions
+      ? {
+        subscriptions: {
+          conversations: [String(conversationId).trim()],
+        },
+      }
+      : {}),
+  };
+}
+
+export function buildRtcCallSmokeSignalingTransportSummary({
+  deviceId = RTC_CALL_SMOKE_DEFAULT_DEVICE_ID,
+  connectOptionsDeviceId = deviceId,
+  authMode = RTC_CALL_SMOKE_RECOMMENDED_AUTH_MODE,
+  reuseLiveConnection = false,
+} = {}) {
+  const normalizedDeviceId = normalizeDeviceId(deviceId);
+  const normalizedConnectOptionsDeviceId =
+    connectOptionsDeviceId === undefined
+      ? undefined
+      : normalizeDeviceId(connectOptionsDeviceId);
+
+  if (
+    normalizedConnectOptionsDeviceId !== undefined
+    && normalizedConnectOptionsDeviceId !== normalizedDeviceId
+  ) {
+    throw new Error(
+      'RTC call smoke signaling deviceId must match connectOptions.deviceId when both are provided.',
+    );
+  }
+
+  return {
+    deviceId: normalizedDeviceId,
+    connectOptionsDeviceId: normalizedConnectOptionsDeviceId,
+    authMode: normalizeAuthMode(authMode),
+    usesSharedLiveConnection: reuseLiveConnection === true,
+    transportTerm: RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.transportTerm,
+    authConfigPath: RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.authConfigPath,
+    authPassThroughTerm:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.authPassThroughTerm,
+    recommendedAuthMode:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode,
+    deviceIdAuthorityTerm:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.deviceIdAuthorityTerm,
+    connectOptionsDeviceIdRuleTerm:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.connectOptionsDeviceIdRuleTerm,
+    liveConnectionTerm:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.liveConnectionTerm,
+    pollingFallbackTerm:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.pollingFallbackTerm,
+    authFailureTerm:
+      RTC_CALL_SMOKE_SIGNALING_TRANSPORT_STANDARD.authFailureTerm,
+  };
+}
 
 function normalizeLanguage(language) {
   return String(language ?? '').trim().toLowerCase();

@@ -3,6 +3,10 @@
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+  RTC_CALL_SMOKE_DEFAULT_DEVICE_ID,
+  buildRtcCallSmokeConnectOptions,
+} from '../../bin/rtc-call-smoke-standard.mjs';
 
 const DEFAULT_OPTIONS = Object.freeze({
   appId: 'volc-app-smoke',
@@ -11,12 +15,10 @@ const DEFAULT_OPTIONS = Object.freeze({
   roomId: 'room-smoke',
   participantId: 'user-smoke',
   signalingStreamId: 'signal-smoke',
-  deviceId: 'device-smoke',
+  deviceId: RTC_CALL_SMOKE_DEFAULT_DEVICE_ID,
   reuseLiveConnection: false,
   json: false,
 });
-
-const RTC_CALL_SMOKE_SIGNALING_AUTH_MODE = 'automatic';
 
 function fail(message) {
   const error = new Error(message);
@@ -316,22 +318,6 @@ function createImSdkStub(signalingCalls, config) {
   };
 }
 
-function createRtcCallSmokeConnectOptions(config, includeSubscriptions = false) {
-  return {
-    deviceId: config.deviceId,
-    webSocketAuth: {
-      mode: RTC_CALL_SMOKE_SIGNALING_AUTH_MODE,
-    },
-    ...(includeSubscriptions
-      ? {
-        subscriptions: {
-          conversations: [config.conversationId],
-        },
-      }
-      : {}),
-  };
-}
-
 function createTextSummary(summary) {
   return [
     'SDKWork RTC TypeScript call smoke',
@@ -381,10 +367,18 @@ export async function runRtcCallSmokeScenario(options = {}, deps = {}) {
     ],
   });
   const imSdk = createImSdkStub(signalingCalls, config);
-  const connectOptions = createRtcCallSmokeConnectOptions(config);
+  const connectOptions = buildRtcCallSmokeConnectOptions({
+    deviceId: config.deviceId,
+  });
   const liveConnection =
     config.reuseLiveConnection
-      ? await imSdk.connect(createRtcCallSmokeConnectOptions(config, true))
+      ? await imSdk.connect(
+        buildRtcCallSmokeConnectOptions({
+          deviceId: config.deviceId,
+          conversationId: config.conversationId,
+          includeConversationSubscriptions: true,
+        }),
+      )
       : undefined;
 
   const stack = await sdk.createStandardRtcCallControllerStack({

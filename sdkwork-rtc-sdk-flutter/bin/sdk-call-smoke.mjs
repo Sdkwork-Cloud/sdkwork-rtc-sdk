@@ -4,19 +4,10 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-
-const RTC_CALL_SMOKE_DEVICE_ID = 'device-smoke';
-const RTC_SIGNALING_TRANSPORT_STANDARD = Object.freeze({
-  transportTerm: 'websocket-only',
-  authConfigPath: 'connectOptions.webSocketAuth',
-  authPassThroughTerm: 'signaling-sdk-pass-through',
-  recommendedAuthMode: 'automatic',
-  deviceIdAuthorityTerm: 'top-level-device-id',
-  connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
-  liveConnectionTerm: 'shared-im-live-connection',
-  pollingFallbackTerm: 'not-supported',
-  authFailureTerm: 'fail-fast',
-});
+import {
+  RTC_CALL_SMOKE_DEFAULT_DEVICE_ID,
+  buildRtcCallSmokeSignalingTransportSummary as buildRootRtcCallSmokeSignalingTransportSummary,
+} from '../../bin/rtc-call-smoke-standard.mjs';
 
 function fail(message) {
   const error = new Error(message);
@@ -106,22 +97,10 @@ function getHelpText() {
 }
 
 function buildRtcCallSmokeSignalingTransportSummary(parsed) {
-  return {
-    deviceId: RTC_CALL_SMOKE_DEVICE_ID,
-    connectOptionsDeviceId: RTC_CALL_SMOKE_DEVICE_ID,
-    authMode: RTC_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode,
-    usesSharedLiveConnection: parsed.reuseLiveConnection,
-    transportTerm: RTC_SIGNALING_TRANSPORT_STANDARD.transportTerm,
-    authConfigPath: RTC_SIGNALING_TRANSPORT_STANDARD.authConfigPath,
-    authPassThroughTerm: RTC_SIGNALING_TRANSPORT_STANDARD.authPassThroughTerm,
-    recommendedAuthMode: RTC_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode,
-    deviceIdAuthorityTerm: RTC_SIGNALING_TRANSPORT_STANDARD.deviceIdAuthorityTerm,
-    connectOptionsDeviceIdRuleTerm:
-      RTC_SIGNALING_TRANSPORT_STANDARD.connectOptionsDeviceIdRuleTerm,
-    liveConnectionTerm: RTC_SIGNALING_TRANSPORT_STANDARD.liveConnectionTerm,
-    pollingFallbackTerm: RTC_SIGNALING_TRANSPORT_STANDARD.pollingFallbackTerm,
-    authFailureTerm: RTC_SIGNALING_TRANSPORT_STANDARD.authFailureTerm,
-  };
+  return buildRootRtcCallSmokeSignalingTransportSummary({
+    deviceId: RTC_CALL_SMOKE_DEFAULT_DEVICE_ID,
+    reuseLiveConnection: parsed.reuseLiveConnection,
+  });
 }
 
 function buildSummary(workspaceRoot, parsed) {
