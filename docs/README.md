@@ -20,6 +20,7 @@ Current docs:
 - `multilanguage-capability-matrix.md`
   Capability catalog, provider extension catalog, provider tiers, language roles, maturity tiers,
   `capabilityStandard`, `capabilityNegotiationStandard`, `runtimeSurfaceStandard`,
+  `signalingTransportStandard`,
   `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`, `lookupHelperNamingStandard`,
   `errorCodeStandard`,
   `providerExtensionStandard`, `providerTierStandard`, `languageMaturityStandard`,
@@ -60,6 +61,19 @@ standard modules:
   Keeps `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
   `RTC_RUNTIME_SURFACE_STANDARD` explicit so provider-neutral runtime method vocabulary and
   missing-runtime failure semantics stay aligned to `runtimeSurfaceStandard`.
+- signaling transport: `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`
+  Keeps `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+  `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+  `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+  `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+  `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+  `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD` explicit so
+  WebSocket-only signaling, auth pass-through, authoritative `deviceId`, shared
+  `liveConnection`, no-polling policy, and fail-fast auth semantics stay aligned to
+  `signalingTransportStandard`.
 - runtime immutability: `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`
   Keeps `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
@@ -110,7 +124,7 @@ standard modules:
   The same catalog also preserves the assembly-driven top-level standards
   `providerSelectionStandard`, `providerSupportStandard`, `providerActivationStandard`,
   `providerPackageBoundaryStandard`, `capabilityStandard`, `capabilityNegotiationStandard`,
-  `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `errorCodeStandard`,
+  `runtimeSurfaceStandard`, `signalingTransportStandard`, `runtimeImmutabilityStandard`, `errorCodeStandard`,
   `providerExtensionStandard`, `providerTierStandard`, `languageMaturityStandard`,
   `typescriptAdapterStandard`, and `typescriptPackageStandard` through those machine-readable
   contracts.
@@ -190,7 +204,8 @@ standardized values directly without local wrapper types.
 The TypeScript executable workspace also reserves one-provider-only package boundaries under
 `sdkwork-rtc-sdk-typescript/providers/`.
 The root `bin/materialize-sdk.mjs` command rematerializes `docs/multilanguage-capability-matrix.md`,
-assembly-driven language workspace READMEs, the TypeScript runtime-immutability module at
+assembly-driven language workspace READMEs, the TypeScript signaling-transport module at
+`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`, the TypeScript runtime-immutability module at
 `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`, the TypeScript root-public-surface
 module at `sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`, the TypeScript
 lookup-helper-naming module at `sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts`, the

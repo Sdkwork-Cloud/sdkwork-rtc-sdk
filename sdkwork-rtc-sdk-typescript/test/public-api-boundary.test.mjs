@@ -22,6 +22,17 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   assert.equal(typeof sdk.RTC_SDK_ERROR_FALLBACK_CODE, 'string');
   assert.equal(typeof sdk.RTC_RUNTIME_SURFACE_METHODS, 'object');
   assert.equal(typeof sdk.RTC_RUNTIME_SURFACE_FAILURE_CODE, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_STANDARD, 'object');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_TERM, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS, 'object');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM, 'string');
+  assert.equal(typeof sdk.RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM, 'string');
   assert.equal(typeof sdk.RTC_RUNTIME_IMMUTABILITY_STANDARD, 'object');
   assert.equal(typeof sdk.RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM, 'string');
   assert.equal(typeof sdk.RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM, 'string');
@@ -72,6 +83,18 @@ test('root public API keeps core contracts and builtin helpers only', async () =
     'muteAudio',
     'muteVideo',
   ]);
+  assert.deepEqual(sdk.RTC_SIGNALING_TRANSPORT_STANDARD, {
+    transportTerm: 'websocket-only',
+    authConfigPath: 'connectOptions.webSocketAuth',
+    authPassThroughTerm: 'signaling-sdk-pass-through',
+    authModeTerms: ['automatic', 'headerBearer', 'queryBearer', 'none'],
+    recommendedAuthMode: 'automatic',
+    deviceIdAuthorityTerm: 'top-level-device-id',
+    connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
+    liveConnectionTerm: 'shared-im-live-connection',
+    pollingFallbackTerm: 'not-supported',
+    authFailureTerm: 'fail-fast',
+  });
   assert.deepEqual(sdk.RTC_RUNTIME_IMMUTABILITY_STANDARD, {
     frozenTerm: 'runtime-frozen',
     snapshotTerm: 'immutable-snapshots',
@@ -82,6 +105,7 @@ test('root public API keeps core contracts and builtin helpers only', async () =
     typescriptProviderNeutralExportPaths: [
       './errors.js',
       './runtime-surface.js',
+      './signaling-transport.js',
       './runtime-immutability.js',
       './root-public-surface.js',
       './types.js',
@@ -160,11 +184,39 @@ test('root public API keeps core contracts and builtin helpers only', async () =
   );
   assert.equal(Object.isFrozen(sdk.RTC_SDK_ERROR_CODES), true);
   assert.equal(Object.isFrozen(sdk.RTC_RUNTIME_SURFACE_METHODS), true);
+  assert.equal(Object.isFrozen(sdk.RTC_SIGNALING_TRANSPORT_STANDARD), true);
   assert.equal(Object.isFrozen(sdk.RTC_RUNTIME_IMMUTABILITY_STANDARD), true);
   assert.equal(Object.isFrozen(sdk.RTC_ROOT_PUBLIC_SURFACE_STANDARD), true);
   assert.equal(Object.isFrozen(sdk.RTC_LOOKUP_HELPER_NAMING_STANDARD), true);
   assert.equal(sdk.RTC_SDK_ERROR_FALLBACK_CODE, 'vendor_error');
   assert.equal(sdk.RTC_RUNTIME_SURFACE_FAILURE_CODE, 'native_sdk_not_available');
+  assert.equal(sdk.RTC_SIGNALING_TRANSPORT_TERM, 'websocket-only');
+  assert.equal(sdk.RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH, 'connectOptions.webSocketAuth');
+  assert.equal(
+    sdk.RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM,
+    'signaling-sdk-pass-through',
+  );
+  assert.deepEqual(sdk.RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS, [
+    'automatic',
+    'headerBearer',
+    'queryBearer',
+    'none',
+  ]);
+  assert.equal(sdk.RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE, 'automatic');
+  assert.equal(
+    sdk.RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM,
+    'top-level-device-id',
+  );
+  assert.equal(
+    sdk.RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM,
+    'must-match-top-level-device-id',
+  );
+  assert.equal(
+    sdk.RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM,
+    'shared-im-live-connection',
+  );
+  assert.equal(sdk.RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM, 'not-supported');
+  assert.equal(sdk.RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM, 'fail-fast');
   assert.equal(sdk.RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM, 'runtime-frozen');
   assert.equal(sdk.RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM, 'immutable-snapshots');
   assert.equal(

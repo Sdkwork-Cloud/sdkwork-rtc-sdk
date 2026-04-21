@@ -15,5 +15,9 @@ dependencies:
     path: ../../sdkwork-im-sdk/sdkwork-im-sdk-flutter/composed
   volc_engine_rtc: ^3.60.3
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
 flutter:
   uses-material-design: false

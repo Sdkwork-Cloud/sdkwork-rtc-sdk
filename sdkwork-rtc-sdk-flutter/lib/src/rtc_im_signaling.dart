@@ -206,6 +206,8 @@ class RtcImRealtimeDispatcher {
   ImSubscription? _liveStateSubscription;
   Future<void>? _connectTask;
   Timer? _reconnectTimer;
+  var _subscriptionRevision = 0;
+  var _appliedSubscriptionRevision = -1;
 
   Future<RtcCallSignalSubscription> subscribeRtcSessionSignals(
     String rtcSessionId,
@@ -216,9 +218,23 @@ class RtcImRealtimeDispatcher {
       () => <RtcCallSignalHandler>{},
     );
     handlers.add(handler);
+    _markSubscriptionStateChanged();
 
-    await _syncSubscriptions();
-    await _ensureLiveConnection();
+    try {
+      await _ensureLiveConnection();
+      await _syncSubscriptionsIfNeeded();
+    } catch (error) {
+      final currentHandlers = _handlersBySessionId[rtcSessionId];
+      currentHandlers?.remove(handler);
+      if (currentHandlers != null && currentHandlers.isEmpty) {
+        _handlersBySessionId.remove(rtcSessionId);
+      }
+
+      _markSubscriptionStateChanged();
+      unawaited(_syncSubscriptionsIfNeeded());
+      _closeIfIdle();
+      rethrow;
+    }
 
     return _ImRtcCallSignalSubscription(
       onUnsubscribe: () {
@@ -232,7 +248,8 @@ class RtcImRealtimeDispatcher {
           _handlersBySessionId.remove(rtcSessionId);
         }
 
-        unawaited(_syncSubscriptions());
+        _markSubscriptionStateChanged();
+        unawaited(_syncSubscriptionsIfNeeded());
         _closeIfIdle();
       },
     );
@@ -247,9 +264,23 @@ class RtcImRealtimeDispatcher {
       () => <RtcImConversationSignalHandler>{},
     );
     handlers.add(handler);
+    _markSubscriptionStateChanged();
 
-    await _syncSubscriptions();
-    await _ensureLiveConnection();
+    try {
+      await _ensureLiveConnection();
+      await _syncSubscriptionsIfNeeded();
+    } catch (error) {
+      final currentHandlers = _conversationHandlersById[conversationId];
+      currentHandlers?.remove(handler);
+      if (currentHandlers != null && currentHandlers.isEmpty) {
+        _conversationHandlersById.remove(conversationId);
+      }
+
+      _markSubscriptionStateChanged();
+      unawaited(_syncSubscriptionsIfNeeded());
+      _closeIfIdle();
+      rethrow;
+    }
 
     return _ImRtcCallSignalSubscription(
       onUnsubscribe: () {
@@ -263,7 +294,8 @@ class RtcImRealtimeDispatcher {
           _conversationHandlersById.remove(conversationId);
         }
 
-        unawaited(_syncSubscriptions());
+        _markSubscriptionStateChanged();
+        unawaited(_syncSubscriptionsIfNeeded());
         _closeIfIdle();
       },
     );
@@ -291,17 +323,16 @@ class RtcImRealtimeDispatcher {
           providedLiveConnection,
           ownsLiveConnection: false,
         );
-        await _syncSubscriptions();
+        _appliedSubscriptionRevision = -1;
+        await _syncSubscriptionsIfNeeded();
         return;
       }
 
+      final requestedRevision = _subscriptionRevision;
       final live = await _sdk.connect(_buildConnectOptions());
       _attachLiveConnection(live, ownsLiveConnection: true);
-      await _syncSubscriptions();
-    } catch (_) {
-      if (_hasSubscriptions) {
-        _scheduleReconnect();
-      }
+      _appliedSubscriptionRevision = requestedRevision;
+      await _syncSubscriptionsIfNeeded();
     } finally {
       _connectTask = null;
     }
@@ -314,6 +345,16 @@ class RtcImRealtimeDispatcher {
         items: _buildSubscriptionItems(),
       ),
     );
+    _appliedSubscriptionRevision = _subscriptionRevision;
+  }
+
+  Future<void> _syncSubscriptionsIfNeeded() async {
+    if (_liveConnection == null ||
+        _appliedSubscriptionRevision == _subscriptionRevision) {
+      return;
+    }
+
+    await _syncSubscriptions();
   }
 
   bool get _hasSubscriptions =>
@@ -418,6 +459,10 @@ class RtcImRealtimeDispatcher {
     if (shouldAck) {
       unawaited(context.ack());
     }
+  }
+
+  void _markSubscriptionStateChanged() {
+    _subscriptionRevision += 1;
   }
 
   void _scheduleReconnect() {

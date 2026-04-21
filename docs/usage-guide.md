@@ -165,6 +165,10 @@ For the current runnable baselines, this boundary is already materialized:
 Executable baselines keep RTC signaling on the IM live WebSocket path and never expose polling
 fallback controls.
 
+The assembly-driven `signalingTransportStandard` is materialized into
+`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts` and the root-public
+`RTC_SIGNALING_TRANSPORT_STANDARD` contract.
+
 Cross-language rules:
 
 - RTC `deviceId` is top-level and authoritative across the standard stack

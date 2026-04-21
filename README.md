@@ -37,7 +37,7 @@ This workspace standardizes:
 - assembly-driven default provider constants materialized into the core catalog
 - assembly-driven provider-tier and language-maturity documentation
 - assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
+  `runtimeSurfaceStandard`, `signalingTransportStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
   `lookupHelperNamingStandard`,
   `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
   `languageMaturityStandard` vocabularies
@@ -103,6 +103,16 @@ The top-level assembly also fixes the shared vocabulary standards:
 - `capabilityNegotiationStandard.statusRules`
 - `runtimeSurfaceStandard.methodTerms`
 - `runtimeSurfaceStandard.failureCode`
+- `signalingTransportStandard.transportTerm`
+- `signalingTransportStandard.authConfigPath`
+- `signalingTransportStandard.authPassThroughTerm`
+- `signalingTransportStandard.authModeTerms`
+- `signalingTransportStandard.recommendedAuthMode`
+- `signalingTransportStandard.deviceIdAuthorityTerm`
+- `signalingTransportStandard.connectOptionsDeviceIdRuleTerm`
+- `signalingTransportStandard.liveConnectionTerm`
+- `signalingTransportStandard.pollingFallbackTerm`
+- `signalingTransportStandard.authFailureTerm`
 - `runtimeImmutabilityStandard.frozenTerm`
 - `runtimeImmutabilityStandard.snapshotTerm`
 - `runtimeImmutabilityStandard.controllerContextTerm`
@@ -249,6 +259,20 @@ The TypeScript runtime-surface module at
 `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
 `RTC_RUNTIME_SURFACE_STANDARD` aligned to `runtimeSurfaceStandard` so provider-neutral runtime
 method vocabulary and missing-runtime failure semantics stay assembly-governed.
+
+The TypeScript signaling-transport module at
+`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts` must also keep
+`RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+`RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+`RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+`RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+`RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+`RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+`RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+`RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD` aligned to
+`signalingTransportStandard` so WebSocket-only RTC signaling, auth pass-through, authoritative
+`deviceId`, `liveConnection` reuse, no-polling policy, and fail-fast auth semantics stay
+assembly-governed.
 
 The TypeScript provider-package catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts` must also keep

@@ -74,6 +74,23 @@
     ],
     "failureCode": "native_sdk_not_available"
   },
+  "signalingTransportStandard": {
+    "transportTerm": "websocket-only",
+    "authConfigPath": "connectOptions.webSocketAuth",
+    "authPassThroughTerm": "signaling-sdk-pass-through",
+    "authModeTerms": [
+      "automatic",
+      "headerBearer",
+      "queryBearer",
+      "none"
+    ],
+    "recommendedAuthMode": "automatic",
+    "deviceIdAuthorityTerm": "top-level-device-id",
+    "connectOptionsDeviceIdRuleTerm": "must-match-top-level-device-id",
+    "liveConnectionTerm": "shared-im-live-connection",
+    "pollingFallbackTerm": "not-supported",
+    "authFailureTerm": "fail-fast"
+  },
   "runtimeImmutabilityStandard": {
     "frozenTerm": "runtime-frozen",
     "snapshotTerm": "immutable-snapshots",
@@ -84,6 +101,7 @@
     "typescriptProviderNeutralExportPaths": [
       "./errors.js",
       "./runtime-surface.js",
+      "./signaling-transport.js",
       "./runtime-immutability.js",
       "./root-public-surface.js",
       "./types.js",

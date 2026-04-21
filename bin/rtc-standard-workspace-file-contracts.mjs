@@ -30,6 +30,7 @@ export const RTC_TYPESCRIPT_REQUIRED_STANDARD_FILES = Object.freeze([
   'sdkwork-rtc-sdk-typescript/src/capability-negotiation.ts',
   'sdkwork-rtc-sdk-typescript/src/errors.ts',
   'sdkwork-rtc-sdk-typescript/src/runtime-surface.ts',
+  'sdkwork-rtc-sdk-typescript/src/signaling-transport.ts',
   'sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts',
   'sdkwork-rtc-sdk-typescript/src/root-public-surface.ts',
   'sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts',

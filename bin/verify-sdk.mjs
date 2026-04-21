@@ -26,6 +26,7 @@ import {
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
+  DEFAULT_SIGNALING_TRANSPORT_STANDARD,
   DEFAULT_LOOKUP_HELPER_NAMING_STANDARD,
   RTC_CAPABILITY_SURFACES,
   DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD,
@@ -1516,6 +1517,7 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
     capabilityStandard,
     capabilityNegotiationStandard,
     runtimeSurfaceStandard,
+    signalingTransportStandard,
     runtimeImmutabilityStandard,
     rootPublicSurfaceStandard,
     lookupHelperNamingStandard,
@@ -1792,6 +1794,15 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
   if (runtimeSurfaceStandard.failureCode !== RTC_RUNTIME_SURFACE_FAILURE_CODE) {
     fail(
       `runtimeSurfaceStandard.failureCode must be ${RTC_RUNTIME_SURFACE_FAILURE_CODE}`,
+    );
+  }
+
+  if (
+    JSON.stringify(signalingTransportStandard ?? {}) !==
+    JSON.stringify(DEFAULT_SIGNALING_TRANSPORT_STANDARD)
+  ) {
+    fail(
+      'signalingTransportStandard must exactly match the canonical WebSocket signaling transport contract',
     );
   }
 

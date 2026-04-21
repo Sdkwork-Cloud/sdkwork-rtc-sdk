@@ -32,6 +32,21 @@ support boundaries, and maturity tiers stay exact and verifiable.
 - `runtimeSurfaceStandard.failureCode`: `native_sdk_not_available`
 - TypeScript root public constants: `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`
 
+## Signaling Transport Standard
+
+- `signalingTransportStandard.transportTerm`: `websocket-only`
+- `signalingTransportStandard.authConfigPath`: `connectOptions.webSocketAuth`
+- `signalingTransportStandard.authPassThroughTerm`: `signaling-sdk-pass-through`
+- `signalingTransportStandard.authModeTerms`: `automatic`, `headerBearer`, `queryBearer`, `none`
+- `signalingTransportStandard.recommendedAuthMode`: `automatic`
+- `signalingTransportStandard.deviceIdAuthorityTerm`: `top-level-device-id`
+- `signalingTransportStandard.connectOptionsDeviceIdRuleTerm`: `must-match-top-level-device-id`
+- `signalingTransportStandard.liveConnectionTerm`: `shared-im-live-connection`
+- `signalingTransportStandard.pollingFallbackTerm`: `not-supported`
+- `signalingTransportStandard.authFailureTerm`: `fail-fast`
+- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`
+- TypeScript root public constants: `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`, `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`, `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`, `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`, `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`, `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`, `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, `RTC_SIGNALING_TRANSPORT_STANDARD`
+
 ## Runtime Immutability Standard
 
 - `runtimeImmutabilityStandard.frozenTerm`: `runtime-frozen`
@@ -42,7 +57,7 @@ support boundaries, and maturity tiers stay exact and verifiable.
 
 ## Root Public Surface Standard
 
-- `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`: `./errors.js`, `./runtime-surface.js`, `./runtime-immutability.js`, `./root-public-surface.js`, `./types.js`, `./call-types.js`, `./call-controller.js`, `./call-session.js`, `./im-signaling.js`, `./standard-call-stack.js`, `./capability-catalog.js`, `./capability-negotiation.js`, `./language-workspace-catalog.js`, `./provider-selection.js`, `./provider-support.js`, `./provider-extension-catalog.js`, `./provider-package-catalog.js`, `./provider-package-loader.js`, `./provider-activation-catalog.js`, `./capabilities.js`, `./client.js`, `./driver.js`, `./driver-manager.js`, `./data-source.js`, `./provider-module.js`, `./providers/index.js`
+- `rootPublicSurfaceStandard.typescriptProviderNeutralExportPaths`: `./errors.js`, `./runtime-surface.js`, `./signaling-transport.js`, `./runtime-immutability.js`, `./root-public-surface.js`, `./types.js`, `./call-types.js`, `./call-controller.js`, `./call-session.js`, `./im-signaling.js`, `./standard-call-stack.js`, `./capability-catalog.js`, `./capability-negotiation.js`, `./language-workspace-catalog.js`, `./provider-selection.js`, `./provider-support.js`, `./provider-extension-catalog.js`, `./provider-package-catalog.js`, `./provider-package-loader.js`, `./provider-activation-catalog.js`, `./capabilities.js`, `./client.js`, `./driver.js`, `./driver-manager.js`, `./data-source.js`, `./provider-module.js`, `./providers/index.js`
 - `rootPublicSurfaceStandard.typescriptBuiltinProviderExportPaths`: `./providers/volcengine.js`, `./providers/aliyun.js`, `./providers/tencent.js`
 - `rootPublicSurfaceStandard.typescriptInlineHelperNames`: `createBuiltinRtcDriverManager`
 - `rootPublicSurfaceStandard.reservedSurfaceFamilies`: `standard-contract`, `provider-catalog`, `provider-package-catalog`, `provider-activation-catalog`, `capability-catalog`, `provider-extension-catalog`, `language-workspace-catalog`, `provider-selection`, `provider-package-loader`, `provider-support`, `driver-manager`, `data-source`

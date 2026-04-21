@@ -154,6 +154,35 @@ export const RTC_RUNTIME_SURFACE_METHODS = Object.freeze([
 
 export const RTC_RUNTIME_SURFACE_FAILURE_CODE = 'native_sdk_not_available';
 
+export const RTC_SIGNALING_TRANSPORT_TERM = 'websocket-only';
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH = 'connectOptions.webSocketAuth';
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM =
+  'signaling-sdk-pass-through';
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS = Object.freeze([
+  'automatic',
+  'headerBearer',
+  'queryBearer',
+  'none',
+]);
+
+export const RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE = 'automatic';
+
+export const RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM =
+  'top-level-device-id';
+
+export const RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM =
+  'must-match-top-level-device-id';
+
+export const RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM =
+  'shared-im-live-connection';
+
+export const RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM = 'not-supported';
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM = 'fail-fast';
+
 export const RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM = 'runtime-frozen';
 
 export const RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM = 'immutable-snapshots';
@@ -165,6 +194,7 @@ export const RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM = 'mutable-native-clien
 export const RTC_ROOT_PUBLIC_SURFACE_TYPESCRIPT_PROVIDER_NEUTRAL_EXPORT_PATHS = Object.freeze([
   './errors.js',
   './runtime-surface.js',
+  './signaling-transport.js',
   './runtime-immutability.js',
   './root-public-surface.js',
   './types.js',
@@ -428,6 +458,20 @@ export const DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD = Object.freeze({
   reservedEntryPointKinds: RTC_ROOT_PUBLIC_SURFACE_RESERVED_ENTRYPOINT_KINDS,
   builtinProviderExposureTerm: RTC_ROOT_PUBLIC_SURFACE_BUILTIN_PROVIDER_EXPOSURE_TERM,
   nonBuiltinProviderExposureTerm: RTC_ROOT_PUBLIC_SURFACE_NON_BUILTIN_PROVIDER_EXPOSURE_TERM,
+});
+
+export const DEFAULT_SIGNALING_TRANSPORT_STANDARD = Object.freeze({
+  transportTerm: RTC_SIGNALING_TRANSPORT_TERM,
+  authConfigPath: RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH,
+  authPassThroughTerm: RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM,
+  authModeTerms: RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS,
+  recommendedAuthMode: RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE,
+  deviceIdAuthorityTerm: RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM,
+  connectOptionsDeviceIdRuleTerm:
+    RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM,
+  liveConnectionTerm: RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM,
+  pollingFallbackTerm: RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM,
+  authFailureTerm: RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM,
 });
 
 export const DEFAULT_LOOKUP_HELPER_NAMING_STANDARD = Object.freeze({

@@ -2,6 +2,7 @@ import {
   RTC_CAPABILITY_CATEGORIES,
   RTC_CAPABILITY_NEGOTIATION_RULES,
   RTC_CAPABILITY_NEGOTIATION_STATUSES,
+  DEFAULT_SIGNALING_TRANSPORT_STANDARD,
   DEFAULT_LOOKUP_HELPER_NAMING_STANDARD,
   DEFAULT_ROOT_PUBLIC_SURFACE_STANDARD,
   RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM,
@@ -247,6 +248,16 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
   if (runtimeSurfaceStandard.failureCode !== RTC_RUNTIME_SURFACE_FAILURE_CODE) {
     throw new Error(
       `runtimeSurfaceStandard.failureCode must be ${RTC_RUNTIME_SURFACE_FAILURE_CODE}, received: ${runtimeSurfaceStandard.failureCode ?? '<missing>'}`,
+    );
+  }
+
+  const signalingTransportStandard = assembly.signalingTransportStandard ?? {};
+  if (
+    JSON.stringify(signalingTransportStandard) !==
+    JSON.stringify(DEFAULT_SIGNALING_TRANSPORT_STANDARD)
+  ) {
+    throw new Error(
+      'signalingTransportStandard must exactly match the canonical WebSocket signaling transport contract',
     );
   }
 
@@ -662,6 +673,7 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     capabilityStandard,
     capabilityNegotiationStandard,
     runtimeSurfaceStandard,
+    signalingTransportStandard,
     runtimeImmutabilityStandard,
     rootPublicSurfaceStandard,
     lookupHelperNamingStandard,

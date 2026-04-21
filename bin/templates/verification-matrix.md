@@ -36,7 +36,7 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   dependency package identities in their language-native dependency sections
 - the assembly-driven `providerPackageBoundaryContract` materialized into every language workspace catalog
 - the assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-  `runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
+  `runtimeSurfaceStandard`, `signalingTransportStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
   `lookupHelperNamingStandard`,
   `errorCodeStandard`, `providerExtensionStandard`, `providerTierStandard`, and
   `languageMaturityStandard` materialized into docs and matrix assets
@@ -53,6 +53,7 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   `sdkwork-rtc-sdk-typescript/src/provider-activation-catalog.ts`
 - the TypeScript provider catalog at `sdkwork-rtc-sdk-typescript/src/provider-catalog.ts`
 - the TypeScript runtime surface module at `sdkwork-rtc-sdk-typescript/src/runtime-surface.ts`
+- the TypeScript signaling transport module at `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`
 - the TypeScript runtime immutability module at
   `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`
 - the TypeScript root public surface module at
@@ -63,6 +64,18 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   `DEFAULT_RTC_PROVIDER_PLUGIN_ID`, and `DEFAULT_RTC_PROVIDER_DRIVER_ID` inside that catalog
 - the root public runtime surface constants `RTC_RUNTIME_SURFACE_METHODS` and
   `RTC_RUNTIME_SURFACE_FAILURE_CODE`
+- the root public signaling transport constants
+  `RTC_SIGNALING_TRANSPORT_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+  `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+  `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+  `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+  `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+  `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and
+  `RTC_SIGNALING_TRANSPORT_STANDARD`
 - the root public runtime immutability constants
   `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
@@ -169,6 +182,16 @@ The root verifier must confirm:
   `capabilityNegotiationStandard.statusRules`
 - `.sdkwork-assembly.json` declares `runtimeSurfaceStandard.methodTerms` and
   `runtimeSurfaceStandard.failureCode`
+- `.sdkwork-assembly.json` declares `signalingTransportStandard.transportTerm`,
+  `signalingTransportStandard.authConfigPath`,
+  `signalingTransportStandard.authPassThroughTerm`,
+  `signalingTransportStandard.authModeTerms`,
+  `signalingTransportStandard.recommendedAuthMode`,
+  `signalingTransportStandard.deviceIdAuthorityTerm`,
+  `signalingTransportStandard.connectOptionsDeviceIdRuleTerm`,
+  `signalingTransportStandard.liveConnectionTerm`,
+  `signalingTransportStandard.pollingFallbackTerm`, and
+  `signalingTransportStandard.authFailureTerm`
 - `.sdkwork-assembly.json` declares `runtimeImmutabilityStandard.frozenTerm`,
   `runtimeImmutabilityStandard.snapshotTerm`,
   `runtimeImmutabilityStandard.controllerContextTerm`, and
@@ -398,6 +421,18 @@ The root verifier must confirm:
   `resolveRtcCapabilityNegotiationStatus(...)`
 - the TypeScript runtime surface module exists and preserves `RTC_RUNTIME_SURFACE_METHODS`,
   `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD`
+- the TypeScript signaling transport module exists and preserves
+  `RTC_SIGNALING_TRANSPORT_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+  `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+  `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+  `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+  `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+  `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and
+  `RTC_SIGNALING_TRANSPORT_STANDARD`
 - the TypeScript errors module exists and preserves `RTC_SDK_ERROR_CODES`,
   `RTC_SDK_ERROR_FALLBACK_CODE`, `RtcSdkException`, and the canonical fallback `vendor_error`
 - the TypeScript provider support module exists and preserves the standard support-status tokens,
@@ -464,10 +499,12 @@ The TypeScript workspace must verify:
 - `RTC_PROVIDER_SELECTION_SOURCES` and `RTC_PROVIDER_SELECTION_PRECEDENCE` remain `runtime-frozen`
 - `RTC_PROVIDER_SUPPORT_STATUSES` remains `runtime-frozen`
 - `RTC_RUNTIME_SURFACE_METHODS` remains `runtime-frozen`
+- `RTC_SIGNALING_TRANSPORT_STANDARD` remains `runtime-frozen`
 - `RTC_SDK_ERROR_CODES` remains `runtime-frozen`
 - `parseRtcProviderUrl(...)` and `resolveRtcProviderSelection(...)` remain root-public
 - `resolveRtcProviderSupportStatus(...)` and `createRtcProviderSupportState(...)` remain root-public
 - `RTC_RUNTIME_SURFACE_METHODS` and `RTC_RUNTIME_SURFACE_FAILURE_CODE` remain root-public
+- `RTC_SIGNALING_TRANSPORT_STANDARD` and `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS` remain root-public
 - `RtcSdkException`, `RTC_SDK_ERROR_CODES`, and `RTC_SDK_ERROR_FALLBACK_CODE` remain root-public
 - `getRtcProviderByProviderKey(...)` remains root-public
 - `getRtcCapabilityCatalog(...)` and `getRtcCapabilityDescriptor(...)` remain root-public

@@ -104,7 +104,7 @@ Provider adapters must consume those standard vocabularies and must not invent a
 package-boundary status or root-public-policy terms locally.
 
 The assembly-driven `capabilityStandard`, `capabilityNegotiationStandard`,
-`runtimeSurfaceStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
+`runtimeSurfaceStandard`, `signalingTransportStandard`, `runtimeImmutabilityStandard`, `rootPublicSurfaceStandard`,
 `lookupHelperNamingStandard`, `errorCodeStandard`, `providerExtensionStandard`,
 `providerTierStandard`, and
 `languageMaturityStandard` are also canonical.
@@ -145,6 +145,20 @@ missing-runtime failure code.
 The TypeScript runtime-surface module at `src/runtime-surface.ts` keeps
 `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
 `RTC_RUNTIME_SURFACE_STANDARD` aligned to that contract.
+The assembly-driven `signalingTransportStandard` is canonical for WebSocket-only RTC signaling,
+`connectOptions.webSocketAuth`, auth pass-through, canonical auth modes, recommended
+`automatic` auth, authoritative `deviceId`, `liveConnection` reuse, no-polling policy, and
+fail-fast auth behavior.
+The TypeScript signaling-transport module at `src/signaling-transport.ts` keeps
+`RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+`RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+`RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+`RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+`RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+`RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+`RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+`RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD` aligned to
+that contract.
 The TypeScript runtime-immutability module at `src/runtime-immutability.ts` keeps
 `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
 `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,

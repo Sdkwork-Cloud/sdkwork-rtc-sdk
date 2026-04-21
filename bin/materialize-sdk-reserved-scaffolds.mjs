@@ -5036,6 +5036,10 @@ environment:
 dependencies:
 ${renderFlutterRuntimeBaselineDependencies(languageEntry)}
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
 flutter:
   uses-material-design: false
 `),

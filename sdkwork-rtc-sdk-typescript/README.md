@@ -49,6 +49,20 @@ The shared runtime-surface module at `src/runtime-surface.ts` materializes
 `runtimeSurfaceStandard` into `RTC_RUNTIME_SURFACE_METHODS`,
 `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD` so the provider-neutral
 runtime method vocabulary and missing-runtime failure semantics stay assembly-governed.
+The shared signaling-transport module at `src/signaling-transport.ts` materializes
+`signalingTransportStandard` into `RTC_SIGNALING_TRANSPORT_TERM`,
+`RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+`RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
+`RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+`RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+`RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+`RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+`RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+`RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+`RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and
+`RTC_SIGNALING_TRANSPORT_STANDARD` so the WebSocket-only signaling contract, auth pass-through
+boundary, authoritative `deviceId` rule, shared `liveConnection` reuse, no-polling policy,
+and fail-fast auth semantics stay assembly-governed.
 The shared runtime-immutability module at `src/runtime-immutability.ts` materializes
 `runtimeImmutabilityStandard` into `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
 `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,

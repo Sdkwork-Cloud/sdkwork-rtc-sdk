@@ -396,6 +396,10 @@ function renderUsageGuideWebSocketAuthStandard() {
 Executable baselines keep RTC signaling on the IM live WebSocket path and never expose polling
 fallback controls.
 
+The assembly-driven \`signalingTransportStandard\` is materialized into
+\`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts\` and the root-public
+\`RTC_SIGNALING_TRANSPORT_STANDARD\` contract.
+
 Cross-language rules:
 
 - RTC \`deviceId\` is top-level and authoritative across the standard stack
@@ -1327,6 +1331,68 @@ export const RTC_RUNTIME_SURFACE_STANDARD = freezeRtcRuntimeValue({
 `;
 }
 
+function renderTypeScriptSignalingTransport(assembly) {
+  return `import { freezeRtcRuntimeValue } from './runtime-freeze.js';
+
+export const RTC_SIGNALING_TRANSPORT_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.transportTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.authConfigPath ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.authPassThroughTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS = freezeRtcRuntimeValue(${renderReadonlyStringArray(
+    assembly.signalingTransportStandard?.authModeTerms ?? [],
+  )});
+
+export type RtcSignalingTransportAuthMode =
+  (typeof RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS)[number];
+
+export const RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE: RtcSignalingTransportAuthMode = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.recommendedAuthMode ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.deviceIdAuthorityTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.connectOptionsDeviceIdRuleTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.liveConnectionTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.pollingFallbackTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM = ${renderStringLiteral(
+    assembly.signalingTransportStandard?.authFailureTerm ?? '',
+  )};
+
+export const RTC_SIGNALING_TRANSPORT_STANDARD = freezeRtcRuntimeValue({
+  transportTerm: RTC_SIGNALING_TRANSPORT_TERM,
+  authConfigPath: RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH,
+  authPassThroughTerm: RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM,
+  authModeTerms: RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS,
+  recommendedAuthMode: RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE,
+  deviceIdAuthorityTerm: RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM,
+  connectOptionsDeviceIdRuleTerm:
+    RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM,
+  liveConnectionTerm: RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM,
+  pollingFallbackTerm: RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM,
+  authFailureTerm: RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM,
+} as const);
+`;
+}
+
 function renderTypeScriptRuntimeImmutability(assembly) {
   return `import { freezeRtcRuntimeValue } from './runtime-freeze.js';
 
@@ -2184,6 +2250,20 @@ The shared runtime-surface module at \`src/runtime-surface.ts\` materializes
 \`runtimeSurfaceStandard\` into \`RTC_RUNTIME_SURFACE_METHODS\`,
 \`RTC_RUNTIME_SURFACE_FAILURE_CODE\`, and \`RTC_RUNTIME_SURFACE_STANDARD\` so the provider-neutral
 runtime method vocabulary and missing-runtime failure semantics stay assembly-governed.
+The shared signaling-transport module at \`src/signaling-transport.ts\` materializes
+\`signalingTransportStandard\` into \`RTC_SIGNALING_TRANSPORT_TERM\`,
+\`RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH\`,
+\`RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM\`,
+\`RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS\`,
+\`RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE\`,
+\`RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM\`,
+\`RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM\`,
+\`RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM\`,
+\`RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM\`,
+\`RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM\`, and
+\`RTC_SIGNALING_TRANSPORT_STANDARD\` so the WebSocket-only signaling contract, auth pass-through
+boundary, authoritative \`deviceId\` rule, shared \`liveConnection\` reuse, no-polling policy,
+and fail-fast auth semantics stay assembly-governed.
 The shared runtime-immutability module at \`src/runtime-immutability.ts\` materializes
 \`runtimeImmutabilityStandard\` into \`RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM\`,
 \`RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM\`,
@@ -2489,6 +2569,22 @@ function renderCapabilityMatrix(assembly) {
     `- \`runtimeSurfaceStandard.failureCode\`: \`${assembly.runtimeSurfaceStandard?.failureCode ?? ''}\``,
     '- TypeScript root public constants: `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`',
   ].join('\n');
+  const signalingTransportStandardLines = [
+    `- \`signalingTransportStandard.transportTerm\`: \`${assembly.signalingTransportStandard?.transportTerm ?? ''}\``,
+    `- \`signalingTransportStandard.authConfigPath\`: \`${assembly.signalingTransportStandard?.authConfigPath ?? ''}\``,
+    `- \`signalingTransportStandard.authPassThroughTerm\`: \`${assembly.signalingTransportStandard?.authPassThroughTerm ?? ''}\``,
+    `- \`signalingTransportStandard.authModeTerms\`: ${renderMarkdownCodeList(
+      assembly.signalingTransportStandard?.authModeTerms ?? [],
+    )}`,
+    `- \`signalingTransportStandard.recommendedAuthMode\`: \`${assembly.signalingTransportStandard?.recommendedAuthMode ?? ''}\``,
+    `- \`signalingTransportStandard.deviceIdAuthorityTerm\`: \`${assembly.signalingTransportStandard?.deviceIdAuthorityTerm ?? ''}\``,
+    `- \`signalingTransportStandard.connectOptionsDeviceIdRuleTerm\`: \`${assembly.signalingTransportStandard?.connectOptionsDeviceIdRuleTerm ?? ''}\``,
+    `- \`signalingTransportStandard.liveConnectionTerm\`: \`${assembly.signalingTransportStandard?.liveConnectionTerm ?? ''}\``,
+    `- \`signalingTransportStandard.pollingFallbackTerm\`: \`${assembly.signalingTransportStandard?.pollingFallbackTerm ?? ''}\``,
+    `- \`signalingTransportStandard.authFailureTerm\`: \`${assembly.signalingTransportStandard?.authFailureTerm ?? ''}\``,
+    '- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`',
+    '- TypeScript root public constants: `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`, `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`, `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`, `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`, `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`, `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`, `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, `RTC_SIGNALING_TRANSPORT_STANDARD`',
+  ].join('\n');
   const runtimeImmutabilityStandardLines = [
     `- \`runtimeImmutabilityStandard.frozenTerm\`: \`${assembly.runtimeImmutabilityStandard?.frozenTerm ?? ''}\``,
     `- \`runtimeImmutabilityStandard.snapshotTerm\`: \`${assembly.runtimeImmutabilityStandard?.snapshotTerm ?? ''}\``,
@@ -2595,6 +2691,10 @@ ${capabilityNegotiationStandardLines}
 ## Runtime Surface Standard
 
 ${runtimeSurfaceStandardLines}
+
+## Signaling Transport Standard
+
+${signalingTransportStandardLines}
 
 ## Runtime Immutability Standard
 
@@ -3284,6 +3384,10 @@ export function buildRtcSdkMaterializationPlan(workspaceRoot) {
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/runtime-surface.ts',
       content: renderTypeScriptRuntimeSurface(assembly),
+    },
+    {
+      relativePath: 'sdkwork-rtc-sdk-typescript/src/signaling-transport.ts',
+      content: renderTypeScriptSignalingTransport(assembly),
     },
     {
       relativePath: 'sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts',

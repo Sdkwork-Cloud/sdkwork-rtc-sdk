@@ -1,5 +1,6 @@
 export * from './errors.js';
 export * from './runtime-surface.js';
+export * from './signaling-transport.js';
 export * from './runtime-immutability.js';
 export * from './root-public-surface.js';
 export * from './types.js';

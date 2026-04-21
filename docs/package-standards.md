@@ -107,6 +107,26 @@ Rules:
   `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD`
 - `.sdkwork-assembly.json` must declare `runtimeSurfaceStandard.methodTerms` and
   `runtimeSurfaceStandard.failureCode`
+- the signaling-transport module must expose `RTC_SIGNALING_TRANSPORT_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+  `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+  `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+  `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+  `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+  `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD`
+- `.sdkwork-assembly.json` must declare `signalingTransportStandard.transportTerm`,
+  `signalingTransportStandard.authConfigPath`,
+  `signalingTransportStandard.authPassThroughTerm`,
+  `signalingTransportStandard.authModeTerms`,
+  `signalingTransportStandard.recommendedAuthMode`,
+  `signalingTransportStandard.deviceIdAuthorityTerm`,
+  `signalingTransportStandard.connectOptionsDeviceIdRuleTerm`,
+  `signalingTransportStandard.liveConnectionTerm`,
+  `signalingTransportStandard.pollingFallbackTerm`, and
+  `signalingTransportStandard.authFailureTerm`
 - the runtime immutability module must expose `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,
@@ -184,6 +204,10 @@ Rules:
   and `statusRules`
 - `runtimeSurfaceStandard` is the canonical source for provider-neutral runtime method vocabulary
   and missing-runtime failure semantics
+- `signalingTransportStandard` is the canonical source for WebSocket-only RTC signaling,
+  `connectOptions.webSocketAuth`, auth pass-through, canonical auth modes, recommended
+  `automatic` auth, authoritative `deviceId`, `liveConnection` reuse, no-polling policy, and
+  fail-fast auth behavior
 - `runtimeImmutabilityStandard` is the canonical source for runtime-frozen metadata, immutable
   snapshot semantics, shallow-immutable runtime-controller context semantics, and mutable
   native-client preservation semantics
@@ -228,6 +252,18 @@ Rules:
   `muteAudio`, and `muteVideo`
 - the TypeScript runtime surface module must keep `RTC_RUNTIME_SURFACE_METHODS` and
   `RTC_RUNTIME_SURFACE_FAILURE_CODE` aligned to `runtimeSurfaceStandard`
+- the TypeScript signaling-transport module must keep
+  `RTC_SIGNALING_TRANSPORT_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
+  `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
+  `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`,
+  `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
+  `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
+  `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
+  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and
+  `RTC_SIGNALING_TRANSPORT_STANDARD` aligned to `signalingTransportStandard`
 - the TypeScript runtime-immutability module must keep
   `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,

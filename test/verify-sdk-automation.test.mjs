@@ -142,6 +142,18 @@ const EXPECTED_RUNTIME_SURFACE_STANDARD = {
   methodTerms: ['join', 'leave', 'publish', 'unpublish', 'muteAudio', 'muteVideo'],
   failureCode: 'native_sdk_not_available',
 };
+const EXPECTED_SIGNALING_TRANSPORT_STANDARD = {
+  transportTerm: 'websocket-only',
+  authConfigPath: 'connectOptions.webSocketAuth',
+  authPassThroughTerm: 'signaling-sdk-pass-through',
+  authModeTerms: ['automatic', 'headerBearer', 'queryBearer', 'none'],
+  recommendedAuthMode: 'automatic',
+  deviceIdAuthorityTerm: 'top-level-device-id',
+  connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
+  liveConnectionTerm: 'shared-im-live-connection',
+  pollingFallbackTerm: 'not-supported',
+  authFailureTerm: 'fail-fast',
+};
 const EXPECTED_RUNTIME_IMMUTABILITY_STANDARD = {
   frozenTerm: 'runtime-frozen',
   snapshotTerm: 'immutable-snapshots',
@@ -149,11 +161,12 @@ const EXPECTED_RUNTIME_IMMUTABILITY_STANDARD = {
   nativeClientTerm: 'mutable-native-client',
 };
 const EXPECTED_ROOT_PUBLIC_SURFACE_STANDARD = {
-  typescriptProviderNeutralExportPaths: [
-    './errors.js',
-    './runtime-surface.js',
-    './runtime-immutability.js',
-    './root-public-surface.js',
+    typescriptProviderNeutralExportPaths: [
+      './errors.js',
+      './runtime-surface.js',
+      './signaling-transport.js',
+      './runtime-immutability.js',
+      './root-public-surface.js',
     './types.js',
     './call-types.js',
     './call-controller.js',
@@ -486,6 +499,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /capabilityStandard/);
   assert.match(rootReadme, /capabilityNegotiationStandard/);
   assert.match(rootReadme, /runtimeSurfaceStandard/);
+  assert.match(rootReadme, /signalingTransportStandard/);
   assert.match(rootReadme, /runtimeImmutabilityStandard/);
   assert.match(rootReadme, /rootPublicSurfaceStandard/);
   assert.match(rootReadme, /lookupHelperNamingStandard/);
@@ -498,6 +512,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(rootReadme, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(rootReadme, /RTC_SIGNALING_TRANSPORT_STANDARD/);
+  assert.match(rootReadme, /RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS/);
   assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
   assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
   assert.match(rootReadme, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
@@ -553,6 +569,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /capabilityStandard/);
   assert.match(docsReadme, /capabilityNegotiationStandard/);
   assert.match(docsReadme, /runtimeSurfaceStandard/);
+  assert.match(docsReadme, /signalingTransportStandard/);
   assert.match(docsReadme, /runtimeImmutabilityStandard/);
   assert.match(docsReadme, /rootPublicSurfaceStandard/);
   assert.match(docsReadme, /lookupHelperNamingStandard/);
@@ -566,6 +583,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(docsReadme, /runtime-immutability\.ts/);
   assert.match(docsReadme, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(docsReadme, /RTC_SIGNALING_TRANSPORT_STANDARD/);
   assert.match(docsReadme, /root-public-surface\.ts/);
   assert.match(docsReadme, /RTC_ROOT_PUBLIC_SURFACE_STANDARD/);
   assert.match(docsReadme, /lookup-helper-naming\.ts/);
@@ -673,6 +691,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /capabilityStandard/);
   assert.match(packageStandards, /capabilityNegotiationStandard/);
   assert.match(packageStandards, /runtimeSurfaceStandard/);
+  assert.match(packageStandards, /signalingTransportStandard/);
   assert.match(packageStandards, /runtimeImmutabilityStandard/);
   assert.match(packageStandards, /rootPublicSurfaceStandard/);
   assert.match(packageStandards, /lookupHelperNamingStandard/);
@@ -685,6 +704,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(packageStandards, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(packageStandards, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(packageStandards, /RTC_SIGNALING_TRANSPORT_STANDARD/);
   assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
   assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
   assert.match(packageStandards, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
@@ -828,6 +848,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /capabilityStandard/);
   assert.match(providerAdapterStandard, /capabilityNegotiationStandard/);
   assert.match(providerAdapterStandard, /runtimeSurfaceStandard/);
+  assert.match(providerAdapterStandard, /signalingTransportStandard/);
   assert.match(providerAdapterStandard, /runtimeImmutabilityStandard/);
   assert.match(providerAdapterStandard, /rootPublicSurfaceStandard/);
   assert.match(providerAdapterStandard, /lookupHelperNamingStandard/);
@@ -840,6 +861,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(providerAdapterStandard, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(providerAdapterStandard, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(providerAdapterStandard, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(providerAdapterStandard, /RTC_SIGNALING_TRANSPORT_STANDARD/);
   assert.match(providerAdapterStandard, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
   assert.match(providerAdapterStandard, /RTC_RUNTIME_IMMUTABILITY_NATIVE_CLIENT_TERM/);
   assert.match(providerAdapterStandard, /root-public-surface\.ts/);
@@ -931,12 +953,14 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(capabilityMatrix, /Status/i);
   assert.match(capabilityMatrix, /unwrap-only/i);
   assert.match(capabilityMatrix, /runtimeSurfaceStandard/);
+  assert.match(capabilityMatrix, /signalingTransportStandard/);
   assert.match(capabilityMatrix, /runtimeImmutabilityStandard/);
   assert.match(capabilityMatrix, /rootPublicSurfaceStandard/);
   assert.match(capabilityMatrix, /lookupHelperNamingStandard/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(capabilityMatrix, /RTC_SIGNALING_TRANSPORT_STANDARD/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
   assert.match(capabilityMatrix, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
@@ -987,6 +1011,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /capabilityStandard/);
   assert.match(verificationMatrix, /capabilityNegotiationStandard/);
   assert.match(verificationMatrix, /runtimeSurfaceStandard/);
+  assert.match(verificationMatrix, /signalingTransportStandard/);
   assert.match(verificationMatrix, /runtimeImmutabilityStandard/);
   assert.match(verificationMatrix, /rootPublicSurfaceStandard/);
   assert.match(verificationMatrix, /lookupHelperNamingStandard/);
@@ -999,6 +1024,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /RTC_RUNTIME_SURFACE_METHODS/);
   assert.match(verificationMatrix, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
+  assert.match(verificationMatrix, /RTC_SIGNALING_TRANSPORT_STANDARD/);
   assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM/);
   assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM/);
   assert.match(verificationMatrix, /RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM/);
@@ -1083,6 +1109,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /atomic/i);
   assert.match(verificationMatrix, /providerExtensionCatalog/);
   assert.match(typescriptReadme, /RTC_RUNTIME_SURFACE_METHODS/);
+  assert.match(typescriptReadme, /RTC_SIGNALING_TRANSPORT_STANDARD/);
   assert.match(typescriptReadme, /RTC_RUNTIME_SURFACE_FAILURE_CODE/);
   assert.match(typescriptReadme, /runtime-immutability\.ts/);
   assert.match(typescriptReadme, /RTC_RUNTIME_IMMUTABILITY_STANDARD/);
@@ -1288,6 +1315,10 @@ test('rtc assembly declares official languages and default provider', () => {
     EXPECTED_CAPABILITY_NEGOTIATION_STANDARD,
   );
   assert.deepEqual(assembly.runtimeSurfaceStandard, EXPECTED_RUNTIME_SURFACE_STANDARD);
+  assert.deepEqual(
+    assembly.signalingTransportStandard,
+    EXPECTED_SIGNALING_TRANSPORT_STANDARD,
+  );
   assert.deepEqual(
     assembly.runtimeImmutabilityStandard,
     EXPECTED_RUNTIME_IMMUTABILITY_STANDARD,
