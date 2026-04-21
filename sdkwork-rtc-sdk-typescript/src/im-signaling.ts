@@ -404,6 +404,8 @@ export class RtcImRealtimeDispatcher {
   #lifecycleUnsubscribe?: () => void;
   #connectTask?: Promise<void>;
   #reconnectTimer?: ReturnType<typeof setTimeout>;
+  #subscriptionRevision = 0;
+  #appliedSubscriptionRevision = -1;
 
   constructor(options: Pick<
     CreateImRtcSignalingAdapterOptions,
@@ -434,15 +436,17 @@ export class RtcImRealtimeDispatcher {
     const handlers = this.#sessionHandlersById.get(normalizedRtcSessionId) ?? new Set();
     handlers.add(handler);
     this.#sessionHandlersById.set(normalizedRtcSessionId, handlers);
+    this.#markSubscriptionStateChanged();
 
     try {
-      await this.#syncSubscriptions();
       await this.#ensureLiveConnection();
+      await this.#syncSubscriptionsIfNeeded();
       this.#ensureRtcSessionBinding(normalizedRtcSessionId);
     } catch (error) {
       this.#removeSessionHandler(normalizedRtcSessionId, handler);
       this.#disposeRtcSessionBindingIfUnused(normalizedRtcSessionId);
-      swallowAsyncError(this.#syncSubscriptions());
+      this.#markSubscriptionStateChanged();
+      swallowAsyncError(this.#syncSubscriptionsIfNeeded());
       this.#closeIfIdle();
       throw error;
     }
@@ -451,7 +455,8 @@ export class RtcImRealtimeDispatcher {
       unsubscribe: () => {
         this.#removeSessionHandler(normalizedRtcSessionId, handler);
         this.#disposeRtcSessionBindingIfUnused(normalizedRtcSessionId);
-        swallowAsyncError(this.#syncSubscriptions());
+        this.#markSubscriptionStateChanged();
+        swallowAsyncError(this.#syncSubscriptionsIfNeeded());
         this.#closeIfIdle();
       },
     });
@@ -466,15 +471,17 @@ export class RtcImRealtimeDispatcher {
       this.#conversationHandlersById.get(normalizedConversationId) ?? new Set();
     handlers.add(handler);
     this.#conversationHandlersById.set(normalizedConversationId, handlers);
+    this.#markSubscriptionStateChanged();
 
     try {
-      await this.#syncSubscriptions();
       await this.#ensureLiveConnection();
+      await this.#syncSubscriptionsIfNeeded();
       this.#ensureConversationBinding(normalizedConversationId);
     } catch (error) {
       this.#removeConversationHandler(normalizedConversationId, handler);
       this.#disposeConversationBindingIfUnused(normalizedConversationId);
-      swallowAsyncError(this.#syncSubscriptions());
+      this.#markSubscriptionStateChanged();
+      swallowAsyncError(this.#syncSubscriptionsIfNeeded());
       this.#closeIfIdle();
       throw error;
     }
@@ -483,7 +490,8 @@ export class RtcImRealtimeDispatcher {
       unsubscribe: () => {
         this.#removeConversationHandler(normalizedConversationId, handler);
         this.#disposeConversationBindingIfUnused(normalizedConversationId);
-        swallowAsyncError(this.#syncSubscriptions());
+        this.#markSubscriptionStateChanged();
+        swallowAsyncError(this.#syncSubscriptionsIfNeeded());
         this.#closeIfIdle();
       },
     });
@@ -509,7 +517,8 @@ export class RtcImRealtimeDispatcher {
     try {
       if (this.#providedLiveConnection) {
         this.#attachLiveConnection(this.#providedLiveConnection, false);
-        await this.#syncSubscriptions();
+        this.#appliedSubscriptionRevision = -1;
+        await this.#syncSubscriptionsIfNeeded();
         return;
       }
 
@@ -521,6 +530,7 @@ export class RtcImRealtimeDispatcher {
         });
       }
 
+      const requestedRevision = this.#subscriptionRevision;
       const liveConnection = await this.#sdk.connect({
         ...this.#connectOptions,
         deviceId: this.#deviceId,
@@ -528,7 +538,8 @@ export class RtcImRealtimeDispatcher {
       });
 
       this.#attachLiveConnection(liveConnection, true);
-      await this.#syncSubscriptions();
+      this.#appliedSubscriptionRevision = requestedRevision;
+      await this.#syncSubscriptionsIfNeeded();
     } finally {
       this.#connectTask = undefined;
     }
@@ -676,6 +687,7 @@ export class RtcImRealtimeDispatcher {
 
   async #syncSubscriptions(): Promise<void> {
     if (typeof this.#sdk.realtime?.replaceSubscriptions !== 'function') {
+      this.#appliedSubscriptionRevision = this.#subscriptionRevision;
       return;
     }
 
@@ -683,6 +695,18 @@ export class RtcImRealtimeDispatcher {
       deviceId: this.#deviceId,
       items: this.#buildSubscriptionItems(),
     });
+    this.#appliedSubscriptionRevision = this.#subscriptionRevision;
+  }
+
+  async #syncSubscriptionsIfNeeded(): Promise<void> {
+    if (
+      !this.#liveConnection
+      || this.#appliedSubscriptionRevision === this.#subscriptionRevision
+    ) {
+      return;
+    }
+
+    await this.#syncSubscriptions();
   }
 
   #buildSubscriptionGroups(): NonNullable<ImRtcConnectOptions['subscriptions']> {
@@ -722,6 +746,10 @@ export class RtcImRealtimeDispatcher {
       ...buildRtcSessionSubscriptionItems(groups.rtcSessions ?? []),
       ...(groups.items ?? []),
     ]);
+  }
+
+  #markSubscriptionStateChanged(): void {
+    this.#subscriptionRevision += 1;
   }
 
   #scheduleReconnect(): void {
