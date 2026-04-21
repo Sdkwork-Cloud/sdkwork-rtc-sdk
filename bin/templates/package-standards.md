@@ -107,7 +107,7 @@ Rules:
   `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and `RTC_RUNTIME_SURFACE_STANDARD`
 - `.sdkwork-assembly.json` must declare `runtimeSurfaceStandard.methodTerms` and
   `runtimeSurfaceStandard.failureCode`
-- the signaling-transport module must expose `RTC_SIGNALING_TRANSPORT_TERM`,
+- the TypeScript signaling-transport module must expose `RTC_SIGNALING_TRANSPORT_TERM`,
   `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
   `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
   `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
@@ -117,6 +117,16 @@ Rules:
   `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
   `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
   `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD`
+- the Flutter signaling-transport module must expose `rtcSignalingTransportTerm`,
+  `rtcSignalingTransportAuthConfigPath`,
+  `rtcSignalingTransportAuthPassThroughTerm`,
+  `rtcSignalingTransportAuthModeTerms`,
+  `rtcSignalingTransportRecommendedAuthMode`,
+  `rtcSignalingTransportDeviceIdAuthorityTerm`,
+  `rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`,
+  `rtcSignalingTransportLiveConnectionTerm`,
+  `rtcSignalingTransportPollingFallbackTerm`,
+  `rtcSignalingTransportAuthFailureTerm`, and `rtcSignalingTransportStandard`
 - `.sdkwork-assembly.json` must declare `signalingTransportStandard.transportTerm`,
   `signalingTransportStandard.authConfigPath`,
   `signalingTransportStandard.authPassThroughTerm`,
@@ -264,6 +274,18 @@ Rules:
   `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
   `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and
   `RTC_SIGNALING_TRANSPORT_STANDARD` aligned to `signalingTransportStandard`
+- the Flutter signaling-transport module must keep
+  `rtcSignalingTransportTerm`,
+  `rtcSignalingTransportAuthConfigPath`,
+  `rtcSignalingTransportAuthPassThroughTerm`,
+  `rtcSignalingTransportAuthModeTerms`,
+  `rtcSignalingTransportRecommendedAuthMode`,
+  `rtcSignalingTransportDeviceIdAuthorityTerm`,
+  `rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`,
+  `rtcSignalingTransportLiveConnectionTerm`,
+  `rtcSignalingTransportPollingFallbackTerm`,
+  `rtcSignalingTransportAuthFailureTerm`, and
+  `rtcSignalingTransportStandard` aligned to `signalingTransportStandard`
 - the TypeScript runtime-immutability module must keep
   `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,

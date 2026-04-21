@@ -166,8 +166,9 @@ Executable baselines keep RTC signaling on the IM live WebSocket path and never 
 fallback controls.
 
 The assembly-driven `signalingTransportStandard` is materialized into
-`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts` and the root-public
-`RTC_SIGNALING_TRANSPORT_STANDARD` contract.
+`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`, the Flutter root-public module
+`sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`, and the root-public
+`RTC_SIGNALING_TRANSPORT_STANDARD` plus `rtcSignalingTransportStandard` contracts.
 
 Cross-language rules:
 

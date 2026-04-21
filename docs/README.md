@@ -61,8 +61,10 @@ standard modules:
   Keeps `RTC_RUNTIME_SURFACE_METHODS`, `RTC_RUNTIME_SURFACE_FAILURE_CODE`, and
   `RTC_RUNTIME_SURFACE_STANDARD` explicit so provider-neutral runtime method vocabulary and
   missing-runtime failure semantics stay aligned to `runtimeSurfaceStandard`.
-- signaling transport: `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`
-  Keeps `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
+- signaling transport:
+  `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`,
+  `sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`
+  Keeps TypeScript `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`,
   `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`,
   `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`,
   `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`,
@@ -70,7 +72,13 @@ standard modules:
   `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`,
   `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`,
   `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
-  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD` explicit so
+  `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD`, plus
+  Flutter `rtcSignalingTransportTerm`, `rtcSignalingTransportAuthConfigPath`,
+  `rtcSignalingTransportAuthPassThroughTerm`, `rtcSignalingTransportAuthModeTerms`,
+  `rtcSignalingTransportRecommendedAuthMode`, `rtcSignalingTransportDeviceIdAuthorityTerm`,
+  `rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`,
+  `rtcSignalingTransportLiveConnectionTerm`, `rtcSignalingTransportPollingFallbackTerm`,
+  `rtcSignalingTransportAuthFailureTerm`, and `rtcSignalingTransportStandard` explicit so
   WebSocket-only signaling, auth pass-through, authoritative `deviceId`, shared
   `liveConnection`, no-polling policy, and fail-fast auth semantics stay aligned to
   `signalingTransportStandard`.
@@ -205,7 +213,8 @@ The TypeScript executable workspace also reserves one-provider-only package boun
 `sdkwork-rtc-sdk-typescript/providers/`.
 The root `bin/materialize-sdk.mjs` command rematerializes `docs/multilanguage-capability-matrix.md`,
 assembly-driven language workspace READMEs, the TypeScript signaling-transport module at
-`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`, the TypeScript runtime-immutability module at
+`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`, the Flutter signaling-transport module at
+`sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`, the TypeScript runtime-immutability module at
 `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`, the TypeScript root-public-surface
 module at `sdkwork-rtc-sdk-typescript/src/root-public-surface.ts`, the TypeScript
 lookup-helper-naming module at `sdkwork-rtc-sdk-typescript/src/lookup-helper-naming.ts`, the

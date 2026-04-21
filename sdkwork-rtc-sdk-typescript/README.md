@@ -63,6 +63,14 @@ The shared signaling-transport module at `src/signaling-transport.ts` materializ
 `RTC_SIGNALING_TRANSPORT_STANDARD` so the WebSocket-only signaling contract, auth pass-through
 boundary, authoritative `deviceId` rule, shared `liveConnection` reuse, no-polling policy,
 and fail-fast auth semantics stay assembly-governed.
+The Flutter/mobile counterpart at `../sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`
+keeps `rtcSignalingTransportTerm`, `rtcSignalingTransportAuthConfigPath`,
+`rtcSignalingTransportAuthPassThroughTerm`, `rtcSignalingTransportAuthModeTerms`,
+`rtcSignalingTransportRecommendedAuthMode`, `rtcSignalingTransportDeviceIdAuthorityTerm`,
+`rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`, `rtcSignalingTransportLiveConnectionTerm`,
+`rtcSignalingTransportPollingFallbackTerm`, `rtcSignalingTransportAuthFailureTerm`, and
+`rtcSignalingTransportStandard` aligned to the same assembly-driven contract so the executable
+web/browser and mobile baselines cannot drift.
 The shared runtime-immutability module at `src/runtime-immutability.ts` materializes
 `runtimeImmutabilityStandard` into `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
 `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,

@@ -46,6 +46,8 @@ support boundaries, and maturity tiers stay exact and verifiable.
 - `signalingTransportStandard.authFailureTerm`: `fail-fast`
 - TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`
 - TypeScript root public constants: `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`, `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`, `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`, `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`, `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`, `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`, `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, `RTC_SIGNALING_TRANSPORT_STANDARD`
+- Flutter root public module: `sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`
+- Flutter root public constants: `rtcSignalingTransportTerm`, `rtcSignalingTransportAuthConfigPath`, `rtcSignalingTransportAuthPassThroughTerm`, `rtcSignalingTransportAuthModeTerms`, `rtcSignalingTransportRecommendedAuthMode`, `rtcSignalingTransportDeviceIdAuthorityTerm`, `rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`, `rtcSignalingTransportLiveConnectionTerm`, `rtcSignalingTransportPollingFallbackTerm`, `rtcSignalingTransportAuthFailureTerm`, `rtcSignalingTransportStandard`
 
 ## Runtime Immutability Standard
 

@@ -346,6 +346,7 @@ export function getReservedLanguageRootPublicContract(languageEntry) {
           /library rtc_sdk;/,
           /export 'src\/rtc_standard_contract\.dart';/,
           /export 'src\/rtc_call_controller\.dart';/,
+          /export 'src\/rtc_signaling_transport\.dart';/,
           /export 'src\/rtc_provider_catalog\.dart';/,
           /export 'src\/rtc_provider_package_catalog\.dart';/,
           /export 'src\/rtc_provider_activation_catalog\.dart';/,

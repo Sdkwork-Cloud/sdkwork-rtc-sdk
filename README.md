@@ -273,6 +273,16 @@ The TypeScript signaling-transport module at
 `signalingTransportStandard` so WebSocket-only RTC signaling, auth pass-through, authoritative
 `deviceId`, `liveConnection` reuse, no-polling policy, and fail-fast auth semantics stay
 assembly-governed.
+The Flutter signaling-transport module at
+`sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart` must also keep
+`rtcSignalingTransportTerm`, `rtcSignalingTransportAuthConfigPath`,
+`rtcSignalingTransportAuthPassThroughTerm`, `rtcSignalingTransportAuthModeTerms`,
+`rtcSignalingTransportRecommendedAuthMode`, `rtcSignalingTransportDeviceIdAuthorityTerm`,
+`rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`, `rtcSignalingTransportLiveConnectionTerm`,
+`rtcSignalingTransportPollingFallbackTerm`, `rtcSignalingTransportAuthFailureTerm`, and
+`rtcSignalingTransportStandard` aligned to `signalingTransportStandard` so the mobile baseline
+inherits the same WebSocket-only signaling, auth pass-through, authoritative `deviceId`,
+`liveConnection` reuse, no-polling policy, and fail-fast auth semantics.
 
 The TypeScript provider-package catalog module at
 `sdkwork-rtc-sdk-typescript/src/provider-package-catalog.ts` must also keep

@@ -54,6 +54,7 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
 - the TypeScript provider catalog at `sdkwork-rtc-sdk-typescript/src/provider-catalog.ts`
 - the TypeScript runtime surface module at `sdkwork-rtc-sdk-typescript/src/runtime-surface.ts`
 - the TypeScript signaling transport module at `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`
+- the Flutter signaling transport module at `sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`
 - the TypeScript runtime immutability module at
   `sdkwork-rtc-sdk-typescript/src/runtime-immutability.ts`
 - the TypeScript root public surface module at
@@ -76,6 +77,18 @@ The root materializer must rewrite from `.sdkwork-assembly.json`:
   `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
   `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and
   `RTC_SIGNALING_TRANSPORT_STANDARD`
+- the Flutter root public signaling transport constants
+  `rtcSignalingTransportTerm`,
+  `rtcSignalingTransportAuthConfigPath`,
+  `rtcSignalingTransportAuthPassThroughTerm`,
+  `rtcSignalingTransportAuthModeTerms`,
+  `rtcSignalingTransportRecommendedAuthMode`,
+  `rtcSignalingTransportDeviceIdAuthorityTerm`,
+  `rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`,
+  `rtcSignalingTransportLiveConnectionTerm`,
+  `rtcSignalingTransportPollingFallbackTerm`,
+  `rtcSignalingTransportAuthFailureTerm`, and
+  `rtcSignalingTransportStandard`
 - the root public runtime immutability constants
   `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`,
   `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
@@ -472,6 +485,9 @@ The root verifier must confirm:
   `getBuiltinRtcProviderMetadataByKey(...)` and `getOfficialRtcProviderMetadataByKey(...)`
 - the Flutter root barrel at `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart` remains aligned
   with the standard root public entrypoint contract
+- the Flutter signaling transport module exists at
+  `sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`, preserves the root public
+  signaling transport constants, and remains re-exported by `sdkwork-rtc-sdk-flutter/lib/rtc_sdk.dart`
 - the reserved Python package root at `sdkwork-rtc-sdk-python/sdkwork_rtc_sdk/__init__.py`
   remains aligned with the standard root public entrypoint contract
 - reserved root public entrypoints preserve the provider package loader surface without deep

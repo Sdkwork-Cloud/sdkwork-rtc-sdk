@@ -397,8 +397,9 @@ Executable baselines keep RTC signaling on the IM live WebSocket path and never 
 fallback controls.
 
 The assembly-driven \`signalingTransportStandard\` is materialized into
-\`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts\` and the root-public
-\`RTC_SIGNALING_TRANSPORT_STANDARD\` contract.
+\`sdkwork-rtc-sdk-typescript/src/signaling-transport.ts\`, the Flutter root-public module
+\`sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart\`, and the root-public
+\`RTC_SIGNALING_TRANSPORT_STANDARD\` plus \`rtcSignalingTransportStandard\` contracts.
 
 Cross-language rules:
 
@@ -2264,6 +2265,14 @@ The shared signaling-transport module at \`src/signaling-transport.ts\` material
 \`RTC_SIGNALING_TRANSPORT_STANDARD\` so the WebSocket-only signaling contract, auth pass-through
 boundary, authoritative \`deviceId\` rule, shared \`liveConnection\` reuse, no-polling policy,
 and fail-fast auth semantics stay assembly-governed.
+The Flutter/mobile counterpart at \`../sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart\`
+keeps \`rtcSignalingTransportTerm\`, \`rtcSignalingTransportAuthConfigPath\`,
+\`rtcSignalingTransportAuthPassThroughTerm\`, \`rtcSignalingTransportAuthModeTerms\`,
+\`rtcSignalingTransportRecommendedAuthMode\`, \`rtcSignalingTransportDeviceIdAuthorityTerm\`,
+\`rtcSignalingTransportConnectOptionsDeviceIdRuleTerm\`, \`rtcSignalingTransportLiveConnectionTerm\`,
+\`rtcSignalingTransportPollingFallbackTerm\`, \`rtcSignalingTransportAuthFailureTerm\`, and
+\`rtcSignalingTransportStandard\` aligned to the same assembly-driven contract so the executable
+web/browser and mobile baselines cannot drift.
 The shared runtime-immutability module at \`src/runtime-immutability.ts\` materializes
 \`runtimeImmutabilityStandard\` into \`RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM\`,
 \`RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM\`,
@@ -2584,6 +2593,8 @@ function renderCapabilityMatrix(assembly) {
     `- \`signalingTransportStandard.authFailureTerm\`: \`${assembly.signalingTransportStandard?.authFailureTerm ?? ''}\``,
     '- TypeScript root public module: `sdkwork-rtc-sdk-typescript/src/signaling-transport.ts`',
     '- TypeScript root public constants: `RTC_SIGNALING_TRANSPORT_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_CONFIG_PATH`, `RTC_SIGNALING_TRANSPORT_AUTH_PASS_THROUGH_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_MODE_TERMS`, `RTC_SIGNALING_TRANSPORT_RECOMMENDED_AUTH_MODE`, `RTC_SIGNALING_TRANSPORT_DEVICE_ID_AUTHORITY_TERM`, `RTC_SIGNALING_TRANSPORT_CONNECT_OPTIONS_DEVICE_ID_RULE_TERM`, `RTC_SIGNALING_TRANSPORT_LIVE_CONNECTION_TERM`, `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`, `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, `RTC_SIGNALING_TRANSPORT_STANDARD`',
+    '- Flutter root public module: `sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart`',
+    '- Flutter root public constants: `rtcSignalingTransportTerm`, `rtcSignalingTransportAuthConfigPath`, `rtcSignalingTransportAuthPassThroughTerm`, `rtcSignalingTransportAuthModeTerms`, `rtcSignalingTransportRecommendedAuthMode`, `rtcSignalingTransportDeviceIdAuthorityTerm`, `rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`, `rtcSignalingTransportLiveConnectionTerm`, `rtcSignalingTransportPollingFallbackTerm`, `rtcSignalingTransportAuthFailureTerm`, `rtcSignalingTransportStandard`',
   ].join('\n');
   const runtimeImmutabilityStandardLines = [
     `- \`runtimeImmutabilityStandard.frozenTerm\`: \`${assembly.runtimeImmutabilityStandard?.frozenTerm ?? ''}\``,

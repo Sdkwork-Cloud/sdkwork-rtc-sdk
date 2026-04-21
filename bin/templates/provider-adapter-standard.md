@@ -159,6 +159,14 @@ The TypeScript signaling-transport module at `src/signaling-transport.ts` keeps
 `RTC_SIGNALING_TRANSPORT_POLLING_FALLBACK_TERM`,
 `RTC_SIGNALING_TRANSPORT_AUTH_FAILURE_TERM`, and `RTC_SIGNALING_TRANSPORT_STANDARD` aligned to
 that contract.
+The Flutter signaling-transport module at
+`../sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart` keeps
+`rtcSignalingTransportTerm`, `rtcSignalingTransportAuthConfigPath`,
+`rtcSignalingTransportAuthPassThroughTerm`, `rtcSignalingTransportAuthModeTerms`,
+`rtcSignalingTransportRecommendedAuthMode`, `rtcSignalingTransportDeviceIdAuthorityTerm`,
+`rtcSignalingTransportConnectOptionsDeviceIdRuleTerm`, `rtcSignalingTransportLiveConnectionTerm`,
+`rtcSignalingTransportPollingFallbackTerm`, `rtcSignalingTransportAuthFailureTerm`, and
+`rtcSignalingTransportStandard` aligned to that contract.
 The TypeScript runtime-immutability module at `src/runtime-immutability.ts` keeps
 `RTC_RUNTIME_IMMUTABILITY_FROZEN_TERM`, `RTC_RUNTIME_IMMUTABILITY_SNAPSHOT_TERM`,
 `RTC_RUNTIME_IMMUTABILITY_CONTROLLER_CONTEXT_TERM`,

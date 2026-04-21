@@ -62,6 +62,7 @@ export const RTC_FLUTTER_REQUIRED_STANDARD_FILES = Object.freeze([
   'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.dart',
   'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.ps1',
   'sdkwork-rtc-sdk-flutter/bin/sdk-call-smoke.sh',
+  'sdkwork-rtc-sdk-flutter/lib/src/rtc_signaling_transport.dart',
 ]);
 
 export const RTC_TYPESCRIPT_PROVIDER_PACKAGE_ROOT_README =
