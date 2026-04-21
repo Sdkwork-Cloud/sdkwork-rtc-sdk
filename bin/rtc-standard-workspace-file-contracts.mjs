@@ -7,6 +7,7 @@ export const RTC_ROOT_REQUIRED_CONTRACT_FILES = Object.freeze([
   '.gitignore',
   '.sdkwork-assembly.json',
   'bin/generator-runtime.mjs',
+  'bin/rtc-call-smoke-standard.mjs',
   'bin/sdk-call-smoke.mjs',
   'bin/sdk-call-smoke.ps1',
   'bin/sdk-call-smoke.sh',

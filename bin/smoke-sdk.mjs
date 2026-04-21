@@ -12,6 +12,7 @@ import {
   resolveRtcSdkAppRootFromWorkspaceRoot,
   resolveRtcSdkWorkspaceRoot,
 } from './rtc-standard-file-helpers.mjs';
+import { buildRtcRootCallSmokeSteps } from './rtc-call-smoke-standard.mjs';
 
 function fail(message) {
   throw new Error(message);
@@ -250,18 +251,6 @@ function resolveRtcExecutableCallSmokePlan(workspaceRoot) {
   };
 }
 
-function buildRootCallSmokeStep(workspaceRoot, language) {
-  return {
-    label: `${language}:call-cli-smoke`,
-    args: [
-      path.join(workspaceRoot, 'bin', 'sdk-call-smoke.mjs'),
-      '--language',
-      language,
-      '--json',
-    ],
-  };
-}
-
 export function runRtcSdkSmoke(workspaceRoot) {
   const requiredResults = [];
   const optionalPassed = [];
@@ -299,19 +288,23 @@ export function runRtcSdkSmoke(workspaceRoot) {
   );
 
   for (const languageEntry of callSmokePlan.requiredCallSmokeEntries) {
-    const step = buildRootCallSmokeStep(workspaceRoot, languageEntry.language);
-    requiredResults.push(runRequiredNodeStep(step.label, step.args, repoRoot));
+    const steps = buildRtcRootCallSmokeSteps(workspaceRoot, languageEntry);
+    for (const step of steps) {
+      requiredResults.push(runRequiredNodeStep(step.label, step.args, repoRoot));
+    }
   }
 
   for (const languageEntry of callSmokePlan.optionalCallSmokeEntries) {
-    const step = buildRootCallSmokeStep(workspaceRoot, languageEntry.language);
-    const result = runOptionalNodeStep(step.label, step.args, repoRoot);
-    if (result.status === 'passed') {
-      optionalPassed.push(result);
-      continue;
-    }
+    const steps = buildRtcRootCallSmokeSteps(workspaceRoot, languageEntry);
+    for (const step of steps) {
+      const result = runOptionalNodeStep(step.label, step.args, repoRoot);
+      if (result.status === 'passed') {
+        optionalPassed.push(result);
+        continue;
+      }
 
-    optionalSkipped.push(result);
+      optionalSkipped.push(result);
+    }
   }
 
   const optionalSteps = [

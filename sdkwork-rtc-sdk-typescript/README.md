@@ -34,6 +34,7 @@ Current role:
 - standard capability negotiation helpers at src/capability-negotiation.ts
 - standard provider support helpers at src/provider-support.ts
 - standard call-stack composition helper at src/standard-call-stack.ts for default Volcengine plus sdkwork-im-sdk signaling
+- shared IM WebSocket realtime dispatcher at src/im-signaling.ts for unified RTC session and conversation invite subscriptions
 - assembly-driven provider package catalog at src/provider-package-catalog.ts
 - standard provider package loader and installer SPI at src/provider-package-loader.ts
 - assembly-driven provider activation catalog at src/provider-activation-catalog.ts
@@ -110,6 +111,7 @@ Runtime baseline contract:
 - recommended entrypoint: `createStandardRtcCallControllerStack`
 - smoke command: `node ./bin/sdk-call-smoke.mjs --json`
 - smoke mode: `runtime-backed`
+- smoke variants: `default` and `reuse-live-connection`
 
 
 Provider package boundary:
@@ -126,6 +128,11 @@ Local smoke CLI:
   `sdkwork-im-sdk` signaling and a mocked official Volcengine Web SDK module
 - `npm run smoke`
 - `node ./bin/sdk-call-smoke.mjs --json`
+- `node ./bin/sdk-call-smoke.mjs --json --reuse-live-connection`
+- signaling uses one shared IM WebSocket realtime dispatcher, and `connectOptions.webSocketAuth`
+  remains part of the public TypeScript RTC baseline
+- `liveConnection` is also part of the public TypeScript RTC baseline when the application wants
+  RTC to reuse an existing shared IM WebSocket live connection
 
 Standards references:
 

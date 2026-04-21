@@ -1057,7 +1057,11 @@
         "signalingSdkImportPath": "@sdkwork/im-sdk",
         "recommendedEntrypoint": "createStandardRtcCallControllerStack",
         "smokeCommand": "node ./bin/sdk-call-smoke.mjs --json",
-        "smokeMode": "runtime-backed"
+        "smokeMode": "runtime-backed",
+        "smokeVariants": [
+          "default",
+          "reuse-live-connection"
+        ]
       },
       "runtimeDocumentation": {
         "baselineConclusion": "TypeScript is the executable web/browser baseline.",
@@ -1162,7 +1166,11 @@
         "signalingSdkImportPath": "package:im_sdk/im_sdk.dart",
         "recommendedEntrypoint": "createStandardRtcCallControllerStack",
         "smokeCommand": "node ./bin/sdk-call-smoke.mjs --json",
-        "smokeMode": "analysis-backed"
+        "smokeMode": "analysis-backed",
+        "smokeVariants": [
+          "default",
+          "reuse-live-connection"
+        ]
       },
       "runtimeDocumentation": {
         "baselineConclusion": "Flutter is the executable mobile baseline.",

@@ -35,16 +35,18 @@ final class CreateStandardRtcCallStackOptions {
   const CreateStandardRtcCallStackOptions({
     required this.sdk,
     required this.deviceId,
-    this.pollingInterval = const Duration(seconds: 1),
-    this.pullLimit = 50,
+    Duration reconnectInterval = const Duration(seconds: 1),
+    this.liveConnection,
+    this.connectOptions,
     this.dataSourceOptions = const RtcDataSourceOptions(),
     this.driverManager,
-  });
+  }) : reconnectInterval = reconnectInterval;
 
   final ImSdkClient sdk;
   final String deviceId;
-  final Duration pollingInterval;
-  final int pullLimit;
+  final Duration reconnectInterval;
+  final ImLiveConnection? liveConnection;
+  final ImConnectOptions? connectOptions;
   final RtcDataSourceOptions dataSourceOptions;
   final RtcDriverManager? driverManager;
 }
@@ -79,24 +81,26 @@ final class CreateStandardRtcCallControllerStackOptions {
   const CreateStandardRtcCallControllerStackOptions({
     required this.sdk,
     required this.deviceId,
-    this.pollingInterval = const Duration(seconds: 1),
-    this.pullLimit = 50,
+    Duration reconnectInterval = const Duration(seconds: 1),
     this.watchConversationIds = const <String>[],
+    this.liveConnection,
+    this.connectOptions,
     this.dataSourceOptions = const RtcDataSourceOptions(),
     this.driverManager,
-  });
+  }) : reconnectInterval = reconnectInterval;
 
   final ImSdkClient sdk;
   final String deviceId;
-  final Duration pollingInterval;
-  final int pullLimit;
+  final Duration reconnectInterval;
   final List<String> watchConversationIds;
+  final ImLiveConnection? liveConnection;
+  final ImConnectOptions? connectOptions;
   final RtcDataSourceOptions dataSourceOptions;
   final RtcDriverManager? driverManager;
 }
 
 Future<StandardRtcCallStack<TNativeClient>>
-createStandardRtcCallStack<TNativeClient>(
+    createStandardRtcCallStack<TNativeClient>(
   CreateStandardRtcCallStackOptions options,
 ) async {
   final driverManager = options.driverManager ?? RtcDriverManager();
@@ -109,16 +113,18 @@ createStandardRtcCallStack<TNativeClient>(
     CreateImRtcSignalingAdapterOptions(
       sdk: options.sdk,
       deviceId: options.deviceId,
-      pollingInterval: options.pollingInterval,
-      pullLimit: options.pullLimit,
+      reconnectInterval: options.reconnectInterval,
+      liveConnection: options.liveConnection,
+      connectOptions: options.connectOptions,
     ),
   );
   final signaling = createImRtcSignalingAdapter(
     CreateImRtcSignalingAdapterOptions(
       sdk: options.sdk,
       deviceId: options.deviceId,
-      pollingInterval: options.pollingInterval,
-      pullLimit: options.pullLimit,
+      reconnectInterval: options.reconnectInterval,
+      liveConnection: options.liveConnection,
+      connectOptions: options.connectOptions,
       realtimeDispatcher: realtimeDispatcher,
     ),
   );
@@ -138,16 +144,16 @@ createStandardRtcCallStack<TNativeClient>(
 }
 
 Future<StandardRtcCallControllerStack<TNativeClient>>
-createStandardRtcCallControllerStack<TNativeClient>(
+    createStandardRtcCallControllerStack<TNativeClient>(
   CreateStandardRtcCallControllerStackOptions options,
 ) async {
-  final rtcStack =
-      await createStandardRtcCallStack<TNativeClient>(
+  final rtcStack = await createStandardRtcCallStack<TNativeClient>(
     CreateStandardRtcCallStackOptions(
       sdk: options.sdk,
       deviceId: options.deviceId,
-      pollingInterval: options.pollingInterval,
-      pullLimit: options.pullLimit,
+      reconnectInterval: options.reconnectInterval,
+      liveConnection: options.liveConnection,
+      connectOptions: options.connectOptions,
       dataSourceOptions: options.dataSourceOptions,
       driverManager: options.driverManager,
     ),
@@ -158,9 +164,10 @@ createStandardRtcCallControllerStack<TNativeClient>(
       sdk: options.sdk,
       callSession: rtcStack.callSession,
       deviceId: options.deviceId,
-      pollingInterval: options.pollingInterval,
-      pullLimit: options.pullLimit,
+      reconnectInterval: options.reconnectInterval,
       watchConversationIds: options.watchConversationIds,
+      liveConnection: options.liveConnection,
+      connectOptions: options.connectOptions,
       signaling: rtcStack.signaling,
       realtimeDispatcher: rtcStack.realtimeDispatcher,
     ),

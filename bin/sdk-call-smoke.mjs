@@ -10,6 +10,7 @@ import {
   getRtcExecutableLanguageEntries,
 } from './rtc-standard-assembly-baseline.mjs';
 import { readJsonFile } from './rtc-standard-file-helpers.mjs';
+import { renderRtcCallSmokeForwardedVariantHelp } from './rtc-call-smoke-standard.mjs';
 
 function fail(message) {
   const error = new Error(message);
@@ -119,6 +120,10 @@ export function resolveSdkCallSmokeTarget({ workspaceRoot, language, runtimeCont
 }
 
 export function getSdkCallSmokeHelpText(runtimeContract) {
+  const forwardedVariantHelp = renderRtcCallSmokeForwardedVariantHelp(
+    runtimeContract.executableLanguageEntries,
+  );
+
   return [
     'SDKWork RTC SDK call smoke dispatcher',
     '',
@@ -129,6 +134,7 @@ export function getSdkCallSmokeHelpText(runtimeContract) {
     `  --language defaults to assembly default executable language: ${runtimeContract.defaultLanguage}`,
     '  assembly chooses the first runtime-backed executable language, falling back to the first executable language',
     '  remaining arguments are forwarded to the target language call-smoke CLI unchanged',
+    ...(forwardedVariantHelp ? [forwardedVariantHelp] : []),
     '',
     `Official languages: ${runtimeContract.officialLanguages.join(', ')}`,
     `Executable today: ${runtimeContract.executableLanguages.join(', ')}`,

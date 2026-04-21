@@ -11,6 +11,7 @@ import { RtcDriverManager } from './driver-manager.js';
 import {
   createImRtcSignalingAdapter,
   type CreateImRtcSignalingAdapterOptions,
+  RtcImRealtimeDispatcher,
 } from './im-signaling.js';
 import { freezeRtcRuntimeValue } from './runtime-freeze.js';
 import type { RtcClient } from './client.js';
@@ -22,6 +23,7 @@ export interface StandardRtcCallStack<TNativeClient = unknown> extends RtcClosea
   readonly mediaClient: RtcClient<TNativeClient>;
   readonly signaling: RtcCallSignalingAdapter;
   readonly callSession: StandardRtcCallSession<TNativeClient>;
+  readonly realtimeDispatcher: RtcImRealtimeDispatcher;
 }
 
 export interface StandardRtcCallControllerStack<TNativeClient = unknown>
@@ -49,7 +51,19 @@ export async function createStandardRtcCallStack<TNativeClient = unknown>(
     driverManager,
   });
   const mediaClient = await dataSource.createClient<TNativeClient>();
-  const signaling = createImRtcSignalingAdapter(options);
+  const realtimeDispatcher =
+    options.realtimeDispatcher
+    ?? new RtcImRealtimeDispatcher({
+      sdk: options.sdk,
+      deviceId: options.deviceId,
+      liveConnection: options.liveConnection,
+      connectOptions: options.connectOptions,
+      reconnectIntervalMs: options.reconnectIntervalMs,
+    });
+  const signaling = createImRtcSignalingAdapter({
+    ...options,
+    realtimeDispatcher,
+  });
   const callSession = new StandardRtcCallSession<TNativeClient>({
     mediaClient,
     signaling,
@@ -61,6 +75,7 @@ export async function createStandardRtcCallStack<TNativeClient = unknown>(
     mediaClient,
     signaling,
     callSession,
+    realtimeDispatcher,
     async close() {
       await callSession.close();
     },
@@ -75,6 +90,7 @@ export async function createStandardRtcCallControllerStack<TNativeClient = unkno
     ...options,
     callSession: rtcStack.callSession,
     signaling: rtcStack.signaling,
+    realtimeDispatcher: rtcStack.realtimeDispatcher,
   } satisfies CreateStandardRtcCallControllerOptions<TNativeClient>);
 
   return freezeRtcRuntimeValue({

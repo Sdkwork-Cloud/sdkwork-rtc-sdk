@@ -227,9 +227,7 @@ test('IM signaling adapter plus standard call session drives outgoing call, sign
   };
   const signaling = createImRtcSignalingAdapter({
     sdk: imSdk,
-    connectOptions: {
-      deviceId: 'device-1',
-    },
+    deviceId: 'device-1',
   });
   const callSession = new StandardRtcCallSession({
     mediaClient: client,
@@ -578,9 +576,7 @@ test('standard call session close releases local media state without ending the 
   };
   const signaling = createImRtcSignalingAdapter({
     sdk: imSdk,
-    connectOptions: {
-      deviceId: 'device-2',
-    },
+    deviceId: 'device-2',
   });
   const callSession = new StandardRtcCallSession({
     mediaClient: client,

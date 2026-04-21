@@ -265,6 +265,7 @@ test('materialized rtc language workspace catalog matches the assembly language 
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'runtime-backed',
+    smokeVariants: ['default', 'reuse-live-connection'],
   });
   assert.deepEqual(languageWorkspaceCatalog.FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY.runtimeBaseline, {
     vendorSdkPackage: 'volc_engine_rtc',
@@ -274,6 +275,7 @@ test('materialized rtc language workspace catalog matches the assembly language 
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'analysis-backed',
+    smokeVariants: ['default', 'reuse-live-connection'],
   });
   assert.equal(languageWorkspaceCatalog.getRtcLanguageWorkspaceByLanguage('ruby'), undefined);
 });

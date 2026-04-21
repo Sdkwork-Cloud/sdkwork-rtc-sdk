@@ -208,6 +208,7 @@ export interface RtcLanguageWorkspaceProviderActivationContract {
 }
 
 export type RtcLanguageWorkspaceSmokeMode = 'runtime-backed' | 'analysis-backed';
+export type RtcLanguageWorkspaceSmokeVariant = 'default' | 'reuse-live-connection';
 
 export interface RtcLanguageWorkspaceRuntimeBaseline {
   vendorSdkPackage: string;
@@ -217,6 +218,7 @@ export interface RtcLanguageWorkspaceRuntimeBaseline {
   recommendedEntrypoint: string;
   smokeCommand: string;
   smokeMode: RtcLanguageWorkspaceSmokeMode;
+  smokeVariants: readonly RtcLanguageWorkspaceSmokeVariant[];
 }
 
 export type RtcProviderPackageRuntimeBridgeStatus =

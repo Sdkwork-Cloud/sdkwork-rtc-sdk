@@ -9,6 +9,7 @@ function createMockRtcEnvironment(sdk) {
   const mediaCalls = [];
   const signalingCalls = [];
   const connectCalls = [];
+  const subscriptionCalls = [];
   const sentMessages = [];
   const sessionHandlers = new Map();
   const conversationHandlers = new Map();
@@ -71,6 +72,15 @@ function createMockRtcEnvironment(sdk) {
   });
 
   const imSdk = {
+    realtime: {
+      async replaceSubscriptions(body) {
+        subscriptionCalls.push(body);
+        return {
+          deviceId: body.deviceId ?? 'device-1',
+          items: body.items ?? [],
+        };
+      },
+    },
     rtc: {
       async create(body) {
         signalingCalls.push(['create', body]);
@@ -208,6 +218,7 @@ function createMockRtcEnvironment(sdk) {
     mediaCalls,
     signalingCalls,
     connectCalls,
+    subscriptionCalls,
     sentMessages,
     sessionHandlers,
     conversationHandlers,
@@ -224,9 +235,7 @@ test('standard rtc call controller stack publishes invite, exchanges typed signa
 
   const rtcStack = await sdk.createStandardRtcCallControllerStack({
     sdk: env.imSdk,
-    connectOptions: {
-      deviceId: 'device-1',
-    },
+    deviceId: 'device-1',
     watchConversationIds: ['conversation-1'],
     driverManager: env.driverManager,
     dataSourceConfig: {
@@ -237,6 +246,8 @@ test('standard rtc call controller stack publishes invite, exchanges typed signa
   });
 
   assert.equal(rtcStack.callController.getSnapshot().controllerState, 'watching');
+  assert.equal(typeof rtcStack.realtimeDispatcher.subscribeSessionSignals, 'function');
+  assert.equal(typeof rtcStack.realtimeDispatcher.subscribeConversationSignals, 'function');
 
   await rtcStack.callController.startOutgoing({
     rtcSessionId: 'rtc-session-1',
@@ -257,6 +268,9 @@ test('standard rtc call controller stack publishes invite, exchanges typed signa
   assert.equal(inviteInput.schemaRef, sdk.RTC_CALL_INVITE_SCHEMA_REF);
   assert.equal(JSON.parse(inviteInput.payload).rtcSessionId, 'rtc-session-1');
   assert.equal(rtcStack.callController.getSnapshot().controllerState, 'outgoing_ringing');
+  assert.equal(env.connectCalls.length, 1);
+
+  let acceptedAckCount = 0;
 
   await env.sessionHandlers.get('rtc-session-1')(
     {
@@ -276,11 +290,18 @@ test('standard rtc call controller stack publishes invite, exchanges typed signa
     },
     {
       scopeId: 'rtc-session-1',
+      ack: async () => {
+        acceptedAckCount += 1;
+        return {
+          ackedThroughSeq: acceptedAckCount,
+        };
+      },
     },
   );
   await flushAsyncSignals();
 
   assert.equal(rtcStack.callController.getSnapshot().controllerState, 'connected');
+  assert.equal(acceptedAckCount, 1);
 
   const offerSignal = await rtcStack.callController.sendOffer({
     sdp: 'offer-sdp',
@@ -329,9 +350,7 @@ test('standard rtc call controller turns conversation invite signals into incomi
 
   const rtcStack = await sdk.createStandardRtcCallControllerStack({
     sdk: env.imSdk,
-    connectOptions: {
-      deviceId: 'device-1',
-    },
+    deviceId: 'device-1',
     watchConversationIds: ['conversation-1'],
     driverManager: env.driverManager,
     dataSourceConfig: {
@@ -341,6 +360,7 @@ test('standard rtc call controller turns conversation invite signals into incomi
     },
   });
 
+  let inviteAckCount = 0;
   await env.conversationHandlers.get('conversation-1')(
     {
       type: 'signal',
@@ -360,6 +380,12 @@ test('standard rtc call controller turns conversation invite signals into incomi
     {
       conversationId: 'conversation-1',
       receivedAt: '2026-04-20T12:00:00Z',
+      ack: async () => {
+        inviteAckCount += 1;
+        return {
+          ackedThroughSeq: inviteAckCount,
+        };
+      },
     },
   );
   await flushAsyncSignals();
@@ -372,6 +398,8 @@ test('standard rtc call controller turns conversation invite signals into incomi
     rtcStack.callController.getSnapshot().activeInvitation?.rtcSessionId,
     'rtc-session-2',
   );
+  assert.equal(inviteAckCount, 1);
+  assert.equal(env.connectCalls.length, 1);
 
   await rtcStack.callController.acceptIncoming({
     rtcSessionId: 'rtc-session-2',
@@ -416,15 +444,82 @@ test('standard rtc call controller turns conversation invite signals into incomi
   ]);
 });
 
+test('standard rtc call controller reuses a provided IM liveConnection without opening a second socket', async () => {
+  const sdk = await loadSdk();
+  const env = createMockRtcEnvironment(sdk);
+  const sharedLiveConnection = await env.imSdk.connect({
+    deviceId: 'device-1',
+    subscriptions: {
+      conversations: ['conversation-1'],
+    },
+  });
+
+  assert.equal(env.connectCalls.length, 1);
+
+  const rtcStack = await sdk.createStandardRtcCallControllerStack({
+    sdk: env.imSdk,
+    deviceId: 'device-1',
+    liveConnection: sharedLiveConnection,
+    watchConversationIds: ['conversation-1'],
+    driverManager: env.driverManager,
+    dataSourceConfig: {
+      nativeConfig: {
+        appId: 'volc-app-id',
+      },
+    },
+  });
+
+  assert.equal(env.connectCalls.length, 1);
+  assert.equal(rtcStack.callController.getSnapshot().controllerState, 'watching');
+  assert.deepEqual(env.subscriptionCalls.at(-1), {
+    deviceId: 'device-1',
+    items: [
+      {
+        scopeType: 'conversation',
+        scopeId: 'conversation-1',
+        eventTypes: ['message.created', 'message.updated', 'message.recalled'],
+      },
+    ],
+  });
+
+  await rtcStack.callController.startOutgoing({
+    rtcSessionId: 'rtc-session-live-reuse',
+    conversationId: 'conversation-1',
+    rtcMode: 'video_call',
+    roomId: 'room-live-reuse',
+    participantId: 'caller-1',
+    signalingStreamId: 'signal-live-reuse',
+  });
+
+  assert.equal(env.connectCalls.length, 1);
+  assert.deepEqual(env.subscriptionCalls.at(-1), {
+    deviceId: 'device-1',
+    items: [
+      {
+        scopeType: 'conversation',
+        scopeId: 'conversation-1',
+        eventTypes: ['message.created', 'message.updated', 'message.recalled'],
+      },
+      {
+        scopeType: 'rtc_session',
+        scopeId: 'rtc-session-live-reuse',
+        eventTypes: ['rtc.signal'],
+      },
+    ],
+  });
+
+  await rtcStack.close();
+
+  assert.equal(env.connectCalls.length, 1);
+});
+
 test('standard rtc call controller close clears watched conversations and returns to idle', async () => {
   const sdk = await loadSdk();
   const env = createMockRtcEnvironment(sdk);
 
   const rtcStack = await sdk.createStandardRtcCallControllerStack({
     sdk: env.imSdk,
-    connectOptions: {
-      deviceId: 'device-1',
-    },
+    deviceId: 'device-1',
     watchConversationIds: ['conversation-1'],
     driverManager: env.driverManager,
     dataSourceConfig: {

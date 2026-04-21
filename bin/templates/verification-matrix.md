@@ -113,6 +113,10 @@ The fast public call smoke commands for maintainers are:
 {{RTC_FAST_CALL_SMOKE_COMMANDS}}
 ```
 
+When an executable language supports shared IM live-connection ownership, the forwarded
+`--reuse-live-connection` smoke variant is part of the public regression contract and must stay in
+the generated command list.
+
 The full regression entrypoint must run, in order:
 
 - `node .\bin\materialize-sdk.mjs`
@@ -227,7 +231,7 @@ The root verifier must confirm:
 - every executable reference language declares a machine-readable `runtimeDocumentation`
 - every executable reference language `runtimeBaseline` preserves `vendorSdkPackage`,
   `vendorSdkImportPath`, `signalingSdkPackage`, `signalingSdkImportPath`,
-  `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
+  `recommendedEntrypoint`, `smokeCommand`, `smokeMode`, and `smokeVariants`
 - every executable reference language `runtimeDocumentation` preserves
   `baselineConclusion`, `guideTitle`, `runtimeLabel`, `detailedGuidePath`,
   `detailedGuideLabel`, and `smokeNarrative`
@@ -235,10 +239,12 @@ The root verifier must confirm:
   `runtimeBaseline` and `runtimeDocumentation` details for the current runnable baselines
 - `docs/typescript-volcengine-im-usage.md` preserves the executable TypeScript/web runtime
   baseline details for `vendorSdkPackage`, `vendorSdkImportPath`, `signalingSdkPackage`,
-  `signalingSdkImportPath`, `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
+  `signalingSdkImportPath`, `recommendedEntrypoint`, `smokeCommand`, `smokeMode`, and
+  `smokeVariants`
 - `docs/flutter-volcengine-im-usage.md` preserves the executable Flutter/mobile runtime
   baseline details for `vendorSdkPackage`, `vendorSdkImportPath`, `signalingSdkPackage`,
-  `signalingSdkImportPath`, `recommendedEntrypoint`, `smokeCommand`, and `smokeMode`
+  `signalingSdkImportPath`, `recommendedEntrypoint`, `smokeCommand`, `smokeMode`, and
+  `smokeVariants`
 - the executable runtime usage guides preserve both current smoke-mode terms:
   `runtime-backed` and `analysis-backed`
 - every executable reference language manifest declares the `runtimeBaseline.vendorSdkPackage`

@@ -39,6 +39,7 @@ export const TYPESCRIPT_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalo
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'runtime-backed',
+    smokeVariants: freezeRtcRuntimeValue(['default', 'reuse-live-connection'] as const),
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'src/provider-catalog.ts',
@@ -105,6 +106,7 @@ export const FLUTTER_RTC_LANGUAGE_WORKSPACE_ENTRY: RtcLanguageWorkspaceCatalogEn
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'analysis-backed',
+    smokeVariants: freezeRtcRuntimeValue(['default', 'reuse-live-connection'] as const),
   }),
   metadataScaffold: freezeRtcRuntimeValue({
     providerCatalogRelativePath: 'lib/src/rtc_provider_catalog.dart',

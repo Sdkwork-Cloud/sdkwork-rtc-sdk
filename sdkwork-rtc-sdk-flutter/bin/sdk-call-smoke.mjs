@@ -53,6 +53,7 @@ function parseArgs(argv) {
   const parsed = {
     help: false,
     json: false,
+    reuseLiveConnection: false,
   };
 
   for (const token of argv) {
@@ -62,6 +63,10 @@ function parseArgs(argv) {
     }
     if (token === '--json') {
       parsed.json = true;
+      continue;
+    }
+    if (token === '--reuse-live-connection') {
+      parsed.reuseLiveConnection = true;
       continue;
     }
     fail(`Unexpected positional argument "${token}".`);
@@ -75,27 +80,34 @@ function getHelpText() {
     'SDKWork RTC Flutter call smoke CLI',
     '',
     'Usage:',
-    '  node ./bin/sdk-call-smoke.mjs [--json]',
+    '  node ./bin/sdk-call-smoke.mjs [--json] [--reuse-live-connection]',
     '',
     'Behavior:',
     '  runs an analyze-backed smoke for the public Flutter rtc_sdk call stack',
     '  verifies the sdk-call-smoke.dart scenario source compiles under flutter analyze',
+    '  the analyzed source covers both RTC-owned WebSocket signaling and shared liveConnection reuse',
     '  current toolchain note: the official volc_engine_rtc package crashes under Dart VM CLI compilation,',
     '  so this wrapper is the executable standard smoke entrypoint until vendor/runtime support improves',
   ].join('\n');
 }
 
-function buildSummary(workspaceRoot) {
+function buildSummary(workspaceRoot, parsed) {
   return {
     language: 'flutter',
     smokeMode: 'analysis-backed',
     runtimeStatus: 'vendor-sdk-cli-runtime-blocked',
     defaultProviderKey: 'volcengine',
+    scenarioVariant: parsed.reuseLiveConnection ? 'reuse-live-connection' : 'default-connection',
     verifiedEntrypoint: path.join('sdkwork-rtc-sdk-flutter', 'bin', 'sdk-call-smoke.dart'),
     verifiedSurface: [
       'createStandardRtcCallControllerStack',
+      'CreateStandardRtcCallControllerStackOptions.deviceId',
+      'CreateStandardRtcCallControllerStackOptions.liveConnection',
       'createOfficialVolcengineFlutterRtcDriver',
       'ImSdkClient.create',
+      'ImSdkClient.connect',
+      'ImConnectOptions.webSocketAuth',
+      'WebSocket-only signaling without polling fallback',
       'RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY',
     ],
     workspaceRoot,
@@ -108,6 +120,7 @@ function createTextSummary(summary) {
     `smoke mode: ${summary.smokeMode}`,
     `runtime status: ${summary.runtimeStatus}`,
     `default provider: ${summary.defaultProviderKey}`,
+    `scenario variant: ${summary.scenarioVariant}`,
     `verified entrypoint: ${summary.verifiedEntrypoint}`,
     `verified surface: ${summary.verifiedSurface.join(', ')}`,
   ].join('\n');
@@ -158,7 +171,7 @@ export async function runFlutterCallSmokeCli(argv = process.argv.slice(2), deps 
   }
 
   await runFlutterAnalyze(workspaceRoot);
-  const summary = buildSummary(workspaceRoot);
+  const summary = buildSummary(workspaceRoot, parsed);
 
   if (parsed.json) {
     writeLine(stdout, JSON.stringify(summary, null, 2));

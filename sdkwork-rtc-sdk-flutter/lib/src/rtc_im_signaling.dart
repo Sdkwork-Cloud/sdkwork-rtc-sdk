@@ -8,19 +8,56 @@ import 'rtc_call_types.dart';
 import 'rtc_im_signaling_codec.dart';
 import 'rtc_im_signaling_message.dart';
 
+const List<String> _defaultRtcConversationEventTypes = <String>[
+  'message.created',
+  'message.updated',
+  'message.recalled',
+];
+
+const List<String> _defaultRtcSessionEventTypes = <String>[
+  'rtc.signal',
+];
+
+List<String> _mergeScopeIds(
+  List<String> baseline,
+  Iterable<String> dynamicScopeIds,
+) {
+  return <String>{
+    ...baseline,
+    ...dynamicScopeIds,
+  }.toList(growable: false)
+    ..sort();
+}
+
+List<RealtimeSubscriptionItemInput> _dedupeSubscriptionItems(
+  Iterable<RealtimeSubscriptionItemInput> items,
+) {
+  final deduped = <String, RealtimeSubscriptionItemInput>{};
+
+  for (final item in items) {
+    final eventTypesKey = (item.eventTypes ?? const <String>[]).join('|');
+    final key = '${item.scopeType}:${item.scopeId}:$eventTypesKey';
+    deduped[key] = item;
+  }
+
+  return deduped.values.toList(growable: false);
+}
+
 class CreateImRtcSignalingAdapterOptions {
   const CreateImRtcSignalingAdapterOptions({
     required this.sdk,
     required this.deviceId,
-    this.pollingInterval = const Duration(seconds: 1),
-    this.pullLimit = 50,
+    Duration reconnectInterval = const Duration(seconds: 1),
+    this.liveConnection,
+    this.connectOptions,
     this.realtimeDispatcher,
-  });
+  }) : reconnectInterval = reconnectInterval;
 
   final ImSdkClient sdk;
   final String deviceId;
-  final Duration pollingInterval;
-  final int pullLimit;
+  final Duration reconnectInterval;
+  final ImLiveConnection? liveConnection;
+  final ImConnectOptions? connectOptions;
   final RtcImRealtimeDispatcher? realtimeDispatcher;
 }
 
@@ -33,7 +70,8 @@ RtcCallSignalingAdapter createImRtcSignalingAdapter(
 final class _ImRtcSignalingAdapter implements RtcCallSignalingAdapter {
   _ImRtcSignalingAdapter(CreateImRtcSignalingAdapterOptions options)
       : _sdk = options.sdk,
-        _dispatcher = options.realtimeDispatcher ?? RtcImRealtimeDispatcher(options);
+        _dispatcher =
+            options.realtimeDispatcher ?? RtcImRealtimeDispatcher(options);
 
   final ImSdkClient _sdk;
   final RtcImRealtimeDispatcher _dispatcher;
@@ -137,20 +175,37 @@ class RtcImRealtimeDispatcher {
   RtcImRealtimeDispatcher(CreateImRtcSignalingAdapterOptions options)
       : _sdk = options.sdk,
         _deviceId = options.deviceId,
-        _pollingInterval = options.pollingInterval,
-        _pullLimit = options.pullLimit;
+        _reconnectInterval = options.reconnectInterval,
+        _providedLiveConnection = options.liveConnection,
+        _connectOptions = options.connectOptions {
+    final connectOptionsDeviceId = options.connectOptions?.deviceId;
+    if (connectOptionsDeviceId != null &&
+        connectOptionsDeviceId != options.deviceId) {
+      throw ArgumentError.value(
+        connectOptionsDeviceId,
+        'connectOptions.deviceId',
+        'RTC signaling deviceId must match CreateImRtcSignalingAdapterOptions.deviceId.',
+      );
+    }
+  }
 
   final ImSdkClient _sdk;
   final String _deviceId;
-  final Duration _pollingInterval;
-  final int _pullLimit;
+  final Duration _reconnectInterval;
+  final ImLiveConnection? _providedLiveConnection;
+  final ImConnectOptions? _connectOptions;
   final Map<String, Set<RtcCallSignalHandler>> _handlersBySessionId =
       <String, Set<RtcCallSignalHandler>>{};
   final Map<String, Set<RtcImConversationSignalHandler>>
-      _conversationHandlersById = <String, Set<RtcImConversationSignalHandler>>{};
+      _conversationHandlersById =
+      <String, Set<RtcImConversationSignalHandler>>{};
 
-  bool _running = false;
-  int _afterSeq = 0;
+  ImLiveConnection? _liveConnection;
+  var _ownsLiveConnection = false;
+  ImSubscription? _liveEventSubscription;
+  ImSubscription? _liveStateSubscription;
+  Future<void>? _connectTask;
+  Timer? _reconnectTimer;
 
   Future<RtcCallSignalSubscription> subscribeRtcSessionSignals(
     String rtcSessionId,
@@ -163,7 +218,7 @@ class RtcImRealtimeDispatcher {
     handlers.add(handler);
 
     await _syncSubscriptions();
-    _ensureLoop();
+    await _ensureLiveConnection();
 
     return _ImRtcCallSignalSubscription(
       onUnsubscribe: () {
@@ -178,6 +233,7 @@ class RtcImRealtimeDispatcher {
         }
 
         unawaited(_syncSubscriptions());
+        _closeIfIdle();
       },
     );
   }
@@ -193,7 +249,7 @@ class RtcImRealtimeDispatcher {
     handlers.add(handler);
 
     await _syncSubscriptions();
-    _ensureLoop();
+    await _ensureLiveConnection();
 
     return _ImRtcCallSignalSubscription(
       onUnsubscribe: () {
@@ -208,104 +264,46 @@ class RtcImRealtimeDispatcher {
         }
 
         unawaited(_syncSubscriptions());
+        _closeIfIdle();
       },
     );
   }
 
-  void _ensureLoop() {
-    if (_running) {
+  Future<void> _ensureLiveConnection() async {
+    if (!_hasSubscriptions || _liveConnection != null) {
       return;
     }
 
-    _running = true;
-    unawaited(_pollLoop());
+    if (_connectTask != null) {
+      await _connectTask;
+      return;
+    }
+
+    _connectTask = _connectLive();
+    await _connectTask;
   }
 
-  Future<void> _pollLoop() async {
-    while (_hasSubscriptions) {
-      try {
-        await _pollOnce();
-      } catch (_) {
+  Future<void> _connectLive() async {
+    try {
+      final providedLiveConnection = _providedLiveConnection;
+      if (providedLiveConnection != null) {
+        _attachLiveConnection(
+          providedLiveConnection,
+          ownsLiveConnection: false,
+        );
+        await _syncSubscriptions();
+        return;
       }
 
-      if (!_hasSubscriptions) {
-        break;
+      final live = await _sdk.connect(_buildConnectOptions());
+      _attachLiveConnection(live, ownsLiveConnection: true);
+      await _syncSubscriptions();
+    } catch (_) {
+      if (_hasSubscriptions) {
+        _scheduleReconnect();
       }
-
-      await Future<void>.delayed(_pollingInterval);
-    }
-
-    _running = false;
-  }
-
-  Future<void> _pollOnce() async {
-    final realtimeWindow = await _sdk.realtime.pullEvents(
-      <String, dynamic>{
-        'deviceId': _deviceId,
-        if (_afterSeq > 0) 'afterSeq': _afterSeq,
-        'limit': _pullLimit,
-      },
-    );
-
-    final events = realtimeWindow?.items ?? const <RealtimeEvent>[];
-    var highestSeq = _afterSeq;
-
-    for (final event in events) {
-      final realtimeSeq = event.realtimeSeq ?? 0;
-      if (realtimeSeq > highestSeq) {
-        highestSeq = realtimeSeq;
-      }
-
-      if (event.scopeType != 'rtc_session' ||
-          event.eventType != 'rtc.signal' ||
-          event.scopeId == null) {
-        final conversationSignal =
-            toRtcImConversationSignalMessageFromRealtimeEvent(event);
-        if (conversationSignal == null) {
-          continue;
-        }
-
-        final handlers = _conversationHandlersById[conversationSignal.conversationId];
-        if (handlers == null || handlers.isEmpty) {
-          continue;
-        }
-
-        final dispatchedHandlers = handlers.toList(growable: false);
-        for (final handler in dispatchedHandlers) {
-          handler(conversationSignal);
-        }
-        continue;
-      }
-
-      final signal = toRtcCallSignalFromRealtimeEvent(event);
-      if (signal == null) {
-        continue;
-      }
-
-      final handlers = _handlersBySessionId[event.scopeId];
-      if (handlers == null || handlers.isEmpty) {
-        continue;
-      }
-
-      final dispatchedHandlers = handlers.toList(growable: false);
-      for (final handler in dispatchedHandlers) {
-        handler(signal);
-      }
-    }
-
-    final nextAfterSeq = realtimeWindow?.nextAfterSeq;
-    if (nextAfterSeq != null && nextAfterSeq > highestSeq) {
-      highestSeq = nextAfterSeq;
-    }
-
-    if (highestSeq > _afterSeq) {
-      _afterSeq = highestSeq;
-      await _sdk.realtime.ackEvents(
-        AckRealtimeEventsRequest(
-          deviceId: _deviceId,
-          ackedSeq: highestSeq,
-        ),
-      );
+    } finally {
+      _connectTask = null;
     }
   }
 
@@ -313,28 +311,173 @@ class RtcImRealtimeDispatcher {
     await _sdk.realtime.replaceSubscriptions(
       SyncRealtimeSubscriptionsRequest(
         deviceId: _deviceId,
-        items: <RealtimeSubscriptionItemInput>[
-          ..._conversationHandlersById.keys.map(
-            (conversationId) => RealtimeSubscriptionItemInput(
-              scopeType: 'conversation',
-              scopeId: conversationId,
-              eventTypes: const <String>['message.created'],
-            ),
-          ),
-          ..._handlersBySessionId.keys.map(
-            (rtcSessionId) => RealtimeSubscriptionItemInput(
-              scopeType: 'rtc_session',
-              scopeId: rtcSessionId,
-              eventTypes: const <String>['rtc.signal'],
-            ),
-          ),
-        ],
+        items: _buildSubscriptionItems(),
       ),
     );
   }
 
   bool get _hasSubscriptions =>
       _handlersBySessionId.isNotEmpty || _conversationHandlersById.isNotEmpty;
+
+  ImRealtimeSubscriptionGroups _buildSubscriptionGroups() {
+    final baselineSubscriptions = _connectOptions?.subscriptions;
+    return ImRealtimeSubscriptionGroups(
+      conversations: _mergeScopeIds(
+        baselineSubscriptions?.conversations ?? const <String>[],
+        _conversationHandlersById.keys,
+      ),
+      rtcSessions: _mergeScopeIds(
+        baselineSubscriptions?.rtcSessions ?? const <String>[],
+        _handlersBySessionId.keys,
+      ),
+      items: baselineSubscriptions?.items ??
+          const <RealtimeSubscriptionItemInput>[],
+    );
+  }
+
+  ImConnectOptions _buildConnectOptions() {
+    return ImConnectOptions(
+      deviceId: _deviceId,
+      subscriptions: _buildSubscriptionGroups(),
+      url: _connectOptions?.url,
+      headers: _connectOptions?.headers,
+      protocols: _connectOptions?.protocols,
+      connectTimeout:
+          _connectOptions?.connectTimeout ?? const Duration(seconds: 15),
+      webSocketAuth: _connectOptions?.webSocketAuth,
+    );
+  }
+
+  List<RealtimeSubscriptionItemInput> _buildSubscriptionItems() {
+    final groups = _buildSubscriptionGroups();
+    return _dedupeSubscriptionItems(<RealtimeSubscriptionItemInput>[
+      ...groups.conversations.map(
+        (conversationId) => RealtimeSubscriptionItemInput(
+          scopeType: 'conversation',
+          scopeId: conversationId,
+          eventTypes: _defaultRtcConversationEventTypes,
+        ),
+      ),
+      ...groups.rtcSessions.map(
+        (rtcSessionId) => RealtimeSubscriptionItemInput(
+          scopeType: 'rtc_session',
+          scopeId: rtcSessionId,
+          eventTypes: _defaultRtcSessionEventTypes,
+        ),
+      ),
+      ...groups.items,
+    ]);
+  }
+
+  void _dispatchRealtimeEvent(ImReceiveContext context) {
+    var shouldAck = false;
+    final event = context.rawEvent;
+
+    final conversationSignal =
+        toRtcImConversationSignalMessageFromRealtimeEvent(event);
+    if (conversationSignal != null) {
+      shouldAck = true;
+      final handlers =
+          _conversationHandlersById[conversationSignal.conversationId];
+      if (handlers != null && handlers.isNotEmpty) {
+        final dispatchedHandlers = handlers.toList(growable: false);
+        for (final handler in dispatchedHandlers) {
+          handler(conversationSignal);
+        }
+      }
+    }
+
+    if (event.scopeType == 'rtc_session' &&
+        event.eventType == 'rtc.signal' &&
+        event.scopeId != null) {
+      final signal = context is ImSignalContext
+          ? RtcCallSignal(
+              rtcSessionId: context.signal.rtcSessionId,
+              conversationId: context.signal.conversationId,
+              rtcMode: context.signal.rtcMode,
+              signalType: context.signal.signalType,
+              payload: context.signal.payload,
+              rawPayload: context.signal.rawPayload,
+              senderId: context.signal.sender?.id,
+              signalingStreamId: context.signal.signalingStreamId,
+              occurredAt: context.signal.occurredAt,
+            )
+          : toRtcCallSignalFromRealtimeEvent(event);
+      if (signal != null) {
+        shouldAck = true;
+        final handlers = _handlersBySessionId[event.scopeId];
+        if (handlers != null && handlers.isNotEmpty) {
+          final dispatchedHandlers = handlers.toList(growable: false);
+          for (final handler in dispatchedHandlers) {
+            handler(signal);
+          }
+        }
+      }
+    }
+
+    if (shouldAck) {
+      unawaited(context.ack());
+    }
+  }
+
+  void _scheduleReconnect() {
+    if (_providedLiveConnection != null) {
+      return;
+    }
+
+    _tearDownLiveBindings(disconnectLiveConnection: true);
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(_reconnectInterval, () {
+      _reconnectTimer = null;
+      unawaited(_ensureLiveConnection());
+    });
+  }
+
+  void _closeIfIdle() {
+    if (_hasSubscriptions) {
+      return;
+    }
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    _tearDownLiveBindings(disconnectLiveConnection: true);
+  }
+
+  void _attachLiveConnection(
+    ImLiveConnection liveConnection, {
+    required bool ownsLiveConnection,
+  }) {
+    _tearDownLiveBindings(disconnectLiveConnection: false);
+    _liveConnection = liveConnection;
+    _ownsLiveConnection = ownsLiveConnection;
+    _liveEventSubscription = liveConnection.events.on(_dispatchRealtimeEvent);
+    _liveStateSubscription = liveConnection.lifecycle.onStateChange((state) {
+      if (!_hasSubscriptions || !ownsLiveConnection) {
+        return;
+      }
+      if (state.status == ImLiveConnectionStatus.error ||
+          state.status == ImLiveConnectionStatus.closed) {
+        _scheduleReconnect();
+      }
+    });
+  }
+
+  void _tearDownLiveBindings({required bool disconnectLiveConnection}) {
+    _liveEventSubscription?.call();
+    _liveEventSubscription = null;
+    _liveStateSubscription?.call();
+    _liveStateSubscription = null;
+
+    final liveConnection = _liveConnection;
+    final ownsLiveConnection = _ownsLiveConnection;
+    _liveConnection = null;
+    _ownsLiveConnection = false;
+    if (disconnectLiveConnection &&
+        ownsLiveConnection &&
+        liveConnection != null) {
+      unawaited(liveConnection.disconnect());
+    }
+  }
 }
 
 final class _ImRtcCallSignalSubscription implements RtcCallSignalSubscription {

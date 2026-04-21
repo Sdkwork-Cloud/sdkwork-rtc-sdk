@@ -1,14 +1,11 @@
-import { RtcSdkException } from './errors.js';
 import type {
   RtcCallSignal,
   RtcCallSignalSubscription,
   RtcCallSignalingAdapter,
 } from './call-types.js';
-import type { CreateStandardRtcCallControllerOptions } from './call-controller-models.js';
-import type { ImRtcCallControllerSdkLike } from './call-controller-message.js';
 import type {
-  ImRtcLiveConnectionLike,
   ImRtcLiveMessageContextLike,
+  RtcImRealtimeDispatcher,
 } from './im-signaling.js';
 
 export class RtcCallControllerSessionSubscriptionManager {
@@ -55,87 +52,53 @@ export class RtcCallControllerSessionSubscriptionManager {
 }
 
 export class RtcCallControllerConversationSubscriptionManager {
-  readonly #sdk: ImRtcCallControllerSdkLike;
-  readonly #connectOptions?: CreateStandardRtcCallControllerOptions['connectOptions'];
+  readonly #realtimeDispatcher: RtcImRealtimeDispatcher;
   readonly #onMessage:
     (message: unknown, context: ImRtcLiveMessageContextLike) => void | Promise<void>;
-  #connection?: ImRtcLiveConnectionLike;
-  #unsubscribers: Array<() => void> = [];
+  readonly #subscriptionsByConversationId = new Map<
+    string,
+    RtcCallSignalSubscription
+  >();
 
   constructor(input: {
-    sdk: ImRtcCallControllerSdkLike;
-    connectOptions?: CreateStandardRtcCallControllerOptions['connectOptions'];
+    realtimeDispatcher: RtcImRealtimeDispatcher;
     onMessage(message: unknown, context: ImRtcLiveMessageContextLike): void | Promise<void>;
   }) {
-    this.#sdk = input.sdk;
-    this.#connectOptions = input.connectOptions;
+    this.#realtimeDispatcher = input.realtimeDispatcher;
     this.#onMessage = input.onMessage;
   }
 
   async reconnect(conversationIds: readonly string[]): Promise<void> {
-    if (!conversationIds.length) {
-      this.disconnect();
-      return;
+    const nextConversationIds = new Set(conversationIds.map(String));
+
+    for (const [conversationId, subscription] of this.#subscriptionsByConversationId) {
+      if (nextConversationIds.has(conversationId)) {
+        continue;
+      }
+
+      subscription.unsubscribe();
+      this.#subscriptionsByConversationId.delete(conversationId);
     }
 
-    if (typeof this.#sdk.connect !== 'function') {
-      throw new RtcSdkException({
-        code: 'signaling_not_available',
-        message:
-          'IM live invitation watch is not available. Provide sdk.connect() for conversation subscriptions.',
-      });
+    for (const conversationId of nextConversationIds) {
+      if (this.#subscriptionsByConversationId.has(conversationId)) {
+        continue;
+      }
+
+      const subscription = await this.#realtimeDispatcher.subscribeConversationSignals(
+        conversationId,
+        (message, context) => {
+          void this.#onMessage(message, context);
+        },
+      );
+      this.#subscriptionsByConversationId.set(conversationId, subscription);
     }
-
-    const nextConnection = await this.#sdk.connect({
-      ...this.#connectOptions,
-      subscriptions: {
-        conversations: conversationIds,
-        ...(this.#connectOptions?.subscriptions?.rtcSessions
-          ? {
-              rtcSessions: this.#connectOptions.subscriptions.rtcSessions,
-            }
-          : {}),
-        ...(this.#connectOptions?.subscriptions?.items
-          ? {
-              items: this.#connectOptions.subscriptions.items,
-            }
-          : {}),
-      },
-    });
-
-    if (!nextConnection.messages) {
-      nextConnection.disconnect?.();
-      throw new RtcSdkException({
-        code: 'signaling_not_available',
-        message:
-          'IM live invitation watch is missing live.messages.onConversation(...) support.',
-      });
-    }
-
-    const messageStream = nextConnection.messages;
-    const nextUnsubscribers = conversationIds.map((conversationId) =>
-      messageStream.onConversation(conversationId, (message, context) => {
-        void this.#onMessage(message, context);
-      }),
-    );
-
-    const previousConnection = this.#connection;
-    const previousUnsubscribers = this.#unsubscribers;
-    this.#connection = nextConnection;
-    this.#unsubscribers = nextUnsubscribers;
-    for (const unsubscribe of previousUnsubscribers) {
-      unsubscribe();
-    }
-    previousConnection?.disconnect?.();
   }
 
   disconnect(): void {
-    for (const unsubscribe of this.#unsubscribers) {
-      unsubscribe();
+    for (const subscription of this.#subscriptionsByConversationId.values()) {
+      subscription.unsubscribe();
     }
-
-    this.#unsubscribers = [];
-    this.#connection?.disconnect?.();
-    this.#connection = undefined;
+    this.#subscriptionsByConversationId.clear();
   }
 }

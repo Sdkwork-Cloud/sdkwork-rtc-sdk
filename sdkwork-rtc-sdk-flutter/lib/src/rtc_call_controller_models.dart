@@ -246,19 +246,21 @@ class CreateStandardRtcCallControllerOptions<TNativeClient> {
     required this.sdk,
     required this.callSession,
     required this.deviceId,
-    this.pollingInterval = const Duration(seconds: 1),
-    this.pullLimit = 50,
+    Duration reconnectInterval = const Duration(seconds: 1),
     this.watchConversationIds = const <String>[],
+    this.liveConnection,
+    this.connectOptions,
     this.signaling,
     this.realtimeDispatcher,
-  });
+  }) : reconnectInterval = reconnectInterval;
 
   final ImSdkClient sdk;
   final StandardRtcCallSession<TNativeClient> callSession;
   final String deviceId;
-  final Duration pollingInterval;
-  final int pullLimit;
+  final Duration reconnectInterval;
   final List<String> watchConversationIds;
+  final ImLiveConnection? liveConnection;
+  final ImConnectOptions? connectOptions;
   final RtcCallSignalingAdapter? signaling;
   final RtcImRealtimeDispatcher? realtimeDispatcher;
 }

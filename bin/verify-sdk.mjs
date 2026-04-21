@@ -46,6 +46,7 @@ import {
   RTC_SDK_ERROR_FALLBACK_CODE,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
   DEFAULT_TYPESCRIPT_PACKAGE_STANDARD,
+  RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS,
   RTC_LANGUAGE_MATURITY_TIERS,
   RTC_LANGUAGE_MATURITY_TIER_SUMMARIES,
   RTC_PROVIDER_ACTIVATION_STATUSES,
@@ -222,6 +223,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /vendor_error/, label: 'rtc sdk canonical fallback error contract' },
       { pattern: /sdk-call-smoke\.mjs/, label: 'fast public call smoke entrypoint' },
       { pattern: /smoke-sdk\.mjs/, label: 'full regression smoke entrypoint' },
+      { pattern: /--reuse-live-connection/, label: 'shared live connection smoke variant contract' },
+      { pattern: /shared-`liveConnection` call-smoke variants/i, label: 'shared live connection regression contract' },
       { pattern: /full regression/i, label: 'full regression contract' },
       { pattern: /\.gitignore/, label: 'workspace gitignore contract' },
       { pattern: /non-source artifacts/i, label: 'workspace non-source artifact contract' },
@@ -352,6 +355,7 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /loadRtcProviderModule/, label: 'internal docs provider package module loader index' },
       { pattern: /installRtcProviderPackage/, label: 'internal docs single provider package installer index' },
       { pattern: /installRtcProviderPackages/, label: 'internal docs batch provider package installer index' },
+      { pattern: /--reuse-live-connection/, label: 'internal docs shared live connection smoke variant coverage' },
       {
         pattern: /getRtcProviderExtensionCatalog/,
         label: 'internal docs provider extension catalog lookup helper index',
@@ -852,6 +856,8 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
       { pattern: /recommendedEntrypoint/, label: 'verification of runtime baseline recommendedEntrypoint contract' },
       { pattern: /smokeCommand/, label: 'verification of runtime baseline smokeCommand contract' },
       { pattern: /smokeMode/, label: 'verification of runtime baseline smokeMode contract' },
+      { pattern: /smokeVariants/, label: 'verification of runtime baseline smokeVariants contract' },
+      { pattern: /--reuse-live-connection/, label: 'verification of shared live connection smoke variant contract' },
       { pattern: /runtimeDocumentation/, label: 'verification of runtime documentation contract' },
       { pattern: /baselineConclusion/, label: 'verification of runtime documentation baselineConclusion contract' },
       { pattern: /guideTitle/, label: 'verification of runtime documentation guideTitle contract' },
@@ -1099,6 +1105,64 @@ const REQUIRED_DOCUMENTATION_CLAUSES = [
     ],
   },
 ];
+const REQUIRED_SCRIPT_CLAUSES = [
+  {
+    relativePath: 'bin/rtc-call-smoke-standard.mjs',
+    clauses: [
+      {
+        pattern: /RTC_CALL_SMOKE_REUSE_LIVE_CONNECTION_VARIANT/,
+        label: 'shared live connection smoke variant descriptor',
+      },
+      {
+        pattern: /buildRtcRootCallSmokeSteps/,
+        label: 'shared root smoke step builder',
+      },
+      {
+        pattern: /renderRtcCallSmokeForwardedVariantHelp/,
+        label: 'shared dispatcher forwarded variant help renderer',
+      },
+    ],
+  },
+  {
+    relativePath: 'bin/materialize-sdk.mjs',
+    clauses: [
+      {
+        pattern: /rtc-call-smoke-standard\.mjs/,
+        label: 'shared rtc smoke standard helper import',
+      },
+      {
+        pattern: /renderRtcRootCallSmokeCommandVariants/,
+        label: 'shared root call smoke command variant renderer usage',
+      },
+    ],
+  },
+  {
+    relativePath: 'bin/smoke-sdk.mjs',
+    clauses: [
+      {
+        pattern: /rtc-call-smoke-standard\.mjs/,
+        label: 'shared rtc smoke standard helper import',
+      },
+      {
+        pattern: /buildRtcRootCallSmokeSteps/,
+        label: 'shared root smoke step builder usage',
+      },
+    ],
+  },
+  {
+    relativePath: 'bin/sdk-call-smoke.mjs',
+    clauses: [
+      {
+        pattern: /rtc-call-smoke-standard\.mjs/,
+        label: 'shared rtc smoke standard helper import',
+      },
+      {
+        pattern: /renderRtcCallSmokeForwardedVariantHelp/,
+        label: 'shared dispatcher forwarded variant help usage',
+      },
+    ],
+  },
+];
 
 function assertReservedLanguageToken(language, content, token, message) {
   if (!matchesReservedLanguageToken(language, content, token)) {
@@ -1214,6 +1278,12 @@ function assertLanguageWorkspaceRuntimeBaselineContent(language, runtimeBaseline
   ]) {
     if (!new RegExp(escapeRegExp(value)).test(content)) {
       fail(`${label} is missing runtimeBaseline value for ${language}: ${value}`);
+    }
+  }
+
+  for (const smokeVariant of runtimeBaseline.smokeVariants ?? []) {
+    if (!new RegExp(escapeRegExp(smokeVariant)).test(content)) {
+      fail(`${label} is missing runtimeBaseline smoke variant for ${language}: ${smokeVariant}`);
     }
   }
 }
@@ -1411,6 +1481,15 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
         fail(
           `Missing required documentation clause in ${documentRule.relativePath}: ${clause.label}`,
         );
+      }
+    }
+  }
+
+  for (const scriptRule of REQUIRED_SCRIPT_CLAUSES) {
+    const content = readFileSync(path.join(workspaceRoot, scriptRule.relativePath), 'utf8');
+    for (const clause of scriptRule.clauses) {
+      if (!clause.pattern.test(content)) {
+        fail(`Missing required script clause in ${scriptRule.relativePath}: ${clause.label}`);
       }
     }
   }
@@ -2844,6 +2923,9 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
 
     if (languageEntry.runtimeBaseline) {
       for (const [field, value] of Object.entries(languageEntry.runtimeBaseline)) {
+        if (field === 'smokeVariants') {
+          continue;
+        }
         if (typeof value !== 'string' || value.length === 0) {
           fail(`Assembly language ${languageEntry.language} runtimeBaseline.${field} must be a non-empty string`);
         }
@@ -2852,6 +2934,57 @@ export function verifyRtcSdkWorkspace(workspaceRoot) {
       if (!['runtime-backed', 'analysis-backed'].includes(languageEntry.runtimeBaseline.smokeMode)) {
         fail(
           `Assembly language ${languageEntry.language} runtimeBaseline.smokeMode must be runtime-backed or analysis-backed`,
+        );
+      }
+
+      if (
+        !Array.isArray(languageEntry.runtimeBaseline.smokeVariants) ||
+        languageEntry.runtimeBaseline.smokeVariants.length === 0
+      ) {
+        fail(
+          `Assembly language ${languageEntry.language} runtimeBaseline.smokeVariants must be a non-empty array`,
+        );
+      }
+
+      if (
+        languageEntry.runtimeBaseline.smokeVariants[0] !==
+        RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS[0]
+      ) {
+        fail(
+          `Assembly language ${languageEntry.language} runtimeBaseline.smokeVariants must start with ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS[0]}`,
+        );
+      }
+
+      const uniqueSmokeVariants = [...new Set(languageEntry.runtimeBaseline.smokeVariants)];
+      if (
+        JSON.stringify(uniqueSmokeVariants) !==
+        JSON.stringify(languageEntry.runtimeBaseline.smokeVariants)
+      ) {
+        fail(
+          `Assembly language ${languageEntry.language} runtimeBaseline.smokeVariants must not contain duplicates`,
+        );
+      }
+
+      for (const smokeVariant of languageEntry.runtimeBaseline.smokeVariants) {
+        if (
+          typeof smokeVariant !== 'string' ||
+          !RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.includes(smokeVariant)
+        ) {
+          fail(
+            `Assembly language ${languageEntry.language} runtimeBaseline.smokeVariants must use only ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.join(', ')}`,
+          );
+        }
+      }
+
+      const canonicalSmokeVariants = RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.filter((variant) =>
+        languageEntry.runtimeBaseline.smokeVariants.includes(variant),
+      );
+      if (
+        JSON.stringify(canonicalSmokeVariants) !==
+        JSON.stringify(languageEntry.runtimeBaseline.smokeVariants)
+      ) {
+        fail(
+          `Assembly language ${languageEntry.language} runtimeBaseline.smokeVariants must preserve canonical order ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.join(', ')}`,
         );
       }
     }

@@ -9,6 +9,10 @@ import {
   getRtcExecutableLanguageEntriesBySmokeMode,
 } from './rtc-standard-assembly-baseline.mjs';
 import {
+  renderRtcRootCallSmokeCommand,
+  renderRtcRootCallSmokeCommandVariants,
+} from './rtc-call-smoke-standard.mjs';
+import {
   readJsonFile,
   readUtf8File,
   resolveRtcSdkWorkspaceRoot,
@@ -129,16 +133,6 @@ function renderExecutableLandingSummary(assembly) {
   return `${renderNaturalLanguageList(executableDisplayNames)} are the executable reference baselines in the current landing.`;
 }
 
-function renderRootCallSmokeCommand(assembly, language) {
-  const defaultLanguage = getRtcDefaultCallSmokeLanguage(assembly);
-  const baseCommand = 'node .\\bin\\sdk-call-smoke.mjs';
-  if (language === defaultLanguage) {
-    return `${baseCommand} --json`;
-  }
-
-  return `${baseCommand} --language ${language} --json`;
-}
-
 function renderTemplateExecutableTargetsSummary(assembly) {
   const executableLanguages = getExecutableRuntimeLanguageEntries(assembly).map(
     (languageEntry) => languageEntry.language,
@@ -159,7 +153,9 @@ function renderTemplateExecutableTargetsSummary(assembly) {
 
 function renderTemplateFastCallSmokeCommands(assembly) {
   return getExecutableRuntimeLanguageEntries(assembly)
-    .map((languageEntry) => renderRootCallSmokeCommand(assembly, languageEntry.language))
+    .flatMap((languageEntry) =>
+      renderRtcRootCallSmokeCommandVariants(assembly, languageEntry.language),
+    )
     .join('\n');
 }
 
@@ -170,7 +166,11 @@ function renderTemplateRequiredCallSmokeSteps(assembly) {
   }
 
   return requiredEntries
-    .map((languageEntry) => `- \`${renderRootCallSmokeCommand(assembly, languageEntry.language)}\``)
+    .flatMap((languageEntry) =>
+      renderRtcRootCallSmokeCommandVariants(assembly, languageEntry.language).map(
+        (command) => `- \`${command}\``,
+      ),
+    )
     .join('\n');
 }
 
@@ -181,7 +181,11 @@ function renderTemplateOptionalCallSmokeSteps(assembly) {
   }
 
   return optionalEntries
-    .map((languageEntry) => `- \`${renderRootCallSmokeCommand(assembly, languageEntry.language)}\``)
+    .flatMap((languageEntry) =>
+      renderRtcRootCallSmokeCommandVariants(assembly, languageEntry.language).map(
+        (command) => `- \`${command}\``,
+      ),
+    )
     .join('\n');
 }
 
@@ -190,8 +194,8 @@ function renderUsageGuideLocalVerificationCommands(assembly) {
     'node .\\bin\\materialize-sdk.mjs',
     'node .\\test\\verify-sdk-automation.test.mjs',
     'node .\\bin\\verify-sdk.mjs',
-    ...getExecutableRuntimeLanguageEntries(assembly).map((languageEntry) =>
-      renderRootCallSmokeCommand(assembly, languageEntry.language),
+    ...getExecutableRuntimeLanguageEntries(assembly).flatMap((languageEntry) =>
+      renderRtcRootCallSmokeCommandVariants(assembly, languageEntry.language),
     ),
     'node .\\bin\\smoke-sdk.mjs',
   ];
@@ -337,10 +341,14 @@ The current ${guide.runtimeLabel} runtime path is:
 - vendor SDK import path: \`${languageEntry.runtimeBaseline.vendorSdkImportPath}\`
 - signaling SDK package: \`${languageEntry.runtimeBaseline.signalingSdkPackage}\`
 - signaling SDK import path: \`${languageEntry.runtimeBaseline.signalingSdkImportPath}\`
+${(languageEntry.language === 'typescript' || languageEntry.language === 'flutter')
+  ? '- signaling live receive path: `sdk.connect(...)` over WebSocket'
+  : ''}
 - standard call/session entrypoint: \`StandardRtcCallController\`
 - recommended quick-start entrypoint: \`${languageEntry.runtimeBaseline.recommendedEntrypoint}\`
 - smoke command: \`${languageEntry.runtimeBaseline.smokeCommand}\`
 - smoke mode: \`${languageEntry.runtimeBaseline.smokeMode}\`
+- smoke variants: ${renderMarkdownCodeNaturalList(languageEntry.runtimeBaseline.smokeVariants)}
 
 Use the detailed guide here:
 
@@ -379,6 +387,33 @@ function renderUsageGuideExecutableIntegrationBindings(assembly) {
         `- ${languageEntry.displayName} binds the standard surface to the official \`${languageEntry.runtimeBaseline.vendorSdkImportPath}\` runtime bridge`,
     )
     .join('\n');
+}
+
+function renderUsageGuideWebSocketAuthStandard() {
+  return lines(`
+## 7. WebSocket Signaling And Auth Standard
+
+Executable baselines keep RTC signaling on the IM live WebSocket path and never expose polling
+fallback controls.
+
+Cross-language rules:
+
+- RTC \`deviceId\` is top-level and authoritative across the standard stack
+- \`connectOptions.deviceId\` stays optional and must match the top-level \`deviceId\` when both
+  are supplied
+- \`connectOptions.webSocketAuth\` is passed straight through to \`sdkwork-im-sdk\`; RTC does not
+  introduce provider-specific auth shims
+- standard auth modes are \`automatic\`, \`queryBearer\`, \`headerBearer\`, and \`none\`
+- \`automatic\` remains the recommended default; browser WebSocket paths can resolve to
+  query-bearer while native or custom-socket paths can resolve to header-bearer when headers are
+  available
+- prefer \`credentialProvider\` with short-lived realtime tickets instead of long-lived access
+  tokens, especially when query-parameter auth is required
+- if the application already owns one shared IM live connection, pass \`liveConnection\`; RTC keeps
+  subscription sync on that same socket instead of opening a second RTC-specific connection
+- auth failure should fail fast on the WebSocket connect path; the RTC standard does not downgrade
+  to polling
+`);
 }
 
 function renderUsageGuide(assembly) {
@@ -488,6 +523,11 @@ The correct vendor integration boundary is still the same:
 - the vendor SDK owns real media behavior
 - the application wires vendor SDK instances into the standard driver/runtime-controller boundary
 - signaling adapters map \`sdkwork-im-sdk\` transport semantics into the RTC call/session standard
+- executable baselines keep signaling WebSocket-first through \`sdk.connect(...)\`; the RTC standard
+  does not expose polling controls
+- executable baselines surface WebSocket auth policy through \`connectOptions.webSocketAuth\`
+- executable baselines can reuse one app-owned IM live connection through \`liveConnection\`
+  instead of opening a second RTC-specific socket
 
 For the current runnable baselines, this boundary is already materialized:
 
@@ -496,7 +536,9 @@ ${renderUsageGuideExecutableIntegrationBindings(assembly)}
 - executable baselines publish call invites over conversation-scoped IM signals and reconcile remote
   accept, reject, end, SDP, and ICE events through the standard \`CallController\`
 
-## 7. Non-Builtin Provider Packages
+${renderUsageGuideWebSocketAuthStandard()}
+
+## 8. Non-Builtin Provider Packages
 
 For providers such as ${renderMarkdownCodeList(nonBuiltinProviderKeys)},
 the standard path is package-boundary integration instead of deep root-entrypoint coupling.
@@ -508,7 +550,7 @@ That contract stays:
 - runtime code is loaded through the provider-package loader SPI
 - runtime bridge ownership stays with the integrating application or provider package
 
-## 8. Error Semantics
+## 9. Error Semantics
 
 Important standardized error codes include:
 
@@ -533,7 +575,7 @@ The two most important runtime distinctions are:
 - \`native_sdk_not_available\`: the standard surface exists but the actual vendor runtime bridge is
   missing or misconfigured
 
-## 9. Local Verification
+## 10. Local Verification
 
 Use the following commands in the workspace root:
 
@@ -548,10 +590,11 @@ Verification intent:
 - \`verify-sdk.mjs\` validates assembly contracts and generated output
 ${renderUsageGuideExecutableSmokeNotes(assembly)}
 - \`smoke-sdk.mjs\` runs the repository regression entrypoint, including
-  \`flutter analyze ./bin/sdk-call-smoke.dart\` and \`flutter analyze\` when the Flutter toolchain is
-  available
+  the default and shared-\`liveConnection\` call-smoke variants for executable languages, plus
+  \`flutter analyze ./bin/sdk-call-smoke.dart\` and \`flutter analyze\` when the Flutter toolchain
+  is available
 
-## 10. Practical Adoption Guidance
+## 11. Practical Adoption Guidance
 
 Use this rule of thumb:
 
@@ -595,6 +638,7 @@ This document describes the current executable TypeScript baseline of \`sdkwork-
 - Recommended quick-start entrypoint: \`${runtimeBaseline.recommendedEntrypoint}\`
 - Smoke command: \`${runtimeBaseline.smokeCommand}\`
 - Smoke mode: \`${runtimeBaseline.smokeMode}\`
+- Smoke variants: ${renderMarkdownCodeNaturalList(runtimeBaseline.smokeVariants)}
 
 ## Install
 
@@ -614,6 +658,51 @@ ${runtimeBaseline.smokeCommand}
 The smoke CLI runs the public \`${languageEntry.publicPackage}\` surface against mocked \`${runtimeBaseline.signalingSdkPackage}\`
 signaling and a mocked official \`${runtimeBaseline.vendorSdkPackage}\` module, then prints the resolved provider,
 runtime calls, signaling calls, and final controller states.
+Add \`--reuse-live-connection\` when you want the smoke to verify RTC reuses an app-owned IM
+WebSocket live connection instead of opening another one.
+
+## WebSocket Auth Standard
+
+RTC delegates live signaling auth directly to \`${runtimeBaseline.signalingSdkPackage}\`.
+Prefer the official IM auth helpers instead of hand-writing raw mode objects.
+
+- \`ImWebSocketAuthOptions.automatic()\` is the recommended default; on the standard browser
+  \`WebSocket\` path it resolves to query-bearer auth
+- \`ImWebSocketAuthOptions.queryBearer()\` is the explicit browser/gateway override when the upstream
+  only accepts query-parameter auth
+- \`ImWebSocketAuthOptions.headerBearer()\` is the explicit Node or custom-socket override when
+  headers are available
+- \`ImWebSocketAuthOptions.none()\` is reserved for trusted internal links or pre-signed socket
+  URLs
+- prefer \`credentialProvider\` with a short-lived realtime ticket; avoid putting long-lived access
+  tokens on the WebSocket URL
+- keep \`deviceId\` at the RTC stack top level; \`connectOptions.deviceId\` is optional and must
+  match when supplied
+- when the application already owns a shared IM socket, pass \`liveConnection\` so RTC syncs
+  subscriptions on that same WebSocket instead of opening another one
+
+\`\`\`ts
+import { ImSdkClient, ImWebSocketAuthOptions } from '${runtimeBaseline.signalingSdkImportPath}';
+import { ${runtimeBaseline.recommendedEntrypoint} } from '${languageEntry.publicPackage}';
+
+const imSdk = new ImSdkClient({
+  baseUrl: 'https://craw-chat.example.com',
+  authToken: 'app-token',
+});
+
+const rtc = await ${runtimeBaseline.recommendedEntrypoint}({
+  sdk: imSdk,
+  deviceId: 'device-1',
+  connectOptions: {
+    webSocketAuth: ImWebSocketAuthOptions.automatic(),
+  },
+  dataSourceConfig: {
+    nativeConfig: {
+      appId: 'volc-app-id',
+    },
+  },
+});
+\`\`\`
 
 ## Media Runtime Only
 
@@ -698,7 +787,7 @@ Use this path when the app wants one standard session that combines:
 - typed offer/answer/ice signaling over the RTC session stream
 
 \`\`\`ts
-import { ImSdkClient } from '${runtimeBaseline.signalingSdkImportPath}';
+import { ImSdkClient, ImWebSocketAuthOptions } from '${runtimeBaseline.signalingSdkImportPath}';
 import {
   ${runtimeBaseline.recommendedEntrypoint},
   RTC_CALL_OFFER_SIGNAL_TYPE,
@@ -711,8 +800,9 @@ const imSdk = new ImSdkClient({
 
 const rtc = await ${runtimeBaseline.recommendedEntrypoint}({
   sdk: imSdk,
+  deviceId: 'device-1',
   connectOptions: {
-    deviceId: 'device-1',
+    webSocketAuth: ImWebSocketAuthOptions.automatic(),
   },
   watchConversationIds: ['conversation-1'],
   dataSourceConfig: {
@@ -763,6 +853,33 @@ await rtc.callController.sendIceCandidate({
 await rtc.callController.end();
 \`\`\`
 
+## Reuse Existing IM WebSocket
+
+When the application already owns one shared IM live connection, reuse it so RTC does not open a
+second WebSocket:
+
+\`\`\`ts
+const liveConnection = await imSdk.connect({
+  deviceId: 'device-1',
+  subscriptions: {
+    conversations: ['conversation-1'],
+  },
+  webSocketAuth: ImWebSocketAuthOptions.automatic(),
+});
+
+const rtc = await ${runtimeBaseline.recommendedEntrypoint}({
+  sdk: imSdk,
+  deviceId: 'device-1',
+  liveConnection,
+  watchConversationIds: ['conversation-1'],
+  dataSourceConfig: {
+    nativeConfig: {
+      appId: 'volc-app-id',
+    },
+  },
+});
+\`\`\`
+
 ## Signaling Contract Mapping
 
 \`createImRtcSignalingAdapter(...)\` maps the \`${runtimeBaseline.signalingSdkPackage}\` composed RTC surface to the RTC
@@ -775,20 +892,32 @@ standard call/signaling contract:
 - \`sdk.rtc.end(...)\` -> \`endSession(...)\`
 - \`sdk.rtc.postJsonSignal(...)\` -> \`sendSignal(...)\`
 - \`sdk.rtc.issueParticipantCredential(...)\` -> \`issueParticipantCredential(...)\`
-- \`sdk.connect(...).signals.onRtcSession(...)\` -> \`subscribeSessionSignals(...)\`
+- shared \`RtcImRealtimeDispatcher\` -> one IM WebSocket connection for both
+  \`sdk.connect(...).signals.onRtcSession(...)\` and
+  \`sdk.connect(...).messages.onConversation(...)\`
 - \`sdk.createSignalMessage(...)\` + \`sdk.send(...)\` -> conversation-scoped invite publication
-- \`sdk.connect(...).messages.onConversation(...)\` -> incoming invite discovery
+- \`sdk.realtime.replaceSubscriptions(...)\` -> live subscription sync without opening a second
+  realtime connection
 
 ## Runtime Guarantees
 
 - \`${runtimeBaseline.recommendedEntrypoint}(...)\` returns \`driverManager\`, \`dataSource\`,
-  \`mediaClient\`, \`signaling\`, \`callSession\`, and \`callController\` as one explicit standard bundle
+  \`mediaClient\`, \`signaling\`, \`callSession\`, \`realtimeDispatcher\`, and \`callController\`
+  as one explicit standard bundle
 - \`createRtcCallTrackId(rtcSessionId, kind)\` is the standard cross-language track id helper and
   yields canonical ids such as \`rtc-session-1-audio\`
 - TypeScript now defaults \`subscribeSignals\` to \`true\`, aligned with Flutter/mobile
 - \`createBuiltinRtcDriverManager()\` defaults to \`${defaultProviderKey}\`
 - Volcengine Web runtime loading is lazy
 - official vendor SDKs are not bundled into the RTC standard package
+- IM signaling is WebSocket-first; the TypeScript RTC standard does not expose polling controls
+- \`connectOptions.webSocketAuth\` is passed through to \`${runtimeBaseline.signalingSdkPackage}\`
+  so browser gateways can prefer query-bearer WebSocket auth while non-browser callers can keep
+  header-bearer mode
+- \`liveConnection\` lets the TypeScript RTC standard reuse an app-owned shared IM WebSocket live
+  connection instead of opening a second RTC-specific socket
+- \`deviceId\` remains the authoritative RTC realtime identity; when
+  \`connectOptions.deviceId\` is provided it must match the RTC stack \`deviceId\`
 - signal payloads are exposed as parsed JSON when possible and as raw strings otherwise
 - the call/session layer does not leak IM transport DTOs into the RTC public standard
 - \`StandardRtcCallController\` is the default orchestration layer for invite discovery, remote
@@ -850,6 +979,63 @@ dependencies:
 ${renderFlutterRuntimeUsageInstallDependencies(languageEntry)}
 \`\`\`
 
+Recommended IM realtime rule:
+
+- keep \`${runtimeBaseline.signalingSdkPackage}\` on the delivered \`sdk.connect(...)\` WebSocket
+  live path
+- keep \`ImWebSocketAuthOptions.automatic()\` as the default and prefer
+  \`credentialProvider\` with a short-lived realtime ticket for browser-facing gateways
+- when HTTP and realtime origins are split, set \`websocketBaseUrl\` on \`ImSdkClient.create(...)\`
+- when RTC needs a live-auth override, pass \`connectOptions.webSocketAuth\` on
+  \`${runtimeBaseline.recommendedEntrypoint}(...)\`
+- when the app already owns one shared IM live connection, pass \`liveConnection\` on the RTC
+  standard stack so RTC reuses that WebSocket instead of opening another one
+
+## WebSocket Auth Standard
+
+RTC delegates live signaling auth directly to \`${runtimeBaseline.signalingSdkPackage}\` and stays
+WebSocket-first.
+
+- \`ImWebSocketAuthOptions.automatic()\` is the recommended default
+- \`ImWebSocketAuthOptions.queryBearer()\` is the explicit override for gateways that only accept
+  query-parameter auth
+- \`ImWebSocketAuthOptions.headerBearer()\` is the explicit override for custom native socket
+  bridges that can attach headers
+- \`ImWebSocketAuthOptions.none()\` is reserved for trusted internal sockets or pre-signed WebSocket
+  URLs
+- prefer \`credentialProvider\` with short-lived realtime tickets instead of long-lived access
+  tokens
+- keep \`deviceId\` on the RTC stack top level; \`connectOptions.deviceId\` is optional and must
+  match when supplied
+- if the application already owns one shared IM live connection, pass \`liveConnection\`; RTC
+  keeps subscription sync on that same socket and does not open another one
+- WebSocket auth failure should fail fast; the Flutter RTC standard does not downgrade to polling
+
+\`\`\`dart
+import '${runtimeBaseline.signalingSdkImportPath}';
+import 'package:rtc_sdk/rtc_sdk.dart';
+
+Future<void> connectRtcLive(ImSdkClient imSdk) async {
+  final rtc = await ${runtimeBaseline.recommendedEntrypoint}<
+      RtcVolcengineFlutterNativeClient>(
+    CreateStandardRtcCallControllerStackOptions(
+      sdk: imSdk,
+      deviceId: 'device-1',
+      connectOptions: const ImConnectOptions(
+        webSocketAuth: ImWebSocketAuthOptions.automatic(),
+      ),
+      dataSourceOptions: const RtcDataSourceOptions(
+        nativeConfig: RtcVolcengineFlutterNativeConfig(
+          appId: 'volc-app-id',
+        ),
+      ),
+    ),
+  );
+
+  await rtc.close();
+}
+\`\`\`
+
 ## Fast Smoke Verification
 
 Run the public Flutter smoke command inside \`${languageEntry.workspace}\` when you need to verify the default
@@ -858,6 +1044,9 @@ Run the public Flutter smoke command inside \`${languageEntry.workspace}\` when 
 \`\`\`powershell
 ${runtimeBaseline.smokeCommand}
 \`\`\`
+
+Add \`--reuse-live-connection\` when you want the analyze-backed Flutter smoke to validate the
+shared IM WebSocket ownership path as part of the public RTC baseline.
 
 The executable wrapper is currently analyze-backed because the official
 \`${runtimeBaseline.vendorSdkPackage}\` package crashes under Dart VM CLI compilation in the current toolchain.
@@ -868,6 +1057,7 @@ The verified smoke surface is:
 - \`${runtimeBaseline.recommendedEntrypoint}(...)\`
 - the default \`${defaultProviderKey}\` provider selection path
 - \`${runtimeBaseline.signalingSdkPackage}\` client composition through \`ImSdkClient.create(...)\`
+- authoritative top-level \`deviceId\` plus the optional shared \`liveConnection\` stack variant
 - the official Volcengine Flutter bridge smoke scenario source in \`bin/sdk-call-smoke.dart\`
 - the future runtime-backed path that will be used once the vendor package is CLI-runnable in the
   active toolchain
@@ -965,6 +1155,9 @@ Future<void> startRtcCall({
       sdk: imSdk,
       deviceId: 'device-1',
       watchConversationIds: const <String>['conversation-1'],
+      connectOptions: const ImConnectOptions(
+        webSocketAuth: ImWebSocketAuthOptions.automatic(),
+      ),
       dataSourceOptions: const RtcDataSourceOptions(
         nativeConfig: RtcVolcengineFlutterNativeConfig(
           appId: 'volc-app-id',
@@ -1017,8 +1210,43 @@ Future<void> startRtcCall({
     ),
   );
 
-  await rtc.callController.end();
+await rtc.callController.end();
 }
+\`\`\`
+
+## Reuse Existing IM WebSocket
+
+When the application already owns one shared IM live connection, pass that connection into the RTC
+stack so signaling stays on the same WebSocket:
+
+\`\`\`dart
+final liveConnection = await imSdk.connect(
+  const ImConnectOptions(
+    deviceId: 'device-1',
+    subscriptions: ImRealtimeSubscriptionGroups(
+      conversations: <String>['conversation-1'],
+    ),
+    webSocketAuth: ImWebSocketAuthOptions.automatic(),
+  ),
+);
+
+final rtc = await ${runtimeBaseline.recommendedEntrypoint}<
+    RtcVolcengineFlutterNativeClient>(
+  CreateStandardRtcCallControllerStackOptions(
+    sdk: imSdk,
+    deviceId: 'device-1',
+    liveConnection: liveConnection,
+    watchConversationIds: const <String>['conversation-1'],
+    connectOptions: const ImConnectOptions(
+      webSocketAuth: ImWebSocketAuthOptions.automatic(),
+    ),
+    dataSourceOptions: const RtcDataSourceOptions(
+      nativeConfig: RtcVolcengineFlutterNativeConfig(
+        appId: 'volc-app-id',
+      ),
+    ),
+  ),
+);
 \`\`\`
 
 ## Signaling Contract Mapping
@@ -1033,7 +1261,8 @@ standard call/signaling contract:
 - \`sdk.rtc.end(...)\` -> \`endSession(...)\`
 - \`sdk.rtc.postJsonSignal(...)\` -> \`sendSignal(...)\`
 - \`sdk.rtc.issueParticipantCredential(...)\` -> \`issueParticipantCredential(...)\`
-- \`sdk.realtime.pullEvents(...)\` -> internal shared RTC realtime dispatcher
+- \`sdk.connect(...)\` -> internal shared RTC realtime dispatcher live stream
+- \`sdk.realtime.ackEvents(...)\` -> durable sequence acknowledgement after live delivery
 - \`sdk.conversations.postMessage(...)\` with a signal part -> conversation-scoped invite publication
 
 ## Runtime Guarantees
@@ -1052,6 +1281,14 @@ standard call/signaling contract:
 - \`RtcJoinOptions.token\` is sourced from IM-issued participant credentials in the standard call
   flow instead of hardcoding vendor tokens in the caller
 - audio and video auto-publish are standardized through \`RtcCallAutoPublishOptions\`
+- \`connectOptions.webSocketAuth\` is passed through to \`${runtimeBaseline.signalingSdkPackage}\`
+  when the RTC stack establishes its shared IM WebSocket live connection
+- \`liveConnection\` lets the RTC standard reuse an app-owned \`sdk.connect(...)\` live connection
+  instead of opening a second RTC-specific socket
+- \`deviceId\` remains the authoritative RTC realtime identity; when
+  \`connectOptions.deviceId\` is provided it must match the RTC stack \`deviceId\`
+- \`reconnectInterval\` is the standard Flutter RTC reconnect-backoff option for IM live signaling;
+  the public Flutter RTC standard does not expose polling controls
 `);
 }
 
@@ -1592,6 +1829,7 @@ function buildLanguageWorkspaceCatalogEntries(assembly) {
           recommendedEntrypoint: languageEntry.runtimeBaseline.recommendedEntrypoint,
           smokeCommand: languageEntry.runtimeBaseline.smokeCommand,
           smokeMode: languageEntry.runtimeBaseline.smokeMode,
+          smokeVariants: [...languageEntry.runtimeBaseline.smokeVariants],
         }
       : undefined,
     metadataScaffold: languageEntry.metadataScaffold
@@ -1686,6 +1924,7 @@ Runtime baseline contract:
 - recommended entrypoint: \`${languageEntry.runtimeBaseline.recommendedEntrypoint}\`
 - smoke command: \`${languageEntry.runtimeBaseline.smokeCommand}\`
 - smoke mode: \`${languageEntry.runtimeBaseline.smokeMode}\`
+- smoke variants: ${renderMarkdownCodeNaturalList(languageEntry.runtimeBaseline.smokeVariants)}
 `;
 }
 
@@ -1814,6 +2053,7 @@ function renderTypeScriptLanguageWorkspaceRuntimeBaseline(runtimeBaseline) {
     recommendedEntrypoint: ${renderStringLiteral(runtimeBaseline.recommendedEntrypoint)},
     smokeCommand: ${renderStringLiteral(runtimeBaseline.smokeCommand)},
     smokeMode: ${renderStringLiteral(runtimeBaseline.smokeMode)},
+    smokeVariants: freezeRtcRuntimeValue(${renderReadonlyStringArray(runtimeBaseline.smokeVariants)}),
   })`;
 }
 
@@ -1910,6 +2150,7 @@ function renderTypeScriptWorkspaceReadme(languageEntry, assembly) {
     'standard capability negotiation helpers at src/capability-negotiation.ts',
     'standard provider support helpers at src/provider-support.ts',
     'standard call-stack composition helper at src/standard-call-stack.ts for default Volcengine plus sdkwork-im-sdk signaling',
+    'shared IM WebSocket realtime dispatcher at src/im-signaling.ts for unified RTC session and conversation invite subscriptions',
     'assembly-driven provider package catalog at src/provider-package-catalog.ts',
     'standard provider package loader and installer SPI at src/provider-package-loader.ts',
     'assembly-driven provider activation catalog at src/provider-activation-catalog.ts',
@@ -1977,6 +2218,11 @@ Local smoke CLI:
   \`sdkwork-im-sdk\` signaling and a mocked official Volcengine Web SDK module
 - \`npm run smoke\`
 - \`node ./bin/sdk-call-smoke.mjs --json\`
+- \`node ./bin/sdk-call-smoke.mjs --json --reuse-live-connection\`
+- signaling uses one shared IM WebSocket realtime dispatcher, and \`connectOptions.webSocketAuth\`
+  remains part of the public TypeScript RTC baseline
+- \`liveConnection\` is also part of the public TypeScript RTC baseline when the application wants
+  RTC to reuse an existing shared IM WebSocket live connection
 
 Standards references:
 
@@ -2060,6 +2306,9 @@ Future<void> startRtcCall({
     CreateStandardRtcCallControllerStackOptions(
       sdk: imSdk,
       deviceId: 'current-device-id',
+      connectOptions: const ImConnectOptions(
+        webSocketAuth: ImWebSocketAuthOptions.automatic(),
+      ),
       dataSourceOptions: const RtcDataSourceOptions(
         nativeConfig: RtcVolcengineFlutterNativeConfig(
           appId: 'your-volcengine-app-id',
@@ -2092,8 +2341,17 @@ Runtime notes:
 - \`RtcJoinOptions.token\` is filled from \`sdkwork-im-sdk\` issued participant credentials, not by
   hardcoding vendor tokens in the caller
 - \`RtcPublishOptions\` supports standard audio and video publishing through the Volcengine adapter
-- signaling subscriptions are multiplexed through one shared IM realtime dispatcher so multiple RTC
-  sessions do not overwrite each other at the subscription layer`;
+- signaling subscriptions are multiplexed through one shared IM realtime dispatcher backed by
+  \`im_sdk.connect(...)\` WebSocket live receive, so multiple RTC sessions do not overwrite each
+  other at the subscription layer
+- \`connectOptions.webSocketAuth\` is forwarded to the shared IM live connection when the RTC stack
+  establishes its own WebSocket
+- \`liveConnection\` lets the Flutter RTC standard reuse an app-owned shared IM WebSocket live
+  connection instead of creating another one
+- \`deviceId\` remains the authoritative RTC realtime identity; if \`connectOptions.deviceId\` is
+  provided it must match the RTC stack \`deviceId\`
+- \`reconnectInterval\` is the standard IM live signaling reconnect-backoff option for the shared
+  WebSocket live connection; the Flutter RTC standard does not expose polling controls`;
 }
 
 function renderCapabilityMatrix(assembly) {

@@ -12,6 +12,7 @@ const DEFAULT_OPTIONS = Object.freeze({
   participantId: 'user-smoke',
   signalingStreamId: 'signal-smoke',
   deviceId: 'device-smoke',
+  reuseLiveConnection: false,
   json: false,
 });
 
@@ -112,6 +113,7 @@ export function getRtcCallSmokeHelpText() {
     '  --participant-id <id>        Override the participant id',
     '  --signaling-stream-id <id>   Override the signaling stream id',
     '  --device-id <id>             Override the IM realtime device id',
+    '  --reuse-live-connection      Reuse one preconnected IM WebSocket live connection',
   ].join('\n');
 }
 
@@ -139,6 +141,7 @@ export function parseRtcCallSmokeArgs(argv) {
       DEFAULT_OPTIONS.signalingStreamId,
     ),
     deviceId: readStringOption(entries, 'device-id', DEFAULT_OPTIONS.deviceId),
+    reuseLiveConnection: entries['reuse-live-connection'] === true,
     json: entries.json === true,
   };
 }
@@ -186,6 +189,15 @@ function createVolcengineSdkModule(runtimeCalls) {
 
 function createImSdkStub(signalingCalls, config) {
   return {
+    realtime: {
+      async replaceSubscriptions(body) {
+        signalingCalls.push(['replaceSubscriptions', body]);
+        return {
+          deviceId: body.deviceId ?? config.deviceId,
+          items: body.items ?? [],
+        };
+      },
+    },
     createSignalMessage(body) {
       signalingCalls.push(['createSignalMessage', body]);
       return {
@@ -278,6 +290,14 @@ function createImSdkStub(signalingCalls, config) {
     async connect(options) {
       signalingCalls.push(['connect', options]);
       return {
+        messages: {
+          onConversation(conversationId) {
+            signalingCalls.push(['onConversation', String(conversationId)]);
+            return () => {
+              signalingCalls.push(['unsubscribeConversation', String(conversationId)]);
+            };
+          },
+        },
         signals: {
           onRtcSession(rtcSessionId) {
             signalingCalls.push(['onRtcSession', String(rtcSessionId)]);
@@ -300,6 +320,8 @@ function createTextSummary(summary) {
     `default provider: ${summary.defaultProviderKey}`,
     `selected provider: ${summary.selectedProviderKey}`,
     `media provider: ${summary.mediaProviderKey}`,
+    `live connection mode: ${summary.reusedLiveConnection ? 'reused' : 'rtc-owned'}`,
+    `connect call count: ${summary.connectCallCount}`,
     `ended controller state: ${summary.endedControllerState}`,
     `closed controller state: ${summary.closedControllerState}`,
     `runtime calls: ${summary.runtimeCalls.map(([name]) => name).join(', ')}`,
@@ -335,12 +357,21 @@ export async function runRtcCallSmokeScenario(options = {}, deps = {}) {
     ],
   });
   const imSdk = createImSdkStub(signalingCalls, config);
+  const liveConnection =
+    config.reuseLiveConnection
+      ? await imSdk.connect({
+        deviceId: config.deviceId,
+        subscriptions: {
+          conversations: [config.conversationId],
+        },
+      })
+      : undefined;
 
   const stack = await sdk.createStandardRtcCallControllerStack({
     sdk: imSdk,
-    connectOptions: {
-      deviceId: config.deviceId,
-    },
+    deviceId: config.deviceId,
+    ...(liveConnection ? { liveConnection } : {}),
+    watchConversationIds: [config.conversationId],
     driverManager,
     dataSourceConfig: {
       nativeConfig: {
@@ -392,6 +423,8 @@ export async function runRtcCallSmokeScenario(options = {}, deps = {}) {
     defaultProviderKey: sdk.DEFAULT_RTC_PROVIDER_KEY,
     selectedProviderKey: selection.providerKey,
     mediaProviderKey: stack.mediaClient.metadata.providerKey,
+    reusedLiveConnection: config.reuseLiveConnection,
+    connectCallCount: signalingCalls.filter(([name]) => name === 'connect').length,
     endedControllerState: endedSnapshot.controllerState,
     endedCallState: endedSnapshot.state,
     endedRtcSessionId: endedSnapshot.rtcSessionId,

@@ -95,6 +95,7 @@ final class RtcLanguageWorkspaceRuntimeBaseline {
     required this.recommendedEntrypoint,
     required this.smokeCommand,
     required this.smokeMode,
+    required this.smokeVariants,
   });
 
   final String vendorSdkPackage;
@@ -104,6 +105,7 @@ final class RtcLanguageWorkspaceRuntimeBaseline {
   final String recommendedEntrypoint;
   final String smokeCommand;
   final String smokeMode;
+  final List<String> smokeVariants;
 }
 
 final class RtcLanguageWorkspaceMetadataScaffold {
@@ -250,6 +252,7 @@ final class RtcLanguageWorkspaceCatalog {
         recommendedEntrypoint: "createStandardRtcCallControllerStack",
         smokeCommand: "node ./bin/sdk-call-smoke.mjs --json",
         smokeMode: "runtime-backed",
+        smokeVariants: <String>["default", "reuse-live-connection"],
       ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "src/provider-catalog.ts",
@@ -323,6 +326,7 @@ final class RtcLanguageWorkspaceCatalog {
         recommendedEntrypoint: "createStandardRtcCallControllerStack",
         smokeCommand: "node ./bin/sdk-call-smoke.mjs --json",
         smokeMode: "analysis-backed",
+        smokeVariants: <String>["default", "reuse-live-connection"],
       ),
       metadataScaffold: RtcLanguageWorkspaceMetadataScaffold(
         providerCatalogRelativePath: "lib/src/rtc_provider_catalog.dart",

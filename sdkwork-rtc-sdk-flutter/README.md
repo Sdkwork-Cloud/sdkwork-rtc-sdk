@@ -63,6 +63,7 @@ Runtime baseline contract:
 - recommended entrypoint: `createStandardRtcCallControllerStack`
 - smoke command: `node ./bin/sdk-call-smoke.mjs --json`
 - smoke mode: `analysis-backed`
+- smoke variants: `default` and `reuse-live-connection`
 
 
 Provider package boundary:
@@ -153,6 +154,9 @@ Future<void> startRtcCall({
     CreateStandardRtcCallControllerStackOptions(
       sdk: imSdk,
       deviceId: 'current-device-id',
+      connectOptions: const ImConnectOptions(
+        webSocketAuth: ImWebSocketAuthOptions.automatic(),
+      ),
       dataSourceOptions: const RtcDataSourceOptions(
         nativeConfig: RtcVolcengineFlutterNativeConfig(
           appId: 'your-volcengine-app-id',
@@ -185,8 +189,17 @@ Runtime notes:
 - `RtcJoinOptions.token` is filled from `sdkwork-im-sdk` issued participant credentials, not by
   hardcoding vendor tokens in the caller
 - `RtcPublishOptions` supports standard audio and video publishing through the Volcengine adapter
-- signaling subscriptions are multiplexed through one shared IM realtime dispatcher so multiple RTC
-  sessions do not overwrite each other at the subscription layer
+- signaling subscriptions are multiplexed through one shared IM realtime dispatcher backed by
+  `im_sdk.connect(...)` WebSocket live receive, so multiple RTC sessions do not overwrite each
+  other at the subscription layer
+- `connectOptions.webSocketAuth` is forwarded to the shared IM live connection when the RTC stack
+  establishes its own WebSocket
+- `liveConnection` lets the Flutter RTC standard reuse an app-owned shared IM WebSocket live
+  connection instead of creating another one
+- `deviceId` remains the authoritative RTC realtime identity; if `connectOptions.deviceId` is
+  provided it must match the RTC stack `deviceId`
+- `reconnectInterval` is the standard IM live signaling reconnect-backoff option for the shared
+  WebSocket live connection; the Flutter RTC standard does not expose polling controls
 
 Standards references:
 

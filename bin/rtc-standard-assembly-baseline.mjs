@@ -20,6 +20,7 @@ import {
   RTC_LANGUAGE_MATURITY_TIERS,
   RTC_LANGUAGE_MATURITY_TIER_SUMMARIES,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
+  RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS,
   RTC_PROVIDER_ACTIVATION_STATUSES,
   RTC_PROVIDER_EXTENSION_ACCESSES,
   RTC_PROVIDER_EXTENSION_STATUSES,
@@ -592,6 +593,51 @@ export function assertRtcAssemblyWorkspaceBaseline(assembly) {
     if (!RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.includes(runtimeBaseline.smokeMode)) {
       throw new Error(
         `language ${languageEntry.language} runtimeBaseline.smokeMode must be one of ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_MODES.join(', ')}`,
+      );
+    }
+
+    if (
+      !Array.isArray(runtimeBaseline.smokeVariants) ||
+      runtimeBaseline.smokeVariants.length === 0
+    ) {
+      throw new Error(
+        `language ${languageEntry.language} runtimeBaseline.smokeVariants must be a non-empty array`,
+      );
+    }
+
+    if (
+      runtimeBaseline.smokeVariants[0] !==
+      RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS[0]
+    ) {
+      throw new Error(
+        `language ${languageEntry.language} runtimeBaseline.smokeVariants must start with ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS[0]}`,
+      );
+    }
+
+    const uniqueSmokeVariants = [...new Set(runtimeBaseline.smokeVariants)];
+    if (!hasExactArray(runtimeBaseline.smokeVariants, uniqueSmokeVariants)) {
+      throw new Error(
+        `language ${languageEntry.language} runtimeBaseline.smokeVariants must not contain duplicates`,
+      );
+    }
+
+    for (const smokeVariant of runtimeBaseline.smokeVariants) {
+      if (
+        typeof smokeVariant !== 'string' ||
+        !RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.includes(smokeVariant)
+      ) {
+        throw new Error(
+          `language ${languageEntry.language} runtimeBaseline.smokeVariants must use only ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.join(', ')}`,
+        );
+      }
+    }
+
+    const canonicalSmokeVariants = RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.filter((variant) =>
+      runtimeBaseline.smokeVariants.includes(variant),
+    );
+    if (!hasExactArray(runtimeBaseline.smokeVariants, canonicalSmokeVariants)) {
+      throw new Error(
+        `language ${languageEntry.language} runtimeBaseline.smokeVariants must preserve canonical order ${RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.join(', ')}`,
       );
     }
 

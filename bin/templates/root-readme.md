@@ -511,9 +511,13 @@ The fast public call smoke entrypoints are:
 {{RTC_FAST_CALL_SMOKE_COMMANDS}}
 ```
 
+The root smoke dispatcher forwards language-specific arguments unchanged, so standard variants such
+as `--reuse-live-connection` stay part of the public RTC smoke contract.
+
 Run the full regression command before describing the RTC SDK workspace as complete. It executes
-materialization, root automation tests, root verification, TypeScript package tests, and optional
-language smoke checks when the corresponding toolchains are installed.
+materialization, root automation tests, root verification, TypeScript package tests, the default
+and shared-`liveConnection` call-smoke variants for executable languages, and optional language
+smoke checks when the corresponding toolchains are installed.
 
 The verifier is responsible for:
 

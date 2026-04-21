@@ -143,8 +143,11 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
 
   const rtcStack = await createStandardRtcCallStack({
     sdk: imSdk,
+    deviceId: 'device-1',
     connectOptions: {
-      deviceId: 'device-1',
+      webSocketAuth: {
+        mode: 'queryBearer',
+      },
     },
     driverManager,
     dataSourceConfig: {
@@ -157,6 +160,8 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
   assert.equal(rtcStack.driverManager, driverManager);
   assert.equal(rtcStack.dataSource.describeSelection().providerKey, 'volcengine');
   assert.equal(rtcStack.mediaClient.metadata.providerKey, 'volcengine');
+  assert.equal(typeof rtcStack.realtimeDispatcher.subscribeSessionSignals, 'function');
+  assert.equal(typeof rtcStack.realtimeDispatcher.subscribeConversationSignals, 'function');
   assert.equal(typeof rtcStack.close, 'function');
 
   const snapshot = await rtcStack.callSession.startOutgoing({
@@ -195,6 +200,9 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
       'connect',
       {
         deviceId: 'device-1',
+        webSocketAuth: {
+          mode: 'queryBearer',
+        },
         subscriptions: {
           rtcSessions: ['rtc-session-1'],
         },
@@ -223,4 +231,22 @@ test('createStandardRtcCallStack composes an explicit call stack around media an
     false,
   );
   assert.deepEqual(signalingCalls.slice(-1), [['unsubscribeRtcSession', 'rtc-session-1']]);
+});
+
+test('RtcImRealtimeDispatcher rejects mismatched deviceId inputs', async () => {
+  const { RtcImRealtimeDispatcher } = await loadSdk();
+
+  assert.throws(
+    () =>
+      new RtcImRealtimeDispatcher({
+        sdk: {
+          rtc: {},
+        },
+        deviceId: 'device-1',
+        connectOptions: {
+          deviceId: 'device-2',
+        },
+      }),
+    /RTC signaling deviceId must match connectOptions\.deviceId/,
+  );
 });

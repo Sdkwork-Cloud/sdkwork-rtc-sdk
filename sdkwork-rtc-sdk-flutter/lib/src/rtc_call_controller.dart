@@ -26,8 +26,9 @@ class StandardRtcCallController<TNativeClient> implements RtcCloseable {
           CreateImRtcSignalingAdapterOptions(
             sdk: options.sdk,
             deviceId: options.deviceId,
-            pollingInterval: options.pollingInterval,
-            pullLimit: options.pullLimit,
+            reconnectInterval: options.reconnectInterval,
+            liveConnection: options.liveConnection,
+            connectOptions: options.connectOptions,
           ),
         );
     final signaling = options.signaling ??
@@ -35,8 +36,9 @@ class StandardRtcCallController<TNativeClient> implements RtcCloseable {
           CreateImRtcSignalingAdapterOptions(
             sdk: options.sdk,
             deviceId: options.deviceId,
-            pollingInterval: options.pollingInterval,
-            pullLimit: options.pullLimit,
+            reconnectInterval: options.reconnectInterval,
+            liveConnection: options.liveConnection,
+            connectOptions: options.connectOptions,
             realtimeDispatcher: realtimeDispatcher,
           ),
         );
@@ -56,7 +58,7 @@ class StandardRtcCallController<TNativeClient> implements RtcCloseable {
     required RtcCallSignalingAdapter signaling,
     required RtcImRealtimeDispatcher realtimeDispatcher,
     required List<String> watchConversationIds,
-  })   : _sdk = sdk,
+  })  : _sdk = sdk,
         _callSession = callSession,
         _signaling = signaling {
     _sessionSubscriptionManager = RtcCallControllerSessionSubscriptionManager(
@@ -174,7 +176,8 @@ class StandardRtcCallController<TNativeClient> implements RtcCloseable {
     await _callSession.acceptIncoming(
       RtcIncomingCallAcceptOptions(
         rtcSessionId: options.rtcSessionId,
-        conversationId: options.conversationId ?? _activeInvitation?.conversationId,
+        conversationId:
+            options.conversationId ?? _activeInvitation?.conversationId,
         rtcMode: options.rtcMode ?? _activeInvitation?.rtcMode,
         roomId: options.roomId ?? _activeInvitation?.roomId,
         participantId: options.participantId,
@@ -235,7 +238,8 @@ class StandardRtcCallController<TNativeClient> implements RtcCloseable {
     RtcCallControllerEndOptions options = const RtcCallControllerEndOptions(),
   ]) async {
     final sessionSnapshot = _callSession.getSnapshot();
-    final rtcSessionId = sessionSnapshot.rtcSessionId ?? _activeInvitation?.rtcSessionId;
+    final rtcSessionId =
+        sessionSnapshot.rtcSessionId ?? _activeInvitation?.rtcSessionId;
     if (rtcSessionId == null || rtcSessionId.isEmpty) {
       throw RtcSdkException(
         code: 'call_state_invalid',
@@ -329,7 +333,8 @@ class StandardRtcCallController<TNativeClient> implements RtcCloseable {
       _controllerState = RtcCallControllerState.connected;
       _direction ??= RtcCallControllerDirection.outgoing;
     } else {
-      final nextState = resolveRtcCallControllerTerminalState(signal.signalType);
+      final nextState =
+          resolveRtcCallControllerTerminalState(signal.signalType);
       if (nextState == null) {
         _emitSignal(signal);
         return;

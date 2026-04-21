@@ -51,6 +51,7 @@ import {
   DEFAULT_RTC_PROVIDER_KEY,
   DEFAULT_TYPESCRIPT_ADAPTER_CONTRACT,
   OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS,
+  RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS,
   RTC_PROVIDER_ACTIVATION_STATUSES,
   RTC_PROVIDER_PACKAGE_BOUNDARY_LIFECYCLE_STATUS_TERMS,
   RTC_PROVIDER_PACKAGE_BOUNDARY_MODES,
@@ -468,6 +469,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(rootReadme, /RTC_SDK_ERROR_FALLBACK_CODE/);
   assert.match(rootReadme, /vendor_error/);
   assert.match(rootReadme, /smoke-sdk\.mjs/);
+  assert.match(rootReadme, /--reuse-live-connection/);
+  assert.match(rootReadme, /shared-`liveConnection` call-smoke variants/i);
   assert.match(rootReadme, /full regression/i);
   assert.match(rootReadme, /\.gitignore/);
   assert.match(rootReadme, /non-source artifacts/i);
@@ -592,6 +595,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(docsReadme, /provider lookup by key/i);
   assert.match(docsReadme, /typescript-volcengine-im-usage\.md/);
   assert.match(docsReadme, /flutter-volcengine-im-usage\.md/);
+  assert.match(docsReadme, /--reuse-live-connection/);
   assert.match(
     docsReadme,
     /Flutter\/mobile language workspace catalogs and the remaining reserved non-TypeScript language\s+workspace catalogs and metadata scaffolds must also keep explicit lookup helpers stable/i,
@@ -611,10 +615,12 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(usageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
   assert.match(usageGuide, /runtime-backed/);
   assert.match(usageGuide, /analysis-backed/);
+  assert.match(usageGuide, /shared-`liveConnection` call-smoke variants/i);
   assert.match(usageGuide, /flutter-volcengine-im-usage\.md/);
   assert.match(typescriptUsageGuide, /@volcengine\/rtc/);
   assert.match(typescriptUsageGuide, /@sdkwork\/im-sdk/);
   assert.match(typescriptUsageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+  assert.match(typescriptUsageGuide, /--reuse-live-connection/);
   assert.match(typescriptUsageGuide, /runtime-backed/);
   assert.match(typescriptUsageGuide, /createStandardRtcCallControllerStack/);
   assert.match(typescriptCallTypes, /export const RTC_CALL_TRACK_ID_SEPARATOR = '-';/);
@@ -624,6 +630,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(flutterUsageGuide, /package:volc_engine_rtc\/volc_engine_rtc\.dart/);
   assert.match(flutterUsageGuide, /package:im_sdk\/im_sdk\.dart/);
   assert.match(flutterUsageGuide, /node \.\/bin\/sdk-call-smoke\.mjs --json/);
+  assert.match(flutterUsageGuide, /--reuse-live-connection/);
   assert.match(flutterUsageGuide, /analysis-backed/);
   assert.match(flutterUsageGuide, /createStandardRtcCallControllerStack/);
   assert.match(flutterCallTypes, /const String rtcCallTrackIdSeparator = '-';/);
@@ -970,6 +977,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /recommendedEntrypoint/);
   assert.match(verificationMatrix, /smokeCommand/);
   assert.match(verificationMatrix, /smokeMode/);
+  assert.match(verificationMatrix, /smokeVariants/);
   assert.match(verificationMatrix, /runtime-backed/);
   assert.match(verificationMatrix, /analysis-backed/);
   assert.match(verificationMatrix, /providerSelectionStandard/);
@@ -1092,6 +1100,8 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(verificationMatrix, /unwrap-only/);
   assert.match(verificationMatrix, /extension-object/);
   assert.match(verificationMatrix, /smoke-sdk\.mjs/);
+  assert.match(verificationMatrix, /--reuse-live-connection/);
+  assert.match(verificationMatrix, /shared IM live-connection ownership/i);
   assert.match(verificationMatrix, /compileall/i);
   assert.match(verificationMatrix, /cargo check/i);
   assert.match(verificationMatrix, /go build/i);
@@ -1473,6 +1483,12 @@ test('rtc assembly declares official languages and default provider', () => {
         ['runtime-backed', 'analysis-backed'].includes(languageEntry.runtimeBaseline?.smokeMode),
         true,
       );
+      assert.deepEqual(
+        languageEntry.runtimeBaseline.smokeVariants,
+        RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS.filter((variant) =>
+          languageEntry.runtimeBaseline.smokeVariants.includes(variant),
+        ),
+      );
       assert.equal(typeof languageEntry.runtimeDocumentation?.baselineConclusion, 'string');
       assert.equal(languageEntry.runtimeDocumentation.baselineConclusion.length > 0, true);
       assert.equal(typeof languageEntry.runtimeDocumentation?.guideTitle, 'string');
@@ -1515,6 +1531,7 @@ test('rtc assembly declares official languages and default provider', () => {
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'runtime-backed',
+    smokeVariants: ['default', 'reuse-live-connection'],
   });
   assert.deepEqual(typescriptLanguage.runtimeDocumentation, {
     baselineConclusion: 'TypeScript is the executable web/browser baseline.',
@@ -1545,6 +1562,7 @@ test('rtc assembly declares official languages and default provider', () => {
     recommendedEntrypoint: 'createStandardRtcCallControllerStack',
     smokeCommand: 'node ./bin/sdk-call-smoke.mjs --json',
     smokeMode: 'analysis-backed',
+    smokeVariants: ['default', 'reuse-live-connection'],
   });
   assert.deepEqual(flutterLanguage.runtimeDocumentation, {
     baselineConclusion: 'Flutter is the executable mobile baseline.',
@@ -1625,7 +1643,12 @@ test('root verification entrypoints exist', () => {
 });
 
 test('root smoke regression entrypoints exist', () => {
-  const requiredFiles = ['bin/smoke-sdk.mjs', 'bin/smoke-sdk.ps1', 'bin/smoke-sdk.sh'];
+  const requiredFiles = [
+    'bin/smoke-sdk.mjs',
+    'bin/smoke-sdk.ps1',
+    'bin/smoke-sdk.sh',
+    'bin/rtc-call-smoke-standard.mjs',
+  ];
 
   for (const relativePath of requiredFiles) {
     assert.equal(
@@ -1636,6 +1659,10 @@ test('root smoke regression entrypoints exist', () => {
   }
 
   const smokeScript = readFileSync(path.join(workspaceRoot, 'bin', 'smoke-sdk.mjs'), 'utf8');
+  const smokeHelperScript = readFileSync(
+    path.join(workspaceRoot, 'bin', 'rtc-call-smoke-standard.mjs'),
+    'utf8',
+  );
   assert.match(smokeScript, /python:compileall/);
   assert.match(smokeScript, /flutter:analyze/);
   assert.match(smokeScript, /rust:cargo-check/);
@@ -1647,8 +1674,10 @@ test('root smoke regression entrypoints exist', () => {
   assert.match(smokeScript, /getRtcExecutableLanguageEntriesBySmokeMode/);
   assert.match(smokeScript, /runtime-backed/);
   assert.match(smokeScript, /analysis-backed/);
-  assert.match(smokeScript, /call-cli-smoke/);
-  assert.match(smokeScript, /sdk-call-smoke\.mjs/);
+  assert.match(smokeScript, /buildRtcRootCallSmokeSteps/);
+  assert.match(smokeHelperScript, /call-cli-smoke/);
+  assert.match(smokeHelperScript, /reuse-live-connection/);
+  assert.match(smokeHelperScript, /sdk-call-smoke\.mjs/);
 });
 
 test('root sdk-call-smoke dispatcher entrypoints exist', () => {
@@ -1667,6 +1696,7 @@ test('root sdk-call-smoke dispatcher entrypoints exist', () => {
   assert.match(dispatcherScript, /getRtcExecutableLanguageEntries/);
   assert.match(dispatcherScript, /getRtcDefaultCallSmokeLanguage/);
   assert.match(dispatcherScript, /languageEntry\.workspace/);
+  assert.match(dispatcherScript, /renderRtcCallSmokeForwardedVariantHelp/);
 });
 
 test('root sdk-call-smoke dispatcher resolves assembly-driven executable languages', async () => {
@@ -1681,10 +1711,19 @@ test('root sdk-call-smoke dispatcher resolves assembly-driven executable languag
     runtimeContract.executableLanguageEntries.map((languageEntry) => ({
       language: languageEntry.language,
       smokeMode: languageEntry.runtimeBaseline?.smokeMode,
+      smokeVariants: languageEntry.runtimeBaseline?.smokeVariants,
     })),
     [
-      { language: 'typescript', smokeMode: 'runtime-backed' },
-      { language: 'flutter', smokeMode: 'analysis-backed' },
+      {
+        language: 'typescript',
+        smokeMode: 'runtime-backed',
+        smokeVariants: ['default', 'reuse-live-connection'],
+      },
+      {
+        language: 'flutter',
+        smokeMode: 'analysis-backed',
+        smokeVariants: ['default', 'reuse-live-connection'],
+      },
     ],
   );
 
@@ -1718,6 +1757,10 @@ test('root sdk-call-smoke dispatcher resolves assembly-driven executable languag
       }),
     /not implemented yet/,
   );
+
+  const helpText = dispatcherModule.getSdkCallSmokeHelpText(runtimeContract);
+  assert.match(helpText, /standard forwarded variant: --reuse-live-connection/);
+  assert.match(helpText, /`typescript` and `flutter`/);
 });
 
 test('typescript call smoke cli entrypoints exist', () => {
@@ -1767,6 +1810,7 @@ test('flutter call smoke cli entrypoints exist', () => {
   assert.match(cliScript, /ImSdkClient\.create/);
   assert.match(wrapperScript, /analysis-backed/);
   assert.match(wrapperScript, /vendor-sdk-cli-runtime-blocked/);
+  assert.match(wrapperScript, /reuse-live-connection/);
   assert.match(wrapperScript, /sdk-call-smoke\.dart/);
 });
 
@@ -3331,6 +3375,47 @@ test('root verifier rejects stale legacy provider catalog assets', async () => {
   }
 });
 
+test('root verifier rejects missing rtc smoke standard helper asset', async () => {
+  const fixture = createVerifierFixture(() => {});
+
+  try {
+    rmSync(path.join(fixture.workspaceCopy, 'bin', 'rtc-call-smoke-standard.mjs'), {
+      force: true,
+    });
+
+    const verifierModule = await import(pathToFileURL(path.join(workspaceRoot, 'bin', 'verify-sdk.mjs')).href);
+    assert.throws(
+      () => verifierModule.verifyRtcSdkWorkspace(fixture.workspaceCopy),
+      /Missing required file: bin\/rtc-call-smoke-standard\.mjs/i,
+    );
+  } finally {
+    rmSync(fixture.fixtureRoot, { recursive: true, force: true });
+  }
+});
+
+test('root verifier rejects root smoke script drift away from the shared rtc smoke helper', async () => {
+  const fixture = createVerifierFixture(() => {});
+
+  try {
+    const smokeScriptPath = path.join(fixture.workspaceCopy, 'bin', 'smoke-sdk.mjs');
+    writeFileSync(
+      smokeScriptPath,
+      readFileSync(smokeScriptPath, 'utf8').replace(
+        /buildRtcRootCallSmokeSteps/g,
+        'buildRootCallSmokeStepsLegacy',
+      ),
+    );
+
+    const verifierModule = await import(pathToFileURL(path.join(workspaceRoot, 'bin', 'verify-sdk.mjs')).href);
+    assert.throws(
+      () => verifierModule.verifyRtcSdkWorkspace(fixture.workspaceCopy),
+      /script clause|smoke-sdk\.mjs|buildRtcRootCallSmokeSteps/i,
+    );
+  } finally {
+    rmSync(fixture.fixtureRoot, { recursive: true, force: true });
+  }
+});
+
 test('root verifier rejects drift in materialized language workspace assets', async () => {
   const fixture = createVerifierFixture(() => {});
 
@@ -4130,6 +4215,7 @@ test('root materializer repairs provider package, provider catalog, and language
     assert.match(repairedVerificationMatrix, /recommendedEntrypoint/);
     assert.match(repairedVerificationMatrix, /smokeCommand/);
     assert.match(repairedVerificationMatrix, /smokeMode/);
+    assert.match(repairedVerificationMatrix, /smokeVariants/);
     assert.match(repairedVerificationMatrix, /runtime-backed/);
     assert.match(repairedVerificationMatrix, /analysis-backed/);
 

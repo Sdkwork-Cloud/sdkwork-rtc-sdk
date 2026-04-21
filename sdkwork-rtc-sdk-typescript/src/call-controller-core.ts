@@ -5,7 +5,10 @@ import type {
   RtcCallSignalingAdapter,
 } from './call-types.js';
 import type { StandardRtcCallSession } from './call-session.js';
-import { createImRtcSignalingAdapter } from './im-signaling.js';
+import {
+  createImRtcSignalingAdapter,
+  RtcImRealtimeDispatcher,
+} from './im-signaling.js';
 import {
   RTC_CALL_ACCEPTED_SIGNAL_TYPE,
   RTC_CALL_ANSWER_SIGNAL_TYPE,
@@ -68,6 +71,7 @@ export class StandardRtcCallController<TNativeClient = unknown> implements RtcCl
   readonly #sdk: ImRtcCallControllerSdkLike;
   readonly #callSession: StandardRtcCallSession<TNativeClient>;
   readonly #signaling: RtcCallSignalingAdapter;
+  readonly #realtimeDispatcher: RtcImRealtimeDispatcher;
   readonly #sessionSubscriptionManager: RtcCallControllerSessionSubscriptionManager;
   readonly #conversationSubscriptionManager: RtcCallControllerConversationSubscriptionManager;
   readonly #eventHandlers = new Set<RtcCallControllerEventHandler>();
@@ -82,15 +86,28 @@ export class StandardRtcCallController<TNativeClient = unknown> implements RtcCl
   constructor(options: CreateStandardRtcCallControllerOptions<TNativeClient>) {
     this.#sdk = options.sdk as ImRtcCallControllerSdkLike;
     this.#callSession = options.callSession;
-    this.#signaling = options.signaling ?? createImRtcSignalingAdapter(options);
+    this.#realtimeDispatcher =
+      options.realtimeDispatcher
+      ?? new RtcImRealtimeDispatcher({
+        sdk: options.sdk,
+        deviceId: options.deviceId,
+        liveConnection: options.liveConnection,
+        connectOptions: options.connectOptions,
+        reconnectIntervalMs: options.reconnectIntervalMs,
+      });
+    this.#signaling =
+      options.signaling
+      ?? createImRtcSignalingAdapter({
+        ...options,
+        realtimeDispatcher: this.#realtimeDispatcher,
+      });
     this.#sessionSubscriptionManager = new RtcCallControllerSessionSubscriptionManager({
       signaling: this.#signaling,
       onSignal: (signal) => this.#handleSessionSignal(signal),
     });
     this.#conversationSubscriptionManager =
       new RtcCallControllerConversationSubscriptionManager({
-        sdk: this.#sdk,
-        connectOptions: options.connectOptions,
+        realtimeDispatcher: this.#realtimeDispatcher,
         onMessage: (message, context) => this.#handleConversationMessage(message, context),
       });
     for (const conversationId of options.watchConversationIds ?? []) {

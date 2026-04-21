@@ -104,10 +104,12 @@ The current web/browser runtime path is:
 - vendor SDK import path: `@volcengine/rtc`
 - signaling SDK package: `@sdkwork/im-sdk`
 - signaling SDK import path: `@sdkwork/im-sdk`
+- signaling live receive path: `sdk.connect(...)` over WebSocket
 - standard call/session entrypoint: `StandardRtcCallController`
 - recommended quick-start entrypoint: `createStandardRtcCallControllerStack`
 - smoke command: `node ./bin/sdk-call-smoke.mjs --json`
 - smoke mode: `runtime-backed`
+- smoke variants: `default` and `reuse-live-connection`
 
 Use the detailed guide here:
 
@@ -125,10 +127,12 @@ The current mobile runtime path is:
 - vendor SDK import path: `package:volc_engine_rtc/volc_engine_rtc.dart`
 - signaling SDK package: `im_sdk`
 - signaling SDK import path: `package:im_sdk/im_sdk.dart`
+- signaling live receive path: `sdk.connect(...)` over WebSocket
 - standard call/session entrypoint: `StandardRtcCallController`
 - recommended quick-start entrypoint: `createStandardRtcCallControllerStack`
 - smoke command: `node ./bin/sdk-call-smoke.mjs --json`
 - smoke mode: `analysis-backed`
+- smoke variants: `default` and `reuse-live-connection`
 
 Use the detailed guide here:
 
@@ -142,6 +146,11 @@ The correct vendor integration boundary is still the same:
 - the vendor SDK owns real media behavior
 - the application wires vendor SDK instances into the standard driver/runtime-controller boundary
 - signaling adapters map `sdkwork-im-sdk` transport semantics into the RTC call/session standard
+- executable baselines keep signaling WebSocket-first through `sdk.connect(...)`; the RTC standard
+  does not expose polling controls
+- executable baselines surface WebSocket auth policy through `connectOptions.webSocketAuth`
+- executable baselines can reuse one app-owned IM live connection through `liveConnection`
+  instead of opening a second RTC-specific socket
 
 For the current runnable baselines, this boundary is already materialized:
 
@@ -151,7 +160,31 @@ For the current runnable baselines, this boundary is already materialized:
 - executable baselines publish call invites over conversation-scoped IM signals and reconcile remote
   accept, reject, end, SDP, and ICE events through the standard `CallController`
 
-## 7. Non-Builtin Provider Packages
+## 7. WebSocket Signaling And Auth Standard
+
+Executable baselines keep RTC signaling on the IM live WebSocket path and never expose polling
+fallback controls.
+
+Cross-language rules:
+
+- RTC `deviceId` is top-level and authoritative across the standard stack
+- `connectOptions.deviceId` stays optional and must match the top-level `deviceId` when both
+  are supplied
+- `connectOptions.webSocketAuth` is passed straight through to `sdkwork-im-sdk`; RTC does not
+  introduce provider-specific auth shims
+- standard auth modes are `automatic`, `queryBearer`, `headerBearer`, and `none`
+- `automatic` remains the recommended default; browser WebSocket paths can resolve to
+  query-bearer while native or custom-socket paths can resolve to header-bearer when headers are
+  available
+- prefer `credentialProvider` with short-lived realtime tickets instead of long-lived access
+  tokens, especially when query-parameter auth is required
+- if the application already owns one shared IM live connection, pass `liveConnection`; RTC keeps
+  subscription sync on that same socket instead of opening a second RTC-specific connection
+- auth failure should fail fast on the WebSocket connect path; the RTC standard does not downgrade
+  to polling
+
+
+## 8. Non-Builtin Provider Packages
 
 For providers such as `agora`, `zego`, `livekit`, `twilio`, `jitsi`, `janus`, `mediasoup`,
 the standard path is package-boundary integration instead of deep root-entrypoint coupling.
@@ -163,7 +196,7 @@ That contract stays:
 - runtime code is loaded through the provider-package loader SPI
 - runtime bridge ownership stays with the integrating application or provider package
 
-## 8. Error Semantics
+## 9. Error Semantics
 
 Important standardized error codes include:
 
@@ -188,7 +221,7 @@ The two most important runtime distinctions are:
 - `native_sdk_not_available`: the standard surface exists but the actual vendor runtime bridge is
   missing or misconfigured
 
-## 9. Local Verification
+## 10. Local Verification
 
 Use the following commands in the workspace root:
 
@@ -197,7 +230,9 @@ node .\bin\materialize-sdk.mjs
 node .\test\verify-sdk-automation.test.mjs
 node .\bin\verify-sdk.mjs
 node .\bin\sdk-call-smoke.mjs --json
+node .\bin\sdk-call-smoke.mjs --json --reuse-live-connection
 node .\bin\sdk-call-smoke.mjs --language flutter --json
+node .\bin\sdk-call-smoke.mjs --language flutter --json --reuse-live-connection
 node .\bin\smoke-sdk.mjs
 ```
 
@@ -209,10 +244,11 @@ Verification intent:
 - TypeScript smoke mode is `runtime-backed`: `node ./bin/sdk-call-smoke.mjs --json` exercises the public default-provider baseline without live services
 - Flutter smoke mode is `analysis-backed`: `node ./bin/sdk-call-smoke.mjs --json` currently verifies the public baseline through the Flutter CLI wrapper and `flutter analyze` because the official vendor runtime is not yet CLI-runnable through the Dart VM toolchain
 - `smoke-sdk.mjs` runs the repository regression entrypoint, including
-  `flutter analyze ./bin/sdk-call-smoke.dart` and `flutter analyze` when the Flutter toolchain is
-  available
+  the default and shared-`liveConnection` call-smoke variants for executable languages, plus
+  `flutter analyze ./bin/sdk-call-smoke.dart` and `flutter analyze` when the Flutter toolchain
+  is available
 
-## 10. Practical Adoption Guidance
+## 11. Practical Adoption Guidance
 
 Use this rule of thumb:
 

@@ -28,6 +28,11 @@ export const OFFICIAL_RTC_LANGUAGE_WORKSPACE_KEYS = Object.freeze([
   'python',
 ]);
 
+export const RTC_LANGUAGE_RUNTIME_BASELINE_SMOKE_VARIANTS = Object.freeze([
+  'default',
+  'reuse-live-connection',
+]);
+
 export const RTC_PROVIDER_SUPPORT_STATUSES = Object.freeze([
   'builtin_registered',
   'official_registered',

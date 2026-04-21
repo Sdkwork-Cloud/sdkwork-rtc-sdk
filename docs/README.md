@@ -207,12 +207,15 @@ The remaining reserved non-TypeScript language workspaces now also materialize a
 package loader scaffold per language so runtime bridge work inherits a deterministic
 package-resolution and installation boundary before executable adapters land.
 The root `bin/smoke-sdk.mjs` command is the full regression entrypoint. It runs materialization,
-root automation tests, root verification, TypeScript package tests, and optional language smoke
-checks such as `compileall`, `cargo check`, `dotnet build`, and `javac` when those
-toolchains are available.
+root automation tests, root verification, TypeScript package tests, the default and shared-
+`liveConnection` call-smoke variants for executable languages, and optional language smoke checks
+such as `compileall`, `cargo check`, `dotnet build`, and `javac` when those toolchains are
+available.
 The root `bin/sdk-call-smoke.mjs` command is the fast public usage smoke entrypoint. It dispatches
 to the current implemented language targets and verifies the default
 `volcengine + sdkwork-im-sdk` call stack without requiring live credentials or external services.
+It also forwards language-specific arguments unchanged, so `--reuse-live-connection` remains part
+of the public smoke contract for executable RTC baselines.
 Current implemented targets are `typescript` and `flutter`. The default root smoke dispatch resolves to `typescript`, and every additional executable language is selected through `--language <language>`.
 The root `.gitignore` defines the non-source artifact boundary for verification outputs such as
 `dist/`, `target/`, `bin/`, `obj/`, and `__pycache__/`, while

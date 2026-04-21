@@ -15,6 +15,7 @@ const _defaultOptions = _RtcCallSmokeOptions(
   participantId: 'user-smoke',
   signalingStreamId: 'signal-smoke',
   deviceId: 'device-smoke',
+  reuseLiveConnection: false,
   json: false,
   help: false,
 );
@@ -28,6 +29,7 @@ final class _RtcCallSmokeOptions {
     required this.participantId,
     required this.signalingStreamId,
     required this.deviceId,
+    required this.reuseLiveConnection,
     required this.json,
     required this.help,
   });
@@ -39,6 +41,7 @@ final class _RtcCallSmokeOptions {
   final String participantId;
   final String signalingStreamId;
   final String deviceId;
+  final bool reuseLiveConnection;
   final bool json;
   final bool help;
 }
@@ -77,9 +80,8 @@ Map<String, Object> _parseOptionEntries(List<String> argv) {
         ? normalizedToken.substring(inlineEqualsIndex + 1)
         : null;
     final nextToken = index + 1 < argv.length ? argv[index + 1] : null;
-    final hasSeparateValue = inlineValue == null &&
-        nextToken != null &&
-        !nextToken.startsWith('-');
+    final hasSeparateValue =
+        inlineValue == null && nextToken != null && !nextToken.startsWith('-');
 
     if (inlineValue != null) {
       entries[optionName] = inlineValue;
@@ -129,6 +131,7 @@ _RtcCallSmokeOptions _parseRtcCallSmokeArgs(List<String> argv) {
       participantId: 'user-smoke',
       signalingStreamId: 'signal-smoke',
       deviceId: 'device-smoke',
+      reuseLiveConnection: false,
       json: false,
       help: true,
     );
@@ -136,7 +139,8 @@ _RtcCallSmokeOptions _parseRtcCallSmokeArgs(List<String> argv) {
 
   return _RtcCallSmokeOptions(
     appId: _readStringOption(entries, 'app-id', _defaultOptions.appId),
-    sessionId: _readStringOption(entries, 'session-id', _defaultOptions.sessionId),
+    sessionId:
+        _readStringOption(entries, 'session-id', _defaultOptions.sessionId),
     conversationId: _readStringOption(
       entries,
       'conversation-id',
@@ -154,6 +158,7 @@ _RtcCallSmokeOptions _parseRtcCallSmokeArgs(List<String> argv) {
       _defaultOptions.signalingStreamId,
     ),
     deviceId: _readStringOption(entries, 'device-id', _defaultOptions.deviceId),
+    reuseLiveConnection: entries['reuse-live-connection'] == true,
     json: entries['json'] == true,
     help: false,
   );
@@ -180,6 +185,7 @@ String getRtcCallSmokeHelpText() {
     '  --participant-id <id>        Override the participant id',
     '  --signaling-stream-id <id>   Override the signaling stream id',
     '  --device-id <id>             Override the IM realtime device id',
+    '  --reuse-live-connection      Reuse one preconnected IM WebSocket live connection',
   ].join('\n');
 }
 
@@ -199,14 +205,26 @@ final class _RealtimeSubscriptionRecord {
   final List<String> eventTypes;
 }
 
+final class _RealtimeSocketClient {
+  _RealtimeSocketClient({
+    required this.deviceId,
+    required this.socket,
+  });
+
+  final String deviceId;
+  final WebSocket socket;
+}
+
 final class _RtcCallSmokeServer {
   _RtcCallSmokeServer(this.options);
 
   final _RtcCallSmokeOptions options;
   final List<String> transportCalls = <String>[];
-  final Map<String, List<_RealtimeSubscriptionRecord>> _subscriptionsByDeviceId =
-      <String, List<_RealtimeSubscriptionRecord>>{};
+  final Map<String, List<_RealtimeSubscriptionRecord>>
+      _subscriptionsByDeviceId = <String, List<_RealtimeSubscriptionRecord>>{};
   final List<RealtimeEvent> _realtimeEvents = <RealtimeEvent>[];
+  final List<_RealtimeSocketClient> _socketClients = <_RealtimeSocketClient>[];
+  final Map<String, int> _pushedThroughSeqByDeviceId = <String, int>{};
 
   HttpServer? _server;
   int _nextRealtimeSeq = 1;
@@ -216,6 +234,7 @@ final class _RtcCallSmokeServer {
   String? _startedAt;
   String? _endedAt;
   String? _signalingStreamId;
+  String? _lastResumedDeviceId;
 
   String get baseUrl {
     final server = _server;
@@ -246,6 +265,11 @@ final class _RtcCallSmokeServer {
         return;
       }
 
+      if (method == 'POST' && path == '/api/v1/sessions/resume') {
+        await _handleResumeSession(request);
+        return;
+      }
+
       if (method == 'POST' && path == '/api/v1/realtime/subscriptions/sync') {
         await _handleSyncRealtimeSubscriptions(request);
         return;
@@ -261,6 +285,11 @@ final class _RtcCallSmokeServer {
         return;
       }
 
+      if (method == 'GET' && path == '/api/v1/realtime/ws') {
+        await _handleRealtimeWebSocket(request);
+        return;
+      }
+
       final rtcSessionMatch = RegExp(
         r'^/api/v1/rtc/sessions/([^/]+)/(invite|accept|reject|end|signals|credentials)$',
       ).firstMatch(path);
@@ -273,7 +302,8 @@ final class _RtcCallSmokeServer {
           'reject' => _handleRejectRtcSession(request, rtcSessionId),
           'end' => _handleEndRtcSession(request, rtcSessionId),
           'signals' => _handlePostRtcSignal(request, rtcSessionId),
-          'credentials' => _handleIssueParticipantCredential(request, rtcSessionId),
+          'credentials' =>
+            _handleIssueParticipantCredential(request, rtcSessionId),
           _ => _writeNotFound(request),
         };
         return;
@@ -324,6 +354,29 @@ final class _RtcCallSmokeServer {
         providerRegion: 'cn-shanghai',
         state: _sessionState,
         startedAt: _startedAt,
+      ).toJson(),
+    );
+  }
+
+  Future<void> _handleResumeSession(HttpRequest request) async {
+    transportCalls.add('session.resume');
+    final payload = await _readJsonBody(request);
+    final deviceId = payload['deviceId']?.toString() ?? options.deviceId;
+    _lastResumedDeviceId = deviceId;
+
+    await _writeJson(
+      request.response,
+      HttpStatus.ok,
+      SessionResumeView(
+        tenantId: 'tenant-smoke',
+        actorId: options.participantId,
+        actorKind: 'user',
+        sessionId: 'session-$deviceId',
+        deviceId: deviceId,
+        resumeRequired: false,
+        resumeFromSyncSeq: _ackedThroughSeq,
+        latestSyncSeq: _nextRealtimeSeq - 1,
+        resumedAt: _nowIso(),
       ).toJson(),
     );
   }
@@ -508,9 +561,10 @@ final class _RtcCallSmokeServer {
           (item) => _RealtimeSubscriptionRecord(
             scopeType: item['scopeType']?.toString() ?? '',
             scopeId: item['scopeId']?.toString() ?? '',
-            eventTypes: (item['eventTypes'] as List<dynamic>? ?? const <dynamic>[])
-                .map((entry) => entry.toString())
-                .toList(growable: false),
+            eventTypes:
+                (item['eventTypes'] as List<dynamic>? ?? const <dynamic>[])
+                    .map((entry) => entry.toString())
+                    .toList(growable: false),
           ),
         )
         .toList(growable: false);
@@ -534,6 +588,8 @@ final class _RtcCallSmokeServer {
         syncedAt: _nowIso(),
       ).toJson(),
     );
+
+    await _pushPendingRealtimeEventsForDevice(deviceId);
   }
 
   Future<void> _handleListRealtimeEvents(HttpRequest request) async {
@@ -544,8 +600,8 @@ final class _RtcCallSmokeServer {
         int.tryParse(request.uri.queryParameters['afterSeq'] ?? '') ?? 0;
     final limit =
         int.tryParse(request.uri.queryParameters['limit'] ?? '') ?? 50;
-    final subscriptions =
-        _subscriptionsByDeviceId[deviceId] ?? const <_RealtimeSubscriptionRecord>[];
+    final subscriptions = _subscriptionsByDeviceId[deviceId] ??
+        const <_RealtimeSubscriptionRecord>[];
 
     final matchingEvents = _realtimeEvents
         .where(
@@ -598,6 +654,28 @@ final class _RtcCallSmokeServer {
         ackedAt: _nowIso(),
       ).toJson(),
     );
+  }
+
+  Future<void> _handleRealtimeWebSocket(HttpRequest request) async {
+    transportCalls.add('realtime.ws.connect');
+    final socket = await WebSocketTransformer.upgrade(request);
+    final deviceId = _lastResumedDeviceId ?? options.deviceId;
+    final client = _RealtimeSocketClient(deviceId: deviceId, socket: socket);
+    _socketClients.add(client);
+
+    try {
+      socket.add(
+        jsonEncode(<String, Object?>{
+          'type': 'realtime.connected',
+          'deviceId': deviceId,
+          'connectedAt': _nowIso(),
+        }),
+      );
+      await _pushPendingRealtimeEventsForDevice(deviceId);
+      await socket.done;
+    } finally {
+      _socketClients.remove(client);
+    }
   }
 
   Future<void> _handlePostConversationMessage(
@@ -672,6 +750,68 @@ final class _RtcCallSmokeServer {
         occurredAt: signalEvent.occurredAt,
       ),
     );
+
+    unawaited(_pushPendingRealtimeEvents());
+  }
+
+  Future<void> _pushPendingRealtimeEvents() async {
+    for (final client in _socketClients.toList(growable: false)) {
+      await _pushPendingRealtimeEventsForDevice(client.deviceId);
+    }
+  }
+
+  Future<void> _pushPendingRealtimeEventsForDevice(String deviceId) async {
+    final matchingClients = _socketClients
+        .where((client) => client.deviceId == deviceId)
+        .toList(growable: false);
+    if (matchingClients.isEmpty) {
+      return;
+    }
+
+    final subscriptions = _subscriptionsByDeviceId[deviceId] ??
+        const <_RealtimeSubscriptionRecord>[];
+    if (subscriptions.isEmpty) {
+      return;
+    }
+
+    final lastPushedSeq = _pushedThroughSeqByDeviceId[deviceId] ?? 0;
+    final matchingEvents = _realtimeEvents.where((event) {
+      final sequence = event.realtimeSeq ?? 0;
+      return sequence > lastPushedSeq &&
+          _matchesRealtimeSubscription(event, subscriptions);
+    }).toList(growable: false);
+    if (matchingEvents.isEmpty) {
+      return;
+    }
+
+    final highestSeq = matchingEvents.fold<int>(
+      lastPushedSeq,
+      (current, event) => (event.realtimeSeq ?? current) > current
+          ? event.realtimeSeq!
+          : current,
+    );
+
+    final frame = jsonEncode(<String, Object?>{
+      'type': 'event.window',
+      'window': RealtimeEventWindow(
+        deviceId: deviceId,
+        items: matchingEvents,
+        nextAfterSeq: highestSeq,
+        hasMore: false,
+        ackedThroughSeq: _ackedThroughSeq,
+        trimmedThroughSeq: 0,
+      ).toJson(),
+    });
+
+    for (final client in matchingClients) {
+      if (client.socket.closeCode != null) {
+        continue;
+      }
+      transportCalls.add('realtime.ws.push');
+      client.socket.add(frame);
+    }
+
+    _pushedThroughSeqByDeviceId[deviceId] = highestSeq;
   }
 
   Future<Map<String, Object?>> _readJsonBody(HttpRequest request) async {
@@ -705,7 +845,8 @@ final class _RtcCallSmokeServer {
   }
 
   Future<void> _writeNotFound(HttpRequest request) {
-    transportCalls.add('unmatched:${request.method.toUpperCase()}:${request.uri.path}');
+    transportCalls
+        .add('unmatched:${request.method.toUpperCase()}:${request.uri.path}');
     return _writeJson(
       request.response,
       HttpStatus.notFound,
@@ -817,7 +958,8 @@ Future<void> _waitForControllerState(
 
 Map<String, Object?> _buildSummary({
   required _RtcCallSmokeOptions options,
-  required StandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient> stack,
+  required StandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient>
+      stack,
   required RtcCallControllerSnapshot endedSnapshot,
   required RtcCallControllerState acceptedControllerState,
   required List<String> runtimeCalls,
@@ -830,11 +972,17 @@ Map<String, Object?> _buildSummary({
     'defaultProviderKey': RtcProviderCatalog.DEFAULT_RTC_PROVIDER_KEY,
     'selectedProviderKey': selection.providerKey,
     'mediaProviderKey': stack.mediaClient.metadata.providerKey,
+    'reuseLiveConnection': options.reuseLiveConnection,
     'acceptedControllerState': acceptedControllerState.name,
     'endedControllerState': endedSnapshot.controllerState.name,
     'endedCallState': endedSnapshot.state.name,
-    'closedControllerState': stack.callController.getSnapshot().controllerState.name,
+    'closedControllerState':
+        stack.callController.getSnapshot().controllerState.name,
     'closedCallState': stack.callController.getSnapshot().state.name,
+    'webSocketConnectCount':
+        transportCalls.where((call) => call == 'realtime.ws.connect').length,
+    'pollingPullCount':
+        transportCalls.where((call) => call == 'realtime.pull').length,
     'sessionId': options.sessionId,
     'conversationId': options.conversationId,
     'runtimeCalls': runtimeCalls,
@@ -846,16 +994,20 @@ Map<String, Object?> _buildSummary({
 
 String _createTextSummary(Map<String, Object?> summary) {
   final runtimeCalls = (summary['runtimeCalls'] as List<Object?>).join(', ');
-  final transportCalls = (summary['transportCalls'] as List<Object?>).join(', ');
+  final transportCalls =
+      (summary['transportCalls'] as List<Object?>).join(', ');
   final eventTypes = (summary['eventTypes'] as List<Object?>).join(', ');
   return <String>[
     'SDKWork RTC Flutter call smoke',
     'default provider: ${summary['defaultProviderKey']}',
     'selected provider: ${summary['selectedProviderKey']}',
     'media provider: ${summary['mediaProviderKey']}',
+    'reuse live connection: ${summary['reuseLiveConnection']}',
     'accepted controller state: ${summary['acceptedControllerState']}',
     'ended controller state: ${summary['endedControllerState']}',
     'closed controller state: ${summary['closedControllerState']}',
+    'websocket connect count: ${summary['webSocketConnectCount']}',
+    'polling pull count: ${summary['pollingPullCount']}',
     'runtime calls: $runtimeCalls',
     'transport calls: $transportCalls',
     'event types: $eventTypes',
@@ -887,14 +1039,30 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
   );
 
   StandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient>? stack;
+  ImLiveConnection? providedLiveConnection;
   try {
-    stack =
-        await createStandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient>(
+    if (options.reuseLiveConnection) {
+      providedLiveConnection = await imSdk.connect(
+        ImConnectOptions(
+          deviceId: options.deviceId,
+          subscriptions: ImRealtimeSubscriptionGroups(
+            conversations: <String>[options.conversationId],
+          ),
+          webSocketAuth: const ImWebSocketAuthOptions.automatic(),
+        ),
+      );
+    }
+
+    stack = await createStandardRtcCallControllerStack<
+        RtcVolcengineFlutterNativeClient>(
       CreateStandardRtcCallControllerStackOptions(
         sdk: imSdk,
         deviceId: options.deviceId,
-        pollingInterval: const Duration(milliseconds: 10),
-        pullLimit: 20,
+        liveConnection: providedLiveConnection,
+        reconnectInterval: const Duration(milliseconds: 10),
+        connectOptions: const ImConnectOptions(
+          webSocketAuth: ImWebSocketAuthOptions.automatic(),
+        ),
         driverManager: driverManager,
         dataSourceOptions: RtcDataSourceOptions(
           nativeConfig: RtcVolcengineFlutterNativeConfig(
@@ -907,7 +1075,8 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
     final stopEventSubscription = stack.callController.onEvent((event) {
       eventTypes.add(event.type.name);
     });
-    final stopSnapshotSubscription = stack.callController.onSnapshot((snapshot) {
+    final stopSnapshotSubscription =
+        stack.callController.onSnapshot((snapshot) {
       snapshotStates.add(snapshot.controllerState.name);
     });
 
@@ -931,9 +1100,8 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
         stack.callController,
         RtcCallControllerState.connected,
       );
-      final acceptedControllerState = stack.callController
-          .getSnapshot()
-          .controllerState;
+      final acceptedControllerState =
+          stack.callController.getSnapshot().controllerState;
 
       await stack.callController.sendOffer(
         const RtcCallSessionDescriptionPayload(
@@ -945,6 +1113,26 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
           candidate: 'candidate:1 1 udp 2122260223 10.0.0.2 55000 typ host',
         ),
       );
+
+      final webSocketConnectCount = smokeServer.transportCalls
+          .where((call) => call == 'realtime.ws.connect')
+          .length;
+      if (webSocketConnectCount != 1) {
+        _fail(
+          'Expected exactly one IM WebSocket connection in the Flutter RTC smoke, '
+          'but observed $webSocketConnectCount.',
+        );
+      }
+
+      final pollingPullCount = smokeServer.transportCalls
+          .where((call) => call == 'realtime.pull')
+          .length;
+      if (pollingPullCount != 0) {
+        _fail(
+          'Flutter RTC smoke must stay WebSocket-first. '
+          'Observed $pollingPullCount realtime pull calls.',
+        );
+      }
 
       final endedSnapshot = await stack.callController.end();
       await stack.close();
@@ -967,6 +1155,9 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
     if (stack != null) {
       await stack.close();
     }
+    if (providedLiveConnection != null) {
+      await providedLiveConnection.disconnect();
+    }
     await smokeServer.close();
   }
 }
@@ -985,7 +1176,8 @@ Future<int> runRtcCallSmokeCli(
 
   final summary = await runRtcCallSmokeScenario(options);
   if (options.json) {
-    _writeLine(stdoutWriter, const JsonEncoder.withIndent('  ').convert(summary));
+    _writeLine(
+        stdoutWriter, const JsonEncoder.withIndent('  ').convert(summary));
   } else {
     _writeLine(stdoutWriter, _createTextSummary(summary));
   }
