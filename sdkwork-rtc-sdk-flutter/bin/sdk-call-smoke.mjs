@@ -5,6 +5,19 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
+const RTC_CALL_SMOKE_DEVICE_ID = 'device-smoke';
+const RTC_SIGNALING_TRANSPORT_STANDARD = Object.freeze({
+  transportTerm: 'websocket-only',
+  authConfigPath: 'connectOptions.webSocketAuth',
+  authPassThroughTerm: 'signaling-sdk-pass-through',
+  recommendedAuthMode: 'automatic',
+  deviceIdAuthorityTerm: 'top-level-device-id',
+  connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
+  liveConnectionTerm: 'shared-im-live-connection',
+  pollingFallbackTerm: 'not-supported',
+  authFailureTerm: 'fail-fast',
+});
+
 function fail(message) {
   const error = new Error(message);
   error.code = 'sdkwork_rtc_flutter_call_smoke_error';
@@ -86,9 +99,29 @@ function getHelpText() {
     '  runs an analyze-backed smoke for the public Flutter rtc_sdk call stack',
     '  verifies the sdk-call-smoke.dart scenario source compiles under flutter analyze',
     '  the analyzed source covers both RTC-owned WebSocket signaling and shared liveConnection reuse',
+    '  summary output includes the resolved RTC signaling transport descriptor contract',
     '  current toolchain note: the official volc_engine_rtc package crashes under Dart VM CLI compilation,',
     '  so this wrapper is the executable standard smoke entrypoint until vendor/runtime support improves',
   ].join('\n');
+}
+
+function buildRtcCallSmokeSignalingTransportSummary(parsed) {
+  return {
+    deviceId: RTC_CALL_SMOKE_DEVICE_ID,
+    connectOptionsDeviceId: RTC_CALL_SMOKE_DEVICE_ID,
+    authMode: RTC_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode,
+    usesSharedLiveConnection: parsed.reuseLiveConnection,
+    transportTerm: RTC_SIGNALING_TRANSPORT_STANDARD.transportTerm,
+    authConfigPath: RTC_SIGNALING_TRANSPORT_STANDARD.authConfigPath,
+    authPassThroughTerm: RTC_SIGNALING_TRANSPORT_STANDARD.authPassThroughTerm,
+    recommendedAuthMode: RTC_SIGNALING_TRANSPORT_STANDARD.recommendedAuthMode,
+    deviceIdAuthorityTerm: RTC_SIGNALING_TRANSPORT_STANDARD.deviceIdAuthorityTerm,
+    connectOptionsDeviceIdRuleTerm:
+      RTC_SIGNALING_TRANSPORT_STANDARD.connectOptionsDeviceIdRuleTerm,
+    liveConnectionTerm: RTC_SIGNALING_TRANSPORT_STANDARD.liveConnectionTerm,
+    pollingFallbackTerm: RTC_SIGNALING_TRANSPORT_STANDARD.pollingFallbackTerm,
+    authFailureTerm: RTC_SIGNALING_TRANSPORT_STANDARD.authFailureTerm,
+  };
 }
 
 function buildSummary(workspaceRoot, parsed) {
@@ -98,6 +131,7 @@ function buildSummary(workspaceRoot, parsed) {
     runtimeStatus: 'vendor-sdk-cli-runtime-blocked',
     defaultProviderKey: 'volcengine',
     scenarioVariant: parsed.reuseLiveConnection ? 'reuse-live-connection' : 'default-connection',
+    signalingTransport: buildRtcCallSmokeSignalingTransportSummary(parsed),
     verifiedEntrypoint: path.join('sdkwork-rtc-sdk-flutter', 'bin', 'sdk-call-smoke.dart'),
     verifiedSurface: [
       'createStandardRtcCallControllerStack',
@@ -121,6 +155,12 @@ function createTextSummary(summary) {
     `runtime status: ${summary.runtimeStatus}`,
     `default provider: ${summary.defaultProviderKey}`,
     `scenario variant: ${summary.scenarioVariant}`,
+    `signaling transport: ${summary.signalingTransport.transportTerm}`,
+    `signaling auth mode: ${summary.signalingTransport.authMode}`,
+    `signaling device id: ${summary.signalingTransport.deviceId}`,
+    `signaling connectOptions.deviceId: ${summary.signalingTransport.connectOptionsDeviceId}`,
+    `signaling shared live connection: ${summary.signalingTransport.usesSharedLiveConnection}`,
+    `signaling polling fallback: ${summary.signalingTransport.pollingFallbackTerm}`,
     `verified entrypoint: ${summary.verifiedEntrypoint}`,
     `verified surface: ${summary.verifiedSurface.join(', ')}`,
   ].join('\n');

@@ -16,6 +16,8 @@ const DEFAULT_OPTIONS = Object.freeze({
   json: false,
 });
 
+const RTC_CALL_SMOKE_SIGNALING_AUTH_MODE = 'automatic';
+
 function fail(message) {
   const error = new Error(message);
   error.code = 'rtc_call_smoke_invalid_config';
@@ -314,6 +316,22 @@ function createImSdkStub(signalingCalls, config) {
   };
 }
 
+function createRtcCallSmokeConnectOptions(config, includeSubscriptions = false) {
+  return {
+    deviceId: config.deviceId,
+    webSocketAuth: {
+      mode: RTC_CALL_SMOKE_SIGNALING_AUTH_MODE,
+    },
+    ...(includeSubscriptions
+      ? {
+        subscriptions: {
+          conversations: [config.conversationId],
+        },
+      }
+      : {}),
+  };
+}
+
 function createTextSummary(summary) {
   return [
     'SDKWork RTC TypeScript call smoke',
@@ -321,6 +339,12 @@ function createTextSummary(summary) {
     `selected provider: ${summary.selectedProviderKey}`,
     `media provider: ${summary.mediaProviderKey}`,
     `live connection mode: ${summary.reusedLiveConnection ? 'reused' : 'rtc-owned'}`,
+    `signaling transport: ${summary.signalingTransport.transportTerm}`,
+    `signaling auth mode: ${summary.signalingTransport.authMode}`,
+    `signaling device id: ${summary.signalingTransport.deviceId}`,
+    `signaling connectOptions.deviceId: ${summary.signalingTransport.connectOptionsDeviceId ?? 'n/a'}`,
+    `signaling shared live connection: ${summary.signalingTransport.usesSharedLiveConnection}`,
+    `signaling polling fallback: ${summary.signalingTransport.pollingFallbackTerm}`,
     `connect call count: ${summary.connectCallCount}`,
     `ended controller state: ${summary.endedControllerState}`,
     `closed controller state: ${summary.closedControllerState}`,
@@ -357,20 +381,17 @@ export async function runRtcCallSmokeScenario(options = {}, deps = {}) {
     ],
   });
   const imSdk = createImSdkStub(signalingCalls, config);
+  const connectOptions = createRtcCallSmokeConnectOptions(config);
   const liveConnection =
     config.reuseLiveConnection
-      ? await imSdk.connect({
-        deviceId: config.deviceId,
-        subscriptions: {
-          conversations: [config.conversationId],
-        },
-      })
+      ? await imSdk.connect(createRtcCallSmokeConnectOptions(config, true))
       : undefined;
 
   const stack = await sdk.createStandardRtcCallControllerStack({
     sdk: imSdk,
     deviceId: config.deviceId,
     ...(liveConnection ? { liveConnection } : {}),
+    connectOptions,
     watchConversationIds: [config.conversationId],
     driverManager,
     dataSourceConfig: {
@@ -419,11 +440,17 @@ export async function runRtcCallSmokeScenario(options = {}, deps = {}) {
   }
 
   const selection = stack.dataSource.describeSelection();
+  const signalingTransport = sdk.describeRtcSignalingTransport({
+    deviceId: config.deviceId,
+    connectOptions,
+    ...(liveConnection ? { liveConnection } : {}),
+  });
   const endedSummary = {
     defaultProviderKey: sdk.DEFAULT_RTC_PROVIDER_KEY,
     selectedProviderKey: selection.providerKey,
     mediaProviderKey: stack.mediaClient.metadata.providerKey,
     reusedLiveConnection: config.reuseLiveConnection,
+    signalingTransport,
     connectCallCount: signalingCalls.filter(([name]) => name === 'connect').length,
     endedControllerState: endedSnapshot.controllerState,
     endedCallState: endedSnapshot.state,

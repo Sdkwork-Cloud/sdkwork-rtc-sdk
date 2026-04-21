@@ -42,6 +42,21 @@ test('rtc call smoke cli verifies the default volcengine plus im-signaling stack
   assert.equal(summary.defaultProviderKey, 'volcengine');
   assert.equal(summary.selectedProviderKey, 'volcengine');
   assert.equal(summary.mediaProviderKey, 'volcengine');
+  assert.deepEqual(summary.signalingTransport, {
+    deviceId: 'device-smoke',
+    connectOptionsDeviceId: 'device-smoke',
+    authMode: 'automatic',
+    usesSharedLiveConnection: false,
+    transportTerm: 'websocket-only',
+    authConfigPath: 'connectOptions.webSocketAuth',
+    authPassThroughTerm: 'signaling-sdk-pass-through',
+    recommendedAuthMode: 'automatic',
+    deviceIdAuthorityTerm: 'top-level-device-id',
+    connectOptionsDeviceIdRuleTerm: 'must-match-top-level-device-id',
+    liveConnectionTerm: 'shared-im-live-connection',
+    pollingFallbackTerm: 'not-supported',
+    authFailureTerm: 'fail-fast',
+  });
   assert.equal(summary.endedControllerState, 'ended');
   assert.equal(summary.closedControllerState, 'idle');
   assert.equal(summary.closedCallState, 'idle');
@@ -70,4 +85,20 @@ test('rtc call smoke cli verifies the default volcengine plus im-signaling stack
     ),
     'expected the IM signaling adapter to publish an ICE candidate through the standard signal path',
   );
+});
+
+test('rtc call smoke cli reports shared liveConnection reuse in the signaling transport descriptor', async () => {
+  const stdout = createWriter();
+  const result = await runRtcCallSmokeCli(['--json', '--reuse-live-connection'], {
+    stdout,
+  });
+
+  assert.equal(result.exitCode, 0);
+
+  const summary = JSON.parse(stdout.toString());
+  assert.equal(summary.reusedLiveConnection, true);
+  assert.equal(summary.signalingTransport.usesSharedLiveConnection, true);
+  assert.equal(summary.signalingTransport.deviceId, 'device-smoke');
+  assert.equal(summary.signalingTransport.connectOptionsDeviceId, 'device-smoke');
+  assert.equal(summary.signalingTransport.authMode, 'automatic');
 });

@@ -189,6 +189,41 @@ String getRtcCallSmokeHelpText() {
   ].join('\n');
 }
 
+ImConnectOptions buildRtcCallSmokeConnectOptions({
+  required String deviceId,
+  String? conversationId,
+  bool includeConversationSubscriptions = false,
+}) {
+  if (includeConversationSubscriptions && conversationId != null) {
+    return ImConnectOptions(
+      deviceId: deviceId,
+      subscriptions: ImRealtimeSubscriptionGroups(
+        conversations: <String>[conversationId],
+      ),
+      webSocketAuth: const ImWebSocketAuthOptions.automatic(),
+    );
+  }
+
+  return ImConnectOptions(
+    deviceId: deviceId,
+    webSocketAuth: const ImWebSocketAuthOptions.automatic(),
+  );
+}
+
+Map<String, Object?> buildRtcCallSmokeSignalingTransportSummary({
+  required String deviceId,
+  ImConnectOptions? connectOptions,
+  ImLiveConnection? liveConnection,
+}) {
+  final resolvedConnectOptions =
+      connectOptions ?? buildRtcCallSmokeConnectOptions(deviceId: deviceId);
+  return describeRtcSignalingTransport(
+    deviceId: deviceId,
+    connectOptions: resolvedConnectOptions,
+    liveConnection: liveConnection,
+  ).toJson();
+}
+
 String _nowIso() {
   return DateTime.now().toUtc().toIso8601String();
 }
@@ -958,6 +993,8 @@ Future<void> _waitForControllerState(
 
 Map<String, Object?> _buildSummary({
   required _RtcCallSmokeOptions options,
+  required ImConnectOptions connectOptions,
+  required ImLiveConnection? liveConnection,
   required StandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient>
       stack,
   required RtcCallControllerSnapshot endedSnapshot,
@@ -979,6 +1016,11 @@ Map<String, Object?> _buildSummary({
     'closedControllerState':
         stack.callController.getSnapshot().controllerState.name,
     'closedCallState': stack.callController.getSnapshot().state.name,
+    'signalingTransport': buildRtcCallSmokeSignalingTransportSummary(
+      deviceId: options.deviceId,
+      connectOptions: connectOptions,
+      liveConnection: liveConnection,
+    ),
     'webSocketConnectCount':
         transportCalls.where((call) => call == 'realtime.ws.connect').length,
     'pollingPullCount':
@@ -997,12 +1039,23 @@ String _createTextSummary(Map<String, Object?> summary) {
   final transportCalls =
       (summary['transportCalls'] as List<Object?>).join(', ');
   final eventTypes = (summary['eventTypes'] as List<Object?>).join(', ');
+  final signalingTransport =
+      summary['signalingTransport'] as Map<String, Object?>;
   return <String>[
     'SDKWork RTC Flutter call smoke',
     'default provider: ${summary['defaultProviderKey']}',
     'selected provider: ${summary['selectedProviderKey']}',
     'media provider: ${summary['mediaProviderKey']}',
     'reuse live connection: ${summary['reuseLiveConnection']}',
+    'signaling transport: ${signalingTransport['transportTerm']}',
+    'signaling auth mode: ${signalingTransport['authMode']}',
+    'signaling device id: ${signalingTransport['deviceId']}',
+    'signaling connectOptions.deviceId: '
+        '${signalingTransport['connectOptionsDeviceId'] ?? 'n/a'}',
+    'signaling shared live connection: '
+        '${signalingTransport['usesSharedLiveConnection']}',
+    'signaling polling fallback: '
+        '${signalingTransport['pollingFallbackTerm']}',
     'accepted controller state: ${summary['acceptedControllerState']}',
     'ended controller state: ${summary['endedControllerState']}',
     'closed controller state: ${summary['closedControllerState']}',
@@ -1040,15 +1093,15 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
 
   StandardRtcCallControllerStack<RtcVolcengineFlutterNativeClient>? stack;
   ImLiveConnection? providedLiveConnection;
+  final connectOptions =
+      buildRtcCallSmokeConnectOptions(deviceId: options.deviceId);
   try {
     if (options.reuseLiveConnection) {
       providedLiveConnection = await imSdk.connect(
-        ImConnectOptions(
+        buildRtcCallSmokeConnectOptions(
           deviceId: options.deviceId,
-          subscriptions: ImRealtimeSubscriptionGroups(
-            conversations: <String>[options.conversationId],
-          ),
-          webSocketAuth: const ImWebSocketAuthOptions.automatic(),
+          conversationId: options.conversationId,
+          includeConversationSubscriptions: true,
         ),
       );
     }
@@ -1060,9 +1113,7 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
         deviceId: options.deviceId,
         liveConnection: providedLiveConnection,
         reconnectInterval: const Duration(milliseconds: 10),
-        connectOptions: const ImConnectOptions(
-          webSocketAuth: ImWebSocketAuthOptions.automatic(),
-        ),
+        connectOptions: connectOptions,
         driverManager: driverManager,
         dataSourceOptions: RtcDataSourceOptions(
           nativeConfig: RtcVolcengineFlutterNativeConfig(
@@ -1139,6 +1190,8 @@ Future<Map<String, Object?>> runRtcCallSmokeScenario(
 
       return _buildSummary(
         options: options,
+        connectOptions: connectOptions,
+        liveConnection: providedLiveConnection,
         stack: stack,
         endedSnapshot: endedSnapshot,
         acceptedControllerState: acceptedControllerState,

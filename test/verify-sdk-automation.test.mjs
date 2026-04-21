@@ -642,6 +642,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(typescriptUsageGuide, /runtime-backed/);
   assert.match(typescriptUsageGuide, /createStandardRtcCallControllerStack/);
   assert.match(typescriptUsageGuide, /describeRtcSignalingTransport/);
+  assert.match(typescriptUsageGuide, /signalingTransport/);
   assert.match(typescriptCallTypes, /export const RTC_CALL_TRACK_ID_SEPARATOR = '-';/);
   assert.match(typescriptCallTypes, /export const DEFAULT_RTC_CALL_SUBSCRIBE_SIGNALS = true;/);
   assert.match(typescriptCallTypes, /export function createRtcCallTrackId\(/);
@@ -653,6 +654,7 @@ test('root documentation and materialized readmes describe provider package entr
   assert.match(flutterUsageGuide, /analysis-backed/);
   assert.match(flutterUsageGuide, /createStandardRtcCallControllerStack/);
   assert.match(flutterUsageGuide, /describeRtcSignalingTransport/);
+  assert.match(flutterUsageGuide, /signalingTransport/);
   assert.match(flutterCallTypes, /const String rtcCallTrackIdSeparator = '-';/);
   assert.match(flutterCallTypes, /String createRtcCallTrackId\(String rtcSessionId, RtcTrackKind kind\)/);
   assert.match(flutterCallSession, /createRtcCallTrackId\(rtcSessionId, RtcTrackKind\.audio\)/);
@@ -1818,6 +1820,8 @@ test('typescript call smoke cli entrypoints exist', () => {
   assert.match(cliScript, /createStandardRtcCallControllerStack/);
   assert.match(cliScript, /createOfficialVolcengineWebRtcDriver/);
   assert.match(cliScript, /DEFAULT_RTC_PROVIDER_KEY/);
+  assert.match(cliScript, /describeRtcSignalingTransport/);
+  assert.match(cliScript, /signalingTransport/);
 });
 
 test('flutter call smoke cli entrypoints exist', () => {
@@ -1841,9 +1845,12 @@ test('flutter call smoke cli entrypoints exist', () => {
   assert.match(cliScript, /createOfficialVolcengineFlutterRtcDriver/);
   assert.match(cliScript, /RtcProviderCatalog\.DEFAULT_RTC_PROVIDER_KEY/);
   assert.match(cliScript, /ImSdkClient\.create/);
+  assert.match(cliScript, /buildRtcCallSmokeSignalingTransportSummary/);
+  assert.match(cliScript, /describeRtcSignalingTransport/);
   assert.match(wrapperScript, /analysis-backed/);
   assert.match(wrapperScript, /vendor-sdk-cli-runtime-blocked/);
   assert.match(wrapperScript, /reuse-live-connection/);
+  assert.match(wrapperScript, /signalingTransport/);
   assert.match(wrapperScript, /sdk-call-smoke\.dart/);
 });
 

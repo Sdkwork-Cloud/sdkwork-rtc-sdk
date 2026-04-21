@@ -34,6 +34,9 @@ node ./bin/sdk-call-smoke.mjs --json
 The smoke CLI runs the public `@sdkwork/rtc-sdk` surface against mocked `@sdkwork/im-sdk`
 signaling and a mocked official `@volcengine/rtc` module, then prints the resolved provider,
 runtime calls, signaling calls, and final controller states.
+The JSON summary also includes a `signalingTransport` descriptor so maintainers can verify the
+resolved auth mode, authoritative `deviceId`, matching `connectOptions.deviceId`, shared
+`liveConnection` reuse flag, and no-polling contract at the CLI boundary.
 Add `--reuse-live-connection` when you want the smoke to verify RTC reuses an app-owned IM
 WebSocket live connection instead of opening another one.
 

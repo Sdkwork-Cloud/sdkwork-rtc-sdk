@@ -663,6 +663,9 @@ ${runtimeBaseline.smokeCommand}
 The smoke CLI runs the public \`${languageEntry.publicPackage}\` surface against mocked \`${runtimeBaseline.signalingSdkPackage}\`
 signaling and a mocked official \`${runtimeBaseline.vendorSdkPackage}\` module, then prints the resolved provider,
 runtime calls, signaling calls, and final controller states.
+The JSON summary also includes a \`signalingTransport\` descriptor so maintainers can verify the
+resolved auth mode, authoritative \`deviceId\`, matching \`connectOptions.deviceId\`, shared
+\`liveConnection\` reuse flag, and no-polling contract at the CLI boundary.
 Add \`--reuse-live-connection\` when you want the smoke to verify RTC reuses an app-owned IM
 WebSocket live connection instead of opening another one.
 
@@ -1085,6 +1088,9 @@ shared IM WebSocket ownership path as part of the public RTC baseline.
 The executable wrapper is currently analyze-backed because the official
 \`${runtimeBaseline.vendorSdkPackage}\` package crashes under Dart VM CLI compilation in the current toolchain.
 It still gives one stable command for maintainers to verify the standard smoke scenario source.
+Its JSON summary also includes a \`signalingTransport\` descriptor aligned with the Dart smoke
+source so maintainers can verify the resolved auth mode, authoritative \`deviceId\`, shared
+\`liveConnection\` reuse flag, and no-polling contract at the public command boundary.
 
 The verified smoke surface is:
 

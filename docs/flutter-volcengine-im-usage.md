@@ -115,6 +115,9 @@ shared IM WebSocket ownership path as part of the public RTC baseline.
 The executable wrapper is currently analyze-backed because the official
 `volc_engine_rtc` package crashes under Dart VM CLI compilation in the current toolchain.
 It still gives one stable command for maintainers to verify the standard smoke scenario source.
+Its JSON summary also includes a `signalingTransport` descriptor aligned with the Dart smoke
+source so maintainers can verify the resolved auth mode, authoritative `deviceId`, shared
+`liveConnection` reuse flag, and no-polling contract at the public command boundary.
 
 The verified smoke surface is:
 
