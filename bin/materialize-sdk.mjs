@@ -1672,7 +1672,7 @@ function getExecutableLanguageRuntimeBaseline(assembly, language) {
 function resolveTypeScriptRuntimeBaselinePeerDependencyRange(packageName) {
   switch (packageName) {
     case '@sdkwork/im-sdk':
-      return '^0.1.0';
+      return '^0.1.1';
     case '@volcengine/rtc':
       return '^4.68.3';
     default:
@@ -1701,7 +1701,7 @@ function renderTypeScriptWorkspaceManifest(assembly) {
 
   const packageJson = {
     name: languageEntry.publicPackage,
-    version: '0.1.0',
+    version: '0.1.1',
     description:
       'JDBC-style RTC provider standard SDK with built-in driver management and provider adapters',
     type: 'module',

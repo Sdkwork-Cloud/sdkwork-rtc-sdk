@@ -3870,6 +3870,14 @@ test('typescript package-task resolves the generator through the shared runtime 
   const rootBinDir = path.join(fixtureWorkspace, 'bin');
   const generatorHelperPath = path.join(rootBinDir, 'generator-runtime.mjs');
   const generatorRoot = resolveActualGeneratorRoot(workspaceRoot);
+  const fixtureTypescriptBin = path.join(
+    fixtureWorkspace,
+    'node_modules',
+    '.pnpm',
+    'node_modules',
+    'typescript',
+    'bin',
+  );
 
   try {
     mkdirSync(fixtureWorkspace, { recursive: true });
@@ -3879,52 +3887,15 @@ test('typescript package-task resolves the generator through the shared runtime 
       { recursive: true },
     );
     mkdirSync(rootBinDir, { recursive: true });
+    cpSync(path.join(workspaceRoot, 'bin', 'generator-runtime.mjs'), generatorHelperPath);
+    mkdirSync(fixtureTypescriptBin, { recursive: true });
     writeFileSync(
-      generatorHelperPath,
-      `import { existsSync } from 'node:fs';
-import path from 'node:path';
-
-export function resolveGeneratorRoot(workspaceRoot) {
-  const explicitRoot = process.env.SDKWORK_GENERATOR_ROOT || '';
-  if (explicitRoot) {
-    const resolvedExplicitRoot = path.resolve(explicitRoot);
-    if (existsSync(resolvedExplicitRoot)) {
-      return resolvedExplicitRoot;
-    }
-  }
-
-  let current = path.resolve(workspaceRoot);
-  while (true) {
-    const candidate = path.join(current, 'sdk', 'sdkwork-sdk-generator');
-    if (existsSync(candidate)) {
-      return candidate;
-    }
-
-    const parent = path.dirname(current);
-    if (parent === current) {
-      break;
-    }
-    current = parent;
-  }
-
-  throw new Error('Unable to locate sdkwork-sdk-generator');
-}
-
-export function resolveGeneratorModulePath(workspaceRoot, ...segments) {
-  const generatorRoot = resolveGeneratorRoot(workspaceRoot);
-  const candidates = [
-    path.join(generatorRoot, 'node_modules', ...segments),
-    path.join(generatorRoot, 'node_modules', '.pnpm', 'node_modules', ...segments),
-  ];
-
-  for (const candidate of candidates) {
-    if (existsSync(candidate)) {
-      return candidate;
-    }
-  }
-
-  throw new Error('Unable to locate generator module ' + segments.join('/'));
-}
+      path.join(fixtureTypescriptBin, 'tsc'),
+      `const { mkdirSync, writeFileSync } = require('node:fs');
+const path = require('node:path');
+const distRoot = path.join(process.cwd(), 'dist');
+mkdirSync(distRoot, { recursive: true });
+writeFileSync(path.join(distRoot, 'index.js'), 'export {};\\n', 'utf8');
 `,
       'utf8',
     );
@@ -4386,7 +4357,7 @@ test('root materializer repairs provider package, provider catalog, and language
 
     const repairedTypeScriptManifest = readJson(typescriptManifestPath);
     assert.equal(repairedTypeScriptManifest.name, '@sdkwork/rtc-sdk');
-    assert.equal(repairedTypeScriptManifest.peerDependencies['@sdkwork/im-sdk'], '^0.1.0');
+    assert.equal(repairedTypeScriptManifest.peerDependencies['@sdkwork/im-sdk'], '^0.1.1');
     assert.equal(repairedTypeScriptManifest.peerDependencies['@volcengine/rtc'], '^4.68.3');
     assert.equal(repairedTypeScriptManifest.peerDependenciesMeta['@sdkwork/im-sdk']?.optional, true);
     assert.equal(repairedTypeScriptManifest.peerDependenciesMeta['@volcengine/rtc']?.optional, true);

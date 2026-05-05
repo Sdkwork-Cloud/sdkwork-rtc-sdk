@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/rtc-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JDBC-style RTC provider standard SDK with built-in driver management and provider adapters",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "dist"
   ],
   "peerDependencies": {
-    "@sdkwork/im-sdk": "^0.1.0",
+    "@sdkwork/im-sdk": "^0.1.1",
     "@volcengine/rtc": "^4.68.3"
   },
   "peerDependenciesMeta": {
